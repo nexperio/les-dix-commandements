@@ -342,10 +342,12 @@ const SCENES = [
     tyTower(P, 212, 40, 44, 128); tyTower(P, 330, 40, 44, 128);
     for (const x of [60, 470]) { P.shape([P.I(x, 78.5, 0), P.I(x + 1, 78.5, 0)], 'k6', 0.5); }
     /* l'école : un auvent de palmes sous un figuier, une natte */
-    tyFig(P, 70, 470, 1.25, 33);
-    { const I = (a, b, z) => P.I(a, b, z); for (const [a, b] of [[110, 330], [230, 330], [110, 440], [230, 440]]) P.box(a - 2, b - 2, 0, 5, 5, 76, 'r4y5k3', 0.7); P.shape([I(104, 324, 78), I(236, 324, 78), I(236, 446, 70), I(104, 446, 70)], 'y6r2k1', 1); for (let i = 1; i < 12; i++) P.line([I(104 + i * 11, 324, 78), I(104 + i * 11, 446, 70)], 0.5, { ink: 3, lvl: 6 }); }
-    { const I = (a, b) => P.I(a, b, 0.4); P.shape([I(120, 340), I(226, 340), I(226, 434), I(120, 434)], 'r5y5k1', 0.9); P.shape([I(130, 350), I(216, 350), I(216, 424), I(130, 424)], 'b5y2k1', 0.5); }
-    P.box(120, 346, 0, 16, 26, 20, 'r4y5k2', 0.6); for (let i = 0; i < 3; i++) P.box(122 + i * 4, 348, 20, 3, 22, 3, ['y2r1', 'y1b1', 'y2'][i], 0.4);
+    /* l'école : une maison basse, sa natte devant la porte, l'ombre d'un figuier */
+    tyHouse(P, 14, 250, 70, 150, 64, 'y2r2k1', { dx: 30, win: [0.25, 0.75], roof: 'y5r3k1' });
+    { const F = (a, z) => P.I(a, 400.5, z); P.shape([F(20, 44), F(40, 44), F(40, 56), F(20, 56)], 'y1b1', 0.6); for (let i = 0; i < 3; i++) P.line([F(23, 47 + i * 3), F(37, 47 + i * 3)], 0.35); }
+    { const I = (a, b) => P.I(a, b, 0.4); P.shape([I(110, 330), I(236, 330), I(236, 450), I(110, 450)], 'r5y5k1', 0.9); P.shape([I(120, 340), I(226, 340), I(226, 440), I(120, 440)], 'b5y2k1', 0.5); for (let i = 1; i < 6; i++) P.line([I(120, 340 + i * 17), I(226, 340 + i * 17)], 0.4, { ink: 0, lvl: 6 }); }
+    P.box(130, 350, 0, 26, 24, 38, 'r4y5k2', 0.8);
+    P.box(96, 460, 0, 20, 30, 20, 'r4y5k2', 0.6); for (let i = 0; i < 3; i++) P.box(98 + i * 5, 462, 20, 4, 26, 4, ['y2r1', 'y1b1', 'y2'][i], 0.4);
     Lib.grass(P, 40, 'y5b4', [260, 300, 260, 220]);
     Lib.stones(P, 14, 'y3r2k3', [240, 100, 200, 60]);
   },
@@ -356,10 +358,11 @@ const SCENES = [
     ch(LK.tyHiyya, { x: 330, y: 200, face: -1, clip: 'point', h: 136 }),
     ch(LK.tyAssi, { x: 380, y: 250, face: -1, clip: 'talk', h: 138, t0: 0.9 }),
     ch(LK.tyAmmi, { x: 320, y: 290, face: -1, clip: 'point', h: 136, t0: 1.6, hold: {} }),
-    ch(LK.tyTeacher, { x: 150, y: 362, face: 1, clip: 'tyArgue', h: 130, hold: { f: 'tyRoll' } }),
-    ch(LK.tyKid, { x: 214, y: 360, face: -1, clip: 'tySitHold', h: 84, hold: { nTop: 'tyTablet' } }),
-    ch(LK.tyKid2, { x: 200, y: 412, face: -1, clip: 'tySitHold', h: 80, t0: 1.1, hold: { nTop: 'tyTablet' } }),
-    ch(LK.tyKid3, { x: 150, y: 420, face: 1, clip: 'tyListen', h: 82, t0: 2.2, hold: { nTop: 'tyTablet' } })
+    { depth: 60 + 500, draw(P) { tyFig(P, 60, 500, 2.1, 33); } },
+    ch(LK.tyTeacher, { x: 146, y: 362, face: 1, clip: 'tyArgue', h: 130, hold: { f: 'tyRoll' } }),
+    ch(LK.tyKid, { x: 214, y: 356, face: -1, clip: 'tyFloorHold', h: 84, hold: { nTop: 'tyTablet' } }),
+    ch(LK.tyKid2, { x: 210, y: 410, face: -1, clip: 'tyFloorHold', h: 80, t0: 1.1, hold: { nTop: 'tyTablet' } }),
+    ch(LK.tyKid3, { x: 160, y: 428, face: 1, clip: 'tyFloorHold', h: 82, t0: 2.2, hold: { nTop: 'tyTablet' } })
   ]
 },
 {

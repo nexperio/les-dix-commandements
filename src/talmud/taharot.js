@@ -446,7 +446,7 @@ const SCENES = [
     P.box(390, 190, 0, 90, 60, 14, { t: 'r6b3k1', l: 'y4r3k2', r: 'y4r3k3' }, 0.9);
     P.box(446, 204, 14, 20, 34, 26, 'r5y4k2', 0.8); P.box(462, 204, 40, 5, 34, 36, 'r5y4k2', 0.8);
     /* les bancs des élèves, en rangées comme des ceps, tournés vers Rabbi Akiva */
-    for (const x of [90, 170, 250]) { P.box(x - 22, 250, 0, 24, 230, 18, 'r4y5k2', 0.8); P.box(x - 20, 250, 18, 20, 230, 3, 'r4y5k1', 0.5); }
+    for (const x of [90, 170, 250]) { P.box(x - 13, 250, 0, 26, 236, 20, 'r4y5k2', 0.8); P.box(x - 11, 250, 20, 22, 236, 3, 'r4y5k1', 0.5); }
     ttStatic(P, LK.ttSage3, { x: 90, y: 270, face: 1, clip: 'ttSitRead', h: 118, tt: 0.4 });
     ttStatic(P, LK.ttSage2, { x: 170, y: 262, face: 1, clip: 'ttSitTalk', h: 120, tt: 1.2 });
     ttStatic(P, LK.ttSage4, { x: 250, y: 266, face: 1, clip: 'ttSitRead', h: 118, tt: 2.1 });
@@ -473,9 +473,9 @@ const SCENES = [
   more: ['Ce sont les derniers mots du Talmud de Babylone, à la fin du traité Nidda, qui clôt l’ordre Taharot. L’enseignement vient de « l’école d’Élie » et joue sur un verset d’Habacuc (3, 6) : « les chemins du monde sont à Lui ». Ne lis pas halikhot, les chemins, mais halakhot, les lois. Chaque loi apprise est un pas sur un chemin qui monte vers la lumière.',
     'La même phrase termine le traité Meguila (28b), et on la récite chaque jour à la fin de la prière du matin, avant le Kaddich des rabbins. Au terme d’un cycle du Daf Yomi, un feuillet par jour pendant sept ans et demi, c’est cette page qu’on lit en dernier, avant de recommencer aussitôt au début du traité Berakhot.'],
   back(P) {
-    P.shape([[0, 0], [1000, 0], [1000, 470], [0, 470]], 'y2r1', 0);
-    { const q = [500, 150]; P.halo(q[0], q[1], 260, ['y1', 'y1', 'y2', 'y2r1', 'y3r1', 'y4r2']); }
-    ttHills(P, 'y4r2k2', { y: 460, seed: 41 });
+    ttDome(P, 'y2r1');
+    { const q = [500, 170]; P.halo(q[0], q[1], 250, ['y2r1', 'y1', 'y1', 'y1', 'y1'], { knock: true }); }
+    ttHills(P, 'y4r2k2', { seed: 41 });
     Lib.platform(P, 'y5b4k1', 'y4r3k2', { h: 50 });
     const I = (a, b, c) => P.I(a, b, c);
     /* trois terrasses qui montent vers le coin du fond */
@@ -485,34 +485,32 @@ const SCENES = [
       for (let k = 6; k < 30; k += 8) { P.line([I(0, s, z - k), I(s, s, z - k)], 0.35); P.line([I(s, 0, z - k), I(s, s, z - k)], 0.35); }
     }
     /* les escaliers : les « chemins » */
-    const stairs = (x, y0, z0) => { for (let i = 0; i < 5; i++) P.box(x + (4 - i) * 8, y0, z0 + i * 6, 8 + i * 0, 30, 6, 'y3r2k1', 0.5); };
-    for (let i = 0; i < 5; i++) P.box(330 + (4 - i) * 8, 250, 0, 8, 30, (i + 1) * 6, { t: 'y2r1', l: 'y3r2k2', r: 'y3r2k3' }, 0.5);
-    for (let i = 0; i < 5; i++) P.box(220 + (4 - i) * 8, 170, 30, 8, 30, (i + 1) * 6, { t: 'y2r1', l: 'y3r2k2', r: 'y3r2k3' }, 0.5);
-    for (let i = 0; i < 5; i++) P.box(120 + (4 - i) * 8, 60, 60, 8, 30, (i + 1) * 6, { t: 'y2r1', l: 'y3r2k2', r: 'y3r2k3' }, 0.5);
-    void stairs;
+    for (const [x0, y0, z0] of [[330, 240, 0], [220, 160, 30], [120, 50, 60]]) for (let i = 0; i < 5; i++) P.box(x0 + (4 - i) * 9, y0, z0, 9, 44, (i + 1) * 6, { t: 'y1r1', l: 'y3r2k2', r: 'y3r2k3' }, 0.5);
     /* sentiers tracés sur les terrasses */
-    P.fill([I(370, 255, 0.3), I(370, 275, 0.3), I(540, 395, 0.3), I(540, 370, 0.3)], 'y3r2', {});
-    P.fill([I(262, 175, 30.3), I(262, 195, 30.3), I(330, 280, 30.3), I(330, 255, 30.3)], 'y3r2', {});
-    P.fill([I(162, 65, 60.3), I(162, 85, 60.3), I(220, 190, 60.3), I(220, 170, 60.3)], 'y3r2', {});
-    ttVines(P, 20, 250, 150, 50, 2, 4);
-    ttOlive(P, 250, 40, 80, 26); ttOlive(P, 290, 120, 70, 22);
-    { const q = I(40, 40, 90); P.halo(q[0], q[1] - 40, 70, ['y1', 'y2', 'y3r1'], { knock: false }); P.shape([[q[0] - 16, q[1]], [q[0] + 16, q[1]], [q[0] + 10, q[1] - 12], [q[0] - 10, q[1] - 12]], 'y7r3', 0.8); }
-    /* au premier plan à droite, le coin d'étude sous un arbre */
-    Lib.tree(P, 500, 440, 0, { h: 150, r: 48, can: 'y4b5k2', trunk: 'r4y4k4' });
-    P.box(360, 380, 0, 90, 60, 5, 'r6b3k1', 0.8);
-    P.box(390, 440, 0, 40, 26, 22, 'r4y5k2', 0.8);
-    for (let i = 0; i < 4; i++) { P.cyl(372 + i * 11, 470, 0, 5, 16 + (i % 2) * 4, ['y2r1k1', 'y3r2k1', 'y2r1', 'y3r1k1'][i], 0.5, 10); }
+    P.fill([I(375, 240, 0.3), I(375, 284, 0.3), I(540, 300, 0.3), I(540, 256, 0.3)], 'y3r2', {});
+    P.fill([I(265, 160, 30.3), I(265, 204, 30.3), I(330, 284, 30.3), I(330, 240, 30.3)], 'y3r2', {});
+    P.fill([I(165, 50, 60.3), I(165, 94, 60.3), I(220, 204, 60.3), I(220, 160, 60.3)], 'y3r2', {});
+    ttVines(P, 20, 250, 140, 50, 2, 4); ttVines(P, 240, 20, 70, 60, 2, 2);
+    ttOlive(P, 170, 20, 70, 22); ttOlive(P, 60, 150, 70, 22);
+    /* au premier plan à gauche, le coin d'étude sous un arbre */
+    Lib.tree(P, 60, 470, 0, { h: 150, r: 48, can: 'y4b5k2', trunk: 'r4y4k4' });
+    P.box(130, 380, 0, 110, 70, 5, 'r6b3k1', 0.8); P.shape([P.I(140, 390, 5.3), P.I(230, 390, 5.3), P.I(230, 440, 5.3), P.I(140, 440, 5.3)], 'y5r3', 0.5);
+    P.box(200, 450, 0, 40, 26, 22, 'r4y5k2', 0.8);
+    P.box(158, 408, 0, 24, 24, 26, 'r4y5k2', 0.8); P.box(288, 458, 0, 24, 24, 26, 'r4y5k2', 0.8);
+    for (let i = 0; i < 4; i++) { P.cyl(150 + i * 11, 470, 0, 5, 16 + (i % 2) * 4, ['y2r1k1', 'y3r2k1', 'y2r1', 'y3r1k1'][i], 0.5, 10); }
+    Lib.grass(P, 24, 'y5b5k1', [380, 330, 150, 200]);
   },
   live(P, t) {
-    const q = P.I(410, 452, 22); P.halo(q[0], q[1] - 12, 40, ['y1', 'y2', 'y3r1']); P.shape([[q[0] - 9, q[1]], [q[0] + 11, q[1] - 2], [q[0] + 7, q[1] - 6], [q[0] - 7, q[1] - 6]], 'r5y6k2', 0.7); Lib.flame(P, q[0] + 9, q[1] - 5, 7, 14, t * 1.3, { noKnock: true });
-    const top = P.I(40, 40, 90); for (let i = 0; i < 8; i++) { const a = -Math.PI / 2 + (i - 3.5) * 0.3, r0 = 30 + ((t * 20 + i * 9) % 50); P.line([[top[0] + Math.cos(a) * r0, top[1] - 40 + Math.sin(a) * r0], [top[0] + Math.cos(a) * (r0 + 18), top[1] - 40 + Math.sin(a) * (r0 + 18)]], 1.4, { ink: 0, lvl: 6 }); }
+    const q = P.I(220, 462, 22); P.halo(q[0], q[1] - 12, 40, ['y1', 'y2', 'y3r1']); P.shape([[q[0] - 9, q[1]], [q[0] + 11, q[1] - 2], [q[0] + 7, q[1] - 6], [q[0] - 7, q[1] - 6]], 'r5y6k2', 0.7); Lib.flame(P, q[0] + 9, q[1] - 5, 7, 14, t * 1.3, { noKnock: true });
+    const top = P.I(45, 45, 90); P.halo(top[0], top[1] - 50, 60, ['y1', 'y1', 'y2', 'y3r1'], { knock: true });
+    for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + (i - 4.5) * 0.3, r0 = 20 + ((t * 16 + i * 9) % 44); P.line([[top[0] + Math.cos(a) * r0, top[1] - 50 + Math.sin(a) * r0], [top[0] + Math.cos(a) * (r0 + 16), top[1] - 50 + Math.sin(a) * (r0 + 16)]], 1.4, { ink: 0, lvl: 6 }); }
   },
   chars: (() => {
-    const path = [W(540, 400, 0), W(372, 265, 0), W(362, 265, 0, null, { z: 0 }), W(326, 265, 0, null, { z: 30 }), W(264, 185, 0, null, { z: 30 }), W(254, 185, 0, null, { z: 30 }), W(218, 185, 0, null, { z: 60 }), W(164, 75, 0, null, { z: 60 }), W(154, 75, 0, null, { z: 60 }), W(118, 75, 0, null, { z: 90 }), W(80, 60, 2.5, 'lookup', { z: 90 }), W(540, 400, 0, null, { jump: 1 })];
+    const path = [W(540, 280, 0), W(378, 262, 0), W(366, 262, 0, null, { z: 0 }), W(326, 262, 0, null, { z: 30 }), W(268, 182, 0, null, { z: 30 }), W(256, 182, 0, null, { z: 30 }), W(216, 182, 0, null, { z: 60 }), W(168, 72, 0, null, { z: 60 }), W(156, 72, 0, null, { z: 60 }), W(116, 72, 0, null, { z: 90 }), W(84, 64, 2.5, 'lookup', { z: 90 }), W(540, 280, 0, null, { jump: 1 })];
     return [
-      ch(LK.ttAkiva, { x: 395, y: 410, face: 1, clip: 'ttSitRoll', h: 132, hold: { nTop: 'ttRollUp' }, look: Object.assign({}, LK.ttAkiva, { cloak: 'r5y3k2', ht: 'y1' }) }),
-      ch(LK.ttBoy, { x: 470, y: 380, face: -1, clip: 'lookup', h: 90 }),
-      ch(LK.ttBenAzzai, { x: 440, y: 470, face: -1, clip: 'ttSitRead', h: 122, hold: { nTop: 'ttScroll' } }),
+      ch(LK.ttAkiva, { x: 170, y: 420, face: 1, clip: 'ttSitRoll', h: 132, hold: { nTop: 'ttRollUp' }, look: Object.assign({}, LK.ttAkiva, { cloak: 'r5y3k2', ht: 'y1' }) }),
+      ch(LK.ttBoy, { x: 250, y: 400, face: -1, clip: 'lookup', h: 90 }),
+      ch(LK.ttBenAzzai, { x: 300, y: 470, face: -1, clip: 'ttSitRead', h: 122, hold: { nTop: 'ttScroll' } }),
       ch(LK.ttSage2, { h: 120, speed: 22, path }),
       ch(LK.ttWoman3, { h: 114, speed: 22, t0: 8, path }),
       ch(LK.ttSage4, { h: 118, speed: 22, t0: 16, path, hold: { f: 'staffV' } })
