@@ -152,7 +152,7 @@ const tlBooksL = (P, y, w, H, seed) => {
 const tlOilLamp = (P, t, x, y, z, ceil = 240) => {
   const q = P.I(x, y, z), c = P.I(x, y, ceil);
   for (const dx of [-12, 0, 12]) P.line([[c[0], c[1]], [q[0] + dx, q[1] - 6]], 0.6);
-  for (const dx of [-24, 24]) P.halo(q[0] + dx, q[1] - 18, 24, ['y1', 'y2', 'y3r1'], { knock: true });
+  for (const dx of [-24, 24]) P.halo(q[0] + dx, q[1] - 17, 17, ['y2', 'y3r1', 'y4r1'], { knock: true });
   P.shape([[q[0] - 20, q[1] - 6], [q[0] + 20, q[1] - 6], [q[0] + 26, q[1] - 10], [q[0] + 14, q[1] + 6], [q[0] - 14, q[1] + 6], [q[0] - 26, q[1] - 10]], 'r5y5k2', 0.9);
   P.line([[q[0] - 14, q[1] - 2], [q[0] + 14, q[1] - 2]], 0.6, { ink: 0 });
   for (const dx of [-24, 24]) Lib.flame(P, q[0] + dx, q[1] - 10, 8, 17, t * 1.4 + dx, { noKnock: true });
@@ -322,7 +322,7 @@ const SCENES = [
     for (const [x, y] of seats) { n++; tlStatic(P, L[n % 6], { x, y, face: 1, clip: cl[n % 4], h: 104, tt: n * 0.37, hold: n % 3 === 0 ? { nTop: 'scroll' } : undefined, noShadow: 1 }); }
     for (const [x, y] of [[255, 455], [345, 455]]) tlStatic(P, L[(x / 5) % 6 | 0], { x, y, face: 1, clip: 'tlSitRead', h: 104, tt: x * 0.01, noShadow: 1 });
   },
-  live(P, t) { tlOilLamp(P, t, 250, 250, 180, 250); tlOilLamp(P, t, 330, 420, 175, 250); const m = this.chars[2].out, p = 0.5 + 0.5 * Math.sin(t * 0.9); if (m) P.halo(m.head[0], m.head[1] - 4, 30 + p * 5, ['y1', 'y2', 'y3r1'], { knock: true }); },
+  live(P, t) { tlOilLamp(P, t, 250, 250, 180, 250); tlOilLamp(P, t, 150, 270, 185, 250); const m = this.chars[2].out, p = 0.5 + 0.5 * Math.sin(t * 0.9); if (m) P.halo(m.head[0], m.head[1] - 4, 30 + p * 5, ['y1', 'y2', 'y3r1'], { knock: true }); },
   chars: [
     ch(LK.tlAkiva, { x: 366, y: 60, z: 20, face: -1, clip: 'tlTeach', h: 136 }),
     ch(LK.tlStu5, { x: 160, y: 110, face: 1, clip: 'point', h: 128, t0: 0.6 }),
@@ -338,7 +338,7 @@ const SCENES = [
   back(P) {
     /* Jérusalem assiégée, au loin, sur ses collines */
     P.halo(150, 440, 150, ['r1', 'r1y1', 'r2y1'], {});
-    tlFarHills(P, 0, 330, 640, 190, 'y4r3k2', 5);
+    tlFarHills(P, 40, 330, 610, 170, 'y4r3k2', 5);
     tlFarWall(P, 30, 250, 500, 30, 'y5r3k1');
     { const q = [140, 472]; P.shape([[q[0] - 34, q[1]], [q[0] - 34, q[1] - 30], [q[0] + 34, q[1] - 30], [q[0] + 34, q[1]]], 'y6r2k1', 0.8); P.shape([[q[0] - 16, q[1] - 30], [q[0] - 16, q[1] - 56], [q[0] + 16, q[1] - 56], [q[0] + 16, q[1] - 30]], 'y7r2k1', 0.8); P.fill([[q[0] - 6, q[1] - 30], [q[0] + 6, q[1] - 30], [q[0] + 6, q[1] - 46], [q[0] - 6, q[1] - 46]], 'k6', { noKnock: true }); }
     for (const [x, y] of [[40, 560], [90, 540], [270, 520], [300, 540]]) { const c = [x, y]; P.shape([[c[0] - 12, c[1]], [c[0] - 8, c[1] - 14], [c[0] + 8, c[1] - 14], [c[0] + 12, c[1]]], 'k3y2', 0.6); }
@@ -518,7 +518,7 @@ const SCENES = [
   },
   live(P, t) {
     tlOilLamp(P, t, 190, 290, 170, 240); tlOilLamp(P, t, 360, 180, 180, 240);
-    const q = P.I(440, 420, 46); P.halo(q[0], q[1] - 24, 48, ['y1', 'y2', 'y3r1'], { knock: true });
+    const q = P.I(440, 420, 46); P.halo(q[0], q[1] - 24, 40, ['y2', 'y3r1', 'y4r1', 'y5r2'], { knock: true });
     Lib.flame(P, q[0] + 14, q[1] + 2, 10, 20, t * 1.5, { noKnock: true }); Lib.flame(P, q[0] - 6, q[1] + 4, 28, 52, t * 1.2 + 1, { noKnock: true });
     for (let i = 0; i < 3; i++) { const u = (t * 0.6 + i / 3) % 1; P.fill(P.disc(q[0] - 6 + Math.sin(u * 7 + i) * 8, q[1] - 30 - u * 70, 1.6, 6), 'r6y8', { noKnock: true }); }
   },
@@ -588,8 +588,8 @@ const SCENES = [
       for (const [a, b] of [[x + 4, y + 4], [x + w - 10, y + 4], [x + 4, y + d - 10], [x + w - 10, y + d - 10]]) P.box(a, b, 0, 6, 6, h - 4, 'r4y5k3', 0.7);
       P.box(x, y, h - 4, w, d, 4, 'r4y5k2', 0.9);
       /* le volume ouvert : dos le long de x, Rachi de part et d'autre de la reliure */
-      const xa = 262, xb = 350, ys = 348, W2 = 40, zt = h + 1;
-      P.fill(P.ell(318, 342, zt + 0.2, 62, 50, 24), 'y1', {});
+      const xa = 282, xb = 370, ys = 346, W2 = 40, zt = h + 1;
+      P.fill(P.ell(330, 342, zt + 0.2, 58, 48, 24), 'y1', {});
       P.box(xa - 3, ys - W2 - 3, zt - 1, xb - xa + 6, 2 * W2 + 6, 3, 'r7b3k3', 0.7);
       tlVilna(P, (u, v) => P.I(xa + v * (xb - xa), ys - W2 + u * W2, zt + 2.5 + u * 2), { k: 0.4, sc: 0.45 });
       tlVilna(P, (u, v) => P.I(xa + v * (xb - xa), ys + W2 - u * W2, zt + 2.5 + u * 2), { k: 0.4, sc: 0.45 });
@@ -598,7 +598,7 @@ const SCENES = [
       /* la lampe de bureau */
       const L = P.I(376, 318, zt), k = 1.7; P.shape([[L[0] - 9 * k, L[1]], [L[0] + 9 * k, L[1]], [L[0] + 6 * k, L[1] - 4 * k], [L[0] - 6 * k, L[1] - 4 * k]], 'y7r3k2', 0.7); P.line([[L[0], L[1] - 4 * k], [L[0] - 2 * k, L[1] - 40 * k], [L[0] - 14 * k, L[1] - 46 * k]], 1.6 * k, { ink: 3, lvl: 8, taper: 0 });
       const S = [L[0] - 16 * k, L[1] - 46 * k]; P.halo(S[0], S[1] + 30, 110, ['y1', 'y2', 'y2r1'], {}); P.shape([[S[0] - 16 * k, S[1] + 6 * k], [S[0] + 12 * k, S[1] + 6 * k], [S[0] + 6 * k, S[1] - 4 * k], [S[0] - 10 * k, S[1] - 4 * k]], 'y5b6k1', 0.8); P.fill([[S[0] - 14 * k, S[1] + 6 * k], [S[0] + 10 * k, S[1] + 6 * k], [S[0] + 8 * k, S[1] + 8 * k], [S[0] - 12 * k, S[1] + 8 * k]], 'y1', { noKnock: true });
-      P.box(282, 312, zt, 30, 20, 8, 'b6k2', 0.5); P.box(284, 312, zt + 8, 26, 18, 7, 'r6b3k2', 0.5);
+      P.box(258, 362, zt, 20, 28, 8, 'b6k2', 0.5); P.box(259, 364, zt + 8, 18, 25, 7, 'r6b3k2', 0.5);
     } },
     { depth: 810, draw(P) { P.box(418, 370, 0, 34, 34, 34, 'r4y5k2', 0.8); P.box(446, 370, 34, 6, 34, 42, 'r4y5k2', 0.8); } },
     ch(LK.tlMod3, { x: 428, y: 386, z: 0, face: -1, clip: 'tlSitRead', h: 136, look: Object.assign({}, LK.tlMod3, { robe: 'b5k4', sash: 'y1' }) }),

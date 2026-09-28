@@ -1545,6 +1545,7 @@ Object.assign(CLIPS, {
   tmCymbal: { d: 0.9, k: [{ nU: 58, nL: 62, fU: 50, fL: 70, head: -6, nT: 5, fT: -5 }, { nU: 92, nL: 36, fU: 84, fL: 44, head: -10, nT: 5, fT: -5 }] },
   tmPourUp: { d: 3, k: [{ nU: 150, nL: 20, fU: 140, fL: 30, lean: -4, head: -20, nT: 6, fT: -6 }, { nU: 160, nL: 14, fU: 150, fL: 22, lean: -6, head: -24, nT: 6, fT: -6 }] },
   tmRain: { d: 3, k: [{ nU: 62, nL: -30, fU: 56, fL: -24, head: -26, lean: -4, nT: 6, fT: -6 }, { nU: 70, nL: -36, fU: 62, fL: -30, head: -32, lean: -6, nT: 6, fT: -6 }] },
+  tmNod: { d: 2.2, k: [{ head: 4, lean: 1, nU: 2, nL: 6, fU: -2, fL: 6, nT: 3, fT: -3 }, { head: 18, lean: 4, nU: 2, nL: 6, fU: -2, fL: 6, nT: 3, fT: -3 }] },
   tmHandsUp: { d: 3.4, k: [{ nU: 128, nL: 16, fU: 120, fL: 20, head: -22, lean: -4, nT: 5, fT: -5 }, { nU: 136, nL: 10, fU: 128, fL: 14, head: -28, lean: -6, nT: 5, fT: -5 }] }
 });
 /* ---------- accessoires portés ---------- */
@@ -1714,9 +1715,9 @@ const tmLamb = (path, t0, o = {}) => {
     P.fill(P.disc(b[0], b[1], h * 0.3, 14).map(p => [p[0], b[1] + (p[1] - b[1]) * 0.3]), 'k2b1', { noKnock: true });
     drawBeast(P, o.kind || 'sheep', b, h, f, st.walking ? st.ph * 1.05 : t / 3, st.walking);
     const M = (a, v) => [b[0] + f * a * h, b[1] + v * h];
-    P.shape([M(-0.05, -0.5), M(-0.03, -0.49), M(-0.075, -0.6), M(-0.095, -0.6)], 'b1k2', 0.5);
-    P.line([M(-0.11, -0.585), M(-0.06, -0.61)], 1.1);
-    P.shape([M(-0.085, -0.6), M(-0.1, -0.6), M(-0.14, -0.7), M(-0.125, -0.705)], 'r4y5k4', 0.5);
+    P.shape([M(-0.05, -0.5), M(-0.025, -0.49), M(-0.08, -0.64), M(-0.105, -0.635)], 'b1k2', 0.6);
+    P.line([M(-0.125, -0.625), M(-0.06, -0.655)], 1.6);
+    P.shape([M(-0.09, -0.64), M(-0.11, -0.635), M(-0.16, -0.76), M(-0.135, -0.77)], 'r4y5k4', 0.6);
   } };
 };
 /* ange qui suit un trajet (ou reste en place) */
@@ -1816,9 +1817,8 @@ const SCENES = [
     Lib.tree(P, 280, 70, 0, { h: 190, r: 56, blobs: 9, can: 'y4b6k2', trunk: 'r4y4k5', fruit: 0 });
     { const q = P.I(280, 70, 150); for (let i = 0; i < 14; i++) { const x = q[0] - 55 + r() * 110, y = q[1] - 10 + r() * 50; P.shape([[x, y], [x + 3, y + 1], [x + 5, y + 15], [x + 2, y + 16]], 'r5y4k4', 0.5); } }
     /* la fosse de sable où ils sont enfouis */
-    P.shape(P.ell(190, 280, 0.5, 100, 76, 30), 'y6r3', 1.1);
-    { const q = P.I(190, 280, 0); P.shape(Lib.bumpy(P, q[0], q[1] - 2, 118, 42, 12).map(p => [p[0], Math.min(p[1], q[1] + 20)]), 'y6r3k1', 0.9); P.shape(Lib.bumpy(P, q[0], q[1] - 6, 92, 30, 10), 'y6r3', 0.6); }
-    for (let i = 0; i < 4; i++) P.line(P.ell(190, 280, 6, 36 + i * 14, 26 + i * 10, 20, 0.3, 2.9), 0.4, { ink: 0 });
+    P.shape(P.ell(205, 250, 0.5, 104, 80, 30), 'y6r3', 1.1);
+    for (let i = 0; i < 3; i++) P.line(P.ell(205, 250, 0.8, 60 + i * 14, 46 + i * 11, 20, 0.3, 2.9), 0.4, { ink: 0 });
     /* leurs vêtements pliés sur un rocher, pour l'heure de la prière */
     Lib.rock(P, 90, 380, 0, 34, 20, 'y3r2k4');
     { const q = P.I(90, 380, 16); P.shape([[q[0] - 20, q[1] - 2], [q[0] + 16, q[1] - 6], [q[0] + 18, q[1] + 2], [q[0] - 18, q[1] + 6]], 'y2b1', 0.6); P.shape([[q[0] - 14, q[1] - 7], [q[0] + 12, q[1] - 10], [q[0] + 14, q[1] - 4], [q[0] - 12, q[1] - 1]], 'y3r2k1', 0.6); }
@@ -1829,10 +1829,10 @@ const SCENES = [
     Lib.grass(P, 26, 'y5b4', [300, 300, 230, 230]);
   },
   live(P, t) { const r = rng(4); for (let i = 0; i < 6; i++) { const k = (t * 0.7 + i / 6) % 1, a = P.I(0.5, 120, 70); P.fill(P.disc(a[0] + 8 + k * 26 + r() * 4, a[1] + 10 + k * k * 60, 1.8, 6), 'b7', { noKnock: true }); } },
-  top(P, t) { for (const [x, y] of [[165, 262], [220, 300]]) { const b = P.I(x, y, 6); P.shape([[b[0] - 24, b[1] + 2], [b[0] - 12, b[1] - 8], [b[0] + 12, b[1] - 8], [b[0] + 24, b[1] + 2], [b[0] + 10, b[1] + 6], [b[0] - 10, b[1] + 6]], 'y6r3', 0.8); P.line([[b[0] - 14, b[1] - 1], [b[0] + 12, b[1] - 2]], 0.4, { ink: 0 }); } },
+  top(P, t) { for (const [x, y] of [[170, 280], [240, 222]]) { const b = P.I(x, y, 3); P.shape(P.disc(b[0], b[1], 1, 24).map(([a, c]) => [b[0] + (a - b[0]) * 30, b[1] + (c - b[1]) * 9]), 'y6r3', 0.7); P.line([[b[0] - 18, b[1] - 1], [b[0] + 16, b[1] - 2]], 0.4, { ink: 0 }); } },
   chars: [
-    ch(LK.tmRashbi, { x: 165, y: 262, z: -112, face: 1, clip: 'talk', h: 168, noShadow: 1, clipFn(P) { const b = P.I(165, 262, 4); return [[b[0] - 200, b[1] - 400], [b[0] + 200, b[1] - 400], [b[0] + 200, b[1]], [b[0] - 200, b[1]]]; } }),
-    ch(LK.tmEleazar, { x: 220, y: 300, z: -108, face: -1, clip: 'idle', h: 160, t0: 1.2, noShadow: 1, clipFn(P) { const b = P.I(220, 300, 4); return [[b[0] - 200, b[1] - 400], [b[0] + 200, b[1] - 400], [b[0] + 200, b[1]], [b[0] - 200, b[1]]]; } }),
+    ch(LK.tmRashbi, { x: 170, y: 280, z: -136, face: 1, clip: 'tmNod', h: 190, noShadow: 1, clipFn(P) { const b = P.I(170, 280, 3); return [[b[0] - 200, b[1] - 400], [b[0] + 200, b[1] - 400], [b[0] + 200, b[1]], [b[0] - 200, b[1]]]; } }),
+    ch(LK.tmEleazar, { x: 240, y: 222, z: -130, face: -1, clip: 'tmNod', h: 180, t0: 1.2, noShadow: 1, clipFn(P) { const b = P.I(240, 222, 3); return [[b[0] - 200, b[1] - 400], [b[0] + 200, b[1] - 400], [b[0] + 200, b[1]], [b[0] - 200, b[1]]]; } }),
     ch(LK.elijah, { x: 345, y: 110, face: -1, clip: 'point', h: 138 }),
     ch(LK.tmElder, { h: 132, speed: 46, hold: { n: 'tmMyrtle', f: 'tmMyrtle' }, path: [W(530, 260, 0.6), W(440, 330, 0), W(390, 440, 0), W(320, 530, 0.8), W(530, 260, 0, null, { jump: 1 })] })
   ]
@@ -2096,12 +2096,12 @@ const SCENES = [
     Lib.well(P, 500, 300, 22);
     Lib.stones(P, 14, 'y4r3k3', [20, 300, 200, 220]);
     for (let i = 0; i < 30; i++) { const q = P.I(20 + r() * 500, 200 + r() * 330, 0); P.line([[q[0], q[1]], [q[0] - 2, q[1] - 7]], 0.8, { ink: 0, lvl: 7 }); P.line([[q[0] + 2, q[1]], [q[0] + 4, q[1] - 6]], 0.8, { ink: 1, lvl: 5 }); }
-    for (const [x, y] of [[120, 470], [180, 500], [420, 500]]) { const q = P.I(x, y, 0); for (let k = -2; k <= 2; k++) P.line([[q[0] + k * 3, q[1]], [q[0] + k * 5, q[1] - 10 + Math.abs(k) * 2]], 0.8, { ink: 0 }); }
+    for (const [x, y] of [[120, 470], [180, 500], [420, 500], [300, 480], [380, 120], [250, 90]]) { const q = P.I(x, y, 0); for (let k = -2; k <= 2; k++) P.line([[q[0] + k * 3, q[1]], [q[0] + k * 5, q[1] - 10 + Math.abs(k) * 2]], 0.8, { ink: 0 }); }
     /* le cercle tracé dans la poussière */
     P.line(P.ell(270, 290, 0.5, 80, 80, 48), 2.6, { ink: 3, taper: 0 });
     P.line(P.ell(270, 290, 0.5, 86, 86, 48), 0.6, { ink: 3, lvl: 6, taper: 0 });
     /* le trou où un homme plante un caroubier pour ses petits-enfants */
-    P.shape(P.ell(150, 140, 0.4, 16, 12, 14), 'r4y4k5', 0.6); { const q = P.I(165, 128, 0); P.shape(Lib.bumpy(P, q[0], q[1] - 3, 10, 5, 6), 'r4y4k3', 0.6); P.line([P.I(176, 120, 0), P.I(190, 106, 40)], 1.8); P.shape([P.I(170, 124, 0), P.I(182, 116, 0), P.I(178, 118, 8), P.I(168, 126, 8)], 'b1k4', 0.6); }
+    P.shape(P.ell(150, 140, 0.4, 16, 12, 14), 'r4y4k5', 0.6); { const q = P.I(146, 144, 0); P.line([[q[0], q[1]], [q[0] + 1, q[1] - 30]], 1.6); for (const [dx, dy, r] of [[0, -34, 11], [-8, -28, 8], [8, -27, 8]]) P.shape(Lib.bumpy(P, q[0] + dx, q[1] + dy, r, r * 0.7, 6), 'y4b6k1', 0.6); } { const q = P.I(165, 128, 0); P.shape(Lib.bumpy(P, q[0], q[1] - 3, 10, 5, 6), 'r4y4k3', 0.6); P.line([P.I(176, 120, 0), P.I(190, 106, 40)], 1.8); P.shape([P.I(170, 124, 0), P.I(182, 116, 0), P.I(178, 118, 8), P.I(168, 126, 8)], 'b1k4', 0.6); }
   },
   live(P, t) {
     const k = Math.min(1, (t % 14) / 4);
@@ -2114,7 +2114,7 @@ const SCENES = [
     ch(LK.tmTalmid2, { x: 170, y: 390, face: 1, clip: 'lookup', h: 138, t0: 1 }),
     ch(LK.tmWoman2, { x: 400, y: 380, face: -1, clip: 'tmRain', h: 130, t0: 1.5 }),
     ch(LK.tmGirl, { x: 440, y: 420, face: -1, clip: 'dance', h: 84 }),
-    ch(LK.tmFarmer, { x: 132, y: 172, face: -1, clip: 'kneel', h: 132, hold: { nTop: 'tmSapling' } })
+    ch(LK.tmFarmer, { x: 150, y: 176, face: -1, clip: 'kneel', h: 132 })
   ]
 },
 {
@@ -2160,7 +2160,7 @@ const SCENES = [
     ch(LK.soldier, { x: 90, y: 480, z: 16, face: 1, clip: 'guard', h: 140, t0: 1, hold: { n: 'spear' } }),
     ch(LK.tmCourtier, { x: 120, y: 430, z: 16, face: 1, clip: 'point', h: 138 }),
     { beast: 'donkey', h: 110, speed: 20, path: [W(300, 60, 2), W(300, 200, 0), W(330, 380, 0), W(210, 400, 5), W(300, 60, 0, null, { jump: 1 })] },
-    ch(LK.tmNahum, { h: 116, speed: 20, dz: 1, walk: 'tmRide', hold: { nTop: 'tmChest' }, path: [W(300, 60, 2, 'tmRide', { z: 70 }), W(300, 200, 0, null, { z: 70 }), W(330, 380, 0, null, { z: 70 }), W(210, 400, 5, 'tmRide', { z: 70 }), W(300, 60, 0, null, { z: 70, jump: 1 })] }),
+    ch(LK.tmNahum, { h: 116, speed: 20, dz: 1, walk: 'tmRide', hold: { nTop: 'tmChest' }, path: [W(307, 53, 2, 'tmRide', { z: 78 }), W(307, 193, 0, null, { z: 78 }), W(337, 373, 0, null, { z: 78 }), W(217, 393, 5, 'tmRide', { z: 78 }), W(307, 53, 0, null, { z: 78, jump: 1 })] }),
     ch(LK.tmInnkeeper, { x: 380, y: 150, face: -1, clip: 'point', h: 134 }),
     ch(LK.tmWoman, { x: 440, y: 130, face: -1, clip: 'idle', h: 128, t0: 1 })
   ]

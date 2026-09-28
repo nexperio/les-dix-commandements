@@ -1663,13 +1663,13 @@ const trHouse = (P, x, y, w, d, h, o = {}) => {
   for (const [a, z, ww, hh, tn] of o.winR || []) { const I = (u, zz) => P.I(x + w + 0.5, y + u, zz); P.shape([I(a, z), I(a + ww, z), I(a + ww, z + hh), I(a, z + hh)], tn || 'k6r2', 0.7); P.line([I(a + ww / 2, z), I(a + ww / 2, z + hh)], 0.6); P.box(x + w, y + a - 3, z - 3, 4, ww + 6, 3, 'r4y5k3', 0.5); }
 };
 /* colline à sommet arrondi */
-const trHill = (P, x, y, r, h, tn, o = {}) => {
-  const b = P.I(x, y, 0), rx = r * 1.22, ry = r * 0.4, sd = (x * 13 + y * 7) | 0, top = [];
-  for (let i = 0; i <= 28; i++) { const a = Math.PI * i / 28, k = Math.pow(Math.sin(a), 0.7), n = i === 0 || i === 28 ? 0 : (h2(i, 1, sd) - 0.5) * h * 0.12 * Math.sin(a); top.push([b[0] - rx * Math.cos(a), b[1] - h * k + n]); }
+const trHill = (P, x, y, r, h0, tn, o = {}) => {
+  const h = h0 * 0.72, b = P.I(x, y, 0), rx = r * 1.3, ry = r * 0.42, sd = (x * 13 + y * 7) | 0, top = [];
+  for (let i = 0; i <= 28; i++) { const a = Math.PI * i / 28, k = Math.pow(Math.sin(a), 1.35), n = i === 0 || i === 28 ? 0 : (h2(i, 1, sd) - 0.5) * h * 0.12 * Math.sin(a); top.push([b[0] - rx * Math.cos(a), b[1] - h * k + n]); }
   const bot = []; for (let i = 1; i < 12; i++) { const a = Math.PI * i / 12; bot.push([b[0] + rx * Math.cos(a), b[1] + ry * Math.sin(a)]); }
   const all = top.concat(bot); P.fill(all, tn);
-  const cut = b[0] + rx * 0.15, sh = all.filter(p => p[0] > cut + (b[1] - p[1]) * 0.25);
-  if (sh.length > 2) P.fill([[cut, b[1] - h * 0.95]].concat(sh), tadd(tn, o.shade || 'k2b1'), { noKnock: true });
+  const cut = b[0] + rx * 0.2, sh = all.filter(p => p[0] > cut + (b[1] - p[1]) * 0.6);
+  if (sh.length > 2) P.fill([[cut + h * 0.55, b[1] - h * 0.92]].concat(sh), tadd(tn, o.shade || 'k1b1'), { noKnock: true });
   for (let k = 0; k < 5; k++) { const u = 0.2 + h2(k, 3, sd) * 0.6, xx = b[0] - rx * 0.7 + u * rx * 1.4, yy = b[1] - h * (0.25 + h2(k, 4, sd) * 0.4); P.line([[xx - 10, yy], [xx + 10, yy + 3]], 0.7); }
   P.outline(all, 1.3);
 };
@@ -1766,7 +1766,7 @@ const SCENES = [
     'Beroura est l’une des rares femmes dont le Talmud rapporte les arguments dans l’étude. Fille de Rabbi Hanania ben Teradion, elle apprenait en un jour, dit le Talmud (Pessahim 62b), trois cents enseignements auprès de trois cents maîtres. Sur la même page, elle répond à un contradicteur par la fin d’un verset d’Isaïe (54, 1). Rabbi Méïr, son mari, était l’élève de Rabbi Akiva ; selon le Talmud (Sanhédrin 86a), une Michna sans nom d’auteur suit en général son enseignement.'],
   back(P) {
     Lib.sun(P, 170, 150, 22); Lib.cloud(P, 700, 170, 170, 30, 'b1'); Lib.cloud(P, 420, 110, 110, 22, 'b1');
-    trHill(P, -70, 260, 80, 70, 'y4b4k1'); trHill(P, 300, -70, 80, 80, 'y4b4k2'); trHill(P, 470, -50, 50, 50, 'y4b5k1');
+    trHill(P, -70, 260, 80, 70, 'y4b4k1'); trHill(P, 300, -70, 80, 80, 'y4b4k2'); 
     Lib.platform(P, 'y4r3k1', 'y4r3k2', { h: 48 });
     P.fill([P.I(330, 0, 0.3), P.I(540, 0, 0.3), P.I(540, 540, 0.3), P.I(0, 540, 0.3), P.I(0, 330, 0.3), P.I(330, 330, 0.3)], 'y3r2k2');
     for (let i = 0; i < 70; i++) { const u = P.r(), a = u < 0.55 ? [340 + P.r() * 195, 5 + P.r() * 530] : [5 + P.r() * 330, 340 + P.r() * 195], q = P.I(a[0], a[1], 0.4); P.shape(P.disc(q[0], q[1], 3 + P.r() * 3, 7).map(p => [p[0], q[1] + (p[1] - q[1]) * 0.5]), 'y4r3k3', 0.4); }
@@ -1802,7 +1802,7 @@ const SCENES = [
     'Aher est l’un des quatre qui entrèrent au Pardès (Haguiga 14b). On reprochait à Rabbi Méïr d’apprendre de lui ; le Talmud répond (Haguiga 15b) : « Rabbi Méïr trouva une grenade ; il en mangea l’intérieur et en jeta l’écorce. » La limite du Chabbat, le te’houm, s’étend à deux mille coudées au-delà de la ville : au-delà, on ne marche pas le jour du repos.'],
   back(P) {
     Lib.sun(P, 860, 140, 24); Lib.cloud(P, 300, 150, 150, 28, 'b1'); Lib.cloud(P, 640, 110, 110, 20, 'b1');
-    trHill(P, 290, -70, 90, 90, 'y4b4k2'); trHill(P, 460, -50, 60, 64, 'y4b5k2'); trHill(P, -70, 330, 80, 80, 'y4b4k2'); trHill(P, -60, 140, 60, 56, 'y4b5k1');
+    trHill(P, 290, -70, 90, 90, 'y4b4k2'); trHill(P, 400, -50, 56, 64, 'y4b5k2'); trHill(P, -70, 330, 80, 80, 'y4b4k2'); trHill(P, -60, 140, 60, 56, 'y4b5k1');
     Lib.platform(P, 'y5b4k1', 'y4r3k2', { h: 50 });
     Lib.grass(P, 60, 'y5b4', [20, 20, 500, 500]);
     Lib.field(P, 310, 20, 200, 80, 4, 'y7r2');
@@ -1859,7 +1859,7 @@ const SCENES = [
   live(P, t) { for (let i = 0; i < 10; i++) { const u = (t * 0.06 + i / 10) % 1, y = u * 540, x = 240 + (i % 3) * 30 + 14 * Math.sin(y / 80); P.line([P.I(x, y, 0.8), P.I(x + 3, y + 24, 0.8)], 1.1, { ink: 0, lvl: 2 }); } },
   chars: [
     trInWater(ch(LK.trYohanan, { x: 296, y: 248, z: -84, face: -1, clip: 'trBathe', h: 136 })),
-    trInWater(ch(LK.trReshLakish, { h: 156, speed: 30, path: [W(90, 300, 2.5, 'idle', { f: 1 }), W(90.5, 300, 0, 'walk'), W(165, 290, 0, 'trLeap', { z: 14, sp: 110 }), W(222, 276, 0, 'trLeap', { z: 74, sp: 110 }), W(240, 286, 4, 'talk', { z: -92 }), W(90, 300, 0, null, { jump: 1 })] })),
+    trInWater(ch(LK.trReshLakish, { h: 156, speed: 30, path: [W(90, 300, 2.5, 'idle', { f: 1 }), W(90.5, 300, 0, 'walk'), W(165, 290, 0, 'trLeap', { z: 14, sp: 110 }), W(222, 276, 0, 'trLeap', { z: 74, sp: 110 }), W(222, 300, 4, 'talk', { z: -92 }), W(90, 300, 0, null, { jump: 1 })] })),
     ch(LK.trBandit, { x: 60, y: 250, face: 1, clip: 'point', h: 140 }),
     ch(LK.trBandit2, { x: 50, y: 330, face: 1, clip: 'lookup', h: 144, t0: 1 }),
     ch(LK.trStudent2, { x: 430, y: 260, face: -1, clip: 'offer', h: 128, hold: { n: 'trTowel' } }),
@@ -1874,7 +1874,7 @@ const SCENES = [
     'Le Talmud ajoute qu’il s’éprouvait en s’asseyant dans un four chauffé, sans se brûler ; un jour, les maîtres le regardèrent avec insistance, ses jambes roussirent, et on l’appela « le petit aux jambes brûlées ». Son maître Rav Yehouda enseignait qu’il ne fallait pas quitter Babylone pour la terre d’Israël ; Rabbi Zeira l’évitait, pour partir malgré tout (Ketoubot 110b).'],
   back(P) {
     Lib.sun(P, 800, 130, 24); Lib.cloud(P, 600, 180, 140, 24, 'b1'); Lib.cloud(P, 240, 120, 120, 22, 'b1');
-    trHill(P, 250, -70, 90, 110, 'y4b4k2'); trHill(P, 440, -60, 70, 90, 'y4b5k2'); trHill(P, 100, -60, 60, 50, 'y4b4k1');
+    trHill(P, 250, -70, 90, 110, 'y4b4k2'); trHill(P, 380, -60, 64, 90, 'y4b5k2'); trHill(P, 100, -60, 60, 50, 'y4b4k1');
     for (const y of [120, 250, 380]) Lib.palm(P, -40, y, 0, 110, { lean: 6 });
     Lib.platform(P, 'y5r3k1', 'y4r3k2', { h: 50 });
     { const pts = [P.I(0, 0, 0.3), P.I(540, 0, 0.3), P.I(540, 540, 0.3)]; for (let i = 12; i >= 0; i--) { const u = i / 12 * 540; pts.push(P.I(u + 12 * Math.sin(i * 1.7), u - 12 * Math.sin(i * 1.7) - 8, 0.3)); } P.fill(pts, 'y5b4'); }
@@ -1888,7 +1888,10 @@ const SCENES = [
     P.shape([P.I(120, 210, 0.5), P.I(190, 210, 0.5), P.I(190, 300, 0.5), P.I(120, 300, 0.5)], 'r5y4k2', 0.8);
     for (let i = 1; i < 5; i++) P.line([P.I(120, 210 + i * 18, 0.7), P.I(190, 210 + i * 18, 0.7)], 0.8, { ink: 0, lvl: 6 });
     /* collines et oliviers de Galilée */
-    trHill(P, 485, 45, 40, 46, 'y5b4k1');
+    trHill(P, 470, 40, 44, 40, 'y5b4k1');
+    for (const [x, y] of [[510, 150], [520, 330], [300, 110], [380, 60]]) trOlive(P, x, y, 84, 4);
+    Lib.stones(P, 14, 'y3r2k3', [300, 120, 220, 200]); Lib.grass(P, 40, 'y5b5', [280, 30, 250, 470]);
+    for (let i = 0; i < 7; i++) { const q = P.I(300 + i * 30, 30 + i * 8, 0); P.box(300 + i * 30, 26 + i * 8, 0, 26, 8, 10, 'y4r3k2', 0.5); }
     for (let i = 0; i < 3; i++) P.line([P.I(330 + i * 60, 240 + i * 30, 0.5), P.I(440 + i * 40, 200 + i * 40, 0.5)], 1.3, { ink: 3, lvl: 6 });
     for (const [x, y] of [[300, 40], [520, 230], [350, 250], [440, 150]]) trOlive(P, x, y, 96);
     trRoad(P, [[40, 540], [150, 410], [265, 290], [330, 220], [410, 150], [470, 70]], 34, 'y4r3k2');
@@ -2059,7 +2062,7 @@ const SCENES = [
     'Rabbi Yehochoua, élève de Rabban Yohanan ben Zakkaï, vivait d’un métier modeste : Rabban Gamliel, en visitant sa maison, vit que ses murs étaient noircis de charbon (Berakhot 28a). Au garçon du carrefour, il dit : « Heureux êtes-vous, Israël, vous êtes tous sages, du plus grand au plus petit. » Juste après, la même page rapporte comment Beroura reprit Rabbi Yossé le Galiléen, qui lui demandait trop longuement le chemin de Lod.'],
   back(P) {
     Lib.sun(P, 830, 150, 24); Lib.cloud(P, 280, 150, 160, 28, 'b1'); Lib.cloud(P, 640, 100, 100, 20, 'b1');
-    trHill(P, 200, -70, 90, 80, 'y4b4k1'); trHill(P, 430, -60, 66, 66, 'y4b5k1'); trHill(P, -70, 260, 80, 72, 'y4b4k2');
+    trHill(P, 200, -70, 90, 80, 'y4b4k1'); trHill(P, 380, -60, 62, 66, 'y4b5k1'); trHill(P, -70, 260, 80, 72, 'y4b4k2');
     Lib.platform(P, 'y5b4k1', 'y4r3k2', { h: 50 });
     Lib.grass(P, 70, 'y5b4', [10, 10, 520, 520]);
     trRoad(P, [[0, 450], [455, 450], [455, 0]], 42, 'y4r3k1');
@@ -2078,8 +2081,8 @@ const SCENES = [
     ch(LK.trGirl, { x: 455, y: 205, face: -1, clip: 'point', h: 88 }),
     { beast: 'sheep', h: 50, x: 490, y: 170, face: -1 }, { beast: 'sheep', h: 46, x: 505, y: 130, face: 1 },
     ch(LK.trMother, { x: 500, y: 285, face: -1, clip: 'fill', h: 126, t0: 1 }),
-    ch(LK.trFarmer, { h: 132, speed: 14, walk: 'walk', path: [W(250, 490, 2, 'idle', { f: -1 }), W(249.5, 490, 0, 'walk'), W(60, 480, 2, 'idle', { f: 1 }), W(60.5, 480, 0, 'walk'), W(250, 490, 0)] }),
-    { beast: 'donkey', h: 90, speed: 14, path: [W(290, 494, 2), W(100, 486, 2), W(290, 494, 0)] }
+    ch(LK.trFarmer, { h: 132, speed: 14, walk: 'walk', path: [W(390, 462, 2, 'idle', { f: -1 }), W(389.5, 462, 0, 'walk'), W(200, 466, 2, 'idle', { f: 1 }), W(200.5, 466, 0, 'walk'), W(390, 462, 0)] }),
+    { beast: 'donkey', h: 90, speed: 14, path: [W(425, 458, 2), W(235, 462, 2), W(425, 458, 0)] }
   ]
 }
 ];

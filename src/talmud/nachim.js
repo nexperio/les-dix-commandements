@@ -1,7 +1,7 @@
 /* LE TALMUD · feuille ד · Nachim : le mariage, les promesses, la famille */
 Object.assign(LK, {
   tnAkiva: { old: 1, skin: 'y5r4k1', hs: 'fringe', hair: 'k1', beard: 'full', bt: 'k1b1', robe: 'y2k1', cloak: 'b5k2', sash: 'r5y3', head: 'cloth', ht: 'y1b1', band: 'b6k2', sleeves: 'long', wide: 1, feet: 'sandal' },
-  tnRachel: { fem: 1, old: 1, skin: 'y5r4k1', hs: 'long', hair: 'k3', robe: 'k3y3r1', len: 'floor', head: 'veil', ht: 'k2y2', sash: 'k4y2', sleeves: 'long', feet: 'bare' },
+  tnRachel: { fem: 1, old: 1, skin: 'y5r4k1', hs: 'fringe', hair: 'k3', robe: 'k3y3r1', len: 'floor', head: 'cap', ht: 'k3y2', sash: 'k4y2', sleeves: 'long', feet: 'bare' },
   tnTalm1: { skin: 'y6r4k1', hs: 'curly', hair: 'k8', beard: 'short', robe: 'b4y3k1', cloak: 'y3r2k1', sash: 'r5', head: 'cloth', ht: 'y2', band: 'k6', sleeves: 'long', feet: 'sandal' },
   tnTalm2: { skin: 'y5r4', hs: 'short', hair: 'k7r2', beard: 'short', robe: 'r4y5k1', sash: 'b5', head: 'cap', ht: 'k6b2', sleeves: 'long', feet: 'sandal' },
   tnTalm3: { skin: 'y5r4k1', hs: 'curly', hair: 'k7', beard: 'long', bt: 'k7', robe: 'y4b3k1', cloak: 'r5b3k1', sash: 'y6', head: 'turban', ht: 'y2b1', sleeves: 'long', feet: 'sandal' },
@@ -53,6 +53,7 @@ Object.assign(CLIPS, {
   tnShiver: { d: 1.4, k: [{ nU: 22, nL: 104, fU: 26, fL: 98, lean: 8, head: 12, nT: 3, fT: -3 }, { nU: 24, nL: 100, fU: 28, fL: 96, lean: 9, head: 14, nT: 3, fT: -3 }] },
   tnSleep: { d: 4, k: [{ rot: -62, nT: 8, nK: -14, fT: 3, fK: -8, nU: 14, nL: 50, fU: 8, fL: 60, head: -12 }, { rot: -62, nT: 8, nK: -14, fT: 3, fK: -8, nU: 16, nL: 48, fU: 9, fL: 58, head: -9 }] },
   tnLieUp: { d: 4, k: [{ rot: -62, nT: 6, nK: -10, fT: 2, fK: -6, nU: 86, nL: 10, fU: 94, fL: 6, head: -6 }, { rot: -62, nT: 6, nK: -10, fT: 2, fK: -6, nU: 92, nL: 6, fU: 100, fL: 2, head: -8 }] },
+  tnProstrate: { d: 3.6, k: [{ nT: 4, nK: -100, fT: 0, fK: -100, lean: 70, head: 12, nU: -44, nL: 14, fU: -50, fL: 18 }, { nT: 4, nK: -100, fT: 0, fK: -100, lean: 74, head: 16, nU: -46, nL: 12, fU: -52, fL: 16 }] },
   tnShoulder: { d: 1, k: [{ nU: 150, nL: 36, fU: 144, fL: 40 }, { nU: 152, nL: 34, fU: 146, fL: 38 }] },
   tnVisit: { d: 3.2, k: [{ nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 16, head: 10, nU: 70, nL: 20, fU: 30, fL: 60 }, { nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 18, head: 14, nU: 76, nL: 16, fU: 32, fL: 58 }] },
   tnAccuse: { d: 1.2, k: [{ lean: -4, head: -4, nU: 98, nL: -6, fU: 40, fL: 70, nT: 8, fT: -8 }, { lean: -6, head: -8, nU: 104, nL: -10, fU: 44, fL: 66, nT: 8, fT: -8 }] },
@@ -153,15 +154,15 @@ const tnJerusalem = (P, cx, by, s, o = {}) => {
   for (const a of [-92, -40, 20, 80]) { R(a - 4, 30, a + 10, 66, tadd(wall, 'k1'), 0.7); R(a - 5, 66, a + 11, 70, tadd(wall, 'k2'), 0.5); }
   const hs = [[-78, 12, 14], [-60, 16, 10], [-44, 10, 18], [58, 14, 12], [70, 12, 20], [40, 10, 9]];
   for (const [a, w, hh] of hs) R(a, 52, a + w, 52 + hh, o.fire ? 'y5r3k3' : 'y3r2', 0.5);
-  R(-26, 52, 34, 70, o.fire ? 'y4r3k3' : 'y2r1', 0.7); R(-8, 70, 16, 104, o.fire ? 'y5r3k3' : 'y1b1', 0.8); R(-12, 104, 20, 108, o.fire ? 'y6r4k3' : 'y7r2', 0.6);
+  R(-26, 52, 34, 70, o.fire ? 'y3r2k1' : 'y2r1', 0.7); R(-8, 70, 16, 104, o.fire ? 'y2r2' : 'y1b1', 0.8); R(-12, 104, 20, 108, 'y7r2', 0.6);
   R(-2, 70, 10, 90, 'k6r2', 0.4);
   return { top: [X(2), Y(108)], w: X(92) - X(-92) };
 };
 /* flammes et fumée sur la ville lointaine (animé) */
 const tnFire = (P, t, cx, by, s) => {
-  for (let i = 0; i < 3; i++) Lib.smoke(P, cx + (-50 + i * 50) * s, by - 80 * s, t + i * 1.7, { n: 4, sp: 0.1, r: 16 * s, h: 170 * s, tn: i % 2 ? 'k2r1' : 'k1r1y1' });
+  for (let i = 0; i < 9; i++) { const u = (t * 0.07 + i / 9) % 1, k = i % 3, x = cx + (-50 + k * 50) * s + Math.sin(u * 5 + i) * 10 * s + u * 40 * s, y = by - (84 + u * 170) * s, r = (8 + u * 22) * s; P.fill(P.disc(x, y, r, 14).map(p => [p[0], y + (p[1] - y) * 0.75]), u > 0.55 ? 'k1b1' : 'k2r1', { noKnock: true }); }
   const pts = [[-84, 56], [-62, 60], [-40, 72], [-18, 76], [4, 108], [26, 74], [48, 62], [70, 66], [86, 58]];
-  for (const [a, b] of pts) Lib.flame(P, cx + a * s, by - b * s, 12 * s, 26 * s, t * 1.5 + a, { noKnock: true });
+  for (const [a, b] of pts) Lib.flame(P, cx + a * s, by - b * s, 13 * s, 28 * s, t * 1.5 + a, { noKnock: true });
 };
 const SHEET = { title: 'Nachim · Femmes', sub: 'Le Talmud · feuille ד · troisième ordre : le mariage, les promesses, la famille' };
 /* la chute de la jarre, synchronisée avec la servante (scène 3) */
@@ -213,7 +214,6 @@ const tnBier = { depth: t => { const st = charState(tnBearers[0], t); return st.
   P.shape([I(2, d - 4, 5), I(w - 2, d - 4, 5), I(w - 2, d - 4, 16), I(2, d - 4, 16)], 'y1b2k1', 0.7);
   P.shape([I(2, 4, 16), I(w - 2, 4, 16), I(w - 2, d - 4, 16), I(2, d - 4, 16)], 'y1', 0.8);
   for (const b of [10, 15, d - 15, d - 10]) P.line([I(4, b, 16.5), I(w - 4, b, 16.5)], 1.3, { ink: 2, lvl: 8, taper: 0 });
-  for (const b of [-8, d + 8]) { P.line([I(0, b, 2), I(0, b - Math.sign(b) * 12, 2)], 2, { taper: 0 }); P.line([I(w, b, 2), I(w, b - Math.sign(b) * 12, 2)], 2, { taper: 0 }); }
 } };
 /* table basse de festin, le long de x ou de y, avec plats et coupes */
 const tnFood = (P, q, tn) => { P.shape([[q[0] - 11, q[1]], [q[0] + 11, q[1]], [q[0] + 8, q[1] + 4], [q[0] - 8, q[1] + 4]], 'b1k2', 0.5); P.shape(Lib.bumpy(P, q[0], q[1] - 3, 8, 4, 5), tn, 0.4); };
@@ -245,9 +245,9 @@ const SCENES = [
   },
   chars: [
     ch(LK.tnAkiva, { x: 325, y: 240, face: -1, clip: 'tnStop', h: 142, hold: { f: 'staff' } }),
-    ch(LK.tnRachel, { x: 250, y: 300, face: 1, clip: 'prostrate', h: 124 }),
+    ch(LK.tnRachel, { x: 250, y: 300, face: 1, clip: 'tnProstrate', h: 124 }),
     ch(LK.tnTalm2, { x: 188, y: 318, face: 1, clip: 'tnPush', h: 136, t0: 0.4 }),
-    ch(LK.tnTalm4, { x: 222, y: 392, face: 1, clip: 'tnPush', h: 138, t0: 0.9 }),
+    ch(LK.tnTalm4, { x: 368, y: 305, face: -1, clip: 'tnPush', h: 138, t0: 0.9 }),
     ch(LK.tnTalm1, { x: 372, y: 205, face: -1, clip: 'talk', h: 136, hold: { nTop: 'scroll' } }),
     ch(LK.tnNeighbor, { x: 105, y: 505, face: 1, clip: 'talk', h: 126 }),
     ch(LK.tnNeighbor2, { x: 150, y: 520, face: 1, clip: 'point', h: 122, t0: 1 }),
@@ -327,7 +327,7 @@ const SCENES = [
     P.box(X0 - 4, Y0 - 4, 197, X1 - X0 + 8, 6, 10, 'y3r2k2', 0.6); P.box(X0 - 4, Y0 + 2, 197, 6, Y1 - Y0 - 4, 10, 'y3r2k2', 0.6); P.box(X1 - 2, Y0 + 2, 197, 6, Y1 - Y0 - 4, 10, 'y3r2k2', 0.6);
     P.box(X0 - 4, Y1 - 2, 197, 180, 6, 10, 'y3r2k2', 0.6);
     tnStair(P, X1 + 2, 90, 196, 90, 'y3r2k2');
-    Lib.well(P, 440, 230, 20);
+    Lib.well(P, 440, 230, 20); tnOlive(P, 50, 500, 0.8, 4);
     P.box(470, 300, 0, 50, 90, 20, 'y3r2k2', 0.8); P.box(26, 250, 0, 20, 160, 18, 'y3r2k2', 0.8);
     for (const [x, y] of [[36, 230], [496, 280], [496, 410]]) { P.cyl(x, y, 0, 11, 16, 'r5y5k2', 0.7, 12); const q = P.I(x, y, 16); P.shape(Lib.bumpy(P, q[0], q[1] - 9, 13, 10, 7), 'y4b6k1', 0.7); }
   },
@@ -412,7 +412,7 @@ const SCENES = [
     for (const [x, y] of [[470, 150], [500, 190]]) { P.cyl(x, y, 0, 16, 34, 'r5y5k2', 0.8, 14); P.shape(P.ell(x, y, 34.5, 12, 12, 16), 'k6r2', 0.5); }
     P.box(470, 250, 0, 50, 30, 30, 'r4y5k3', 0.8); P.box(476, 256, 30, 38, 18, 14, 'y3r2k1', 0.6);
     P.box(128, 386, 0, 26, 26, 36, 'y3r2k2', 0.8);
-    Lib.tree(P, 480, 470, 0, { h: 140, r: 38, can: 'y4b6k1', trunk: 'r4y4k4', fruit: 6, fruitTone: 'r6b5k2' });
+    Lib.tree(P, 50, 500, 0, { h: 140, r: 38, can: 'y4b6k1', trunk: 'r4y4k4', fruit: 6, fruitTone: 'r6b5k2' });
   },
   chars: [
     tnBalance, tnMan,
@@ -431,7 +431,8 @@ const SCENES = [
     'Pas de fête juive attachée à ce passage. Rabbi Simlaï en tire, sur la même page, que la Torah commence et finit par un acte de bonté : les vêtements donnés à Adam et Ève au début de la Genèse, l’ensevelissement de Moïse à la fin du Deutéronome. Ces gestes forment la guemilout hassadim, les œuvres de bonté, l’un des trois piliers sur lesquels le monde repose selon Chimon le Juste (Avot 1, 2).'],
   back(P) {
     tnSky(P, { sun: [180, 190, 22], clouds: [[480, 150, 170, 28], [800, 200, 110, 22]] });
-    { const pts = [[40, 560], [110, 500], [190, 470], [280, 478], [360, 505], [420, 540]]; P.shape(pts.concat([[420, 600], [40, 600]]), 'y4r3k1', 0.9); for (const [x, y] of [[140, 505], [200, 490], [260, 494], [320, 510]]) { P.shape(P.disc(x, y, 7, 12).map(p => [p[0], Math.min(p[1], y + 3)]), 'k7r2', 0.6); P.shape([[x + 9, y - 4], [x + 15, y - 4], [x + 15, y + 5], [x + 9, y + 5]], 'y3r2k3', 0.5); } }
+    { const E = x => 360 + (500 - x) * 0.577, pts = []; for (let i = 0; i <= 14; i++) { const x = 60 + i * 22; pts.push([x, E(x) - 8 - Math.sin(i / 14 * Math.PI) * 62 - Math.sin(i * 1.7) * 5]); } pts.push([368, E(368) + 10], [60, E(60) + 10]); P.shape(pts, 'y4r3k1', 0.9);
+      for (const [x, k] of [[120, 30], [170, 44], [220, 50], [270, 40]]) { const y = E(x) - k; P.shape(P.disc(x, y, 7, 12).map(p => [p[0], Math.min(p[1], y + 3)]), 'k7r2', 0.6); P.shape([[x + 9, y - 4], [x + 16, y - 4], [x + 16, y + 5], [x + 9, y + 5]], 'y3r2k3', 0.5); } }
     Lib.platform(P, 'y4r3k1', 'y4r3k2', { pebbles: false });
     tnPaving(P, 0, 0, 540, 540, 45, 'y3r2k2');
     tnHouse(P, 0, 0, 100, 150, 120, 'y3r2k1', { door: null, win: 2 });
@@ -493,21 +494,20 @@ const SCENES = [
     Lib.grass(P, 60, 'y5b4', [0, 250, 300, 290]);
     Lib.bush(P, 40, 260, 0, 16); Lib.bush(P, 250, 150, 0, 14); Lib.palm(P, 250, 60, 0, 170, { lean: -14 });
     drawBeast(P, 'sheep', P.I(40, 400, 0), 66, 1, 0.3, false); drawBeast(P, 'sheep', P.I(80, 470, 0), 60, -1, 1.2, false);
-    { const q = P.I(260, 230, 0); P.line([[q[0] - 26, q[1] + 6], [q[0] + 26, q[1] - 8]], 2.2, { ink: 3, lvl: 8, taper: 0 }); P.line([[q[0] + 26, q[1] - 8], [q[0] + 32, q[1] - 16], [q[0] + 26, q[1] - 22]], 2, { ink: 3, lvl: 8, taper: 0 }); }
+    { const q = P.I(250, 150, 0); P.line([[q[0] - 26, q[1] + 6], [q[0] + 26, q[1] - 8]], 2.2, { ink: 3, lvl: 8, taper: 0 }); P.line([[q[0] + 26, q[1] - 8], [q[0] + 32, q[1] - 16], [q[0] + 26, q[1] - 22]], 2, { ink: 3, lvl: 8, taper: 0 }); }
   },
   live(P, t) {
-    const c = P.I(172, 214, 0.8), s = 0.9, w = Math.sin(t * 2.1) * 1.5;
-    P.fill(P.disc(c[0] + w, c[1] + 8, 9 * s, 12).map(p => [p[0], c[1] + 8 + (p[1] - c[1] - 8) * 1.2]), 'b6y3k1', { noKnock: true });
-    for (let i = 0; i < 7; i++) { const a = Math.PI * (0.1 + i * 0.13); P.fill(P.disc(c[0] + w + Math.cos(a) * 11, c[1] + 10 + Math.sin(a) * 12, 3.4, 6), 'b7k2', { noKnock: true }); }
+    const o = this.chars[0].out;
+    if (o && o.head) { const c = [o.head[0] - 4, o.head[1] + 34], w = Math.sin(t * 2.1) * 1.5; P.fill(P.disc(c[0] + w, c[1], 8, 12).map(p => [p[0], c[1] + (p[1] - c[1]) * 1.25]), 'b3y2', { noKnock: true }); for (let i = 0; i < 8; i++) { const a = Math.PI * (0.05 + i * 0.13); P.fill(P.disc(c[0] + w + Math.cos(a) * 10, c[1] + Math.sin(a) * 11, 3.2, 6), 'b5y1', { noKnock: true }); } }
     for (let i = 0; i < 3; i++) { const u = (t * 0.3 + i / 3) % 1, r = 10 + u * 36; P.line(P.ell(160, 200, 0.9, r * 1.2, r * 0.8, 20), 0.6 * (1 - u) + 0.2, { ink: 0, lvl: 8 }); }
     const sp = P.I(96, 118, 30); for (let i = 0; i < 5; i++) { const u = (t * 0.8 + i / 5) % 1; P.fill(P.disc(sp[0] + u * 26 + i * 2, sp[1] + u * u * 50, 2.6, 6), 'b3', { noKnock: true }); }
   },
   chars: [
-    ch(LK.tnShepherd, { x: 212, y: 216, face: -1, clip: 'tnGaze', h: 132, hold: { n: 'tnCurls' } }),
-    ch(LK.tnKohen, { x: 420, y: 280, face: -1, clip: 'tnEmbrace', h: 146, hold: { n: 'tnChoshen' } }),
-    ch(LK.tnNazir, { x: 332, y: 300, face: 1, clip: 'bow', h: 128, t0: 0.4 }),
+    ch(LK.tnShepherd, { x: 226, y: 196, face: -1, clip: 'tnGaze', h: 132, hold: { n: 'tnCurls' } }),
+    ch(LK.tnKohen, { x: 440, y: 318, face: -1, clip: 'tnEmbrace', h: 146, hold: { n: 'tnChoshen' } }),
+    ch(LK.tnNazir, { x: 352, y: 338, face: 1, clip: 'bow', h: 128, t0: 0.4 }),
     ch(LK.tnLevite, { x: 500, y: 250, face: -1, clip: 'idle', h: 138, hold: { f: 'staffV' } }),
-    { beast: 'ram', h: 62, x: 290, y: 380, face: 1 },
+    { beast: 'ram', h: 62, x: 280, y: 420, face: 1 },
     { beast: 'sheep', h: 64, x: 140, y: 330, face: 1 },
     { beast: 'sheep', h: 58, speed: 8, path: [W(60, 330, 4), W(120, 410, 5), W(60, 330, 0)] }
   ]
@@ -529,7 +529,7 @@ const SCENES = [
     for (let i = 0; i < 26; i++) P.box(22 + i * 20, 3, 30, 6, 8, 16, 'y3r2k1', 0.5); P.box(16, 0, 46, 524, 14, 5, 'y3r2k2', 0.6);
     for (const [b, w] of [[40, 90], [180, 90], [320, 90]]) { P.shape([I(16.5, b, 30), I(16.5, b + w, 30), I(16.5, b + w, 150), I(16.5, b, 150)], 'r6b4k1', 0.8); for (let k = 1; k < 5; k++) P.line([I(16.7, b + k * w / 5, 36), I(16.7, b + k * w / 5, 146)], 0.5); P.line([I(16.7, b + 6, 138), I(16.7, b + w - 6, 138)], 1.6, { ink: 0, lvl: 8, taper: 0 }); }
     { const y = 440, w = 50, pts = [I(16.5, y, 0)]; for (let i = 0; i <= 8; i++) { const a = Math.PI - Math.PI * i / 8; pts.push(I(16.5, y + w / 2 + Math.cos(a) * w / 2, 80 + Math.sin(a) * w / 2)); } pts.push(I(16.5, y + w, 0)); P.shape(pts, 'k7r3', 1); }
-    for (const [x, y] of [[180, 110], [360, 110]]) { const q = P.I(x, y, 200); P.line([P.I(x, y, 260), q], 0.5); P.halo(q[0], q[1], 30, ['y1r1', 'y2r1']); P.shape([[q[0] - 12, q[1]], [q[0] + 12, q[1]], [q[0] + 7, q[1] + 6], [q[0] - 7, q[1] + 6]], 'y6r3k2', 0.6); for (const dx of [-8, 0, 8]) Lib.flame(P, q[0] + dx, q[1], 4, 9, dx, { noKnock: true }); }
+    for (const [x, y] of [[70, 110], [440, 150], [60, 420]]) { P.box(x - 10, y - 10, 0, 20, 20, 5, 'y7r4k2', 0.6); P.cyl(x, y, 5, 2.5, 76, 'y7r4k2', 0.5, 8); P.cyl(x, y, 81, 9, 3, 'y7r4k2', 0.6, 12); const q = P.I(x, y, 84); P.halo(q[0], q[1] - 6, 26, ['y1r1', 'y2r1']); P.shape([[q[0] - 7, q[1]], [q[0] + 9, q[1] - 1], [q[0] + 6, q[1] - 5], [q[0] - 5, q[1] - 5]], 'r5y6k2', 0.6); Lib.flame(P, q[0] + 7, q[1] - 4, 5, 10, x, { noKnock: true }); }
     for (const [x, y] of [[470, 60], [500, 100]]) { Lib.jar(P, x, y, 0, 1.4, 'r5y6k1'); }
     P.box(24, 120, 0, 40, 260, 24, 'r5b3k1', 0.8); P.box(24, 120, 24, 12, 260, 22, 'r5b3k2', 0.7);
     for (let i = 0; i < 5; i++) { const q = P.I(46, 140 + i * 55, 24); P.shape(Lib.bumpy(P, q[0], q[1] - 4, 12, 5, 6), 'y2r2', 0.5); }
