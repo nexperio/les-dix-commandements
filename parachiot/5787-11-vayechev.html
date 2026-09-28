@@ -1467,7 +1467,7 @@ Object.assign(PROPS2, {
   vs_coatB(P, A, J, M, h, t, lw) { PROPS2.vs_coat(P, A, J, M, h, t, lw); const w = A.w; for (const [dx, dy, r] of [[-0.03, 0.08, 0.025], [0.03, 0.15, 0.03], [-0.01, 0.2, 0.02]]) { const q = M([w[0] + dx, w[1] + dy]); P.fill(P.disc(q[0], q[1], h * r, 10), 'r9k3', { noKnock: true }); } },
   vs_cloth(P, A, J, M, h, t, lw) { const w = A.w, s = Math.sin(t * 3) * 0.02; P.shape([M([w[0] - 0.02, w[1]]), M([w[0] + 0.06, w[1] - 0.01]), M([w[0] + 0.1 + s, w[1] + 0.16]), M([w[0] + 0.02 + s, w[1] + 0.2]), M([w[0] - 0.04, w[1] + 0.12])], 'y2', lw * 0.6); P.line([M([w[0], w[1] + 0.05]), M([w[0] + 0.05 + s, w[1] + 0.15])], lw * 0.4); },
   vs_seal(P, A, J, M, h, t, lw, F, u, n, add) { const q = M(add(A.t, u, 0.02)); P.line([[q[0], q[1] - h * 0.03], [q[0] - h * 0.02, q[1] + h * 0.02], [q[0] + h * 0.02, q[1] + h * 0.04]], lw * 0.8, { ink: 1 }); P.shape(P.disc(q[0] + h * 0.02, q[1] + h * 0.05, h * 0.018, 10), 'y8r3', lw * 0.6); },
-  vs_baskets(P, A, J, M, h, t, lw) { const c = add2(J.head, J.hu, 0.1); for (let i = 0; i < 3; i++) { const y = c[1] - i * 0.04; P.shape([M([c[0] - 0.07, y]), M([c[0] + 0.07, y]), M([c[0] + 0.06, y - 0.038]), M([c[0] - 0.06, y - 0.038])], i % 2 ? 'y5r4k2' : 'y6r3k2', lw * 0.6); P.line([M([c[0] - 0.05, y - 0.019]), M([c[0] + 0.05, y - 0.019])], lw * 0.35); } for (let k = 0; k < 3; k++) { const q = M([c[0] - 0.035 + k * 0.035, c[1] - 0.125]); P.shape(P.disc(q[0], q[1], h * 0.017, 8), 'y7r4k1', lw * 0.5); } }
+  vs_baskets(P, A, J, M, h, t, lw) { const c = add2(J.head, J.hu, 0.09); for (let i = 0; i < 3; i++) { const y = c[1] - i * 0.06; P.shape([M([c[0] - 0.11, y]), M([c[0] + 0.11, y]), M([c[0] + 0.095, y - 0.056]), M([c[0] - 0.095, y - 0.056])], i % 2 ? 'y5r4k2' : 'y6r3k2', lw * 0.7); P.line([M([c[0] - 0.08, y - 0.028]), M([c[0] + 0.08, y - 0.028])], lw * 0.4); } for (let k = 0; k < 3; k++) { const q = M([c[0] - 0.055 + k * 0.055, c[1] - 0.19]); P.shape(P.disc(q[0], q[1], h * 0.026, 8), 'y7r4k1', lw * 0.5); } }
 });
 function vsSheaf(P, x, y, ang, s, tn) {
   const b = P.I(x, y, 0), c = Math.cos(ang), si = Math.sin(ang), R = (dx, dy) => [b[0] + (dx * c - dy * si) * s, b[1] + (dx * si + dy * c) * s];
@@ -1475,6 +1475,7 @@ function vsSheaf(P, x, y, ang, s, tn) {
   P.line([R(-6, -19), R(6, -19)], 2, { ink: 1 });
   for (let i = -2; i <= 2; i++) P.line([R(i * 3, -40), R(i * 5, -52)], 1, { ink: 0 });
 }
+function vsStar(P, x, y, r) { const pts = []; for (let k = 0; k < 10; k++) { const a = k / 10 * TAU - Math.PI / 2, q = k % 2 ? r * 0.42 : r; pts.push([x + Math.cos(a) * q, y + Math.sin(a) * q]); } P.shape(pts, 'y8r1', 0.6); }
 function vsEgWall(P, H, tn) {
   Lib.walls(P, { l: tn, r: tadd(tn, 'k1'), cut: 'y4r3k2' }, { h: H });
   for (let x = 0; x < P.L; x += 30) Lib.wallR(P, x, H - 40, 26, 14, (x / 30) % 3 === 0 ? 'b6y2' : (x / 30) % 3 === 1 ? 'r6y4' : 'y7r2', 0.5);
@@ -1563,9 +1564,9 @@ const SCENES = [
   },
   live(P, t) {
     const f = P.I(430, 420, 0); Lib.flame(P, f[0], f[1], 20, 30, t);
-    Lib.sun(P, 300, 110, 26); Lib.moon(P, 700, 105, 20);
+    Lib.sun(P, 300, 170, 26); Lib.moon(P, 700, 165, 20);
     const j = P.I(280, 320, 40);
-    for (let i = 0; i < 11; i++) { const a = Math.PI * (0.12 + i * 0.076), r = 330, dip = 16 * Math.sin(t * 1.5 + i * 0.6); Lib.star(P, j[0] + Math.cos(a) * r * 1.1, 330 - Math.sin(a) * 200 + dip, 9 + (i % 3), 'y9r1'); }
+    for (let i = 0; i < 11; i++) { const a = Math.PI * (0.12 + i * 0.076), r = 330, dip = 16 * Math.sin(t * 1.5 + i * 0.6); vsStar(P, j[0] + Math.cos(a) * r * 1.1, 350 - Math.sin(a) * 180 + dip, 13 + (i % 3) * 2); }
   },
   chars: [
     ch(LK.joseph, { x: 280, y: 325, z: 4, face: 1, clip: 'sleep', h: 132, look: LK.vs_joseph }),
@@ -1673,13 +1674,13 @@ reuse(AT[4]),
     Lib.lamp(P, 60, 60, 60, 1.1);
     Lib.stones(P, 16, 'k3y2', [300, 300, 220, 220]);
   },
-  live(P, t) { for (let i = 0; i < 3; i++) { const a = t * 1.4 + i * 2.1; Lib.bird(P, 690 + Math.cos(a) * 60, 90 + Math.sin(a) * 18, 12, t * 3 + i, 'k6'); } },
+  live(P, t) { for (let i = 0; i < 3; i++) { const a = t * 1.4 + i * 2.1; Lib.bird(P, 690 + Math.cos(a) * 55, 95 + Math.sin(a) * 18, 1.3, t * 3 + i, 'k6'); } },
   chars: [
-    ch(LK.joseph, { x: 300, y: 300, face: -1, clip: 'talk', h: 134 }),
-    ch(LK.vs_butler, { x: 200, y: 360, face: 1, clip: 'offer', h: 136, hold: { n: 'cup' } }),
-    ch(LK.vs_baker, { x: 360, y: 200, face: -1, clip: 'lookup', h: 136, hold: { nTop: 'vs_baskets' } }),
-    ch(LK.vs_jailer, { h: 138, speed: 14, hold: { n: 'spear' }, path: [W(420, 80, 3, 'guard'), W(480, 300, 3, 'guard'), W(420, 80, 0)] }),
-    ch(LK.son2, { x: 110, y: 470, face: 1, clip: 'sulk', h: 134, look: Object.assign({}, LK.son2, { head: 0, robe: 'y2k2', feet: 'bare' }) })
+    ch(LK.joseph, { x: 250, y: 270, face: 1, clip: 'talk', h: 134 }),
+    ch(LK.vs_butler, { x: 250, y: 420, face: 1, clip: 'offer', h: 136, hold: { n: 'cup' } }),
+    ch(LK.vs_baker, { x: 400, y: 280, face: -1, clip: 'lookup', h: 136, hold: { nTop: 'vs_baskets' } }),
+    ch(LK.vs_jailer, { h: 138, speed: 14, hold: { n: 'spear' }, path: [W(470, 120, 3, 'guard'), W(470, 450, 3, 'guard'), W(470, 120, 0)] }),
+    ch(LK.son2, { x: 90, y: 160, face: 1, clip: 'sulk', h: 134, look: Object.assign({}, LK.son2, { head: 0, robe: 'y2k2', feet: 'bare' }) })
   ]
 }
 ];

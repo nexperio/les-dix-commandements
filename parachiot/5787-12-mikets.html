@@ -3,21 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Vayigach · Il s’approcha</title>
+<title>Mikets · Au bout</title>
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <!--
-  Vayigach · Il s’approcha
-  Paracha de la semaine · Chabbat 19 décembre 2026 · Genèse 44, 18 à 47, 27
+  Mikets · Au bout
+  Paracha de la semaine · Chabbat 12 décembre 2026 · Genèse 41, 1 à 44, 17
   Un seul fichier. Canvas 2D. Aucune image, aucune police, aucune bibliothèque.
   Versets traduits en français depuis la Douay-Rheims (Project Gutenberg n° 1609).
 
-  1. Juda s’avance vers Joseph  (Genèse 44, 18)
-  2. Je suis Joseph  (Genèse 45, 3)
-  3. Les chariots d’Égypte  (Genèse 45, 27)
-  4. La vision de Beer-Shéva  (Genèse 46, 3)
-  5. Joseph au cou de son père  (Genèse 46, 29)
-  6. Jacob bénit Pharaon  (Genèse 47, 7)
-  7. Le pain contre les troupeaux  (Genèse 47, 17)
+  1. Les songes de Pharaon  (Genèse 41, 4)  fête : Hanoucca
+  2. Joseph devant Pharaon  (Genèse 41, 16)
+  3. L’anneau et le char  (Genèse 41, 42)
+  4. Les greniers d’Égypte  (Genèse 41, 49)
+  5. Les frères se prosternent  (Genèse 42, 6)
+  6. L’argent dans les sacs  (Genèse 42, 27)
+  7. Le repas chez Joseph  (Genèse 43, 34)
+  8. La coupe dans le sac de Benjamin  (Genèse 44, 12)
 
   Commandes : glisser, molette, pincer, double-clic, flèches, + / -, 0, C.
 -->
@@ -1445,245 +1446,301 @@ Object.assign(LK, {
 CLIPS.sulk = { d: 4, k: [{ nU: 30, nL: 112, fU: 24, fL: 116, head: 22, lean: 4, nT: 6, fT: -6 }, { nU: 32, nL: 110, fU: 26, fL: 114, head: 26, lean: 6, nT: 6, fT: -6 }] };
 const reuse = (s, o) => Object.assign(Object.create(s), o || {});
 
-/* PARACHA VAYIGACH · Genèse 44, 18 à 47, 27 · Chabbat 19 décembre 2026 */
+/* PARACHA MIKETS · Genèse 41, 1 à 44, 17 · Chabbat 12 décembre 2026 */
 Object.assign(LK, {
-  vg_joseph: { skin: 'y5r4', hs: 'short', hair: 'k6r2', robe: 'y1', len: 'ankle', trim: 1, sleeves: 'long', wide: 1, sash: 'y8r2', cloak: 'b5r3', head: 'cloth', ht: 'y1b1', band: 'y8r2', feet: 'sandal' },
-  vg_judah: { skin: 'y6r4k1', hs: 'curly', hair: 'k8', beard: 'full', bt: 'k7', robe: 'r6y4k1', cloak: 'y5r3k2', sash: 'b5', head: 'cloth', ht: 'r4y3', band: 'k6' },
-  vg_benjamin: { skin: 'y5r4', hs: 'curly', hair: 'k7r2', robe: 'b4r2', len: 'knee', sleeves: 'short', sash: 'y7', head: 'cloth', ht: 'y2', band: 'b5' },
-  vg_jacob: { old: 1, skin: 'y5r4', hs: 'fringe', hair: 'k1', beard: 'full', bt: 'k1b1', robe: 'r5y5k2', cloak: 'b4k2', sash: 'y6r2', head: 'cloth', ht: 'y2', band: 'k5' },
-  vg_pharaoh: { skin: 'y6r5k1', hs: 'short', hair: 'k8', beard: 'short', bt: 'k8', robe: 'y1', len: 'ankle', trim: 1, sleeves: 'long', wide: 1, cloak: 'b6y1', sash: 'y8r2', head: 'tall', ht: 'y1b3' },
-  vg_egypt: { skin: 'y6r5k1', hs: 'short', hair: 'k8', robe: 'y1', len: 'knee', sleeves: 'none', sash: 'b5', head: 'cap', ht: 'b5y2', feet: 'sandal' },
-  vg_egyptW: { fem: 1, skin: 'y6r5k1', hs: 'long', hair: 'k8', robe: 'y1b1', len: 'floor', sleeves: 'short', sash: 'r6', head: 'veil', ht: 'b4y3' }
+  mk_pharaoh: { skin: 'y6r5k1', hs: 'short', hair: 'k8', beard: 'short', bt: 'b6k2', robe: 'y1', len: 'ankle', trim: 1, cloak: 'b6r2', sash: 'y8r2', head: 'tall', ht: 'y1r1', sleeves: 'long', wide: 1 },
+  mk_joseph: { skin: 'y5r4', hs: 'short', hair: 'k6r2', robe: 'y1', len: 'ankle', trim: 1, cloak: 'b5y2', sash: 'y8', head: 'cloth', ht: 'y1b2', band: 'y8', sleeves: 'long', wide: 1 },
+  mk_josephPlain: { skin: 'y5r4', hs: 'short', hair: 'k6r2', robe: 'y1', len: 'ankle', sash: 'y6', sleeves: 'long', feet: 'sandal' },
+  mk_magician: { skin: 'y6r5k1', hs: 'short', hair: 'k8', robe: 'y1', len: 'ankle', cloak: 'y6r3k2', sash: 'r6', head: 'cap', ht: 'k6', sleeves: 'long' },
+  mk_steward: { skin: 'y6r5k1', hs: 'short', hair: 'k8', robe: 'y2', len: 'knee', sash: 'y7', head: 'cloth', ht: 'b5y2', band: 'y7', sleeves: 'short' },
+  mk_egypt: { skin: 'y6r5k1', hs: 'short', hair: 'k8', robe: 'y1', len: 'knee', sash: 'r5y3', sleeves: 'short', feet: 'bare' },
+  mk_egypt2: { skin: 'y6r5k2', hs: 'short', hair: 'k8', robe: 'y2b1', len: 'knee', sash: 'b6', head: 'cap', ht: 'y1', sleeves: 'short', feet: 'bare' },
+  mk_butler: { skin: 'y6r5k1', hs: 'short', hair: 'k8', robe: 'y1', len: 'knee', sash: 'r6y3', head: 'cap', ht: 'b5y1', sleeves: 'short' },
+  mk_guard: { skin: 'y6r5k1', hs: 'short', hair: 'k8', robe: 'y1', len: 'knee', sash: 'r6', head: 'cap', ht: 'b6y2', feet: 'sandal', sleeves: 'none' },
+  mk_benjamin: { skin: 'y5r4', hs: 'curly', hair: 'k6r2', robe: 'b4y2', len: 'knee', sleeves: 'short', sash: 'r6', head: 'cloth', ht: 'y2', band: 'r5' },
+  mk_judah: { skin: 'y6r4k1', hs: 'curly', hair: 'k8', beard: 'full', bt: 'k7', robe: 'r6y3k1', cloak: 'y5r4k1', sash: 'b6', head: 'cloth', ht: 'r5y3', band: 'k6' }
 });
-Object.assign(BEAST, { vg_horse: { bl: .7, bh: .3, lh: .5, nk: [.32, -52], hd: [.22, 55, .075, .05], tone: 'r5y5k3', ears: 'small', tail: 1, mane: 'k6' } });
-const vgCol = (P, x, y, h) => { P.cyl(x, y, 0, 17, h, 'y3r1'); for (let z = 40; z < h - 20; z += 60) P.cyl(x, y, z, 18, 6, 'b5y2'); P.cyl(x, y, h, 25, 22, 'y5b5'); P.box(x - 22, y - 22, h + 22, 44, 44, 12, 'y4r3'); };
-const vgHall = (P, o = {}) => {
-  const L = P.L;
-  Lib.platform(P, 'y3r1', 'y4r3k1', { h: 50, pebbles: false, strata: [[0, .5, 'y4r3k1'], [.5, 1, 'y4r3k3']] });
-  for (let i = 0; i < 9; i++) for (let j = 0; j < 9; j++) { const x = i * 60, y = j * 60; P.fill([P.I(x, y, 0), P.I(x + 60, y, 0), P.I(x + 60, y + 60, 0), P.I(x, y + 60, 0)], (i + j) % 2 ? 'y4r2' : 'y2r1', {}); }
-  P.outline([P.I(0, 0, 0), P.I(L, 0, 0), P.I(L, L, 0), P.I(0, L, 0)], 1.2);
-  Lib.walls(P, { l: o.wl || 'y3r2', r: o.wr || 'y3r2k1', cut: 'y4r3k2' }, { h: 300 });
-  for (let x = 0; x < L; x += 30) Lib.wallR(P, x, 252, 26, 18, (x / 30) % 2 ? 'b6y2' : 'r6y4', 0.6);
-  for (let y = 0; y < L; y += 30) Lib.wallL(P, y, 252, 26, 18, (y / 30) % 2 ? 'b6y2' : 'r6y4', 0.6);
-  for (let i = 0; i < 24; i++) { const x = 70 + (i % 12) * 36, z = 180 + Math.floor(i / 12) * 34, a = P.I(x, 0.5, z), k = i % 4; if (o.door && x > 360 && x < 480) continue; if (k === 0) P.shape(P.disc(a[0], a[1] - 8, 5, 10), 'r6y5', 0.5); else if (k === 1) Lib.bird(P, a[0], a[1] - 6, 0.7, 0.1, 'k5'); else if (k === 2) P.line([[a[0], a[1]], [a[0], a[1] - 18], [a[0] + 6, a[1] - 22]], 1, { ink: 3 }); else P.shape([[a[0] - 5, a[1]], [a[0] + 5, a[1] - 3], [a[0] + 5, a[1] - 14], [a[0] - 5, a[1] - 11]], 'b5y2', 0.5); }
-  if (o.door) { P.shape([P.I(380, 0.5, 0), P.I(460, 0.5, 0), P.I(460, 0.5, 140), P.I(380, 0.5, 140)], 'y6r2', 1.1); P.box(372, 0, 140, 96, 10, 16, 'y4r3k1'); }
-  for (const [x, y] of o.cols || [[300, 40], [470, 40]]) vgCol(P, x, y, 230);
-};
-const vgThrone = (P, tall) => {
-  P.box(40, 150, 0, 150, 200, 20, 'r4y4'); P.box(60, 170, 20, 130, 160, 14, 'b5y2');
-  P.box(80, 210, 34, 40, 90, 55, 'y7r3'); P.box(64, 205, 34, 20, 100, tall ? 190 : 150, { t: 'y8r3', l: 'y7r4k1', r: 'y7r4k2' });
-  for (const y of [205, 295]) P.cyl(84, y + 5, 34, 7, tall ? 210 : 170, 'y8r2');
-  if (tall) { const c = P.I(74, 255, 250); P.shape(P.disc(c[0], c[1], 16, 20), 'r7y6', 1); for (const s of [-1, 1]) P.shape([[c[0] + s * 14, c[1]], [c[0] + s * 70, c[1] - 12], [c[0] + s * 60, c[1] + 2], [c[0] + s * 70, c[1] + 6], [c[0] + s * 14, c[1] + 6]], 'b6y2', 0.8); }
-};
-const vgSacks = (P, pts) => { for (const [x, y, s] of pts) { const c = P.I(x, y, 0); P.shape(Lib.bumpy(P, c[0], c[1] - 12 * s, 16 * s, 13 * s, 6), 'y4r2k1', 0.9); P.line([[c[0] - 8 * s, c[1] - 22 * s], [c[0] + 8 * s, c[1] - 24 * s]], 1.2, { ink: 1 }); } };
-const vgWagon = (x, y, o = {}) => ({ depth: x + y + 40, draw(P) {
-  const L = o.l || 80, D = 44, zb = 16, tn = o.tn || 'r4y5k2';
-  const wheel = (cx, cy) => { const pts = []; for (let i = 0; i < 16; i++) { const a = i / 16 * TAU; pts.push(P.I(cx + Math.cos(a) * 16, cy, 16 + Math.sin(a) * 16)); } P.shape(pts, 'r5y5k4', 1); for (let k = 0; k < 4; k++) { const a = k / 4 * Math.PI; P.line([P.I(cx + Math.cos(a) * 14, cy, 16 + Math.sin(a) * 14), P.I(cx - Math.cos(a) * 14, cy, 16 - Math.sin(a) * 14)], 0.7); } const c = P.I(cx, cy, 16); P.fill(P.disc(c[0], c[1], 2.5, 8), 'k6', {}); };
-  wheel(x + 14, y - 2); wheel(x + L - 14, y - 2);
-  P.line([P.I(x + L, y + D / 2, zb + 6), P.I(x + L + 46, y + D / 2, 20)], 1.8, { ink: 3 });
-  P.box(x, y, zb, L, D, 18, tn);
-  if (o.load !== false) for (let i = 0; i < 4; i++) { const c = P.I(x + 12 + i * 18, y + 12 + (i % 2) * 16, zb + 18); P.shape(Lib.bumpy(P, c[0], c[1] - 8, 11, 9, 5), i % 2 ? 'y6r2k1' : ['y5r3', 'b5r3', 'r6y3'][i >> 1 ? 2 : 0], 0.8); }
-  wheel(x + 14, y + D + 2); wheel(x + L - 14, y + D + 2);
-} });
-const vgChariot = (x, y) => ({ depth: x + y, draw(P) {
-  const Q = (a, b, z) => P.I(x - a * 0.707 + b * 0.707, y + a * 0.707 + b * 0.707, z);
-  const wheel = b => { const pts = []; for (let i = 0; i < 18; i++) { const a = i / 18 * TAU; pts.push(Q(Math.cos(a) * 20, b, 20 + Math.sin(a) * 20)); } P.shape(pts, 'r5y5k3', 1); for (let k = 0; k < 3; k++) { const a = k / 3 * Math.PI; P.line([Q(Math.cos(a) * 18, b, 20 + Math.sin(a) * 18), Q(-Math.cos(a) * 18, b, 20 - Math.sin(a) * 18)], 0.7); } };
-  wheel(-20);
-  P.line([Q(20, 0, 24), Q(72, 0, 46)], 2, { ink: 3 });
-  P.shape([Q(-15, -18, 22), Q(20, -18, 22), Q(20, 18, 22), Q(-15, 18, 22)], 'r5y5k3', 0.9);
-  P.shape([Q(20, -18, 22), Q(20, 18, 22), Q(20, 18, 50), Q(20, -18, 50)], 'y7r3', 1);
-  P.shape([Q(-15, 18, 22), Q(20, 18, 22), Q(20, 18, 46), Q(-15, 18, 40)], 'y7r4k1', 1);
-  for (let i = 0; i < 3; i++) { const c = Q(3, 18, 32 + i * 4); P.fill(P.disc(c[0] + (i - 1) * 8, c[1], 2, 6), 'b6', {}); }
-  wheel(20);
-} });
-const SHEET = { title: 'Vayigach · Il s’approcha', sub: 'Paracha de la semaine · Chabbat 19 décembre 2026 · Genèse 44, 18 à 47, 27' };
+Object.assign(CLIPS, {
+  mk_tear: { d: 1.6, k: [{ nU: 40, nL: 95, fU: 30, fL: 100, head: 22, lean: 8, nT: 4, fT: -4 }, { nU: 62, nL: 40, fU: 56, fL: 44, head: 28, lean: 12, nT: 4, fT: -4 }] }
+});
+Object.assign(BEAST, {
+  mk_fat: Object.assign({}, BEAST.bull, { tone: 'y7r4', bh: .5 }),
+  mk_lean: Object.assign({}, BEAST.calf, { bl: .84, bh: .22, lh: .42, tone: 'y3r2k4' }),
+  mk_horse: Object.assign({}, BEAST.donkey, { ears: 'small', tone: 'r5y4k3', mane: 'k8', lh: .5, bl: .74 })
+});
+function mkEgWall(P, H, tn) {
+  Lib.walls(P, { l: tn, r: tadd(tn, 'k1'), cut: 'y4r3k2' }, { h: H });
+  for (let x = 0; x < P.L; x += 30) Lib.wallR(P, x, H - 40, 26, 14, ['b6y2', 'r6y4', 'y7r2'][(x / 30) % 3], 0.5);
+  for (let y = 0; y < P.L; y += 30) Lib.wallL(P, y, H - 40, 26, 14, ['b6y2', 'r6y4', 'y7r2'][(y / 30) % 3], 0.5);
+}
+function mkLotus(P, x, y, h, tn = 'y3r1') { P.cyl(x, y, 0, 13, h, tn); for (let i = 1; i < 4; i++) P.shape(P.ell(x, y, h * i / 4, 14, 14, 16), 'b5y3', 0.5); P.cyl(x, y, h, 20, 14, 'y5b5'); P.box(x - 22, y - 22, h + 14, 44, 44, 10, 'y4r3'); }
+function mkObelisk(P, x, y, h, tn = 'r3y5k1') {
+  const I = (a, b, c) => P.I(a, b, c), s = 13, e = 8;
+  P.shape([I(x - s, y + s, 0), I(x + s, y + s, 0), I(x + e, y + e, h), I(x - e, y + e, h)], tn, 1);
+  P.shape([I(x + s, y - s, 0), I(x + s, y + s, 0), I(x + e, y + e, h), I(x + e, y - e, h)], tadd(tn, 'k1'), 1);
+  P.shape([I(x - e, y + e, h), I(x + e, y + e, h), I(x, y, h + 22)], 'y8r2', 0.8); P.shape([I(x + e, y - e, h), I(x + e, y + e, h), I(x, y, h + 22)], 'y7r3k1', 0.8);
+  for (let i = 1; i < 7; i++) { const z = h * i / 8; P.line([I(x - 4, y + s - (s - e) * z / h, z), I(x + 4, y + s - (s - e) * z / h, z)], 0.7); }
+}
+function mkSilo(P, x, y, r, h, tn = 'y4r3k1') {
+  P.cyl(x, y, 0, r, h, tn);
+  for (let k = 0; k < 5; k++) P.cyl(x, y, h + k * 9, r * (1 - k * 0.19), 9, tadd(tn, k % 2 ? 'y1' : 'r1'));
+  const d = P.I(x + r * 0.7, y + r * 0.7, h * 0.4); P.shape([[d[0] - 7, d[1]], [d[0] + 7, d[1]], [d[0] + 7, d[1] - 18], [d[0] - 7, d[1] - 18]], 'k7r2', 0.6);
+}
+function mkEars(P, x, y, fat, t) {
+  const b = P.I(x, y, 0), sw = Math.sin(t * 1.2 + x) * 3;
+  P.line([b, [b[0] + sw, b[1] - 100]], 1.6, { ink: fat ? 0 : 3 });
+  for (let i = 0; i < 7; i++) { const s = i % 2 ? 1 : -1, yy = b[1] - 30 - i * 10, xx = b[0] + sw * (i / 7) + s * (fat ? 9 : 6); P.shape(P.disc(xx, yy, fat ? 7 : 3.5, 10).map(p => [p[0], yy + (p[1] - yy) * 1.8]), fat ? 'y8r3' : 'y3r2k4', 0.5); }
+}
+function mkSack(P, x, y, open, tn = 'y4r3k2') {
+  const b = P.I(x, y, 0);
+  P.shape([[b[0] - 14, b[1]], [b[0] - 16, b[1] - 20], [b[0] - 10, b[1] - 32], [b[0] + 10, b[1] - 32], [b[0] + 16, b[1] - 20], [b[0] + 14, b[1]]], tn, 0.8);
+  if (open) P.shape(P.disc(b[0], b[1] - 32, 10, 12).map(p => [p[0], b[1] - 32 + (p[1] - b[1] + 32) * 0.4]), 'y7r3', 0.6);
+  else P.line([[b[0] - 8, b[1] - 30], [b[0] + 8, b[1] - 30]], 1.4, { ink: 1 });
+}
+const SHEET = { title: 'Mikets · Au bout', sub: 'Paracha de la semaine · Chabbat 12 décembre 2026 · Genèse 41, 1 à 44, 17' };
 const SCENES = [
 {
-  title: 'Juda s’avance vers Joseph', book: 'Genèse', ch: 44, ref: 'Genesis 44:18', refFr: 'Genèse 44, 18', accent: 1, feast: null,
-  quote: 'Then Juda coming nearer, said boldly:  I beseech thee, my lord, let thy servant speak a word in thy ears, and be not angry with thy servant:  for after Pharao thou art.',
-  fr: 'Alors Juda, s’approchant, dit avec assurance : Je t’en prie, mon seigneur, que ton serviteur dise une parole à tes oreilles, et ne t’irrite pas contre ton serviteur : car tu es le premier après Pharaon.',
-  more: ['La coupe d’argent du gouverneur a été trouvée dans le sac de Benjamin, et Joseph, que ses frères ne reconnaissent pas, veut garder le coupable comme esclave. Juda s’avance. Il raconte la vieillesse de leur père, la mort supposée de l’autre fils de Rachel, et la promesse qu’il a faite de ramener l’enfant. Il demande à rester esclave à la place de Benjamin.',
-    'Pas de fête juive attachée à ce passage. La paracha tire son nom de ce verset : Vayigach, « il s’approcha ». Le même Juda qui avait proposé de vendre Joseph (Genèse 37, 26-27) se porte ici garant de son plus jeune frère.'],
+  title: 'Les songes de Pharaon', book: 'Genèse', ch: 41, ref: 'Genesis 41:4', refFr: 'Genèse 41, 4', accent: 2, feast: 'Hanoucca',
+  quote: 'And they devoured them, whose bodies were very beautiful and well conditioned.  So Pharao awoke.',
+  fr: 'Et elles dévorèrent celles dont les corps étaient très beaux et en bon état. Alors Pharaon s’éveilla.',
+  more: ['Au bout de deux ans, Pharaon rêve : sept vaches belles et grasses montent du Nil et paissent dans les roseaux, puis sept vaches laides et maigres montent après elles et les dévorent. Il se rendort : sept épis pleins sur une seule tige, puis sept épis maigres, brûlés par le vent d’est, qui les engloutissent. Aucun devin d’Égypte ne sait l’interpréter. L’échanson se souvient alors de Joseph.',
+    'Correspondance : <b>Hanoucca</b>. Mikets est presque toujours lu pendant Hanoucca. En 5787, ce Chabbat est le huitième jour de la fête, appelé Zot ’Hanouka d’après Nombres 7, 84. On sort deux rouleaux : le maftir lit les offrandes du huitième jour et l’allumage du chandelier (Nombres 7, 54 à 8, 4), et la haftara (1 Rois 7, 40 à 50) décrit les objets du Temple de Salomon, dont dix chandeliers d’or pur.'],
   back(P) {
-    vgHall(P);
-    vgThrone(P);
-    vgSacks(P, [[430, 120, 1], [470, 150, 0.9], [440, 180, 1.1]]);
-    const c = P.I(385, 170, 0); P.shape([[c[0] - 7, c[1] - 26], [c[0] + 7, c[1] - 26], [c[0] + 3, c[1] - 14], [c[0] + 3, c[1] - 6], [c[0] + 8, c[1]], [c[0] - 8, c[1]], [c[0] - 3, c[1] - 6], [c[0] - 3, c[1] - 14]], 'b2y1', 0.8);
-    Lib.lamp(P, 250, 40, 0, 1.1);
-    Lib.jar(P, 30, 470, 0, 1.4, 'b5y3'); Lib.jar(P, 60, 500, 0, 1.2);
+    Lib.sun(P, 800, 150, 28); Lib.cloud(P, 230, 140, 170, 32, 'b1r1');
+    Lib.platform(P, 'y5r2', 'y5r3k1');
+    P.fill([P.I(0, 0, 0.5), P.I(540, 0, 0.5), P.I(540, 120, 0.5), P.I(0, 150, 0.5)], 'b6y1', {});
+    Lib.waves(P, [20, 10, 500, 110], 10, 1, 2);
+    for (let i = 0; i < 40; i++) { const x = 10 + i * 13, y = 125 + Math.sin(i * 1.7) * 12, c = P.I(x, y, 0); P.line([c, [c[0] + Math.sin(i) * 4, c[1] - 26 - (i % 4) * 6]], 1.2, { ink: 0 }); P.fill(P.disc(c[0] + Math.sin(i) * 4, c[1] - 28 - (i % 4) * 6, 2.5, 6), 'y5b6k1', {}); }
+    Lib.grass(P, 40, 'y5b5', [20, 170, 500, 160]);
+    Lib.palm(P, 500, 180, 0, 150, { lean: 8, dates: 1 });
+    P.box(40, 380, 0, 130, 70, 30, 'r4y5k3'); P.box(40, 380, 30, 130, 70, 8, 'y1b1'); P.box(40, 380, 38, 16, 70, 34, 'y7r3');
+    for (const [x, y] of [[40, 380], [170, 380], [40, 450], [170, 450]]) P.box(x - 2, y - 2, 0, 5, 5, 100, 'y7r3k1', 0.6);
+    P.shape([P.I(38, 378, 100), P.I(175, 378, 100), P.I(175, 455, 100), P.I(38, 455, 100)], 'b5y2', 0.9);
+    Lib.lamp(P, 200, 360, 0, 1);
+    Lib.stones(P, 14, 'y3r2k3', [220, 330, 300, 200]);
   },
-  live(P, t) { const c = P.I(385, 170, 0); if ((t * 0.5) % 1 < 0.6) Lib.star(P, c[0] + 4, c[1] - 22, 6, 'y3'); },
+  live(P, t) { for (let i = 0; i < 2; i++) mkEars(P, 420 + i * 70, 440 - i * 40, i === 0, t); mkEars(P, 350, 480, 0, t); },
   chars: [
-    ch(LK.vg_joseph, { x: 100, y: 255, z: 34, face: 1, clip: 'throne', h: 146 }),
-    ch(LK.vg_egypt, { x: 70, y: 110, face: 1, clip: 'guard', hold: { n: 'spear' }, h: 140 }),
-    ch(LK.vg_egypt, { x: 90, y: 400, face: 1, clip: 'guard', hold: { n: 'spear' }, h: 140, t0: 1.3 }),
-    ch(LK.vg_judah, { h: 146, speed: 14, path: [W(330, 330, 2, 'bow', { f: -1 }), W(240, 285, 7, 'talk', { f: -1 }), W(330, 330, 0)] }),
-    ch(LK.vg_benjamin, { x: 370, y: 220, face: -1, clip: 'kneel', h: 130 }),
-    ch(LK.bro1, { x: 410, y: 300, face: -1, clip: 'bow', h: 140 }),
-    ch(LK.bro2, { x: 400, y: 400, face: -1, clip: 'bow', h: 140, t0: 1 }),
-    ch(LK.bro3, { x: 320, y: 460, face: -1, clip: 'prostrate', h: 140 })
+    ch(LK.mk_pharaoh, { x: 110, y: 415, z: 38, face: 1, clip: 'sleep', h: 146, noShadow: 1 }),
+    { beast: 'mk_fat', h: 100, x: 330, y: 230, face: -1 },
+    { beast: 'mk_fat', h: 96, x: 420, y: 280, face: 1 },
+    { beast: 'mk_fat', h: 98, x: 250, y: 300, face: -1 },
+    { beast: 'mk_lean', h: 100, speed: 14, path: [W(120, 90, 1), W(250, 220, 3), W(120, 90, 0, null, { jump: 1 })] },
+    { beast: 'mk_lean', h: 96, speed: 14, t0: 4, path: [W(240, 60, 1), W(360, 180, 3), W(240, 60, 0, null, { jump: 1 })] },
+    { beast: 'mk_lean', h: 98, speed: 14, t0: 7, path: [W(380, 50, 1), W(460, 220, 3), W(380, 50, 0, null, { jump: 1 })] }
   ]
 },
 {
-  title: 'Je suis Joseph', book: 'Genèse', ch: 45, ref: 'Genesis 45:3', refFr: 'Genèse 45, 3', accent: 2, feast: null,
-  quote: 'And he said to his brethren:  I am Joseph:  Is my father yet living?  His brethren could not answer him, being struck with exceeding great fear.',
-  fr: 'Et il dit à ses frères : Je suis Joseph : mon père vit-il encore ? Ses frères ne purent lui répondre, tant ils étaient saisis d’épouvante.',
-  more: ['Joseph ne peut plus se contenir. Il fait sortir tous les Égyptiens et éclate en sanglots si fort que la maison de Pharaon l’entend. « Je suis Joseph. » Les frères restent muets. Il les fait approcher : ce n’est pas vous qui m’avez envoyé ici, c’est Dieu, pour sauver des vies. Il se jette au cou de Benjamin et embrasse chacun d’eux.',
-    'Pas de fête juive attachée à ce passage. La haftara de Vayigach (Ézéchiel 37, 15-28) lui répond : le prophète prend deux morceaux de bois, l’un pour Juda, l’autre pour Joseph, et ils ne font plus qu’un dans sa main.'],
+  title: 'Joseph devant Pharaon', book: 'Genèse', ch: 41, ref: 'Genesis 41:16', refFr: 'Genèse 41, 16', accent: 2, feast: null,
+  quote: 'Joseph answered:  Without me, God shall give Pharao a prosperous answer.',
+  fr: 'Joseph répondit : Sans moi, Dieu donnera à Pharaon une réponse favorable.',
+  more: ['On tire Joseph en hâte de la prison ; il se rase, change de vêtements et paraît devant Pharaon. « On dit que tu interprètes les songes. » Joseph renvoie à Dieu. Les deux songes n’en font qu’un : sept années d’abondance vont venir, suivies de sept années de famine. Que Pharaon choisisse un homme sage et fasse engranger le cinquième des récoltes pendant les années d’abondance.',
+    'Pas de fête juive attachée à ce passage. Joseph a trente ans quand il se tient devant Pharaon (Genèse 41, 46), treize ans après avoir été vendu par ses frères à dix-sept ans.'],
   back(P) {
-    vgHall(P, { door: 1, cols: [[250, 40], [500, 180]] });
-    vgThrone(P);
-    vgSacks(P, [[470, 470, 1], [500, 430, 0.9]]);
-    Lib.lamp(P, 200, 480, 0, 1.2);
+    Lib.platform(P, 'y3r1', 'y4r3k1', { h: 50, pebbles: false, strata: [[0, .5, 'y4r3k1'], [.5, 1, 'y4r3k3']] });
+    for (let i = 0; i < 9; i++) for (let j = 0; j < 9; j++) if ((i + j) % 2) P.fill([P.I(i * 60, j * 60, 0), P.I(i * 60 + 60, j * 60, 0), P.I(i * 60 + 60, j * 60 + 60, 0), P.I(i * 60, j * 60 + 60, 0)], 'b4y2', {});
+    mkEgWall(P, 290, 'y3r2');
+    for (let i = 0; i < 5; i++) { const p = P.I(100 + i * 85, 0.5, 150); P.shape([[p[0] - 14, p[1]], [p[0] + 14, p[1]], [p[0] + 10, p[1] - 44], [p[0] - 10, p[1] - 44]], i % 2 ? 'r6y4' : 'b5y3', 0.5); P.shape(P.disc(p[0], p[1] - 52, 9, 12), 'y8r3', 0.5); }
+    for (let i = 0; i < 4; i++) { const p = P.I(0.5, 120 + i * 100, 180); P.shape(P.disc(p[0], p[1], 14, 12), 'y8r2', 0.6); P.line([[p[0] - 30, p[1]], [p[0] - 14, p[1]]], 2, { ink: 2 }); P.line([[p[0] + 14, p[1]], [p[0] + 30, p[1]]], 2, { ink: 2 }); }
+    P.box(40, 170, 0, 140, 150, 20, 'r4y4'); P.box(60, 190, 20, 110, 110, 14, 'b6r2');
+    P.box(80, 215, 34, 44, 60, 50, 'y8r3'); P.box(66, 212, 34, 16, 66, 120, { t: 'y8r3', l: 'y7r4k1', r: 'y7r4k2' });
+    mkLotus(P, 230, 60, 250); mkLotus(P, 430, 60, 250); mkLotus(P, 60, 440, 250);
+    P.shape([P.I(220, 250, 0.5), P.I(520, 250, 0.5), P.I(520, 330, 0.5), P.I(220, 330, 0.5)], 'r7y3', 1);
+    Lib.lamp(P, 200, 170, 0, 1.2); Lib.lamp(P, 200, 350, 0, 1.2);
   },
   chars: [
-    ch(LK.vg_joseph, { x: 200, y: 290, face: 1, clip: 'offer', h: 146 }),
-    ch(LK.vg_benjamin, { x: 280, y: 330, face: -1, clip: 'lookup', h: 130 }),
-    ch(LK.vg_judah, { x: 320, y: 250, face: -1, clip: 'kneel', h: 144 }),
-    ch(LK.bro1, { x: 400, y: 320, face: -1, clip: 'stagger', h: 140 }),
-    ch(LK.bro2, { x: 340, y: 440, face: -1, clip: 'kneel', h: 140, t0: 1 }),
-    ch(LK.bro3, { x: 450, y: 420, face: -1, clip: 'still', h: 140 }),
-    ch(LK.vg_egypt, { h: 136, speed: 18, path: [W(260, 150, 1.5, 'idle'), W(420, 20, 0), W(260, 150, 0, null, { jump: 1 })] }),
-    ch(LK.vg_egyptW, { h: 128, speed: 18, t0: 4, path: [W(200, 180, 1.5, 'idle'), W(410, 25, 0), W(200, 180, 0, null, { jump: 1 })] })
+    ch(LK.mk_pharaoh, { x: 105, y: 245, z: 34, face: 1, clip: 'throne', hold: { n: 'scepter' }, h: 150 }),
+    ch(LK.mk_josephPlain, { x: 300, y: 290, face: -1, clip: 'talk', h: 136 }),
+    ch(LK.mk_magician, { x: 300, y: 130, face: -1, clip: 'sulk', h: 138 }),
+    ch(LK.mk_magician, { x: 370, y: 170, face: -1, clip: 'lookup', h: 136, t0: 1, look: Object.assign({}, LK.mk_magician, { cloak: 'b4k2' }) }),
+    ch(LK.mk_butler, { x: 420, y: 400, face: -1, clip: 'point', h: 134, hold: { f: 'cup' } }),
+    ch(LK.mk_guard, { x: 60, y: 120, face: 1, clip: 'guard', hold: { n: 'spear' }, h: 140 }),
+    ch(LK.mk_guard, { x: 110, y: 380, face: 1, clip: 'guard', hold: { n: 'spear' }, h: 140, t0: 1.3 })
   ]
 },
 {
-  title: 'Les chariots d’Égypte', book: 'Genèse', ch: 45, ref: 'Genesis 45:27', refFr: 'Genèse 45, 27', accent: 0, feast: null,
-  quote: 'They, on the other side, told the whole order of the thing.  And when he saw the wagons, and all that he had sent, his spirit revived,',
-  fr: 'Eux, de leur côté, lui racontèrent toute la suite de l’affaire. Et quand il vit les chariots et tout ce que Joseph avait envoyé, son esprit se ranima,',
-  more: ['Sur l’ordre de Pharaon, Joseph a donné à ses frères des chariots pour ramener toute la famille, des vivres, des vêtements, et dix ânes chargés des biens de l’Égypte. Revenus en Canaan, ils disent à Jacob : « Joseph vit encore, il gouverne toute l’Égypte. » Le vieillard ne les croit pas. Il voit les chariots, et son esprit revit : « C’est assez, j’irai le voir avant de mourir. »',
-    'Pas de fête juive attachée à ce passage. Rachi, d’après le midrach, lit dans les chariots (agalot) un signe envoyé par Joseph : la dernière étude qu’il partageait avec son père portait sur la génisse (egla) de Deutéronome 21.'],
-  back(P) {
-    Lib.sun(P, 180, 140, 30); Lib.cloud(P, 760, 130, 170, 34, 'b1');
-    Lib.platform(P, 'y5r2b1', 'y4r3k1', { strata: [[0, .4, 'y4r3k1'], [.4, 1, 'y4r4k3']] });
-    Lib.mound(P, 470, 60, 70, 80, 'y4b3k1'); Lib.mound(P, 380, 20, 50, 50, 'y4b3k1');
-    Lib.tent(P, 40, 40, 150, 110, 120, 'r5y4k1'); Lib.tent(P, 220, 30, 110, 90, 90, 'b3y2k1');
-    Lib.tree(P, 70, 250, 0, { h: 220, r: 70, blobs: 9, can: 'y5b6k1', trunk: 'r5y4k4' });
-    const road = [[540, 400], [420, 330], [300, 250]]; for (let i = 0; i < road.length - 1; i++) { const a = road[i], b = road[i + 1]; P.fill([P.I(a[0], a[1] - 30, 0.5), P.I(b[0], b[1] - 30, 0.5), P.I(b[0], b[1] + 30, 0.5), P.I(a[0], a[1] + 30, 0.5)], 'y3r2', {}); }
-    Lib.grass(P, 40, 'y5b4', [20, 300, 250, 220]);
-    Lib.stones(P, 18, 'y3r2k3', [250, 350, 280, 180]);
-    fenceRing(P, 120, 440, 80, -1.4, 1.2, 10);
-  },
-  chars: [
-    vgWagon(330, 100), vgWagon(420, 180, { tn: 'y5r4k2' }),
-    ch(LK.vg_jacob, { x: 190, y: 200, face: 1, clip: 'raise', h: 142, hold: { f: 'staffV' } }),
-    ch(LK.vg_judah, { x: 260, y: 240, face: -1, clip: 'talk', h: 144 }),
-    ch(LK.vg_benjamin, { x: 300, y: 290, face: -1, clip: 'point', h: 132 }),
-    ch(LK.bro2, { x: 230, y: 330, face: -1, clip: 'talk', h: 140, t0: 1 }),
-    ...[0, 1, 2].map(i => ({ beast: 'donkey', h: 92, speed: 16, t0: i * 3, path: [W(540, 400, 0), W(330, 270, 2), W(330, 270, 0, null, { jump: 1 })] })),
-    { beast: 'sheep', h: 60, x: 120, y: 440, face: 1 }
-  ]
-},
-{
-  title: 'La vision de Beer-Shéva', book: 'Genèse', ch: 46, ref: 'Genesis 46:3', refFr: 'Genèse 46, 3', accent: 2, feast: null,
-  quote: 'God said to him:  I am the most mighty God of thy father; fear not, go down into Egypt, for I will make a great nation of thee there.',
-  fr: 'Dieu lui dit : Je suis le Dieu très puissant de ton père ; ne crains pas, descends en Égypte, car là je ferai de toi une grande nation.',
-  more: ['Jacob se met en route avec tout ce qui est à lui. À Beer-Shéva, le puits du serment, il offre des sacrifices au Dieu de son père Isaac. La nuit, Dieu l’appelle : « Jacob, Jacob. » « Me voici. » Ne crains pas de descendre en Égypte : j’y descendrai avec toi, je t’en ferai remonter, et Joseph te fermera les yeux. Soixante-dix âmes descendent en Égypte.',
-    'Pas de fête juive attachée à ce passage. Le Talmud (Méguila 29a) enseigne que partout où Israël fut exilé, la Présence divine l’accompagna, et il cite d’abord l’exil en Égypte.'],
-  back(P) {
-    nightSky(P, 'b7k4', 90);
-    P.halo(560, 150, 130, ['y1b1', 'y2', 'y3', 'y4r1', 'y6r1'], { knock: true });
-    Lib.platform(P, 'y3r2b3k1', 'y3r3b2k2', { strata: [[0, .4, 'y3r3b2k2'], [.4, 1, 'y3r3b3k3']] });
-    Lib.well(P, 380, 120, 34);
-    Lib.altar(P, 170, 180, 70, 50, 40, 'y3r2b2k3');
-    Lib.tent(P, 40, 360, 120, 100, 100, 'r4y4b2k1'); Lib.tent(P, 420, 320, 100, 90, 90, 'b3y2k2');
-    Lib.stones(P, 30, 'y2r2b3k2', [20, 20, 500, 500]);
-    Lib.palm(P, 480, 60, 0, 150, { lean: -10 });
-  },
-  live(P, t) {
-    const a = P.I(205, 205, 46); Lib.flame(P, a[0], a[1], 26, 46, t); Lib.smoke(P, a[0], a[1] - 30, t, { n: 4, h: 180, r: 18, tn: 'k2b2' });
-    P.halo(560, 150, 60 + Math.sin(t * 1.4) * 8, ['y1', 'y2', 'y3']);
-    for (let i = 0; i < 6; i++) { const u = (t * 0.25 + i / 6) % 1; Lib.star(P, 560 + Math.cos(i * 1.7) * 120 * u, 150 + Math.sin(i * 1.7) * 60 * u, 5 * (1 - u), 'y7'); }
-  },
-  chars: [
-    ch(LK.vg_jacob, { x: 280, y: 250, face: 1, clip: 'pray', h: 144 }),
-    ch(LK.vg_judah, { x: 250, y: 440, face: 1, clip: 'sleep', h: 150 }),
-    ch(LK.bro1, { x: 330, y: 480, face: 1, clip: 'sleep', h: 146 }),
-    vgWagon(330, 380, { tn: 'r4y4b2k2' }),
-    { beast: 'sheep', h: 58, x: 470, y: 470, face: -1 }, { beast: 'sheep', h: 54, x: 500, y: 430, face: 1 },
-    { beast: 'donkey', h: 88, x: 470, y: 230, face: -1 }
-  ]
-},
-{
-  title: 'Joseph au cou de son père', book: 'Genèse', ch: 46, ref: 'Genesis 46:29', refFr: 'Genèse 46, 29', accent: 1, feast: null,
-  quote: 'And when he was come thither, Joseph made ready his chariot, and went up to meet his father in the same place:  and seeing him, he fell upon his neck, and embracing him, wept.',
-  fr: 'Et quand il fut arrivé là, Joseph fit atteler son char et monta à la rencontre de son père au même endroit : et le voyant, il se jeta à son cou, et l’embrassant, il pleura.',
-  more: ['Jacob envoie Juda devant lui pour préparer la route vers Gessen. Joseph fait atteler son char et monte à la rencontre de son père. Il le voit, se jette à son cou et pleure longtemps. Jacob dit : « Maintenant je peux mourir, puisque j’ai vu ton visage et que tu vis encore. » Les frères se présenteront à Pharaon comme bergers.',
-    'Pas de fête juive attachée à ce passage. Rachi note que Joseph seul pleure : Jacob, dit-il d’après les sages, récitait à cet instant le Chema.'],
-  back(P) {
-    Lib.sun(P, 820, 150, 28);
-    Lib.platform(P, 'y4b4', 'y4r3k1', { strata: [[0, .4, 'y4r3k1'], [.4, 1, 'y4r4k3']] });
-    const riv = [[0, 60], [200, 40], [540, 90], [540, 150], [220, 100], [0, 120]]; P.shape(riv.map(p => P.I(p[0], p[1], 0.6)), 'b5y1', 1); Lib.waves(P, [40, 60, 460, 50], 10, 1, 2);
-    for (let i = 0; i < 14; i++) { const c = P.I(20 + i * 36, 130 + (i % 3) * 8, 0); for (let k = -2; k <= 2; k++) P.line([[c[0] + k * 2, c[1]], [c[0] + k * 5, c[1] - 26]], 0.8, { ink: 0 }); P.fill(P.disc(c[0], c[1] - 28, 4, 8), 'y5b6', {}); }
-    Lib.grass(P, 70, 'y5b5', [20, 170, 500, 350]);
-    Lib.palm(P, 470, 190, 0, 170, { lean: -10, dates: 1 }); Lib.palm(P, 60, 200, 0, 150, { lean: 12 });
-    Lib.tent(P, 40, 400, 110, 90, 90, 'r4y4k1');
-    Lib.stones(P, 14, 'y3r2k3', [200, 400, 300, 120]);
-  },
-  chars: [
-    vgChariot(480, 200), { beast: 'vg_horse', h: 118, x: 413, y: 267, face: -1 },
-    ch(LK.vg_joseph, { x: 270, y: 300, face: -1, clip: 'cradle', h: 146 }),
-    ch(LK.vg_jacob, { x: 245, y: 285, face: 1, clip: 'cradle', h: 140 }),
-    ch(LK.vg_judah, { x: 180, y: 380, face: 1, clip: 'idle', h: 144, hold: { f: 'staffV' } }),
-    ch(LK.bro2, { h: 138, speed: 8, path: [W(330, 450, 3), W(420, 480, 3, 'point'), W(330, 450, 0)], hold: { f: 'staffV' } }),
-    { beast: 'sheep', h: 58, speed: 6, path: [W(380, 400, 3), W(440, 420, 2), W(380, 400, 0)] },
-    { beast: 'sheep', h: 56, x: 470, y: 450, face: -1 }, { beast: 'ram', h: 64, x: 280, y: 480, face: 1 }
-  ]
-},
-{
-  title: 'Jacob bénit Pharaon', book: 'Genèse', ch: 47, ref: 'Genesis 47:7', refFr: 'Genèse 47, 7', accent: 0, feast: null,
-  quote: 'After this Joseph brought in his father to the king, and presented him before him:  and he blessed him.',
-  fr: 'Après cela, Joseph introduisit son père auprès du roi et le lui présenta : et Jacob le bénit.',
-  more: ['Joseph présente d’abord cinq de ses frères, qui demandent à paître leurs troupeaux dans la terre de Gessen. Puis il fait entrer son père. Pharaon demande au vieillard son âge. « Les jours de mon pèlerinage sont de cent trente ans, peu nombreux et mauvais, et ils n’atteignent pas ceux de mes pères. » Jacob bénit Pharaon en entrant, et de nouveau en sortant.',
-    'Pas de fête juive attachée à ce passage. Le berger venu de Canaan bénit le roi d’Égypte : le texte le dit deux fois, aux versets 7 et 10.'],
-  back(P) {
-    vgHall(P, { wl: 'b3y2', wr: 'b3y2k1', cols: [[260, 40], [420, 40], [40, 470]] });
-    vgThrone(P, 1);
-    P.shape([P.I(210, 240, 0.5), P.I(520, 240, 0.5), P.I(520, 320, 0.5), P.I(210, 320, 0.5)], 'r7y3', 1);
-    for (let i = 0; i < 6; i++) P.line([P.I(230 + i * 50, 252, 1), P.I(230 + i * 50, 308, 1)], 0.8, { ink: 2 });
-    Lib.lamp(P, 170, 110, 0, 1.2); Lib.lamp(P, 170, 400, 0, 1.2);
-    P.box(328, 138, 0, 24, 24, 16, 'r4y5k2');
-  },
-  chars: [
-    ch(LK.vg_pharaoh, { x: 100, y: 255, z: 34, face: 1, clip: 'throne', hold: { n: 'scepter' }, h: 150 }),
-    ch(LK.vg_egypt, { x: 70, y: 120, face: 1, clip: 'guard', hold: { n: 'spear' }, h: 140 }),
-    ch(LK.vg_egypt, { x: 80, y: 400, face: 1, clip: 'guard', hold: { n: 'spear' }, h: 140, t0: 1.3 }),
-    ch(LK.vg_jacob, { x: 250, y: 270, face: -1, clip: 'bless', h: 140, hold: { f: 'staffV' } }),
-    ch(LK.vg_joseph, { x: 300, y: 350, face: -1, clip: 'offer', h: 146 }),
-    ch(LK.vg_judah, { x: 420, y: 300, face: -1, clip: 'bow', h: 142 }),
-    ch(LK.bro1, { x: 440, y: 400, face: -1, clip: 'bow', h: 140, t0: 1 }),
-    ch(LK.vg_egypt, { x: 340, y: 150, z: 16, face: -1, clip: 'sit', h: 130, hold: { n: 'scroll' }, look: Object.assign({}, LK.vg_egypt, { robe: 'y2', head: null }) })
-  ]
-},
-{
-  title: 'Le pain contre les troupeaux', book: 'Genèse', ch: 47, ref: 'Genesis 47:17', refFr: 'Genèse 47, 17', accent: 2, feast: null,
-  quote: 'And when they had brought them, he gave them food in exchange for their horses, and sheep, and oxen, and asses:  and he maintained them that year for the exchange of their cattle.',
-  fr: 'Et quand ils les eurent amenés, il leur donna de la nourriture en échange de leurs chevaux, de leurs brebis, de leurs bœufs et de leurs ânes : et il les nourrit cette année-là en échange de leur bétail.',
-  more: ['La famine dure. L’argent de l’Égypte et de Canaan passe tout entier dans le trésor de Pharaon. Alors les Égyptiens amènent leurs chevaux, leurs brebis, leurs bœufs et leurs ânes, et Joseph leur donne du pain en échange. L’année suivante, ils vendent leurs terres et deviennent les serfs de Pharaon, avec des semences pour cultiver.',
-    'Pas de fête juive attachée à ce passage. Le texte précise que Joseph n’acquit pas la terre des prêtres, et qu’il fixa une redevance d’un cinquième des récoltes pour Pharaon (Genèse 47, 22-26).'],
+  title: 'L’anneau et le char', book: 'Genèse', ch: 41, ref: 'Genesis 41:42', refFr: 'Genèse 41, 42', accent: 0, feast: null,
+  quote: 'And he took his ring from his own hand, and gave it into his hand:  and he put upon him a robe of silk, and put a chain of gold about his neck.',
+  fr: 'Et il ôta l’anneau de sa main et le mit dans la main de Joseph : il le revêtit d’une robe de soie et lui mit au cou un collier d’or.',
+  more: ['Pharaon fait de Joseph le second du royaume : « Sans toi, nul ne lèvera la main ni le pied dans tout le pays d’Égypte. » Il lui donne son anneau, une robe fine et un collier d’or, le fait monter sur son second char, et l’on crie devant lui « Abrekh ! ». Il lui donne un nom égyptien, Tsafnath-Panéa’h, et pour femme Asnath, fille de Poti-Phéra, prêtre d’On.',
+    'Pas de fête juive attachée à ce passage. Avant la famine naissent à Joseph deux fils, Manassé et Éphraïm. C’est par leurs noms que les pères bénissent leurs fils le vendredi soir : « Que Dieu te rende semblable à Éphraïm et à Manassé » (Genèse 48, 20).'],
   back(P) {
     Lib.sun(P, 180, 140, 30);
-    for (const [cx, w, h] of [[720, 90, 110], [820, 60, 70]]) { P.shape([[cx - w, 340], [cx, 340 - h], [cx + w * 0.3, 340]], 'y5r3', 1); P.shape([[cx + w * 0.3, 340], [cx, 340 - h], [cx + w, 340]], 'y5r3k2', 1); }
-    Lib.platform(P, 'y5r2', 'y5r3k1', { strata: [[0, .4, 'y5r3k1'], [.4, 1, 'y5r4k3']] });
-    P.box(20, 20, 0, 20, 300, 70, 'y4r3k1'); P.box(20, 20, 0, 320, 20, 70, 'y4r3k1');
-    for (const [x, y] of [[80, 70], [170, 60], [80, 170]]) { P.cyl(x, y, 0, 36, 70, 'y3r2k1'); const c = P.I(x, y, 70); P.shape(P.ell(x, y, 70, 36, 36, 20).concat([[c[0], c[1] - 44]]), 'y4r3', 1); P.shape([P.I(x - 8, y + 36, 8), P.I(x + 8, y + 36, 8), P.I(x + 8, y + 36, 30), P.I(x - 8, y + 36, 30)], 'k6r2', 0.6); }
-    const h = P.I(250, 200, 0); P.shape(Lib.bumpy(P, h[0], h[1] - 18, 50, 26, 8), 'y7r3', 1); for (let i = 0; i < 20; i++) P.fill(P.disc(h[0] - 40 + P.r() * 80, h[1] - 30 + P.r() * 26, 1.8, 6), 'y8r4k1', {});
-    for (const [x, y] of [[180, 250], [240, 270], [300, 250]]) P.box(x, y, 0, 6, 6, 110, 'r4y5k3', 0.7);
-    P.shape([P.I(170, 240, 110), P.I(310, 240, 110), P.I(310, 280, 104), P.I(170, 280, 104)], 'b5y1', 1);
-    vgSacks(P, [[330, 150, 1], [360, 180, 0.9], [300, 120, 1]]);
-    P.box(268, 318, 0, 24, 24, 16, 'r4y5k2');
-    Lib.palm(P, 490, 60, 0, 160, { lean: -12, dates: 1 });
-    Lib.stones(P, 18, 'y4r3k2', [300, 300, 220, 220]);
+    Lib.platform(P, 'y5r2', 'y5r3k1');
+    P.fill([P.I(0, 250, 0.5), P.I(540, 250, 0.5), P.I(540, 350, 0.5), P.I(0, 350, 0.5)], 'y3r1', {});
+    for (let i = 0; i < 9; i++) P.line([P.I(i * 60, 252, 1), P.I(i * 60 + 30, 348, 1)], 0.4);
+    P.box(20, 20, 0, 70, 60, 180, 'y3r2k1'); P.box(20, 150, 0, 70, 60, 180, 'y3r2k1'); P.box(20, 80, 120, 70, 70, 40, 'y4r2k1');
+    for (let z = 30; z < 170; z += 30) { Lib.wallR(P, 25, z, 55, 4, 'r6y4', 0.3); }
+    mkObelisk(P, 170, 200, 200); mkObelisk(P, 430, 200, 200);
+    Lib.palm(P, 300, 60, 0, 170, { lean: -8, dates: 1 }); Lib.palm(P, 500, 80, 0, 150, { lean: 12 });
+    Lib.city(P, 140, 20, 120, 110, 4, 'y2r1', 41);
+    P.box(275, 286, 18, 50, 30, 4, 'r5y6k2');
+    Lib.stones(P, 16, 'y3r2k3', [20, 380, 500, 140]);
   },
   chars: [
-    ch(LK.vg_joseph, { x: 220, y: 300, face: 1, clip: 'point', h: 146 }),
-    ch(LK.vg_egypt, { x: 280, y: 330, z: 16, face: 1, clip: 'sit', h: 128, hold: { n: 'scroll' }, look: Object.assign({}, LK.vg_egypt, { robe: 'y2', head: null }) }),
-    ch(LK.vg_egypt, { h: 136, speed: 14, path: [W(520, 480, 0), W(360, 370, 3, 'offer'), W(520, 480, 0)] }),
-    { beast: 'bull', h: 84, speed: 14, t0: 0.7, path: [W(540, 440, 0), W(410, 360, 3), W(540, 440, 0)] },
-    ch(LK.vg_egyptW, { h: 128, speed: 12, t0: 5, path: [W(470, 520, 0), W(340, 430, 3, 'idle'), W(470, 520, 0)] }),
-    { beast: 'donkey', h: 88, speed: 12, t0: 5.6, path: [W(500, 540, 0), W(380, 460, 3), W(500, 540, 0)] },
-    { beast: 'sheep', h: 56, x: 450, y: 330, face: -1 }, { beast: 'sheep', h: 54, x: 490, y: 300, face: -1 },
-    ch(LK.vg_egypt, { h: 134, speed: 16, over: 'carry', hold: { nTop: 'jarhead' }, path: [W(350, 190, 1.5, 'idle'), W(510, 230, 0), W(350, 190, 0, null, { jump: 1 })], look: Object.assign({}, LK.vg_egypt, { ht: 'r5y3' }) })
+    ch(LK.mk_joseph, { x: 300, y: 300, z: 22, face: 1, clip: 'raise', h: 138, noShadow: 1 }),
+    { draw(P) {
+      const I = (a, b, c) => P.I(a, b, c);
+      P.line([I(326, 300, 26), I(410, 305, 44)], 2.4, { ink: 3 });
+      P.shape([I(280, 316, 22), I(326, 316, 22), I(326, 316, 40), I(280, 316, 34)], 'y7r3', 0.9);
+      P.shape([I(326, 284, 22), I(326, 316, 22), I(326, 316, 52), I(326, 284, 52)], 'r6y5', 1);
+      const w = []; for (let k = 0; k < 20; k++) { const a = k / 20 * TAU; w.push(I(300 + Math.cos(a) * 22, 320, 22 + Math.sin(a) * 22)); } P.shape(w, 'r5y6k3', 1.2);
+      for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI; P.line([I(300 + Math.cos(a) * 20, 320, 22 + Math.sin(a) * 20), I(300 - Math.cos(a) * 20, 320, 22 - Math.sin(a) * 20)], 0.9); }
+    }, depth: 640 },
+    { beast: 'mk_horse', h: 118, x: 420, y: 285, face: 1 },
+    { beast: 'mk_horse', h: 114, x: 430, y: 325, face: 1 },
+    ch(LK.mk_steward, { x: 500, y: 230, face: 1, clip: 'raise', h: 136 }),
+    ch(LK.mk_egypt, { x: 380, y: 430, face: -1, clip: 'kneel', h: 134 }),
+    ch(LK.mk_egypt2, { x: 470, y: 420, face: -1, clip: 'prostrate', h: 134 }),
+    ch(LK.mk_egypt, { x: 180, y: 420, face: 1, clip: 'kneel', h: 132, look: Object.assign({}, LK.maid, { robe: 'y1b1' }) }),
+    ch(LK.mk_egypt2, { x: 240, y: 200, face: 1, clip: 'bow', h: 134 })
+  ]
+},
+{
+  title: 'Les greniers d’Égypte', book: 'Genèse', ch: 41, ref: 'Genesis 41:49', refFr: 'Genèse 41, 49', accent: 0, feast: null,
+  quote: 'And there was so great abundance of wheat, that it was equal to the sand of the sea, and the plenty exceeded measure.',
+  fr: 'Et il y eut une si grande abondance de blé qu’elle égalait le sable de la mer, et l’abondance dépassait toute mesure.',
+  more: ['Pendant les sept années d’abondance, Joseph parcourt l’Égypte et amasse le blé dans les villes, chaque ville gardant la récolte des champs d’alentour. Le grain s’entasse comme le sable de la mer, au point qu’on cesse de le compter. Puis viennent les années de famine : elle frappe tous les pays, et l’Égypte seule a du pain.',
+    'Pas de fête juive attachée à ce passage. Quand le peuple affamé crie vers Pharaon, celui-ci répond : « Allez vers Joseph ; faites ce qu’il vous dira » (Genèse 41, 55).'],
+  back(P) {
+    Lib.sun(P, 820, 150, 28); Lib.cloud(P, 250, 130, 150, 28, 'b1');
+    Lib.platform(P, 'y5r2', 'y5r3k1');
+    Lib.field(P, 300, 330, 220, 190, 6, 'y8r3');
+    for (const [x, y] of [[70, 70], [170, 50], [270, 40], [380, 40]]) mkSilo(P, x, y, 38, 80);
+    P.box(440, 60, 0, 70, 60, 50, 'y3r2k1'); P.box(440, 60, 50, 70, 60, 6, 'y4r3k2');
+    Lib.mound(P, 120, 190, 40, 30, 'y8r3'); Lib.mound(P, 250, 170, 34, 24, 'y7r3');
+    for (let i = 0; i < 5; i++) mkSack(P, 60 + i * 22, 270 + (i % 2) * 14, i % 3 === 0);
+    Lib.palm(P, 40, 460, 0, 140, { lean: -10, dates: 1 });
+    Lib.stones(P, 14, 'y3r2k3', [20, 300, 260, 220]);
+  },
+  chars: [
+    ch(LK.mk_joseph, { x: 230, y: 330, face: 1, clip: 'point', h: 140 }),
+    ch(LK.mk_steward, { x: 170, y: 250, face: 1, clip: 'offer', h: 134, hold: { n: 'scroll' }, look: Object.assign({}, LK.mk_magician, { cloak: 0 }) }),
+    ch(LK.mk_egypt, { h: 132, speed: 22, hold: { n: 'sheaf' }, over: 'carry', path: [W(420, 420, 1, 'reap'), W(300, 120, 1, 'kneel'), W(420, 420, 0, null, { jump: 1 })] }),
+    ch(LK.mk_egypt2, { h: 132, speed: 22, t0: 5, hold: { n: 'sheaf' }, over: 'carry', path: [W(470, 380, 1, 'reap'), W(330, 110, 1, 'kneel'), W(470, 380, 0, null, { jump: 1 })] }),
+    ch(LK.mk_egypt, { x: 380, y: 480, face: -1, clip: 'reap', h: 130, hold: { n: 'sickle' }, t0: 0.7 }),
+    ch(LK.mk_egypt2, { x: 470, y: 470, face: -1, clip: 'reap', h: 130, hold: { n: 'sickle' }, t0: 0.2 }),
+    { beast: 'donkey', h: 90, x: 120, y: 360, face: 1 }
+  ]
+},
+{
+  title: 'Les frères se prosternent', book: 'Genèse', ch: 42, ref: 'Genesis 42:6', refFr: 'Genèse 42, 6', accent: 1, feast: null,
+  quote: 'And Joseph was governor in the land of Egypt, and corn was sold by his direction to the people.  And when his brethren had bowed down to him,',
+  fr: 'Or Joseph était gouverneur au pays d’Égypte, et le blé se vendait au peuple par ses ordres. Et lorsque ses frères se furent prosternés devant lui,',
+  more: ['La famine atteint Canaan. Jacob envoie dix de ses fils acheter du blé en Égypte et garde auprès de lui Benjamin. Ils se prosternent devant le gouverneur sans le reconnaître ; Joseph les reconnaît et se souvient de ses songes. Il leur parle durement par un interprète, les accuse d’être des espions, garde Siméon en otage et exige qu’ils reviennent avec leur plus jeune frère.',
+    'Pas de fête juive attachée à ce passage. Ignorant que Joseph les comprend, les frères s’avouent leur faute : « Nous avons vu l’angoisse de son âme quand il nous suppliait, et nous n’avons pas écouté. » Joseph se détourne pour pleurer (Genèse 42, 21 à 24).'],
+  back(P) {
+    Lib.sun(P, 180, 150, 26);
+    Lib.platform(P, 'y4r2', 'y4r3k2');
+    P.box(20, 20, 0, 24, 500, 130, 'y3r2k1'); P.box(20, 20, 0, 500, 24, 130, 'y3r2k1');
+    for (let i = 0; i < 16; i++) { P.box(20, 26 + i * 31, 130, 24, 14, 12, 'y3r2k1', 0.6); P.box(26 + i * 31, 20, 130, 14, 24, 12, 'y3r2k1', 0.6); }
+    mkSilo(P, 380, 80, 40, 80); mkSilo(P, 470, 90, 34, 70);
+    P.box(50, 150, 0, 140, 170, 30, 'y4r3k1'); P.box(60, 160, 30, 120, 150, 4, 'r6b3');
+    for (const [x, y] of [[55, 155], [185, 155], [55, 315], [185, 315]]) P.box(x - 3, y - 3, 30, 6, 6, 130, 'y7r3k1', 0.6);
+    P.shape([P.I(52, 152, 160), P.I(190, 152, 160), P.I(190, 320, 160), P.I(52, 320, 160)], 'y1b2', 0.9);
+    P.box(80, 215, 34, 40, 50, 36, 'y8r3');
+    for (let i = 0; i < 6; i++) mkSack(P, 300 + (i % 3) * 26, 60 + Math.floor(i / 3) * 24, i === 1);
+  },
+  chars: [
+    ch(LK.mk_joseph, { x: 100, y: 240, z: 34, face: 1, clip: 'throne', h: 146, hold: { n: 'scepter' } }),
+    ch(LK.mk_steward, { x: 225, y: 190, face: 1, clip: 'talk', h: 134 }),
+    ch(LK.mk_judah, { x: 280, y: 260, face: -1, clip: 'prostrate', h: 140 }),
+    ch(LK.bro1, { x: 300, y: 350, face: -1, clip: 'prostrate', h: 140, t0: 0.5 }),
+    ch(LK.bro2, { x: 350, y: 200, face: -1, clip: 'prostrate', h: 140, t0: 1 }),
+    ch(LK.bro3, { x: 380, y: 290, face: -1, clip: 'prostrate', h: 140, t0: 1.5 }),
+    ch(LK.son1, { x: 280, y: 440, face: -1, clip: 'prostrate', h: 138, t0: 2 }),
+    { beast: 'donkey', h: 92, x: 470, y: 400, face: -1 }, { beast: 'donkey', h: 88, x: 480, y: 300, face: -1 }
+  ]
+},
+{
+  title: 'L’argent dans les sacs', book: 'Genèse', ch: 42, ref: 'Genesis 42:27', refFr: 'Genèse 42, 27', accent: 2, feast: null,
+  quote: 'And one of them opening his sack, to give his beast provender in the inn, saw the money in the sack\'s mouth,',
+  fr: 'Et l’un d’eux, ouvrant son sac pour donner du fourrage à sa bête à l’hôtellerie, vit l’argent à l’entrée du sac,',
+  more: ['Sur le chemin du retour, à l’étape, l’un des frères ouvre son sac pour nourrir son âne et y trouve son argent. « Qu’est-ce que Dieu nous a fait ? » disent-ils, le cœur défaillant. Arrivés chez Jacob, chacun trouve son argent dans son sac. Jacob refuse de laisser partir Benjamin : « Vous me privez de mes enfants. »',
+    'Pas de fête juive attachée à ce passage. Ruben offre ses deux fils en garantie, et Jacob refuse. C’est Juda qui obtiendra son accord en se portant lui-même garant de Benjamin (Genèse 42, 37 et 43, 8 à 9).'],
+  back(P) {
+    nightSky(P, 'b6r3k3', 90); Lib.moon(P, 780, 170, 20);
+    Lib.platform(P, 'y3r2b1k1', 'y3r3b2k2');
+    P.box(20, 20, 0, 20, 500, 60, 'y3r2k2'); P.box(20, 20, 0, 500, 20, 60, 'y3r2k2');
+    P.box(250, 60, 0, 120, 30, 26, 'y3r2k3'); P.box(255, 64, 20, 110, 22, 6, 'y6r3');
+    Lib.well(P, 460, 150, 28);
+    Lib.tree(P, 90, 80, 0, { h: 180, r: 55, blobs: 8, can: 'y3b6k3', trunk: 'r4y3k5' });
+    P.box(60, 400, 0, 50, 50, 2, 'k2', 0.4); Lib.stones(P, 7, 'k4', [65, 405, 40, 40]);
+    mkSack(P, 270, 300, 1); mkSack(P, 330, 380, 0); mkSack(P, 200, 380, 0); mkSack(P, 400, 330, 0);
+    Lib.stones(P, 16, 'y2r2b2k2', [20, 200, 500, 320]);
+  },
+  live(P, t) {
+    const f = P.I(85, 425, 0); Lib.flame(P, f[0], f[1], 18, 26, t);
+    const c = P.I(270, 300, 32); for (let i = 0; i < 6; i++) { const on = (t * 2 + i * 0.37) % 1 < 0.5; P.shape(P.disc(c[0] - 8 + (i % 3) * 8, c[1] - 2 + Math.floor(i / 3) * 4, 3.5, 8), on ? 'y2' : 'y6r2', 0.4); }
+    P.halo(c[0], c[1] - 4, 26, ['y1', 'y2']);
+  },
+  chars: [
+    ch(LK.son1, { x: 300, y: 300, face: -1, clip: 'kneel', h: 138 }),
+    ch(LK.bro1, { x: 360, y: 250, face: -1, clip: 'stagger', h: 140 }),
+    ch(LK.mk_judah, { x: 230, y: 250, face: 1, clip: 'lookup', h: 142 }),
+    ch(LK.bro3, { x: 330, y: 440, face: -1, clip: 'point', h: 138, t0: 1 }),
+    { beast: 'donkey', h: 92, x: 290, y: 120, face: -1 },
+    { beast: 'donkey', h: 90, x: 350, y: 130, face: 1 },
+    { beast: 'donkey', h: 94, speed: 8, path: [W(460, 400, 3), W(480, 460, 2), W(460, 400, 0)] }
+  ]
+},
+{
+  title: 'Le repas chez Joseph', book: 'Genèse', ch: 43, ref: 'Genesis 43:34', refFr: 'Genèse 43, 34', accent: 0, feast: null,
+  quote: 'Taking the messes which they received of him:  and the greater mess came to Benjamin, so that it exceeded by five parts.  And they drank, and were merry with him.',
+  fr: 'Ils prirent les portions qu’ils reçurent de lui : et la plus grande échut à Benjamin, et elle dépassait les autres de cinq parts. Et ils burent, et se réjouirent avec lui.',
+  more: ['Poussés par la faim, les frères reviennent avec Benjamin, le double de l’argent et des présents : baume, miel, aromates, pistaches et amandes. Joseph les fait entrer chez lui pour midi. En voyant Benjamin, le fils de sa mère, il sort en hâte pleurer dans sa chambre, puis revient et se contient. On sert Joseph à part, les frères à part, les Égyptiens à part, et les frères sont placés par ordre d’âge, à leur grand étonnement.',
+    'Pas de fête juive attachée à ce passage. Le texte précise que les Égyptiens ne pouvaient pas manger avec les Hébreux, car c’était pour eux une abomination (Genèse 43, 32).'],
+  back(P) {
+    Lib.platform(P, 'y3r1', 'y4r3k1', { h: 50, pebbles: false, strata: [[0, .5, 'y4r3k1'], [.5, 1, 'y4r3k3']] });
+    mkEgWall(P, 270, 'y4r2');
+    for (let i = 0; i < 4; i++) { const p = P.I(0.5, 90 + i * 120, 130); P.shape([[p[0] - 16, p[1]], [p[0] + 16, p[1]], [p[0] + 16, p[1] - 50], [p[0] - 16, p[1] - 50]], 'b6k2', 0.6); }
+    P.box(40, 60, 0, 130, 100, 16, 'r4y4'); P.box(70, 80, 16, 70, 50, 26, 'y8r3');
+    for (let i = 0; i < 3; i++) { const c = P.I(85 + i * 20, 100, 42); P.shape(P.disc(c[0], c[1] - 3, 6, 10), ['y7r4', 'r8b3', 'y6r2'][i], 0.5); }
+    P.box(330, 60, 0, 150, 40, 26, 'y5r3k2'); for (let i = 0; i < 4; i++) { const c = P.I(345 + i * 35, 80, 26); P.shape(P.disc(c[0], c[1] - 3, 6, 10), ['y7r4', 'y2', 'r7y4', 'y6r2'][i], 0.5); }
+    P.box(220, 260, 0, 260, 40, 26, 'r4y5k2');
+    for (let i = 0; i < 6; i++) { const c = P.I(240 + i * 40, 280, 26); P.shape(P.disc(c[0], c[1] - 3, 6, 10), ['y7r4', 'y2', 'r7y4', 'y6r2', 'r8b3', 'y8'][i], 0.5); }
+    for (let i = 0; i < 5; i++) { const c = P.I(235 + (i % 3) * 14, 268 + Math.floor(i / 3) * 14, 26); P.shape(P.disc(c[0], c[1] - 3, 7, 10), ['y8r3', 'r7y4', 'y7r4', 'r8b3', 'y6r2'][i], 0.5); }
+    mkLotus(P, 520, 250, 230); mkLotus(P, 200, 520, 230);
+    Lib.jar(P, 490, 40, 0, 1.6, 'r5y5k1'); Lib.lamp(P, 190, 230, 0, 1.1);
+  },
+  chars: [
+    ch(LK.mk_joseph, { x: 100, y: 115, z: 16, face: 1, clip: 'eat', h: 144 }),
+    ch(LK.mk_egypt2, { x: 380, y: 130, face: -1, clip: 'eat', h: 132, look: LK.mk_magician }),
+    ch(LK.mk_egypt, { x: 450, y: 130, face: -1, clip: 'eat', h: 132, t0: 1, look: LK.mk_steward }),
+    ch(LK.mk_benjamin, { x: 240, y: 320, face: -1, clip: 'eat', h: 128 }),
+    ch(LK.mk_judah, { x: 310, y: 320, face: -1, clip: 'eat', h: 136, t0: 0.5 }),
+    ch(LK.bro1, { x: 380, y: 320, face: -1, clip: 'eat', h: 134, t0: 1.1 }),
+    ch(LK.bro2, { x: 450, y: 320, face: -1, clip: 'eat', h: 134, t0: 1.6 }),
+    ch(LK.mk_egypt, { h: 130, speed: 20, hold: { n: 'bread' }, path: [W(470, 470, 2, 'idle'), W(200, 330, 2, 'offer', { f: 1 }), W(470, 470, 0)] })
+  ]
+},
+{
+  title: 'La coupe dans le sac de Benjamin', book: 'Genèse', ch: 44, ref: 'Genesis 44:12', refFr: 'Genèse 44, 12', accent: 1, feast: null,
+  quote: 'Which when he had searched, beginning at the eldest, and ending at the youngest, he found the cup in Benjamin\'s sack.',
+  fr: 'Il fouilla, commençant par l’aîné et finissant par le plus jeune, et il trouva la coupe dans le sac de Benjamin.',
+  more: ['Joseph fait remplir les sacs, remettre l’argent de chacun et cacher sa coupe d’argent dans le sac du plus jeune. Au matin, son intendant rattrape les frères. Sûrs de leur innocence, ils jurent que le coupable mourra. On fouille de l’aîné au plus jeune : la coupe est dans le sac de Benjamin. Les frères déchirent leurs vêtements et reviennent tous à la ville.',
+    'Pas de fête juive attachée à ce passage. La paracha s’arrête sur ce suspense : Joseph ne veut garder que Benjamin comme esclave. La suivante, Vayigach, s’ouvre sur la plaidoirie de Juda, qui s’offre à la place de son frère.'],
+  back(P) {
+    P.halo(820, 330, 180, ['r1y1', 'r1y2', 'r2y3', 'r3y5']); Lib.sun(P, 820, 330, 26);
+    Lib.platform(P, 'y4r2', 'y4r3k2');
+    P.box(20, 20, 0, 24, 300, 110, 'y3r2k1'); P.box(20, 20, 0, 300, 24, 110, 'y3r2k1');
+    for (let i = 0; i < 10; i++) { P.box(20, 26 + i * 30, 110, 24, 14, 12, 'y3r2k1', 0.6); P.box(26 + i * 30, 20, 110, 14, 24, 12, 'y3r2k1', 0.6); }
+    Lib.city(P, 50, 50, 170, 150, 5, 'y2r1', 44);
+    mkObelisk(P, 300, 60, 170);
+    const road = [[120, 230], [300, 330], [540, 420]]; for (let i = 0; i < 2; i++) { const a = road[i], b = road[i + 1]; P.fill([P.I(a[0] - 30, a[1] + 30, 0.5), P.I(b[0] - 30, b[1] + 30, 0.5), P.I(b[0] + 30, b[1] - 30, 0.5), P.I(a[0] + 30, a[1] - 30, 0.5)], 'y3r1', {}); }
+    mkSack(P, 260, 360, 1); mkSack(P, 350, 330, 1); mkSack(P, 410, 400, 1); mkSack(P, 220, 440, 0);
+    for (let i = 0; i < 16; i++) { const c = P.I(250 + P.r() * 30, 370 + P.r() * 25, 0.5); P.fill(P.disc(c[0], c[1], 2.2, 6), 'y7r3', {}); }
+    Lib.palm(P, 480, 150, 0, 150, { lean: 10, dates: 1 });
+    Lib.stones(P, 16, 'y3r2k3', [300, 420, 220, 100]);
+  },
+  chars: [
+    ch(LK.mk_steward, { x: 300, y: 280, face: -1, clip: 'raise', h: 138, hold: { n: 'cup' } }),
+    ch(LK.mk_benjamin, { x: 210, y: 330, face: 1, clip: 'stagger', h: 130 }),
+    ch(LK.mk_judah, { x: 330, y: 430, face: -1, clip: 'mk_tear', h: 142 }),
+    ch(LK.bro1, { x: 440, y: 330, face: -1, clip: 'mk_tear', h: 140, t0: 0.4 }),
+    ch(LK.bro2, { x: 400, y: 470, face: -1, clip: 'mk_tear', h: 140, t0: 0.8 }),
+    ch(LK.mk_guard, { x: 370, y: 210, face: -1, clip: 'guard', hold: { n: 'spear' }, h: 140 }),
+    { beast: 'donkey', h: 92, x: 150, y: 450, face: 1 }, { beast: 'donkey', h: 90, x: 490, y: 420, face: -1 }
   ]
 }
 ];
@@ -2008,7 +2065,7 @@ requestAnimationFrame(loop);
   btn.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
   addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
   addEventListener('pointerdown', e => { if (!nav.contains(e.target)) setOpen(false); });
-})("../", [{"mark": "⌂", "he": "Accueil", "fr": "Toutes les feuilles", "href": "index.html", "ink": 3}, {"mark": "AT", "he": "L’Ancien Testament", "fr": "Seize scènes, une seule feuille", "href": "ancien-testament.html", "ink": 3, "sep": 1}, {"mark": "✦", "he": "Parachiot 5787", "fr": "Les Dix Paroles et l’index", "href": "parachiot/index.html", "ink": 1, "sep": 1}, {"mark": "1", "he": "Haazinou", "fr": "Prêtez l’oreille · 19 septembre 2026", "href": "parachiot/5787-01-haazinou.html", "ink": 1}, {"mark": "2", "he": "Vezot haBerakha", "fr": "Voici la bénédiction · 4 octobre 2026", "href": "parachiot/5787-02-vezot-haberakha.html", "ink": 2}, {"mark": "3", "he": "Bereshit", "fr": "Au commencement · 10 octobre 2026", "href": "parachiot/5787-03-bereshit.html", "ink": 0}, {"mark": "4", "he": "Noa’h", "fr": "Noé · 17 octobre 2026", "href": "parachiot/5787-04-noach.html", "ink": 2}, {"mark": "5", "he": "Lekh Lekha", "fr": "Va pour toi · 24 octobre 2026", "href": "parachiot/5787-05-lekh-lekha.html", "ink": 1}, {"mark": "6", "he": "Vayera", "fr": "Il apparut · 31 octobre 2026", "href": "parachiot/5787-06-vayera.html", "ink": 0}, {"mark": "7", "he": "Hayé Sarah", "fr": "À paraître · 7 novembre 2026", "href": null, "ink": 2}, {"mark": "8", "he": "Toledot", "fr": "À paraître · 14 novembre 2026", "href": null, "ink": 1}], "parachiot/5787-13-vayigach.html");
+})("../", [{"mark": "⌂", "he": "Accueil", "fr": "Toutes les feuilles", "href": "index.html", "ink": 3}, {"mark": "AT", "he": "L’Ancien Testament", "fr": "Seize scènes, une seule feuille", "href": "ancien-testament.html", "ink": 3, "sep": 1}, {"mark": "✦", "he": "Parachiot 5787", "fr": "Les Dix Paroles et l’index", "href": "parachiot/index.html", "ink": 1, "sep": 1}, {"mark": "1", "he": "Haazinou", "fr": "Prêtez l’oreille · 19 septembre 2026", "href": "parachiot/5787-01-haazinou.html", "ink": 1}, {"mark": "2", "he": "Vezot haBerakha", "fr": "Voici la bénédiction · 4 octobre 2026", "href": "parachiot/5787-02-vezot-haberakha.html", "ink": 2}, {"mark": "3", "he": "Bereshit", "fr": "Au commencement · 10 octobre 2026", "href": "parachiot/5787-03-bereshit.html", "ink": 0}, {"mark": "4", "he": "Noa’h", "fr": "Noé · 17 octobre 2026", "href": "parachiot/5787-04-noach.html", "ink": 2}, {"mark": "5", "he": "Lekh Lekha", "fr": "Va pour toi · 24 octobre 2026", "href": "parachiot/5787-05-lekh-lekha.html", "ink": 1}, {"mark": "6", "he": "Vayera", "fr": "Il apparut · 31 octobre 2026", "href": "parachiot/5787-06-vayera.html", "ink": 0}, {"mark": "7", "he": "Hayé Sarah", "fr": "À paraître · 7 novembre 2026", "href": null, "ink": 2}, {"mark": "8", "he": "Toledot", "fr": "À paraître · 14 novembre 2026", "href": null, "ink": 1}], "parachiot/5787-12-mikets.html");
 </script>
 </body>
 </html>
