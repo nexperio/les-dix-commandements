@@ -6,6 +6,7 @@
    ============================================================ */
 (function (BASE, ITEMS, CUR) {
   'use strict';
+  const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 20.2 16.7H3.8Z M12 21.5 3.8 7.3H20.2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>';
   const INK = ['#F0B21F', '#E0453A', '#2D5BA6', '#2F2729'];
   const css = `
 #nav{position:fixed;left:14px;top:50%;transform:translateY(-50%);z-index:50;font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;color:#2F2729;-webkit-user-select:none;user-select:none}
@@ -25,7 +26,7 @@
 @media (min-width:641px){#card{left:84px;width:min(390px,calc(100vw - 108px))}.sheet{padding-left:84px}}
 @media (max-width:640px){
   #nav{top:12px;left:12px;transform:none}
-  #navbtn{display:grid;place-items:center;width:42px;height:42px;padding:0;border:0;background:rgba(244,233,211,.94);color:#2F2729;box-shadow:0 6px 18px rgba(0,0,0,.3);font:22px/1 Georgia,serif;cursor:pointer}
+  #navbtn{display:grid;place-items:center;width:42px;height:42px;padding:0;}#navbtn svg{width:26px;height:26px;color:#E0453A}#navbtn{border:0;background:rgba(244,233,211,.94);color:#2F2729;box-shadow:0 6px 18px rgba(0,0,0,.3);font:22px/1 Georgia,serif;cursor:pointer}
   #nav ol{display:none;margin-top:8px;max-height:calc(100vh - 80px)}
   #nav.open ol{display:flex}
   #help{left:66px}
@@ -44,7 +45,7 @@
     li.appendChild(el); ol.appendChild(li);
   }
   nav.append(btn, ol); document.body.appendChild(nav);
-  const setOpen = o => { nav.classList.toggle('open', o); btn.setAttribute('aria-expanded', String(o)); btn.textContent = o ? '×' : '☰'; };
+  const setOpen = o => { nav.classList.toggle('open', o); btn.setAttribute('aria-expanded', String(o)); btn.innerHTML = o ? STAR : '☰'; };
   btn.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
   addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
   addEventListener('pointerdown', e => { if (!nav.contains(e.target)) setOpen(false); });

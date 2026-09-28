@@ -135,6 +135,10 @@ function fillCard(i) {
   lk.onclick = e => { e.stopPropagation(); const o = more.classList.toggle('open'); setTimeout(paintCardBg, 750); cardPinned = o; lk.textContent = o ? 'Refermer ‹' : cardLink(d); userT = performance.now() / 1000; };
   requestAnimationFrame(paintCardBg);
 }
+/* l'étoile de David ferme la carte et ramène à la vue d'ensemble */
+function closeCard() { cardPinned = false; card.classList.remove('on'); interact(); flyTo({ x: SW / 2, y: SH / 2, z: fitZ() }, 1.6); }
+card.querySelector('.x').addEventListener('click', e => { e.stopPropagation(); closeCard(); });
+addEventListener('keydown', e => { if (e.key === 'Escape' && card.classList.contains('on')) closeCard(); });
 function paintCardBg() {
   const r = card.getBoundingClientRect(), dp = Math.min(2, window.devicePixelRatio || 1); cardBg.width = Math.max(1, r.width * dp); cardBg.height = Math.max(1, r.height * dp);
   const g = cardBg.getContext('2d'); g.fillStyle = PAPER; g.fillRect(0, 0, cardBg.width, cardBg.height);
