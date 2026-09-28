@@ -35,6 +35,9 @@ h2{font-weight:normal;font-size:32px;text-align:center;margin:0 0 6px}
 .card .fr{font-style:italic;font-size:16px;line-height:1.45}
 .card .go{display:inline-block;margin-top:14px;font-style:italic;border-bottom:1px solid currentColor}
 .card.soon{opacity:.55;pointer-events:none}
+#now{max-width:640px;margin:0 auto 34px}#now .card{text-align:center;padding:26px 30px 24px}#now h3{font-size:40px}
+#now .card.wait{pointer-events:none}#now .card.wait .go{border:0;opacity:.7}
+.grid .card.cur{outline:2px solid var(--o);outline-offset:3px}
 footer{margin-top:44px;text-align:center;font-size:13px;opacity:.7;line-height:1.6}
 footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-decoration:none;border-bottom:1px solid currentColor}
 @media (max-width:760px){.doors{grid-template-columns:1fr}.sheet{padding:72px 16px 60px}}
@@ -54,17 +57,27 @@ footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-
   <a class="card" data-ink="2" href="parachiot/index.html"><canvas></canvas><div class="n" style="color:#2D5BA6">Année 5787 · 2026-2027</div><h3>Parachiot</h3><div class="fr">Les Dix Paroles et l’index des lectures de la semaine, dates de la diaspora.</div><span class="go" style="color:#2D5BA6">Voir l’index ›</span></a>
 </div>
 <div class="orn"><i></i><b></b><i></i></div>
-<h2>Les feuilles de la semaine</h2>
-<p class="h2s">Une feuille par paracha, depuis le début de l’année biblique</p>
+<div id="now"></div>
+<h2>Les parachiot de l’année</h2>
+<p class="h2s">Une feuille par paracha, de Haazinou à Nitsavim-Vayélekh</p>
 <div class="grid" id="grid"></div>
 <footer>Versets traduits en français depuis la Douay-Rheims, Old Testament Part 1 (Project Gutenberg n° 1609).<br>Glisser, molette, pincer, double-clic : chaque feuille se parcourt comme une carte.<br><span class="credit">Une réalisation <a href="https://nexperio.tech">nexperio.tech</a></span></footer>
 </div>
 <script>
 /*CORE*/
 const ITEMS = /*ITEMS*/;
-const grid = document.getElementById('grid');
-for (const it of ITEMS.filter(i => /^\d+$/.test(i.mark))) {
-  const a = document.createElement('a'); a.className = 'card' + (it.href ? '' : ' soon'); if (it.href) a.href = it.href;
+const grid = document.getElementById('grid'), SHEETS = ITEMS.filter(i => /^\d+$/.test(i.mark));
+/* paracha de la semaine : le premier Chabbat (ou jour de lecture) qui n'est pas encore passé */
+const today = new Date(); today.setHours(0, 0, 0, 0);
+const cur = SHEETS.find(i => new Date(i.day + 'T00:00:00') >= today);
+if (cur) {
+  const hex = INKS[cur.ink].hex, a = document.createElement(cur.href ? 'a' : 'div');
+  a.className = 'card' + (cur.href ? '' : ' wait'); if (cur.href) a.href = cur.href; a.dataset.ink = cur.ink;
+  a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Cette semaine · ${cur.date}</div><h3>${cur.he}</h3><div class="fr">${cur.sens}</div><span class="go" style="color:${hex}">${cur.href ? 'Ouvrir la feuille ›' : 'Feuille à paraître'}</span>`;
+  document.getElementById('now').appendChild(a);
+}
+for (const it of SHEETS) {
+  const a = document.createElement('a'); a.className = 'card' + (it.href ? '' : ' soon') + (it === cur ? ' cur' : ''); if (it.href) a.href = it.href; a.style.setProperty('--o', INKS[it.ink].hex);
   const hex = INKS[it.ink].hex;
   a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Feuille ${it.mark}</div><h3>${it.he}</h3><div class="fr">${it.fr}</div>${it.href ? `<span class="go" style="color:${hex}">Ouvrir ›</span>` : ''}`;
   a.dataset.ink = it.ink; grid.appendChild(a);
