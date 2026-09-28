@@ -45,7 +45,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#26211d;touch-action:n
 @media (max-width:640px){#help{top:12px;right:12px;left:12px;max-width:none;font-size:12.5px;text-align:center}}
 #printbtn{position:fixed;right:20px;bottom:20px;z-index:40;padding:9px 14px;border:0;background:rgba(244,233,211,.92);color:#2F2729;font:italic 14px/1.2 "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
 #printbtn b{font-style:normal;font-weight:normal;font-variant:small-caps;letter-spacing:.08em;color:#E0453A}
-#card .lkp,#card .lko{margin-left:16px}
+#card .lkp{margin-left:16px}#card .lko{display:table;margin-top:6px}
 #card .x{position:absolute;top:8px;right:8px;width:34px;height:34px;padding:4px;border:0;background:none;color:var(--acc);cursor:pointer;transition:transform .35s ease}
 #card .x svg{display:block;width:100%;height:100%}
 #card .x:hover,#card .x:focus-visible{transform:rotate(30deg) scale(1.12)}
@@ -1682,12 +1682,13 @@ const ROMAN = n => { const r = [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, '
 const brakhaHTML = b => b.map(x => `<div class="bk">${x.label ? `<div class="bl">${x.label}</div>` : ''}<p class="he" lang="he" dir="rtl">${x.he}</p><p class="ph">${x.ph}</p><p class="tr">${x.fr}</p>${x.note ? `<p class="bn">${x.note}</p>` : ''}</div>`).join('');
 /* d'où vient la citation : la Douay-Rheims, ou le Talmud (référence au format de Sefaria, voir tools/talmud.py).
    Pour le Talmud, `texte.html` (dans talmud/) montre l'original hébreu ou araméen de chaque scène. */
-const TSRC = { bavli: ['Talmud de Babylone', 'traduit de l’araméen', 'éd. de Vilna'], mishna: ['Michna', 'traduit de l’hébreu', 'éd. Romm, Vilna 1913'], yeru: ['Talmud de Jérusalem', 'traduit de l’araméen', 'éd. Guggenheimer'] };
+/* le Talmud mêle hébreu et araméen ; une scène peut préciser la langue de sa citation : `lang: 'araméen'` */
+const TSRC = { bavli: ['Talmud de Babylone', 'traduit de l’hébreu et de l’araméen', 'éd. de Vilna'], mishna: ['Michna', 'traduit de l’hébreu', 'éd. Romm, Vilna 1913'], yeru: ['Talmud de Jérusalem', 'traduit de l’hébreu et de l’araméen', 'éd. Guggenheimer'] };
 const srcKind = r => /^Jerusalem Talmud /.test(r) ? 'yeru' : /^(Mishnah |Pirkei Avot )/.test(r) ? 'mishna' : /^\D.* \d+[ab]$/.test(r) ? 'bavli' : null;
 const srcOf = d => {
   const k = srcKind(d.ref);
   if (!k) return { kick: `${d.book} · chapitre ${ROMAN(d.ch)}`, tr: 'traduit de la Douay-Rheims' };
-  const [name, tr, ed] = TSRC[k];
+  const [name, tr0, ed] = TSRC[k], tr = d.lang ? 'traduit de l’' + d.lang : tr0;
   return { k, kick: `${name} · traité ${d.book}` + (k === 'mishna' ? ` · chapitre ${ROMAN(d.ch)}` : ''), tr, ed, href: 'texte.html#' + d.ref.replace(/ /g, '_').replace(/:/g, '.') };
 };
 const cardLink = d => d.brakha ? 'La bénédiction et le commentaire ›' : d.feast ? 'Fête : ' + d.feast + ' ›' : 'Lire le commentaire ›';
@@ -1698,7 +1699,7 @@ function fillCard(i) {
   const so = srcOf(d);
   cardIn.innerHTML = `<div class="kick">${so.kick}</div><h1>${d.title}</h1><div class="orn"><i></i><b></b><i></i></div>` +
     `<p class="q"><span class="dc"><small>«\u202F</small>${first}</span>${rest}\u202F»</p><div class="src">${d.refFr || d.ref} · ${so.tr}</div>` +
-    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href}">Le texte original ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
+    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href.replace('#', `?from=${encodeURIComponent(location.pathname.split('/').pop())}&scene=${i + 1}#`)}">Le texte original ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
   const lk = cardIn.querySelector('.lk'), more = cardIn.querySelector('.more');
   lk.onclick = e => { e.stopPropagation(); const o = more.classList.toggle('open'); setTimeout(paintCardBg, 750); cardPinned = o; lk.textContent = o ? 'Refermer ‹' : cardLink(d); userT = performance.now() / 1000; };
   requestAnimationFrame(paintCardBg);

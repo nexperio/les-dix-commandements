@@ -500,7 +500,7 @@ const SCENES = [
   ]
 },
 {
-  title: 'Le crâne sur l’eau', book: 'Avot', ch: 2, ref: 'Pirkei Avot 2:6', refFr: 'Avot 2, 6', accent: 2, feast: null,
+  title: 'Le crâne sur l’eau', book: 'Avot', ch: 2, ref: 'Pirkei Avot 2:6', refFr: 'Avot 2, 6', accent: 2, feast: null, lang: 'hébreu et de l’araméen',
   quote: 'אף הוא ראה גולגלת אחת שצפה על פני המים. אמר לה על דאטפת אטפוך וסוף מטיפיך יטופון',
   fr: 'Il vit aussi un crâne qui flottait à la surface de l’eau. Il lui dit : parce que tu as noyé, on t’a noyé ; et à la fin, ceux qui t’ont noyé seront noyés.',
   more: ['Hillel marche au bord de l’eau et voit passer un crâne. Il ne sait rien de cet homme, mais il en tire une leçon, dite en araméen, la langue parlée de son temps : le mal qu’on fait revient sur celui qui l’a fait, et ceux qui se sont faits les exécuteurs de cette justice n’y échappent pas davantage. La Michna ne dit pas qui était l’homme ; elle garde seulement la parole et le fleuve qui l’emporte.',

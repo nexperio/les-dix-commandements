@@ -16,7 +16,7 @@
   3. Les deux anges du vendredi soir  (Chabbat 119b)
   4. Hillel et les Bnei Beteira  (Pessahim 66a)  fête : Pessah
   5. Trois livres ouverts  (Roch Hachana 16b)  fête : Rosh Hashana
-  6. Le grand prêtre sort en paix  (Michna Yoma 7, 4)  fête : Kippour
+  6. Le grand prêtre sort en paix  (Michna Yoma 7, 4)  fête : Yom Kippour
   7. La joie de puiser l’eau  (Souccah 51a)  fête : Souccot
   8. Honi le traceur de cercles  (Taanit 23a)
   9. « Cela aussi est pour le bien »  (Taanit 21a)
@@ -1622,7 +1622,7 @@ const tmStatic = (P, lk, o) => renderChar(P, prepChar(ch(lk, o)), o.tt || 1.3);
 /* un objet qui suit un trajet comme un personnage (agneaux, anges) */
 const tmTrack = (o) => prepChar(Object.assign({ h: 60 }, o));
 /* ciel de nuit, ciel de crépuscule */
-const tmDusk = (P, tones, ys) => { const t = tones || ['b4r2k1', 'b3r2', 'r3y3', 'r2y5'], Y = ys || [0, 190, 270, 330], d = P.disc(500, 470, 450, 72); for (let i = 0; i < t.length; i++) P.fill(d.map(p => [p[0], Math.min(640, Math.max(p[1], Y[i]))]), t[i], {}); };
+const tmDusk = (P, tones, ys) => { const t = tones || ['b4r2k1', 'b3r2', 'r3y3', 'r2y5'], Y = ys || [0, 190, 270, 330], d = P.disc(500, 490, 430, 72); for (let i = 0; i < t.length; i++) P.fill(d.map(p => [p[0], Math.min(640, Math.max(p[1], Y[i]))]), t[i], {}); };
 /* maison de pierre à toit plat : porte en arc sur la face avant gauche (dx) ou droite (dy), fenêtres */
 const tmHouse = (P, x, y, w, d, h, tn, o = {}) => {
   P.box(x, y, 0, w, d, h, tn);
@@ -1767,9 +1767,9 @@ const SCENES = [
     Lib.stones(P, 12, 'y3r2k3', [120, 480, 380, 50]);
   },
   chars: [
-    ch(LK.tmShammai, { x: 100, y: 150, face: 1, clip: 'tmPush', h: 144, hold: { n: 'tmCubit' } }),
+    ch(LK.tmShammai, { x: 92, y: 146, face: 1, clip: 'tmPush', h: 144, hold: { n: 'tmCubit' } }),
     ch(LK.tmHillel, { x: 384, y: 150, face: -1, clip: 'offer', h: 138 }),
-    ch(LK.tmGer, { h: 136, speed: 28, path: [W(180, 176, 3.2, 'tmOneFoot', { f: -1 }), W(290, 196, 5, 'tmOneFoot', { f: 1 }), W(290, 196, 3, 'bow', { f: 1 }), W(180, 176, 0, null, { jump: 1 })] }),
+    ch(LK.tmGer, { h: 136, speed: 28, path: [W(206, 190, 3.2, 'tmOneFoot', { f: -1 }), W(292, 198, 5, 'tmOneFoot', { f: 1 }), W(292, 198, 3, 'bow', { f: 1 }), W(206, 190, 0, null, { jump: 1 })] }),
     ch(LK.tmTalmid, { x: 456, y: 248, z: 22, face: -1, clip: 'tmSitRead', h: 130, hold: { nTop: 'tmBook' } }),
     ch(LK.tmTalmid2, { x: 500, y: 248, z: 22, face: -1, clip: 'tmSitTalk', h: 132, t0: 1 }),
     { beast: 'donkey', x: 136, y: 410, face: 1, h: 100 },
@@ -1985,7 +1985,7 @@ const SCENES = [
   ]
 },
 {
-  title: 'Le grand prêtre sort en paix', book: 'Yoma', ch: 7, ref: 'Mishnah Yoma 7:4', refFr: 'Michna Yoma 7, 4', accent: 2, feast: 'Kippour',
+  title: 'Le grand prêtre sort en paix', book: 'Yoma', ch: 7, ref: 'Mishnah Yoma 7:4', refFr: 'Michna Yoma 7, 4', accent: 2, feast: 'Yom Kippour',
   quote: 'הביאו לו בגדי עצמו. ולבש. ומלוין אותו עד ביתו. ויום טוב היה עושה לאוהביו. בשעה שיצא בשלום מן הקדש',
   fr: 'On lui apportait ses propres vêtements, et il s’en vêtait. On l’accompagnait jusqu’à sa maison, et il faisait un jour de fête pour ses amis, quand il était sorti en paix du sanctuaire.',
   more: ['La Michna décrit la fin du jour de Kippour au Temple. Le grand prêtre s’est immergé cinq fois et a changé d’habits : les vêtements de lin blanc pour entrer dans le Saint des saints, les vêtements d’or pour le reste du service. Au soir, après l’encens et l’allumage des lampes, il remet ses propres habits ; le peuple le raccompagne chez lui aux flambeaux. Entrer dans le Saint des saints était redoutable : il n’y prolongeait pas sa prière, pour ne pas effrayer Israël (Yoma 5, 1).',
@@ -2114,6 +2114,8 @@ const SCENES = [
     ch(LK.tmTalmid2, { x: 170, y: 390, face: 1, clip: 'lookup', h: 138, t0: 1 }),
     ch(LK.tmWoman2, { x: 400, y: 380, face: -1, clip: 'tmRain', h: 130, t0: 1.5 }),
     ch(LK.tmGirl, { x: 440, y: 420, face: -1, clip: 'dance', h: 84 }),
+    { beast: 'sheep', x: 470, y: 360, face: -1, h: 64 },
+    { beast: 'sheep', x: 500, y: 410, face: 1, h: 60, t0: 1 },
     ch(LK.tmFarmer, { x: 150, y: 176, face: -1, clip: 'kneel', h: 132 })
   ]
 },
@@ -2160,7 +2162,7 @@ const SCENES = [
     ch(LK.soldier, { x: 90, y: 480, z: 16, face: 1, clip: 'guard', h: 140, t0: 1, hold: { n: 'spear' } }),
     ch(LK.tmCourtier, { x: 120, y: 430, z: 16, face: 1, clip: 'point', h: 138 }),
     { beast: 'donkey', h: 110, speed: 20, path: [W(300, 60, 2), W(300, 200, 0), W(330, 380, 0), W(210, 400, 5), W(300, 60, 0, null, { jump: 1 })] },
-    ch(LK.tmNahum, { h: 116, speed: 20, dz: 1, walk: 'tmRide', hold: { nTop: 'tmChest' }, path: [W(307, 53, 2, 'tmRide', { z: 78 }), W(307, 193, 0, null, { z: 78 }), W(337, 373, 0, null, { z: 78 }), W(217, 393, 5, 'tmRide', { z: 78 }), W(307, 53, 0, null, { z: 78, jump: 1 })] }),
+    ch(LK.tmNahum, { h: 116, speed: 20, dz: 1, walk: 'tmRide', hold: { nTop: 'tmChest' }, path: [W(303, 57, 2, 'tmRide', { z: 78 }), W(303, 197, 0, null, { z: 78 }), W(333, 377, 0, null, { z: 78 }), W(213, 397, 5, 'tmRide', { z: 78 }), W(303, 57, 0, null, { z: 78, jump: 1 })] }),
     ch(LK.tmInnkeeper, { x: 380, y: 150, face: -1, clip: 'point', h: 134 }),
     ch(LK.tmWoman, { x: 440, y: 130, face: -1, clip: 'idle', h: 128, t0: 1 })
   ]
@@ -2338,12 +2340,13 @@ const ROMAN = n => { const r = [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, '
 const brakhaHTML = b => b.map(x => `<div class="bk">${x.label ? `<div class="bl">${x.label}</div>` : ''}<p class="he" lang="he" dir="rtl">${x.he}</p><p class="ph">${x.ph}</p><p class="tr">${x.fr}</p>${x.note ? `<p class="bn">${x.note}</p>` : ''}</div>`).join('');
 /* d'où vient la citation : la Douay-Rheims, ou le Talmud (référence au format de Sefaria, voir tools/talmud.py).
    Pour le Talmud, `texte.html` (dans talmud/) montre l'original hébreu ou araméen de chaque scène. */
-const TSRC = { bavli: ['Talmud de Babylone', 'traduit de l’araméen', 'éd. de Vilna'], mishna: ['Michna', 'traduit de l’hébreu', 'éd. Romm, Vilna 1913'], yeru: ['Talmud de Jérusalem', 'traduit de l’araméen', 'éd. Guggenheimer'] };
+/* le Talmud mêle hébreu et araméen ; une scène peut préciser la langue de sa citation : `lang: 'araméen'` */
+const TSRC = { bavli: ['Talmud de Babylone', 'traduit de l’hébreu et de l’araméen', 'éd. de Vilna'], mishna: ['Michna', 'traduit de l’hébreu', 'éd. Romm, Vilna 1913'], yeru: ['Talmud de Jérusalem', 'traduit de l’hébreu et de l’araméen', 'éd. Guggenheimer'] };
 const srcKind = r => /^Jerusalem Talmud /.test(r) ? 'yeru' : /^(Mishnah |Pirkei Avot )/.test(r) ? 'mishna' : /^\D.* \d+[ab]$/.test(r) ? 'bavli' : null;
 const srcOf = d => {
   const k = srcKind(d.ref);
   if (!k) return { kick: `${d.book} · chapitre ${ROMAN(d.ch)}`, tr: 'traduit de la Douay-Rheims' };
-  const [name, tr, ed] = TSRC[k];
+  const [name, tr0, ed] = TSRC[k], tr = d.lang ? 'traduit de l’' + d.lang : tr0;
   return { k, kick: `${name} · traité ${d.book}` + (k === 'mishna' ? ` · chapitre ${ROMAN(d.ch)}` : ''), tr, ed, href: 'texte.html#' + d.ref.replace(/ /g, '_').replace(/:/g, '.') };
 };
 const cardLink = d => d.brakha ? 'La bénédiction et le commentaire ›' : d.feast ? 'Fête : ' + d.feast + ' ›' : 'Lire le commentaire ›';
@@ -2354,7 +2357,7 @@ function fillCard(i) {
   const so = srcOf(d);
   cardIn.innerHTML = `<div class="kick">${so.kick}</div><h1>${d.title}</h1><div class="orn"><i></i><b></b><i></i></div>` +
     `<p class="q"><span class="dc"><small>«\u202F</small>${first}</span>${rest}\u202F»</p><div class="src">${d.refFr || d.ref} · ${so.tr}</div>` +
-    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href}">Le texte original ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
+    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href.replace('#', `?from=${encodeURIComponent(location.pathname.split('/').pop())}&scene=${i + 1}#`)}">Le texte original ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
   const lk = cardIn.querySelector('.lk'), more = cardIn.querySelector('.more');
   lk.onclick = e => { e.stopPropagation(); const o = more.classList.toggle('open'); setTimeout(paintCardBg, 750); cardPinned = o; lk.textContent = o ? 'Refermer ‹' : cardLink(d); userT = performance.now() / 1000; };
   requestAnimationFrame(paintCardBg);

@@ -1766,11 +1766,12 @@ const SCENES = [
     tnPath(P, [[0, 330], [110, 220], [220, 110], [330, 0]], 14, 'y4r3');
     for (let k = 1; k < 4; k++) { const x = k * 82 + 6, y = 330 - k * 82 + 6; P.cyl(x + 18, y + 18, 0, 5, 22, 'y2r1k1', 0.6, 10); }
     for (const [x, y] of [[80, 200], [180, 120], [260, 30]]) { P.box(x, y, 0, 46, 14, 16, 'y3r2k2', 0.7); }
-    Lib.field(P, 330, 30, 200, 170, 9, 'y7r2'); tnOlive(P, 40, 170, 0.8, 4); tnOlive(P, 170, 40, 0.75, 3); tnCypress(P, 20, 60, 110);
+    P.fill([P.I(320, 20, 0.3), P.I(535, 20, 0.3), P.I(535, 215, 0.3), P.I(320, 215, 0.3)], 'y7r3', {}); for (let i = 0; i < 9; i++) P.line([P.I(325, 30 + i * 21, 0.4), P.I(530, 30 + i * 21, 0.4)], 0.4, { ink: 1, lvl: 6 });
+    Lib.field(P, 330, 30, 200, 170, 9, 'y8r3'); tnOlive(P, 40, 170, 0.8, 4); tnOlive(P, 170, 40, 0.75, 3); tnCypress(P, 20, 60, 110);
     { const r = rng(52); for (let i = 0; i < 46; i++) { const q = P.I(20 + r() * 300, 360 + r() * 170, 0); if (r() > 0.4) { P.line([[q[0], q[1]], [q[0], q[1] - 7]], 0.6, { ink: 2 }); P.fill(P.disc(q[0], q[1] - 8, 2.4, 6), r() > 0.3 ? 'r8y2' : 'y8', {}); } } }
     for (const [x, y] of [[360, 190], [420, 200], [480, 180]]) { const q = P.I(x, y, 0); for (let i = -3; i <= 3; i++) P.line([[q[0] + i * 2, q[1]], [q[0] + i * 3.2, q[1] - 26]], 1, { ink: 0, lvl: 8 }); P.line([[q[0] - 6, q[1] - 12], [q[0] + 6, q[1] - 12]], 1.4, { ink: 3, lvl: 6 }); }
     Lib.grass(P, 70, 'y5b4');
-    Lib.stones(P, 14, 'y3r2k3', [30, 260, 160, 120]);
+    Lib.stones(P, 14, 'y3r2k3', [30, 260, 160, 120]); Lib.tree(P, 90, 470, 0, { h: 130, r: 38, can: 'y3b6k2', trunk: 'r4y4k5', fruit: 6, fruitTone: 'r5y4k4' }); Lib.bush(P, 500, 520, 0, 16); Lib.bush(P, 30, 330, 0, 14);
     Lib.tree(P, 470, 330, 0, { h: 150, r: 46, can: 'y3b6k2', trunk: 'r4y4k5', fruit: 9, fruitTone: 'r5y4k4' });
     for (const [x, y, hh] of [[370, 382, 38], [240, 320, 36], [216, 402, 36], [246, 472, 36], [322, 486, 36], [424, 470, 36]]) P.box(x - 12, y - 12, 0, 24, 24, hh, 'y3r2k2', 0.8);
     P.shape([P.I(200, 290, 0.5), P.I(330, 290, 0.5), P.I(330, 420, 0.5), P.I(200, 420, 0.5)], 'r5y3k1', 0.7);
@@ -1784,7 +1785,8 @@ const SCENES = [
     ch(LK.tnSage2, { x: 246, y: 472, face: 1, clip: 'sit', h: 130, t0: 1.5 }),
     ch(LK.tnShimon, { x: 322, y: 486, face: 1, clip: 'tnSitRead', h: 130, t0: 2.2, hold: { nTop: 'scroll' } }),
     ch(LK.tnTalm4, { x: 424, y: 470, face: -1, clip: 'sit', h: 130, t0: 0.4 }),
-    ch(LK.reaper, { h: 118, x: 440, y: 110, face: -1, clip: 'reap', hold: { n: 'sickle' } })
+    ch(LK.reaper, { h: 118, x: 440, y: 110, face: -1, clip: 'reap', hold: { n: 'sickle' } }),
+    { beast: 'donkey', h: 70, x: 520, y: 440, face: -1 }
   ]
 },
 {
@@ -1831,14 +1833,14 @@ const SCENES = [
     const cy = 3.2, u = (t % cy) / cy, s = 1.15, g = P.I(232, 214, 0)[1];
     if (u < 0.34) tnJarAt(P, o.hN[0], o.hN[1] + 20, s);
     else if (u < 0.58) { const k = (u - 0.34) / 0.24, y = lerp(o.hN[1] + 20, g, k * k); tnJarAt(P, o.hN[0] - k * 6, y, s); }
-    else { const x = o.hN[0] - 6; for (let i = 0; i < 6; i++) { const a = i * 1.1, r = 10 + (i % 3) * 6; P.shape([[x + Math.cos(a) * r, g - 2 + Math.sin(a) * r * 0.35], [x + Math.cos(a) * r + 6, g - 4 + Math.sin(a) * r * 0.35], [x + Math.cos(a) * r + 3, g + Math.sin(a) * r * 0.35]], 'r5y6k1', 0.5); } if (u < 0.7) for (let i = 0; i < 5; i++) { const a = -Math.PI * (0.15 + i * 0.17); P.line([[x + Math.cos(a) * 12, g + Math.sin(a) * 8], [x + Math.cos(a) * 22, g + Math.sin(a) * 16]], 1, { ink: 3, lvl: 7 }); } }
+    else { const x = o.hN[0] - 6, k = clamp((u - 0.58) / 0.12, 0, 1); P.fill(P.disc(x, g + 2, 26, 18).map(p => [p[0], g + 2 + (p[1] - g - 2) * 0.35]), 'b4y1', { noKnock: true }); for (let i = 0; i < 7; i++) { const a = i * 0.9 + 0.3, r = (8 + (i % 3) * 7) * (0.6 + 0.4 * k); P.shape([[x + Math.cos(a) * r - 4, g - 1 + Math.sin(a) * r * 0.35], [x + Math.cos(a) * r + 5, g - 6 + Math.sin(a) * r * 0.35], [x + Math.cos(a) * r + 4, g + 2 + Math.sin(a) * r * 0.35]], 'r6y5k2', 0.6); } if (u < 0.74) for (let i = 0; i < 6; i++) { const a = -Math.PI * (0.1 + i * 0.16); P.line([[x + Math.cos(a) * 14, g + Math.sin(a) * 9], [x + Math.cos(a) * (22 + 10 * k), g + Math.sin(a) * (16 + 8 * k)]], 1.2, { ink: 2, lvl: 8 }); } }
   },
   chars: [
     ch(LK.tnAmah, { x: 250, y: 186, z: 197, face: -1, clip: 'tnThrow', h: 120, noShadow: 1 }),
     ch(LK.tnSage1, { x: 130, y: 300, face: 1, clip: 'tnDaven', h: 136 }),
-    ch(LK.tnSage2, { x: 330, y: 290, face: -1, clip: 'tnDaven', h: 138, t0: 0.6 }),
+    ch(LK.tnSage2, { x: 370, y: 300, face: -1, clip: 'tnDaven', h: 138, t0: 0.6 }),
     ch(LK.tnSage3, { x: 200, y: 380, face: 1, clip: 'tnDaven', h: 134, t0: 1.1 }),
-    ch(LK.tnMeir, { x: 290, y: 400, face: -1, clip: 'lookup', h: 136 }),
+    ch(LK.tnMeir, { x: 300, y: 410, face: -1, clip: 'lookup', h: 136 }),
     ch(LK.tnTalm3, { x: 400, y: 380, face: -1, clip: 'tnDaven', h: 136, t0: 0.3 }),
     ch(LK.tnTalm4, { x: 120, y: 450, face: 1, clip: 'pray', h: 132, t0: 1.6 })
   ]
@@ -1870,6 +1872,9 @@ const SCENES = [
     tnCol(P, RX, 40, H + 8, 'y1b1'); tnCol(P, RX, 150, H + 8, 'y1b1'); tnCol(P, 60, RY, H + 8, 'y1b1'); tnCol(P, 170, RY, H + 8, 'y1b1'); tnCol(P, RX, RY, H + 8, 'y1b1');
     Lib.palm(P, 490, 140, 0, 200, { lean: 16, dates: 1 }); Lib.palm(P, 30, 450, 0, 170, { lean: -12 });
     fenceRing(P, 420, 420, 88, Math.PI, 2 * Math.PI, 10);
+    P.cyl(140, 390, 0, 34, 14, 'y2r1k1', 0.9, 20); P.shape(P.ell(140, 390, 14.5, 27, 27, 20), 'b5y2', 0.7); P.cyl(140, 390, 14, 5, 22, 'y2r1', 0.6, 10); { const q = P.I(140, 390, 36); for (let i = 0; i < 4; i++) P.line([[q[0], q[1]], [q[0] - 14 + i * 9, q[1] + 14]], 0.8, { ink: 2, lvl: 7 }); }
+    for (let i = 0; i < 4; i++) Lib.jar(P, 30, 300 + i * 26, 0, 1.2, ['r5y6k1', 'y6r3k1', 'r5y6k2', 'b5y3'][i]);
+    P.box(210, 300, 0, 70, 22, 18, 'y2r1k1', 0.8);
     Lib.grass(P, 30, 'y5b4', [340, 340, 180, 180]);
     { const q = P.I(470, 360, 0); P.shape([[q[0] - 20, q[1]], [q[0] + 20, q[1]], [q[0] + 14, q[1] - 10], [q[0] - 14, q[1] - 10]], 'r4y5k3', 0.7); P.shape(Lib.bumpy(P, q[0], q[1] - 12, 14, 5, 6), 'y6b3', 0.5); }
   },
@@ -1881,7 +1886,8 @@ const SCENES = [
     ch(LK.tnSage2, { x: 420, y: 205, face: -1, clip: 'offer', h: 138, t0: 0.7, hold: { nTop: 'tnCasket' } }),
     ch(LK.tnTalm3, { x: 385, y: 272, face: -1, clip: 'talk', h: 134, t0: 1.3 }),
     { beast: 'tnHeifer', h: 108, x: 400, y: 415, face: -1 },
-    { beast: 'tnCow', h: 94, x: 462, y: 468, face: 1 }
+    { beast: 'tnCow', h: 94, x: 462, y: 468, face: 1 },
+    { beast: 'donkey', h: 74, x: 250, y: 470, face: -1 }
   ]
 },
 {
@@ -1925,8 +1931,8 @@ const SCENES = [
     'Pas de fête juive attachée à ce passage. Rabbi Simlaï en tire, sur la même page, que la Torah commence et finit par un acte de bonté : les vêtements donnés à Adam et Ève au début de la Genèse, l’ensevelissement de Moïse à la fin du Deutéronome. Ces gestes forment la guemilout hassadim, les œuvres de bonté, l’un des trois piliers sur lesquels le monde repose selon Chimon le Juste (Avot 1, 2).'],
   back(P) {
     tnSky(P, { sun: [180, 190, 22], clouds: [[480, 150, 170, 28], [800, 200, 110, 22]] });
-    { const E = x => 360 + (500 - x) * 0.577, pts = []; for (let i = 0; i <= 14; i++) { const x = 60 + i * 22; pts.push([x, E(x) - 8 - Math.sin(i / 14 * Math.PI) * 62 - Math.sin(i * 1.7) * 5]); } pts.push([368, E(368) + 10], [60, E(60) + 10]); P.shape(pts, 'y4r3k1', 0.9);
-      for (const [x, k] of [[120, 30], [170, 44], [220, 50], [270, 40]]) { const y = E(x) - k; P.shape(P.disc(x, y, 7, 12).map(p => [p[0], Math.min(p[1], y + 3)]), 'k7r2', 0.6); P.shape([[x + 9, y - 4], [x + 16, y - 4], [x + 16, y + 5], [x + 9, y + 5]], 'y3r2k3', 0.5); } }
+    { const E = x => 360 + (500 - x) * 0.577, pts = []; for (let i = 0; i <= 14; i++) { const x = 60 + i * 22; pts.push([x, E(x) - 8 - Math.sin(i / 14 * Math.PI) * 96 - Math.sin(i * 1.7) * 6]); } pts.push([368, E(368) + 10], [60, E(60) + 10]); P.shape(pts, 'y4b3k1', 0.9); P.fill(pts.slice(7).concat([[368, E(368) + 10]]), 'y4b3k2', { noKnock: true });
+      for (const [x, k] of [[120, 44], [175, 66], [230, 74], [285, 58]]) { const y = E(x) - k; P.shape(P.disc(x, y, 10, 14).map(p => [p[0], Math.min(p[1], y + 4)]), 'k7r2', 0.7); P.shape(P.disc(x + 16, y, 9, 12), 'y3r2k2', 0.6); } }
     Lib.platform(P, 'y4r3k1', 'y4r3k2', { pebbles: false });
     tnPaving(P, 0, 0, 540, 540, 45, 'y3r2k2');
     tnHouse(P, 0, 0, 100, 150, 120, 'y3r2k1', { door: null, win: 2 });
@@ -1941,7 +1947,7 @@ const SCENES = [
     tnStatic(P, LK.tnSick, { x: 350, y: 82, z: 26, face: 1, clip: 'tnSleep', h: 110, noShadow: 1, tt: 2 });
     P.shape([I(310, 106, 26.5), I(398, 106, 26.5), I(398, 106, 14), I(310, 106, 14)], 'b5r3', 0.7);
     P.box(310, 133, 0, 24, 24, 38, 'r4y5k3', 0.6); Lib.jar(P, 420, 90, 0, 0.9, 'b5y3'); P.box(412, 110, 0, 16, 16, 12, 'r5y5k2', 0.5);
-    tnCypress(P, 110, 200, 130); Lib.bush(P, 220, 100, 0, 18);
+    tnCypress(P, 110, 200, 130); Lib.bush(P, 220, 100, 0, 18); tnOlive(P, 505, 500, 0.9, 5); tnCypress(P, 40, 500, 110); Lib.well(P, 240, 480, 20); P.box(20, 400, 0, 20, 70, 16, 'y3r2k2', 0.7);
     P.box(96, 360, 0, 70, 70, 3, 'k5b2', 0.6); P.box(100, 380, 3, 20, 20, 14, 'r4y5k3', 0.6);
     tnStatic(P, LK.tnMournerW, { x: 108, y: 420, z: 3, face: 1, clip: 'tnMourn', h: 118, tt: 1.7 });
   },
@@ -1987,7 +1993,9 @@ const SCENES = [
     tnPath(P, [[200, 230], [230, 300], [220, 380], [250, 460], [240, 540]], 10, 'b5y2');
     Lib.grass(P, 60, 'y5b4', [0, 250, 300, 290]);
     Lib.bush(P, 40, 260, 0, 16); Lib.bush(P, 250, 150, 0, 14); Lib.palm(P, 250, 60, 0, 170, { lean: -14 });
-    drawBeast(P, 'sheep', P.I(40, 400, 0), 66, 1, 0.3, false); drawBeast(P, 'sheep', P.I(80, 470, 0), 60, -1, 1.2, false);
+    drawBeast(P, 'sheep', P.I(40, 400, 0), 66, 1, 0.3, false); drawBeast(P, 'sheep', P.I(80, 470, 0), 60, -1, 1.2, false); drawBeast(P, 'sheep', P.I(180, 500, 0), 58, 1, 2.1, false); drawBeast(P, 'ram', P.I(220, 440, 0), 62, -1, 0.7, false);
+    tnOlive(P, 490, 470, 1, 6); Lib.bush(P, 380, 520, 0, 15); Lib.bush(P, 20, 520, 0, 14);
+    { const r = rng(71); for (let i = 0; i < 30; i++) { const q = P.I(r() * 300, 280 + r() * 250, 0); P.line([[q[0], q[1]], [q[0], q[1] - 6]], 0.6, { ink: 2 }); P.fill(P.disc(q[0], q[1] - 7, 2.2, 6), r() > 0.5 ? 'r8y2' : 'y8', {}); } }
     { const q = P.I(250, 150, 0); P.line([[q[0] - 26, q[1] + 6], [q[0] + 26, q[1] - 8]], 2.2, { ink: 3, lvl: 8, taper: 0 }); P.line([[q[0] + 26, q[1] - 8], [q[0] + 32, q[1] - 16], [q[0] + 26, q[1] - 22]], 2, { ink: 3, lvl: 8, taper: 0 }); }
   },
   live(P, t) {
@@ -2001,7 +2009,7 @@ const SCENES = [
     ch(LK.tnKohen, { x: 440, y: 318, face: -1, clip: 'tnEmbrace', h: 146, hold: { n: 'tnChoshen' } }),
     ch(LK.tnNazir, { x: 352, y: 338, face: 1, clip: 'bow', h: 128, t0: 0.4 }),
     ch(LK.tnLevite, { x: 500, y: 250, face: -1, clip: 'idle', h: 138, hold: { f: 'staffV' } }),
-    { beast: 'ram', h: 62, x: 280, y: 420, face: 1 },
+    { beast: 'ram', h: 62, x: 300, y: 395, face: 1 },
     { beast: 'sheep', h: 64, x: 140, y: 330, face: 1 },
     { beast: 'sheep', h: 58, speed: 8, path: [W(60, 330, 4), W(120, 410, 5), W(60, 330, 0)] }
   ]
@@ -2172,12 +2180,13 @@ const ROMAN = n => { const r = [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, '
 const brakhaHTML = b => b.map(x => `<div class="bk">${x.label ? `<div class="bl">${x.label}</div>` : ''}<p class="he" lang="he" dir="rtl">${x.he}</p><p class="ph">${x.ph}</p><p class="tr">${x.fr}</p>${x.note ? `<p class="bn">${x.note}</p>` : ''}</div>`).join('');
 /* d'où vient la citation : la Douay-Rheims, ou le Talmud (référence au format de Sefaria, voir tools/talmud.py).
    Pour le Talmud, `texte.html` (dans talmud/) montre l'original hébreu ou araméen de chaque scène. */
-const TSRC = { bavli: ['Talmud de Babylone', 'traduit de l’araméen', 'éd. de Vilna'], mishna: ['Michna', 'traduit de l’hébreu', 'éd. Romm, Vilna 1913'], yeru: ['Talmud de Jérusalem', 'traduit de l’araméen', 'éd. Guggenheimer'] };
+/* le Talmud mêle hébreu et araméen ; une scène peut préciser la langue de sa citation : `lang: 'araméen'` */
+const TSRC = { bavli: ['Talmud de Babylone', 'traduit de l’hébreu et de l’araméen', 'éd. de Vilna'], mishna: ['Michna', 'traduit de l’hébreu', 'éd. Romm, Vilna 1913'], yeru: ['Talmud de Jérusalem', 'traduit de l’hébreu et de l’araméen', 'éd. Guggenheimer'] };
 const srcKind = r => /^Jerusalem Talmud /.test(r) ? 'yeru' : /^(Mishnah |Pirkei Avot )/.test(r) ? 'mishna' : /^\D.* \d+[ab]$/.test(r) ? 'bavli' : null;
 const srcOf = d => {
   const k = srcKind(d.ref);
   if (!k) return { kick: `${d.book} · chapitre ${ROMAN(d.ch)}`, tr: 'traduit de la Douay-Rheims' };
-  const [name, tr, ed] = TSRC[k];
+  const [name, tr0, ed] = TSRC[k], tr = d.lang ? 'traduit de l’' + d.lang : tr0;
   return { k, kick: `${name} · traité ${d.book}` + (k === 'mishna' ? ` · chapitre ${ROMAN(d.ch)}` : ''), tr, ed, href: 'texte.html#' + d.ref.replace(/ /g, '_').replace(/:/g, '.') };
 };
 const cardLink = d => d.brakha ? 'La bénédiction et le commentaire ›' : d.feast ? 'Fête : ' + d.feast + ' ›' : 'Lire le commentaire ›';
@@ -2188,7 +2197,7 @@ function fillCard(i) {
   const so = srcOf(d);
   cardIn.innerHTML = `<div class="kick">${so.kick}</div><h1>${d.title}</h1><div class="orn"><i></i><b></b><i></i></div>` +
     `<p class="q"><span class="dc"><small>«\u202F</small>${first}</span>${rest}\u202F»</p><div class="src">${d.refFr || d.ref} · ${so.tr}</div>` +
-    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href}">Le texte original ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
+    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href.replace('#', `?from=${encodeURIComponent(location.pathname.split('/').pop())}&scene=${i + 1}#`)}">Le texte original ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
   const lk = cardIn.querySelector('.lk'), more = cardIn.querySelector('.more');
   lk.onclick = e => { e.stopPropagation(); const o = more.classList.toggle('open'); setTimeout(paintCardBg, 750); cardPinned = o; lk.textContent = o ? 'Refermer ‹' : cardLink(d); userT = performance.now() / 1000; };
   requestAnimationFrame(paintCardBg);
