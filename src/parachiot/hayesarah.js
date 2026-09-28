@@ -61,18 +61,18 @@ const SCENES = [
     hsWalls(P, 'y3r3k1');
     Lib.city(P, 40, 40, 230, 220, 7, 'y3r3k1', 24);
     Lib.gate(P, 324, -10, 40, 90, 'y4r3k2');
-    Lib.well(P, 300, 300, 34);
-    Lib.palm(P, 380, 230, 0, 150, { lean: 12, dates: 1 }); Lib.palm(P, 470, 470, 0, 130, { lean: -10 });
+    Lib.well(P, 280, 280, 34);
+    Lib.palm(P, 470, 110, 0, 150, { lean: 12, dates: 1 }); Lib.palm(P, 60, 500, 0, 130, { lean: -10 });
     Lib.stones(P, 22, 'y3r2k3', [20, 280, 500, 240]);
   },
   chars: [
-    ch(LK.hs_eliezer, { x: 330, y: 360, face: 1, clip: 'pray', h: 140 }),
-    { beast: 'camel', h: 110, x: 190, y: 400, face: 1 },
-    { beast: 'camel', h: 106, x: 120, y: 450, face: 1 },
-    { beast: 'camel', h: 108, x: 450, y: 360, face: -1 },
-    { beast: 'camel', h: 104, x: 470, y: 280, face: -1 },
-    ch(LK.maid, { h: 124, over: 'carry', hold: { nTop: 'jarhead' }, speed: 16, path: [W(340, 30, 3), W(300, 240, 2), W(340, 30, 0)] }),
-    ch(LK.isrW, { h: 122, over: 'carry', hold: { nTop: 'jarhead' }, speed: 16, t0: 7, path: [W(340, 30, 3), W(250, 260, 2), W(340, 30, 0)] })
+    ch(LK.hs_eliezer, { x: 260, y: 370, face: 1, clip: 'pray', h: 140 }),
+    { beast: 'camel', h: 110, x: 160, y: 420, face: 1 },
+    { beast: 'camel', h: 106, x: 90, y: 360, face: 1 },
+    { beast: 'camel', h: 108, x: 420, y: 430, face: -1 },
+    { beast: 'camel', h: 104, x: 480, y: 340, face: -1 },
+    ch(LK.maid, { h: 124, over: 'carry', hold: { nTop: 'jarhead' }, speed: 16, path: [W(340, 30, 3), W(330, 230, 2), W(340, 30, 0)] }),
+    ch(LK.isrW, { h: 122, over: 'carry', hold: { nTop: 'jarhead' }, speed: 16, t0: 7, path: [W(340, 30, 3), W(290, 220, 2), W(340, 30, 0)] })
   ]
 },
 {
@@ -110,21 +110,22 @@ const SCENES = [
   back(P) {
     Lib.moon(P, 820, 170, 20); Lib.cloud(P, 250, 150, 150, 30, 'b1');
     Lib.platform(P, 'y4r2k1', 'y4r3k2');
-    Lib.walls(P, 'y3r2k1');
-    P.box(40, 40, 0, 160, 140, 110, 'y3r3k1'); P.shape([P.I(90, 180, 0), P.I(130, 180, 0), P.I(130, 180, 60), P.I(90, 180, 60)], 'k7r2', 0.9);
-    P.box(250, 220, 0, 120, 60, 28, 'r4y5k2'); for (let i = 0; i < 4; i++) { const c = P.I(262 + i * 26, 245, 28); P.shape(P.disc(c[0], c[1] - 3, 6, 10), ['y7r4', 'y2', 'y9r1', 'r8b3'][i], 0.6); }
-    for (let i = 0; i < 3; i++) { const c = P.I(300 + i * 18, 265, 28); P.shape(P.disc(c[0], c[1] - 4, 4, 10), 'y9r2', 0.6); P.fill(P.disc(c[0], c[1] - 4, 2, 8), 'y1', { noKnock: true }); }
-    Lib.lamp(P, 220, 200, 0, 1.1);
-    Lib.jar(P, 60, 250, 0, 1.3); Lib.jar(P, 70, 290, 0, 1.1);
+    hsWalls(P, 'y3r2k1');
+    P.box(40, 40, 0, 140, 120, 100, 'y3r3k1'); P.box(200, 40, 0, 100, 80, 70, 'y4r3k1'); P.shape([P.I(90, 160, 0), P.I(130, 160, 0), P.I(130, 160, 60), P.I(90, 160, 60)], 'k7r2', 0.9);
+    Lib.tree(P, 450, 80, 0, { h: 170, r: 44, can: 'y5b6k1' });
+    P.box(200, 230, 0, 120, 60, 28, 'r4y5k2'); for (let i = 0; i < 4; i++) { const c = P.I(212 + i * 26, 255, 28); P.shape(P.disc(c[0], c[1] - 3, 6, 10), ['y7r4', 'y2', 'y9r1', 'r8b3'][i], 0.6); }
+    for (let i = 0; i < 3; i++) { const c = P.I(250 + i * 18, 275, 28); P.shape(P.disc(c[0], c[1] - 4, 4, 10), 'y9r2', 0.6); P.fill(P.disc(c[0], c[1] - 4, 2, 8), 'y1', { noKnock: true }); }
+    Lib.lamp(P, 170, 210, 0, 1.1);
+    Lib.jar(P, 50, 250, 0, 1.3); Lib.jar(P, 60, 290, 0, 1.1);
     Lib.stones(P, 12, 'y3r2k3', [400, 380, 120, 140]);
   },
   chars: [
-    ch(LK.hs_rebecca, { x: 300, y: 350, face: 1, clip: 'bow', h: 132 }),
-    ch(LK.hs_laban, { x: 390, y: 230, face: -1, clip: 'talk', h: 142 }),
-    ch(LK.isrOld, { x: 430, y: 300, face: -1, clip: 'idle', h: 138, look: Object.assign({}, LK.isrOld, { robe: 'b4y2k1', cloak: 'y5r3k2' }) }),
-    ch(LK.isrW2, { x: 200, y: 340, face: 1, clip: 'bless', h: 128 }),
-    ch(LK.hs_nurse, { x: 230, y: 420, face: 1, clip: 'idle', h: 122 }),
-    ch(LK.hs_eliezer, { x: 360, y: 430, face: -1, clip: 'offer', h: 138, hold: { n: 'cup' } }),
+    ch(LK.hs_rebecca, { x: 280, y: 390, face: 1, clip: 'bow', h: 132 }),
+    ch(LK.hs_laban, { x: 380, y: 250, face: -1, clip: 'talk', h: 142 }),
+    ch(LK.isrOld, { x: 450, y: 330, face: -1, clip: 'idle', h: 138, look: Object.assign({}, LK.isrOld, { robe: 'b4y2k1', cloak: 'y5r3k2' }) }),
+    ch(LK.isrW2, { x: 150, y: 380, face: 1, clip: 'bless', h: 128 }),
+    ch(LK.hs_nurse, { x: 170, y: 470, face: 1, clip: 'idle', h: 122 }),
+    ch(LK.hs_eliezer, { x: 390, y: 420, face: -1, clip: 'offer', h: 138, hold: { n: 'cup' } }),
     { beast: 'camel', h: 110, x: 480, y: 470, face: -1 }
   ]
 },
@@ -145,11 +146,11 @@ const SCENES = [
   },
   chars: [
     ch(LK.hs_isaac, { h: 142, speed: 14, path: [W(150, 300, 4, 'pray'), W(220, 380, 3, 'lookup', { f: 1 }), W(150, 300, 0)] }),
-    ch(LK.hs_rebeccaVeil, { h: 132, speed: 16, path: [W(420, 300, 2.5, 'idle'), W(360, 340, 4, 'bow', { f: -1 }), W(420, 300, 0)] }),
+    ch(LK.hs_rebeccaVeil, { h: 132, speed: 16, path: [W(430, 250, 2.5, 'idle'), W(340, 300, 4, 'bow', { f: -1 }), W(430, 250, 0)] }),
     { beast: 'camel', h: 112, x: 470, y: 330, face: -1 },
     { beast: 'camel', h: 108, speed: 12, path: [W(500, 440, 3), W(430, 460, 2), W(500, 440, 0)] },
     ch(LK.hs_eliezer, { x: 380, y: 420, face: -1, clip: 'point', h: 138 }),
-    ch(LK.hs_nurse, { x: 490, y: 380, face: -1, clip: 'idle', h: 120 }),
+    ch(LK.hs_nurse, { x: 510, y: 180, face: -1, clip: 'idle', h: 120 }),
     ch(LK.maid, { x: 460, y: 520, face: -1, clip: 'idle', h: 122 })
   ]
 },
