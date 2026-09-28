@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Vérifie que chaque `quote:` est copiée mot pour mot du Project Gutenberg n° 1609 (Douay-Rheims, AT partie 1).
-Le texte est téléchargé une fois dans data/gutenberg-1609.txt."""
-import os, re, glob, urllib.request
+Le texte est téléchargé une fois dans data/gutenberg-1609.txt.
+
+  python3 tools/check_quotes.py                          # tout src/
+  python3 tools/check_quotes.py src/parachiot/toledot.js # un seul fichier (la citation doit venir du verset de `ref`)
+"""
+import os, re, sys, glob, urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TXT = os.path.join(ROOT, 'data', 'gutenberg-1609.txt')
 if not os.path.exists(TXT):
@@ -16,11 +20,13 @@ for ln in open(TXT, encoding='utf-8').read().replace('\r', '').split('\n'):
     if not ln.strip(): cur = None; continue
     if cur: verses[cur] += ' ' + ln
 bad = 0
-for f in sorted(glob.glob(os.path.join(ROOT, 'src', '**', '*.js'), recursive=True)):
+files = sys.argv[1:] or sorted(glob.glob(os.path.join(ROOT, 'src', '**', '*.js'), recursive=True))
+strict = bool(sys.argv[1:])
+for f in files:
     src = open(f, encoding='utf-8').read()
     for ref, q in re.findall(r"ref: '([^']+)'.*?quote: '((?:[^'\\]|\\.)*)'", src, re.S):
         q = q.replace("\\'", "'")
-        ok = q in verses.get(ref, '') or any(q in v for v in verses.values())
+        ok = q in verses.get(ref, '') or (not strict and any(q in v for v in verses.values()))
         bad += not ok
         print(('OK  ' if ok else 'FAUX'), os.path.relpath(f, ROOT), ref)
 print('\n' + ('Toutes les citations sont exactes.' if not bad else f'{bad} citation(s) à corriger.'))

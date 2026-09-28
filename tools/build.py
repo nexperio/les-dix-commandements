@@ -18,6 +18,14 @@ PARACHIOT = [
     (4, 'noach',     '5787-04-noach.html'),
     (5, 'lekhlekha', '5787-05-lekh-lekha.html'),
     (6, 'vayera',    '5787-06-vayera.html'),
+    (7, 'hayesarah', '5787-07-haye-sarah.html'),
+    (8, 'toledot',   '5787-08-toledot.html'),
+    (9, 'vayetse',   '5787-09-vayetse.html'),
+    (10, 'vayishlach', '5787-10-vayichlach.html'),
+    (11, 'vayeshev', '5787-11-vayechev.html'),
+    (12, 'miketz',   '5787-12-mikets.html'),
+    (13, 'vayigash', '5787-13-vayigach.html'),
+    (14, 'vayechi',  '5787-14-vayehi.html'),
 ]
 ENGINE = ['core.js', 'figures.js', 'lib2.js']
 read = lambda p: open(p, encoding='utf-8').read()
@@ -69,6 +77,9 @@ def build_home():
 
 def build_paracha(pid, out):
     src = read(S('parachiot', pid + '.js'))
+    body = src.split('const SCENES', 1)[1]
+    n = len(re.findall(r"refFr: '", body)) + len(re.findall(r"reuse\(AT\[\d+\](?![^)]*refFr)", body))
+    if not 4 <= n <= 12: sys.exit(f'{pid} : {n} scènes, il en faut entre 4 et 12.')
     title = re.search(r"title: '([^']*)'", src).group(1)
     parts = [S('engine', p) for p in ENGINE] + [S('scenes', 'ancien-testament.js'), S('scenes', 'personnages.js'), S('parachiot', pid + '.js'), S('engine', 'app.js')]
     write(os.path.join(DIST, 'parachiot', out), page(title, comment_for(src), parts, 'parachiot/' + out))
@@ -81,4 +92,4 @@ if __name__ == '__main__':
     only = sys.argv[1:]
     if not only: build_home(); build_at(); build_index()
     for n, pid, out in PARACHIOT:
-        if not only or pid in only: build_paracha(pid, out)
+        if (not only or pid in only) and os.path.exists(S('parachiot', pid + '.js')): build_paracha(pid, out)

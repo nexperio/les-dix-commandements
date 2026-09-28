@@ -50,7 +50,7 @@ Ordre d'assemblage d'une feuille de paracha : `core.js → figures.js → lib2.j
 
 1. Créer `src/parachiot/<id>.js` sur le modèle de `vayera.js` :
    - `const SHEET = { title: 'Nom · sens', sub: 'Paracha de la semaine · Chabbat <date> · <référence>' }`
-   - `const SCENES = [ … ]` (4 à 6 scènes, ordre du texte). Une scène : `title, book, ch, ref` (référence Douay, ex. `'Genesis 24:15'`), `refFr`, `accent` (0 à 3), `feast` (ou `null`), `quote` (anglais, **mot pour mot** Gutenberg 1609), `fr` (traduction française affichée), `more` (2 paragraphes HTML), `back(P)`, optionnellement `front(P)`, `live(P,t)`, `top(P,t)`, et `chars`.
+   - `const SCENES = [ … ]` (4 à 12 scènes, jamais plus de 12, ordre du texte). Une scène : `title, book, ch, ref` (référence Douay, ex. `'Genesis 24:15'`), `refFr`, `accent` (0 à 3), `feast` (ou `null`), `quote` (anglais, **mot pour mot** Gutenberg 1609), `fr` (traduction française affichée), `more` (2 paragraphes HTML), `back(P)`, optionnellement `front(P)`, `live(P,t)`, `top(P,t)`, et `chars`.
    - `reuse(AT[i], {...})` reprend une scène de la grande feuille.
 2. L'ajouter à `PARACHIOT` dans `tools/build.py`.
 3. Passer son entrée de `PARA` (dans `src/index/index.html`) de « À paraître » à publiée, et ajouter la suivante. Le menu vertical suit automatiquement.
