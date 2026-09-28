@@ -21,8 +21,11 @@ header{text-align:center;margin-bottom:10px}
 .kick{font-variant:small-caps;letter-spacing:.18em;color:var(--r);font-size:15px}
 h1{font-weight:normal;font-size:clamp(40px,7vw,78px);line-height:1;margin:10px 0 12px}
 .sub{font-style:italic;color:var(--r);font-size:18px;max-width:640px;margin:0 auto;line-height:1.45}
-.orn{display:flex;align-items:center;gap:12px;margin:30px auto;max-width:520px;color:var(--r)}.orn i{flex:1;height:1px;background:currentColor}.orn b{width:7px;height:7px;transform:rotate(45deg);background:currentColor}
-.doors{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+.orn{display:flex;align-items:center;gap:14px;margin:34px auto;max-width:560px;color:var(--r)}.orn i{flex:1;height:4px;border-top:1px solid currentColor;border-bottom:1px solid rgba(45,91,166,.7);transform:translateY(.5px)}.orn svg{width:26px;height:26px;mix-blend-mode:multiply;flex:none}
+.card.frise{padding:12px 12px 6px;margin:28px 0 0;cursor:default}.card.frise:hover{transform:none;box-shadow:0 1px 0 rgba(47,39,41,.1)}
+.frise #frise{position:relative;display:block;width:100%;height:230px}
+.frise figcaption{position:relative;text-align:center;font-style:italic;font-size:14px;opacity:.75;margin:8px 0 2px}
+.doors{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:26px}
 .card{position:relative;display:block;text-decoration:none;color:inherit;padding:30px 32px 26px;background:rgba(255,255,255,.18);border:1px solid rgba(47,39,41,.25);box-shadow:0 1px 0 rgba(47,39,41,.1);transition:transform .25s,box-shadow .25s}
 .card:hover,.card:focus-within{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
 .card canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -32,8 +35,8 @@ h1{font-weight:normal;font-size:clamp(40px,7vw,78px);line-height:1;margin:10px 0
 .card .fr{font-style:italic;font-size:16px;line-height:1.45}
 .card .go{display:inline-block;margin-top:14px;font-style:italic;border-bottom:1px solid currentColor}
 .card.wait{pointer-events:none}.card.wait .go{border:0;opacity:.7}
-.card details,.card .list{position:relative;z-index:2}
-.card details{margin-top:16px}.card summary{cursor:pointer;font-style:italic;font-size:15px;opacity:.8}
+.card .list{position:relative;z-index:2}
+.list.scroll{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:column;column-gap:22px;max-height:226px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(47,39,41,.3) transparent}
 .lab{font-variant:small-caps;letter-spacing:.12em;font-size:13px;opacity:.7;margin:16px 0 0}
 .list{list-style:none;padding:0;margin:14px 0 0;columns:2;column-gap:22px;font-size:15px;line-height:1.35}
 .list.one{columns:1;margin-top:6px}
@@ -48,7 +51,7 @@ h1{font-weight:normal;font-size:clamp(40px,7vw,78px);line-height:1;margin:10px 0
 .findq{text-align:center;margin:10px 0 0;font-style:italic;font-size:15px}.findq a{color:var(--r);text-decoration:none;border-bottom:1px solid currentColor}
 footer{margin-top:44px;text-align:center;font-size:13px;opacity:.7;line-height:1.6}
 footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-decoration:none;border-bottom:1px solid currentColor}
-@media (max-width:760px){.doors{grid-template-columns:1fr}.card{padding:24px 22px 20px}.card h3{font-size:30px}.sheet{padding:72px 16px 60px}}
+@media (max-width:760px){.frise #frise{height:170px}.doors{grid-template-columns:1fr;grid-auto-rows:auto}.card{padding:24px 22px 20px}.card h3{font-size:30px}.card.frise{padding:8px 8px 4px}.sheet{padding:72px 16px 60px}}
 </style>
 </head>
 <body>
@@ -59,20 +62,22 @@ footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-
   <h1>La Torah</h1>
   <div class="sub">Des dioramas imprimés encre par encre : la Torah scène par scène, les parachiot de l’année 5787, le Talmud, les mitsvot</div>
 </header>
+<figure class="card frise" data-ink="1"><canvas></canvas><canvas id="frise" aria-hidden="true"></canvas><figcaption>Abraham, Sarah, Moïse et les tables, Miryam, Aaron, Ruth, David, Esther : la procession des feuilles</figcaption></figure>
 <form class="find" action="recherche.html" role="search"><input type="search" name="q" placeholder="Chercher une scène, un verset, une bénédiction…" aria-label="Chercher dans les feuilles"><button type="submit">Chercher</button></form>
 <p class="findq"><a href="recherche.html#question">ou poser une question ›</a></p>
 <div id="now"></div>
-<div class="orn"><i></i><b></b><i></i></div>
+<div class="orn"><i></i><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2 23 19H3Z" fill="none" stroke="#E0453A" stroke-width="1.6"/><path d="M13.8 24.6 3.8 7.6h20Z" fill="none" stroke="#2D5BA6" stroke-width="1.6"/><circle cx="13.4" cy="13.2" r="2.2" fill="#F0B21F"/></svg><i></i></div>
 <div class="doors">
-  <div class="card" data-ink="1"><canvas></canvas><div class="n" style="color:#E0453A">La grande feuille</div><h3><a href="ancien-testament.html">Scène par scène</a></h3><div class="fr">Seize scènes, de la Genèse à Esther : Éden, le déluge, Moïse, le Sinaï, David, Élie, Esther.</div><span class="go" style="color:#E0453A">Ouvrir la feuille ›</span></div>
-  <div class="card" data-ink="2"><canvas></canvas><div class="n" style="color:#2D5BA6">Année 5787 · 2026-2027</div><h3><a href="parachiot/index.html">Parachiot</a></h3><div class="fr">Une feuille par paracha, de Haazinou à Nitsavim-Vayélekh, et les Dix Paroles.</div><span class="go" style="color:#2D5BA6">Voir l’index ›</span><details><summary id="s-para"></summary><ul class="list" id="l-para"></ul></details></div>
-  <div class="card" data-ink="3"><canvas></canvas><div class="n">Index · Daf Yomi</div><h3><a href="talmud/index.html">Le Talmud</a></h3><div class="fr">La Michna et la Guemara : les six ordres, Pirké Avot, les maîtres, la page du jour.</div><ul class="list" id="l-talmud"></ul></div>
-  <div class="card" data-ink="0"><canvas></canvas><div class="n" style="color:#B8830F">Mitsvot et berakhot</div><h3><a href="femmes/femmes-de-la-torah.html">Femmes et hommes</a></h3><div class="fr">Les femmes de la Torah, le foyer, les gestes de chacun et leurs bénédictions.</div><div class="lab">Les femmes et le foyer</div><ul class="list one" id="l-femmes"></ul><div class="lab">Les hommes</div><ul class="list one" id="l-hommes"></ul></div>
+  <div class="card" data-glyph="ב" data-ink="1"><canvas></canvas><div class="n" style="color:#E0453A">La grande feuille</div><h3><a href="ancien-testament.html">Scène par scène</a></h3><div class="fr">Seize scènes, de la Genèse à Esther : Éden, le déluge, Moïse, le Sinaï, David, Élie, Esther.</div><span class="go" style="color:#E0453A">Ouvrir la feuille ›</span><ul class="list" id="l-at"></ul></div>
+  <div class="card" data-glyph="פ" data-ink="2"><canvas></canvas><div class="n" style="color:#2D5BA6">Année 5787 · 2026-2027</div><h3><a href="parachiot/index.html">Parachiot</a></h3><div class="fr">Une feuille par paracha, de Haazinou à Nitsavim-Vayélekh, et les Dix Paroles.</div><span class="go" style="color:#2D5BA6">Voir l’index ›</span><ul class="list scroll" id="l-para"></ul></div>
+  <div class="card" data-glyph="ת" data-ink="3"><canvas></canvas><div class="n">Index · Daf Yomi</div><h3><a href="talmud/index.html">Le Talmud</a></h3><div class="fr">La Michna et la Guemara : les six ordres, Pirké Avot, les maîtres, la page du jour.</div><span class="go">Ouvrir l’index ›</span><ul class="list" id="l-talmud"></ul></div>
+  <div class="card" data-glyph="מ" data-ink="0"><canvas></canvas><div class="n" style="color:#B8830F">Mitsvot et berakhot</div><h3><a href="femmes/femmes-de-la-torah.html">Femmes et hommes</a></h3><div class="fr">Les femmes de la Torah, le foyer, les gestes de chacun et leurs bénédictions.</div><div class="lab">Les femmes et le foyer</div><ul class="list one" id="l-femmes"></ul><div class="lab">Les hommes</div><ul class="list one" id="l-hommes"></ul></div>
 </div>
 <footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610) ; passages du Talmud traduits de l’hébreu et de l’araméen (textes de Sefaria).<br>Glisser, molette, pincer, double-clic : chaque feuille se parcourt comme une carte.<br><span class="credit">Une réalisation <a href="https://nexperio.tech">nexperio.tech</a></span></footer>
 </div>
 <script>
 /*CORE*/
+/*FIGS*/
 const ITEMS = /*ITEMS*/;
 const SHEETS = ITEMS.filter(i => /^\d+$/.test(i.mark));
 /* paracha de la semaine : le premier Chabbat (ou jour de lecture) qui n'est pas encore passé */
@@ -88,8 +93,9 @@ if (cur) {
 const li = it => `<li><b style="color:${INKS[it.ink].hex}">${it.mark}</b><a href="${it.href}">${it.he.split(' · ')[0].replace(' ?', '\u00a0?')}</a></li>`;
 for (const sec of ['femmes', 'hommes', 'talmud']) document.getElementById('l-' + sec).innerHTML = ITEMS.filter(i => i.sec === sec).map(li).join('');
 const paru = SHEETS.filter(i => i.href);
-document.getElementById('l-para').innerHTML = paru.map(li).join('');
-document.getElementById('s-para').textContent = `Les ${paru.length} feuilles parues`;
+const lp = document.getElementById('l-para'); lp.innerHTML = paru.map(li).join(''); lp.style.gridTemplateRows = `repeat(${Math.ceil(paru.length / 2)}, auto)`;
+const AT = ['Le jardin d’Éden', 'Noé et la colombe', 'Le bélier d’Isaac', 'L’échelle de Jacob', 'Joseph et la citerne', 'Le buisson ardent', 'Le passage de la mer', 'Le Sinaï', 'Le veau d’or', 'Les cabanes', 'Moïse au mont Nebo', 'Jéricho', 'Ruth et Booz', 'David et Goliath', 'Le feu du Carmel', 'Esther devant le roi'];
+document.getElementById('l-at').innerHTML = AT.map((he, i) => li({ mark: i + 1, he, href: 'ancien-testament.html#scene=' + (i + 1), ink: [1, 2, 0][i % 3] })).join('');
 function paintBg() {
   const c = document.getElementById('bg'), dp = Math.min(2, devicePixelRatio || 1); c.width = innerWidth * dp; c.height = innerHeight * dp;
   const g = c.getContext('2d'); g.fillStyle = PAPER; g.fillRect(0, 0, c.width, c.height);
@@ -100,13 +106,92 @@ function paintCards() {
   for (const a of document.querySelectorAll('.card')) {
     const c = a.querySelector('canvas'), b = a.getBoundingClientRect(), dp = Math.min(2, devicePixelRatio || 1); c.width = b.width * dp; c.height = b.height * dp;
     const g = c.getContext('2d'), st = 5 * dp; g.fillStyle = INKS[+a.dataset.ink].hex;
+    if (a.dataset.glyph) { const fs = Math.min(c.width * 0.42, c.height * 0.5); g.save(); g.globalAlpha = 0.09; g.font = `${fs}px "Times New Roman",serif`; g.textAlign = 'right'; g.textBaseline = 'top'; g.fillText(a.dataset.glyph, c.width - 26 * dp, 18 * dp); g.globalAlpha = 0.07; g.fillStyle = INKS[(+a.dataset.ink + 1) % 3].hex; g.fillText(a.dataset.glyph, c.width - 26 * dp + 3 * dp, 18 * dp + 2 * dp); g.restore(); g.fillStyle = INKS[+a.dataset.ink].hex; }
     for (let y = 0; y < c.height; y += st) for (let x = 0; x < c.width; x += st) { const e = Math.min(x, y, c.width - x, c.height - y); if (e > 8 * dp) continue; const rr = st * 0.42 * (1 - e / (8 * dp)); if (rr > 0.2) { g.beginPath(); g.arc(x + st / 2, y + st / 2, rr, 0, TAU); g.fill(); } }
   }
 }
 function paint() { paintBg(); paintCards(); }
 addEventListener('resize', () => { clearTimeout(paint.t); paint.t = setTimeout(paint, 150); });
-for (const d of document.querySelectorAll('details')) d.addEventListener('toggle', paintCards);
 paint();
+
+/* ============================================================
+   LA FRISE : une procession de personnages de la Torah, animée
+   ============================================================ */
+(function () {
+  const cv = document.getElementById('frise'), g = cv.getContext('2d');
+  const LH = 300, GY = 262, V = 19, still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const iso = (X, Y) => [Y + X / 1.7320508, Y - X / 1.7320508]; // point écran -> sol isométrique (origine 0,0)
+  const L = Object.assign;
+  /* la procession, de tête en queue : écart avant chaque figure, couloir (profondeur) */
+  const ROW = [
+    { beast: 'sheep', h: 56, gap: 0, lane: 6 }, { beast: 'sheep', h: 50, gap: 34, lane: -6 }, { beast: 'ram', h: 60, gap: 40, lane: 4 },
+    { look: LK.abraham, h: 142, gap: 70, hold: { f: 'staff' } },
+    { beast: 'camel', h: 128, gap: 96, lane: -8 },
+    { look: LK.saraiOld, h: 128, gap: 104 },
+    { look: LK.mosesOld, h: 144, gap: 120, over: 'hold2', hold: { nTop: 'tablets' } },
+    { look: LK.priest, h: 138, gap: 96, over: 'blow', hold: { n: 'shofar' } },
+    { look: LK.isrW2, h: 126, gap: 104, clip: 'dance' },
+    { look: LK.childG, h: 86, gap: 62, clip: 'dance', lane: 6 },
+    { look: LK.ruth, h: 126, gap: 96, hold: { f: 'sheaf' } },
+    { look: LK.david, h: 118, gap: 96, over: 'sling', hold: { n: 'sling' } },
+    { beast: 'donkey', h: 104, gap: 98, lane: -6 },
+    { look: LK.esther, h: 128, gap: 110 },
+    { look: LK.isrOld, h: 136, gap: 96, hold: { f: 'staff' } }
+  ];
+  let at = 0; for (const c of ROW) { at += c.gap; c.at = at; }
+  const TOTAL = at + 260;
+  let dp, s, LW, span, bg, P, raf = 0, on = true, t0 = performance.now(), last = 0;
+  function backdrop() {
+    bg = document.createElement('canvas'); bg.width = cv.width; bg.height = cv.height;
+    const b = bg.getContext('2d'); b.setTransform(s, 0, 0, s, 0, 0); b.fillStyle = PAPER; b.fillRect(0, 0, LW, LH);
+    const Q = new Painter(b, s, 3, 7); Q.O = [0, 0]; Q.r = rng(12);
+    Lib.sun(Q, LW * 0.84, 62, 24);
+    Lib.cloud(Q, LW * 0.22, 70, 150, 34, 'b2'); Lib.cloud(Q, LW * 0.58, 46, 110, 26, 'b1');
+    /* montagnes lointaines, le Sinaï au milieu */
+    const far = [[0, LH]], near = [[0, LH]], pk = LW * 0.62;
+    for (let x = 0; x <= LW + 20; x += 20) {
+      far.push([x, 168 - 34 * vn(x * 0.006, 1, 5) - 88 * Math.exp(-Math.pow((x - pk) / 90, 2))]);
+      near.push([x, 208 - 22 * vn(x * 0.01, 4, 9)]);
+    }
+    far.push([LW + 20, LH]); near.push([LW + 20, LH]);
+    Q.shape(far, 'b3y1', 1.1); Q.shape(near, 'y4r2', 1.1);
+    Q.shape([[pk - 26, 96], [pk, 80], [pk + 30, 98], [pk + 14, 104], [pk - 8, 100]], 'y1', 0.6);
+    Q.shape([[0, 226], [LW + 20, 226], [LW + 20, LH], [0, LH]], 'y5r1', 0);
+    Q.line([[0, 226], [LW + 20, 226]], 1.1);
+    /* tentes, palmiers, pierres le long du chemin */
+    for (const [X, w] of [[LW * 0.08, 70], [LW * 0.9, 60]]) { const q = iso(X, 222); Lib.tent(Q, q[0], q[1], w, w * 0.8, 52, 'r4y3'); }
+    for (const [X, h] of [[LW * 0.18, 150], [LW * 0.44, 170], [LW * 0.47, 130], [LW * 0.76, 160]]) { const q = iso(X, 230); Lib.palm(Q, q[0], q[1], 0, h, { dates: 1 }); }
+    for (let i = 0; i < 26; i++) { const X = Q.r() * LW, Y = 272 + Q.r() * 24; Q.shape(Q.disc(X, Y, 1.5 + Q.r() * 3, 7).map(p => [p[0], Y + (p[1] - Y) * 0.6]), 'y6r2k2', 0.5); }
+  }
+  function size() {
+    dp = Math.min(2, devicePixelRatio || 1);
+    const r = cv.getBoundingClientRect(); cv.width = Math.round(r.width * dp); cv.height = Math.round(r.height * dp);
+    s = cv.height / LH; LW = cv.width / s; span = Math.max(LW + 400, TOTAL);
+    backdrop(); P = new Painter(g, s, 1, 5); P.O = [0, 0]; draw(still ? 9 : (performance.now() - t0) / 1000);
+  }
+  function draw(t) {
+    g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(bg, 0, 0); g.setTransform(s, 0, 0, s, 0, 0);
+    P.vr = rng(77);
+    for (let i = 0; i < 3; i++) Lib.bird(P, ((t * (14 + i * 3) + i * 170) % (LW + 80)) - 40, 58 + i * 16 + Math.sin(t + i) * 5, 0.8, t * 1.6 + i * 0.3, 'k2');
+    const list = ROW.map(c => { const d = t * V + TOTAL - c.at, X = (d % span) - 200; return { c, d, X, Y: GY + (c.lane || 0) }; }).sort((a, b) => a.Y - b.Y);
+    for (const { c, d, X, Y } of list) {
+      if (X < -120 || X > LW + 120) continue;
+      if (c.beast) { drawBeast(P, c.beast, [X, Y], c.h, 1, d / (c.h * 0.9), true); continue; }
+      P.fill(P.disc(X, Y, c.h * 0.16, 16).map(p => [p[0], Y + (p[1] - Y) * 0.36]), 'k2b1', { noKnock: true });
+      const pose = c.clip ? samplePose(c.clip, t / CLIPS[c.clip].d) : samplePose('walk', d / (c.h * 0.95));
+      if (c.over) L(pose, samplePose(c.over, t / CLIPS[c.over].d));
+      drawFig(P, { h: c.h, face: 1, base: [X, Y], look: c.look, hold: c.hold, x: X }, pose, t);
+    }
+  }
+  function loop(now) {
+    raf = 0; if (!on) return;
+    if (now - last > 40) { last = now; draw((now - t0) / 1000); }
+    raf = requestAnimationFrame(loop);
+  }
+  new IntersectionObserver(e => { on = e[0].isIntersecting && !still; if (on && !raf) raf = requestAnimationFrame(loop); }).observe(cv);
+  addEventListener('resize', () => { clearTimeout(size.t); size.t = setTimeout(size, 150); });
+  size();
+})();
 </script>
 </body>
 </html>
