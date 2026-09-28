@@ -21,7 +21,7 @@ Object.assign(LK, {
   mhGirl: { child: 1, fem: 1, skin: 'y5r4', hs: 'long', hair: 'r5k4', robe: 'r6y3', len: 'ankle', sleeves: 'long', sash: 'y7', feet: 'sandal' }
 });
 Object.assign(CLIPS, {
-  mhPour: { d: 2.6, k: [{ nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 10, head: 20, nU: 72, nL: 48, fU: 42, fL: 46 }, { nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 12, head: 22, nU: 76, nL: 42, fU: 46, fL: 40 }] },
+  mhPour: { d: 2.6, k: [{ nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 16, head: 24, nU: 84, nL: 26, fU: 66, fL: 22 }, { nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 18, head: 26, nU: 88, nL: 20, fU: 70, fL: 18 }] },
   mhStretch: { d: 2.4, k: [{ nU: 166, nL: 8, fU: 160, fL: 14, lean: -6, head: -16, nT: 6, fT: -6 }, { nU: 150, nL: 30, fU: 146, fL: 34, lean: -3, head: -8, nT: 6, fT: -6 }] },
   mhDaven: { d: 1.8, k: [{ lean: 2, head: 10, nU: 36, nL: 82, fU: 30, fL: 88, nT: 4, fT: -4 }, { lean: 13, head: 16, nU: 38, nL: 80, fU: 32, fL: 86, nT: 4, fT: -4 }] },
   mhWrap: { d: 1.1, k: [{ nU: 70, nL: 22, fU: 58, fL: 74, head: 22, lean: 6, nT: 6, fT: -6 }, { nU: 72, nL: 24, fU: 86, fL: 30, head: 24, lean: 7, nT: 6, fT: -6 }] },
@@ -92,27 +92,28 @@ Object.assign(PROPS2, {
   mhTefillin(P, A, J, M, h, t, lw, F, u, n, add) {
     const { T, H } = mhBody(J, F), Ms = a => a.map(M), lp = (a, c, k) => [a[0] + (c[0] - a[0]) * k, a[1] + (c[1] - a[1]) * k];
     const un = (a, c) => { const x = c[0] - a[0], y = c[1] - a[1], l = Math.hypot(x, y) || 1; return [x / l, y / l]; };
-    const b = lp(A.s, A.e, 0.55), du = un(A.s, A.e), dn = [-du[1], du[0]], s = 0.026;
+    const b = lp(A.s, A.e, 0.55), du = un(A.s, A.e), dn = [-du[1], du[0]], s = 0.034;
     P.line(Ms([b, lp(A.e, A.w, 0.05)]), lw * 1.3, { ink: 3, taper: 0 });
     P.shape(Ms([add(add(b, du, -s), dn, -s * 1.1), add(add(b, du, s), dn, -s * 1.1), add(add(b, du, s), dn, s * 0.7), add(add(b, du, -s), dn, s * 0.7)]), 'k8', lw * 0.6);
     const fu = un(A.e, A.w), fn = [-fu[1], fu[0]];
-    for (let i = 0; i < 7; i++) { const c = lp(A.e, A.w, 0.12 + i * 0.125); P.line(Ms([add(add(c, fn, 0.036), fu, -0.014), add(add(c, fn, -0.034), fu, 0.014)]), lw * 1.3, { ink: 3, taper: 0 }); }
+    P.shape(Ms(limbPoly([lp(A.e, A.w, 0.02), lp(A.e, A.w, 0.5), A.w], [0.03, 0.028, 0.024])), (F.look && F.look.skin) || 'y5r4', lw * 0.8);
+    for (let i = 0; i < 7; i++) { const c = lp(A.e, A.w, 0.12 + i * 0.125); P.line(Ms([add(add(c, fn, 0.038), fu, -0.016), add(add(c, fn, -0.036), fu, 0.016)]), lw * 1.9, { ink: 3, taper: 0 }); }
     P.line(Ms([add(A.w, fn, 0.024), add(lp(A.w, A.t, 0.7), fn, -0.022)]), lw * 1.1, { ink: 3, taper: 0 });
     P.line(Ms([add(lp(A.w, A.t, 0.2), fn, -0.024), add(lp(A.w, A.t, 0.9), fn, 0.02)]), lw * 1.1, { ink: 3, taper: 0 });
-    P.line(Ms([H(0.012, -0.075), H(-0.03, -0.074), H(-0.066, -0.035), H(-0.064, 0.0)]), lw * 1.3, { ink: 3, taper: 0 });
-    P.shape(Ms([H(0.012, -0.07), H(0.05, -0.066), H(0.052, -0.104), H(0.014, -0.108)]), 'k8', lw * 0.6);
+    P.line(Ms([H(0.012, -0.075), H(-0.03, -0.074), H(-0.066, -0.035), H(-0.064, 0.0)]), lw * 1.8, { ink: 3, taper: 0 });
+    P.shape(Ms([H(0.006, -0.068), H(0.056, -0.064), H(0.058, -0.114), H(0.008, -0.118)]), 'k8', lw * 0.6); P.line(Ms([H(0.008, -0.118), H(0.03, -0.126), H(0.07, -0.122), H(0.058, -0.114)]), lw * 0.8);
     P.line(Ms([H(-0.058, 0.01), T(0.2, 0.02), T(0.1, 0.05)]), lw * 1.1, { ink: 3, taper: 0 });
     P.line(Ms([H(-0.05, 0.02), T(0.21, 0.05), T(0.14, 0.08)]), lw * 1.1, { ink: 3, taper: 0 });
   },
   /* broc à deux anses : l'eau versée sur l'autre main, les gouttes dans la bassine */
   mhNatla(P, A, J, M, h, t, lw, F) {
-    const q = M(A.t), fc = F.face || 1, s = h / 140;
-    P.shape([[-8, -8], [5, -13], [9, 1], [-4, 5]].map(([a, b]) => [q[0] + fc * a * s, q[1] + b * s]), 'b1k3', lw * 0.7);
-    P.line([[q[0] - fc * 8 * s, q[1] - 2 * s], [q[0] - fc * 12 * s, q[1] - 5 * s], [q[0] - fc * 9 * s, q[1] - 9 * s]], lw * 0.8);
-    P.line([[q[0] + fc * 6 * s, q[1] + 1 * s], [q[0] + fc * 10 * s, q[1] + 3 * s], [q[0] + fc * 8 * s, q[1] - 5 * s]], lw * 0.8);
-    const sp = [q[0] + fc * 5 * s, q[1] - 12 * s], hf = M(J.aF.t), g = M([J.aF.t[0], -0.07]);
-    P.line([sp, [sp[0] + fc * 3 * s, sp[1] + 3 * s], [hf[0], hf[1] - 2 * s]], lw * 1.4, { ink: 2, lvl: 7 });
-    for (let i = 0; i < 5; i++) { const k = (t * 1.6 + i / 5) % 1; P.fill(P.disc(hf[0] + Math.sin(i * 2.1) * 2 * s, lerp(hf[1] + 2 * s, g[1], k), 1.3 * s, 6), 'b5', { noKnock: true }); }
+    const q = M(A.t), fc = F.face || 1, s = h / 140, X = (a, b) => [q[0] + fc * a * s, q[1] + b * s];
+    P.shape([X(-7, -9), X(6, -13), X(9, 3), X(-3, 6)], 'b2k3', lw * 0.8);
+    P.shape([X(-7, -9), X(6, -13), X(5, -15), X(-7, -11)], 'b1k2', lw * 0.6);
+    P.line([X(-6, -2), X(-12, -4), X(-9, -9)], lw * 1.1); P.line([X(8, -1), X(13, 0), X(9, -8)], lw * 1.1);
+    const sp = X(6, -14), hf = M(J.aF.t), g = M([J.aF.t[0] + 0.02, -0.08]);
+    P.line([sp, X(10, -12), [hf[0], hf[1] - 3 * s]], lw * 2.2, { ink: 2, lvl: 9, taper: 0.3 });
+    for (let i = 0; i < 6; i++) { const k = (t * 1.6 + i / 6) % 1; P.fill(P.disc(hf[0] + Math.sin(i * 2.1) * 2 * s, lerp(hf[1] + 2 * s, g[1], k), 1.6 * s, 6), 'b7', { noKnock: true }); }
   },
   mhGoblet(P, A, J, M, h, t, lw) { const q = M(A.t); mhGob(P, q[0], q[1] + h * 0.03, h / 150, lw * 0.7); },
   mhBook(P, A, J, M, h, t, lw) {
@@ -123,11 +124,11 @@ Object.assign(PROPS2, {
   mhSiddur(P, A, J, M, h, t, lw, F, u, n, add) { const q = M(add(A.t, u, 0.01)), s = h / 140; P.shape([[q[0] - 7 * s, q[1] - 4 * s], [q[0] + 7 * s, q[1] - 6 * s], [q[0] + 7 * s, q[1] + 4 * s], [q[0] - 7 * s, q[1] + 6 * s]], 'r6b3k2', lw * 0.6); P.line([[q[0], q[1] - 5 * s], [q[0], q[1] + 5 * s]], lw * 0.5, { ink: 0 }); },
   /* bougie de havdala : cierge tressé à plusieurs mèches */
   mhHavdala(P, A, J, M, h, t, lw, F, u, n, add) {
-    const q = M(add(A.t, [0, -1], 0.0)), s = h / 140, L = 26 * s, W2 = 4.5 * s;
-    for (let i = 0; i < 7; i++) { const y0 = q[1] - i * L / 7, y1 = y0 - L / 7; P.shape([[q[0] - W2, y0], [q[0] + W2, y0 - 2 * s], [q[0] + W2, y1 - 2 * s], [q[0] - W2, y1]], ['b4y1', 'y2r1', 'r3y2'][i % 3], lw * 0.5); }
+    const q = M(add(A.t, [0, -1], 0.0)), s = h / 140, L = 40 * s, W2 = 5.5 * s;
+    for (let i = 0; i < 7; i++) { const y0 = q[1] - i * L / 7, y1 = y0 - L / 7; P.shape([[q[0] - W2, y0], [q[0] + W2, y0 - 2 * s], [q[0] + W2, y1 - 2 * s], [q[0] - W2, y1]], ['b6y1', 'y6r2', 'r6y3'][i % 3], lw * 0.6); }
     const top = [q[0], q[1] - L - 2 * s];
-    P.halo(top[0], top[1] - 8 * s, 44 * s, ['y1', 'y2', 'y3r1']);
-    for (const dx of [-3, 0, 3]) Lib.flame(P, top[0] + dx * s, top[1], 7 * s, 18 * s, t * 1.7 + dx, { noKnock: true });
+    P.halo(top[0], top[1] - 10 * s, 60 * s, ['y1', 'y2', 'y3r1', 'y4r1']); P.halo(top[0], top[1] - 12 * s, 16 * s, ['y2', 'y3r1'], { knock: true });
+    for (const dx of [-4, 0, 4]) Lib.flame(P, top[0] + dx * s, top[1], 9 * s, 24 * s, t * 1.7 + dx, { noKnock: true });
   },
   /* boîte à épices en forme de tour */
   mhSpice(P, A, J, M, h, t, lw, F, u, n, add) {
@@ -142,8 +143,8 @@ Object.assign(PROPS2, {
   /* le choffar : corne recourbée, embouchure aux lèvres */
   mhShofar(P, A, J, M, h, t, lw, F) {
     const m = [J.head[0] + J.hf[0] * 0.075 - J.hu[0] * 0.03, J.head[1] + J.hf[1] * 0.075 - J.hu[1] * 0.03], pts = [];
-    for (let i = 0; i <= 10; i++) { const s = i / 10; pts.push([m[0] + s * 0.28, m[1] - Math.sin(s * 2.2) * 0.06 - s * s * 0.14]); }
-    const w0 = 0.007, w1 = 0.034, top = pts.map((p, i) => [p[0], p[1] - lerp(w0, w1, i / 10)]), bot = pts.map((p, i) => [p[0], p[1] + lerp(w0, w1, i / 10)]);
+    for (let i = 0; i <= 10; i++) { const s = i / 10; pts.push([m[0] + s * 0.34, m[1] - Math.sin(s * 2.2) * 0.07 - s * s * 0.18]); }
+    const w0 = 0.008, w1 = 0.046, top = pts.map((p, i) => [p[0], p[1] - lerp(w0, w1, i / 10)]), bot = pts.map((p, i) => [p[0], p[1] + lerp(w0, w1, i / 10)]);
     P.shape(top.concat(bot.reverse()).map(M), 'y5r3k1', lw * 0.8);
     for (let i = 2; i < 10; i += 2) P.line([M([pts[i][0], pts[i][1] - lerp(w0, w1, i / 10)]), M([pts[i][0] + 0.004, pts[i][1] + lerp(w0, w1, i / 10)])], lw * 0.4);
     const e = pts[10]; P.shape([M([e[0] - 0.01, e[1] - w1]), M([e[0] + 0.012, e[1] - w1 - 0.004]), M([e[0] + 0.012, e[1] + w1]), M([e[0] - 0.01, e[1] + w1])], 'y3r2k2', lw * 0.6);
@@ -151,14 +152,15 @@ Object.assign(PROPS2, {
   },
   /* le nouveau-né emmailloté sur un coussin, posé sur les genoux du sandak */
   mhLapBaby(P, A, J, M, h, t, lw, F) {
-    const L = J.lN, c = [(L.h[0] + L.k[0]) / 2 + 0.04, (L.h[1] + L.k[1]) / 2 - 0.045], q = M(c), fc = F.face || 1, s = h / 140;
-    P.shape(smooth([[q[0] - 15 * s, q[1] + 3 * s], [q[0] - 15 * s, q[1] - 3 * s], [q[0] + 15 * s, q[1] - 3 * s], [q[0] + 15 * s, q[1] + 3 * s]], 3), 'b5r3', lw * 0.8);
-    P.line([[q[0] - 14 * s, q[1] + 2 * s], [q[0] + 14 * s, q[1] + 2 * s]], lw * 0.8, { ink: 0 });
-    for (const e of [-15, 15]) P.fill(P.disc(q[0] + e * s, q[1] + 4 * s, 1.6 * s, 6), 'y7r3', {});
-    P.shape(smooth([[q[0] - fc * 11 * s, q[1] - 3 * s], [q[0] - fc * 9 * s, q[1] - 8 * s], [q[0] + fc * 5 * s, q[1] - 9 * s], [q[0] + fc * 7 * s, q[1] - 4 * s]], 3), 'y1b1', lw * 0.7);
-    for (const k of [-5, 0]) P.line([[q[0] + fc * k * s, q[1] - 9 * s], [q[0] + fc * (k + 1) * s, q[1] - 3 * s]], lw * 0.7, { ink: 2, lvl: 6 });
-    const hd = [q[0] + fc * 10 * s, q[1] - 7 * s]; P.shape(P.disc(hd[0], hd[1], 3.6 * s, 10), 'y5r4', lw * 0.6);
-    P.shape([[hd[0] - 3.6 * s, hd[1] - 0.5 * s], [hd[0] - 2 * s, hd[1] - 3.6 * s], [hd[0] + 2 * s, hd[1] - 3.6 * s], [hd[0] + 3.4 * s, hd[1] - 1 * s]], 'y1', lw * 0.4);
+    const L = J.lN, c = [(L.h[0] + L.k[0]) / 2 + 0.05, (L.h[1] + L.k[1]) / 2 - 0.05], q = M(c), fc = F.face || 1, s = h / 140;
+    P.shape(smooth([[q[0] - 21 * s, q[1] + 4 * s], [q[0] - 21 * s, q[1] - 4 * s], [q[0] + 21 * s, q[1] - 4 * s], [q[0] + 21 * s, q[1] + 4 * s]], 3), 'b6r3', lw * 0.9);
+    P.line([[q[0] - 19 * s, q[1] + 3 * s], [q[0] + 19 * s, q[1] + 3 * s]], lw * 1.2, { ink: 0, taper: 0 });
+    for (const e of [-21, 21]) P.fill(P.disc(q[0] + e * s, q[1] + 5 * s, 2.2 * s, 6), 'y7r3', {});
+    P.shape(smooth([[q[0] - fc * 15 * s, q[1] - 4 * s], [q[0] - fc * 13 * s, q[1] - 11 * s], [q[0] + fc * 7 * s, q[1] - 12 * s], [q[0] + fc * 10 * s, q[1] - 5 * s]], 3), 'y1', lw * 0.8);
+    for (const k of [-9, -3, 3]) P.line([[q[0] + fc * k * s, q[1] - 12 * s], [q[0] + fc * (k + 1.5) * s, q[1] - 4 * s]], lw * 0.9, { ink: 2, lvl: 7 });
+    const hd = [q[0] + fc * 14 * s, q[1] - 9 * s]; P.shape(P.disc(hd[0], hd[1], 5 * s, 12), 'y5r4', lw * 0.7);
+    P.shape([[hd[0] - 5 * s, hd[1] - 0.5 * s], [hd[0] - 3 * s, hd[1] - 5 * s], [hd[0] + 3 * s, hd[1] - 5 * s], [hd[0] + 5 * s, hd[1] - 1.5 * s]], 'y1b1', lw * 0.5);
+    P.fill(P.disc(hd[0] + fc * 2 * s, hd[1] + 0.5 * s, 0.7 * s, 6), 'k8', { noKnock: true });
   },
   mhTaper(P, A, J, M, h, t, lw, F, u, n, add) { const a = M(A.t), b = M(add(add(A.t, u, 0.1), [0, -1], 0.08)); P.line([a, b], h * 0.014, { ink: 0, lvl: 2, taper: 0 }); P.line([a, b], lw * 0.4); Lib.flame(P, b[0], b[1], h * 0.03, h * 0.07, t * 1.5, { noKnock: true }); },
   mhTowel(P, A, J, M, h, t, lw) { const q = M(J.aN.w); P.shape([[q[0] - h * 0.045, q[1] - h * 0.012], [q[0] + h * 0.045, q[1] - h * 0.012], [q[0] + h * 0.04, q[1] + h * 0.13], [q[0] - h * 0.035, q[1] + h * 0.13]], 'y1b1', lw * 0.7); P.line([[q[0] - h * 0.038, q[1] + h * 0.1], [q[0] + h * 0.04, q[1] + h * 0.1]], lw * 0.9, { ink: 2 }); },
@@ -237,7 +239,7 @@ const mhTable = (x, y, w, d, h, items, o = {}) => ({ depth: o.depth || (x + w / 
 } });
 const mhSky = (P, pts, o) => {
   if (o.stars) { const r = rng(o.stars); for (let i = 0; i < 7; i++) { const q = pts(0.1 + r() * 0.8, 0.15 + r() * 0.75); Lib.star(P, q[0], q[1], 2 + r() * 2.5, r() > 0.5 ? 'y7' : 'y4'); } }
-  if (o.three) for (const [a, b, s] of [[0.22, 0.28, 5.5], [0.66, 0.2, 5], [0.46, 0.52, 4.5]]) { const q = pts(a, b); Lib.star(P, q[0], q[1], s, 'y8'); }
+  if (o.three) for (const [a, b, s] of [[0.24, 0.26, 9], [0.7, 0.2, 8], [0.5, 0.56, 7.5]]) { const q = pts(a, b); P.halo(q[0], q[1], s * 1.3, ['b3y1', 'y1', 'y2'], { knock: true }); Lib.star(P, q[0], q[1], s, 'y8'); }
   if (o.sun) { const q = pts(0.62, 0.3); P.shape(P.disc(q[0], q[1], o.sun, 20), 'y8r5', 0.6); }
   if (o.dawn) { const q = pts(0.4, 0.86); P.shape(P.disc(q[0], q[1], o.dawn, 20).map(p => [p[0], Math.min(p[1], q[1])]), 'y8r5', 0.6); }
   if (o.moon) { const q = pts(0.4, 0.62); P.shape(P.disc(q[0], q[1], o.moon, 20), 'y4', 0.6); P.fill(P.disc(q[0] - 3, q[1] + 2, o.moon * 0.25, 10), 'y5k1', { noKnock: true }); }
@@ -248,7 +250,6 @@ const mhArchWinL = (P, y, z, w, h, sky, o = {}) => {
   if (o.band) Lib.wallL(P, y, z, w, h * 0.25, o.band, 0);
   mhSky(P, (a, b) => P.I(0.5, y + a * w, z + (1 - b) * h * 0.8), o);
   P.line([P.I(0.6, y + w / 2, z), P.I(0.6, y + w / 2, z + h)], 1.6); P.line([P.I(0.6, y, z + h * 0.42), P.I(0.6, y + w, z + h * 0.42)], 1.2);
-  for (let i = 0; i < 3; i++) { const c = P.I(0.7, y + w / 2, z + h - w / 2 - 4 + i * 0); if (i === 0) P.shape(P.disc(c[0], c[1], w * 0.14, 12), 'b5r3', 0.6); }
   P.box(0.5, y - 9, z - 11, 10, w + 18, 4, 'r4y5k2', 0.8);
 };
 /* flaque de lumière au sol, venue d'une fenêtre */
@@ -331,7 +332,7 @@ const mhDesk = (x, y, w, d, z0, o = {}) => ({ depth: o.depth || (x + w / 2 + y +
 /* banc (face vers le mur droit) avec pupitres individuels devant */
 const mhBench = (P, x, y, len, o = {}) => {
   const tn = o.tn || 'r4y5k2';
-  if (o.stand) for (let i = 0; i < o.stand; i++) { const sx = x + 8 + i * (len - 26) / Math.max(1, o.stand - 1); P.box(sx + 5, y - 26, 0, 6, 6, 40, 'r4y5k3', 0.6); P.box(sx, y - 30, 40, 16, 14, 4, tn, 0.7); }
+  if (o.stand) for (let i = 0; i < o.stand; i++) { const sx = x + 8 + i * (len - 26) / Math.max(1, o.stand - 1); P.box(sx + 7, y - 24, 0, 5, 5, 38, 'r4y5k3', 0.6); P.shape([P.I(sx, y - 32, 44), P.I(sx + 20, y - 32, 44), P.I(sx + 20, y - 14, 36), P.I(sx, y - 14, 36)], tn, 0.8); P.shape([P.I(sx, y - 14, 36), P.I(sx + 20, y - 14, 36), P.I(sx + 20, y - 14, 33), P.I(sx, y - 14, 33)], tadd(tn, 'k2'), 0.6); }
   P.box(x, y, 0, len, 16, 22, tn, 0.9); P.box(x, y + 2, 22, len, 12, 3, tadd(tn, 'y1'), 0.6);
 };
 /* lustre suspendu */
@@ -375,8 +376,11 @@ const SCENES = [
     for (let i = 1; i < 4; i++) P.line([P.I(20, 350 + i * 17, 36 - i), P.I(90, 350 + i * 17, 36 - i)], 0.8, { ink: 1, lvl: 7 });
     mhChair(P, 470, 150, 36, 'y');
     { const q = P.I(470, 138, 74); P.shape([[q[0] - 14, q[1] - 2], [q[0] + 14, q[1] - 10], [q[0] + 16, q[1] + 30], [q[0] - 10, q[1] + 38]], 'b4y3k1', 0.8); }
-    { const q = P.I(1, 170, 150); P.line([[q[0], q[1]], [q[0], q[1] - 6]], 1.2); P.shape([[q[0] - 3, q[1]], [q[0] + 3, q[1] - 2], [q[0] + 14, q[1] + 40], [q[0] + 2, q[1] + 52], [q[0] - 10, q[1] + 36]], 'k6b2', 0.8); }
-    P.cyl(158, 136, 0, 17, 11, 'r5y5k2', 0.9); P.shape(P.ell(158, 136, 11.4, 13, 13, 18), 'b4y1', 0.5);
+    P.box(1, 150, 118, 6, 90, 4, 'r4y5k3', 0.6); for (const y of [165, 195]) P.box(1, y, 106, 8, 3, 12, 'r4y5k3', 0.4);
+    { const q = P.I(4, 195, 106); P.shape([[q[0] - 4, q[1] - 2], [q[0] + 8, q[1] - 6], [q[0] + 10, q[1] + 16], [q[0] - 2, q[1] + 20]], 'r6b4k2', 0.7); P.line([[q[0], q[1] + 8], [q[0] + 8, q[1] + 5]], 0.8, { ink: 0 }); }
+    P.box(150, 470, 0, 70, 44, 34, 'r4y5k2'); P.box(148, 468, 34, 74, 48, 4, 'r4y5k3', 0.6); P.box(160, 478, 38, 30, 22, 6, 'y1b1', 0.5); P.box(196, 480, 38, 14, 12, 12, 'r6b3k2', 0.5);
+    P.box(140, 104, 0, 34, 30, 16, 'r4y5k3', 0.8);
+    P.cyl(157, 119, 16, 15, 10, 'r5y5k2', 0.9); P.shape(P.ell(157, 119, 26.4, 11, 11, 18), 'b4y1', 0.5);
   },
   chars: [
     ch(LK.mhFather, { x: 124, y: 152, face: 1, clip: 'mhPour', h: 138, hold: { nTop: 'mhNatla' } }),
@@ -395,22 +399,22 @@ const SCENES = [
   ],
   back(P) {
     mhRoom(P, { wl: 'y3r2', band: 'b5y2', band2: 'y7r2', h: 250, floor: 'y3r2k2' });
-    for (const y of [70, 200, 330]) { mhArchWinL(P, y, 72, 64, 128, 'y2r2', { band: 'y4r3', sun: y === 200 ? 9 : 0 }); mhLight(P, [[2, y + 4], [2, y + 60], [230, y + 130], [230, y + 74]], 'y2r2k1'); }
+    for (const y of [60, 190, 320]) { mhArchWinL(P, y, 72, 64, 128, 'y2r2', { band: 'y4r3' }); mhLight(P, [[2, y + 4], [2, y + 60], [230, y + 130], [230, y + 74]], 'y2r2k1'); }
     mhArk(P, 300, 110);
-    P.box(40, 460, 0, 40, 60, 60, 'r4y5k2'); for (let i = 0; i < 4; i++) P.box(44, 464 + i * 14, 60, 32, 10, 8 + (i % 2) * 3, ['r6b4k1', 'b6k2', 'r6b4k2', 'b5r3k2'][i], 0.5);
-    mhDoorL(P, 400, 50, 132); mhMezuza(P, 392, 70);
-    mhBench(P, 120, 230, 150, { stand: 3 }); mhBench(P, 120, 380, 150, { stand: 3 }); mhBench(P, 360, 300, 140, { stand: 2 });
-    mhHangLamp(P, 200, 160, 190, 250);
+    P.box(40, 470, 0, 40, 56, 60, 'r4y5k2'); for (let i = 0; i < 4; i++) P.box(44, 474 + i * 13, 60, 32, 10, 8 + (i % 2) * 3, ['r6b4k1', 'b6k2', 'r6b4k2', 'b5r3k2'][i], 0.5);
+    mhDoorL(P, 406, 50, 132); mhMezuza(P, 398, 70);
+    mhBench(P, 90, 180, 160, { stand: 3 }); mhBench(P, 90, 300, 160, { stand: 3 });
+    mhHangLamp(P, 300, 220, 190, 250);
   },
   live(P, t) { mhNerTamid(P, t, 355); },
   chars: [
-    ch(LK.mhFather2, { x: 280, y: 320, face: 1, clip: 'mhSpread', h: 142, hold: { f: 'mhTalitUp' } }),
-    ch(LK.mhGrandpa, { x: 150, y: 205, face: 1, clip: 'mhDaven', h: 136, hold: { n: 'mhTalit', nTop: 'mhBook' } }),
-    ch(LK.mhFather3, { x: 430, y: 275, face: 1, clip: 'mhDaven', h: 140, t0: 0.8, hold: { n: 'mhTalitB', nTop: 'mhBook' } }),
-    ch(LK.mhRabbi, { x: 236, y: 400, face: 1, clip: 'mhSitRead', h: 134, hold: { n: 'mhTalit', nTop: 'mhBook' } }),
+    ch(LK.mhFather2, { x: 360, y: 300, face: 1, clip: 'mhSpread', h: 142, hold: { f: 'mhTalitUp' } }),
+    ch(LK.mhGrandpa, { x: 150, y: 222, face: 1, clip: 'mhDaven', h: 136, hold: { n: 'mhTalit', nTop: 'mhBook' } }),
+    ch(LK.mhFather3, { x: 440, y: 190, face: 1, clip: 'mhDaven', h: 140, t0: 0.8, hold: { n: 'mhTalitB', nTop: 'mhBook' } }),
+    ch(LK.mhRabbi, { x: 200, y: 306, face: 1, clip: 'mhSitRead', h: 134, hold: { n: 'mhTalit', nTop: 'mhBook' } }),
     ch(LK.mhBoy, { x: 380, y: 450, face: -1, clip: 'offer', h: 94, hold: { n: 'mhKatan' } }),
-    ch(LK.mhYoung, { x: 316, y: 470, face: 1, clip: 'talk', h: 140, hold: { n: 'mhTalitS' } }),
-    ch(LK.mhSephardi, { h: 138, hold: { nTop: 'mhBag' }, speed: 18, path: [W(20, 425, 2), W(170, 330, 3.5, 'idle', { f: 1 }), W(20, 425, 0)] })
+    ch(LK.mhYoung, { x: 300, y: 475, face: 1, clip: 'talk', h: 140, hold: { n: 'mhTalitS' } }),
+    ch(LK.mhSephardi, { h: 138, hold: { nTop: 'mhBag' }, speed: 18, path: [W(20, 431, 2), W(150, 410, 3.5, 'idle', { f: 1 }), W(20, 431, 0)] })
   ]
 },
 {
@@ -431,16 +435,19 @@ const SCENES = [
     mhDoorL(P, 400, 60, 132); mhMezuza(P, 392, 70);
     mhCaseR(P, 300, 170, 190, 33);
     mhChair(P, 200, 150, 36, 'y'); mhChair(P, 270, 150, 36, 'y');
+    P.box(18, 250, 0, 46, 110, 56, 'r4y5k2'); P.box(16, 248, 56, 50, 114, 3, 'r4y5k3', 0.6);
+    Lib.lamp(P, 40, 270, 59, 0.6); Lib.jar(P, 40, 320, 59, 0.9, 'b5y3'); P.box(28, 336, 59, 22, 16, 5, 'r6b4k1', 0.5);
+    P.box(470, 470, 0, 46, 46, 30, 'r4y5k2'); { const q = P.I(493, 493, 30); P.shape(Lib.bumpy(P, q[0], q[1] - 6, 16, 8, 6), 'b5r3', 0.7); }
   },
   chars: [
     mhTable(160, 90, 150, 70, 44, [
       (P, t, z) => { for (const [x, y, tn] of [[190, 110, 'r6b4k1'], [212, 118, 'b6r2k2']]) { P.box(x - 7, y - 7, z, 14, 14, 9, tn, 0.6); const q = P.I(x, y, z + 9); P.line([[q[0] - 4, q[1]], [q[0] + 4, q[1]]], 0.8, { ink: 0 }); } },
       mhOpenBook(250, 120), mhCup(290, 105, 'y1b1'), (P, t, z) => { const q = P.I(285, 140, z); P.shape([[q[0] - 10, q[1]], [q[0] + 10, q[1] - 4], [q[0] + 12, q[1] + 2], [q[0] - 8, q[1] + 6]], 'y1b1', 0.5); }
     ], { cloth: 'y1b1', hem: 2 }),
-    ch(LK.mhFather, { x: 220, y: 270, face: 1, clip: 'mhWrap', h: 142, hold: { n: 'mhTalit', nTop: 'mhTefillin' } }),
-    ch(LK.mhTeen, { x: 320, y: 320, face: -1, clip: 'mhWrap', h: 120, t0: 0.4, hold: { nTop: 'mhTefillin' } }),
-    ch(LK.mhGrandpa, { x: 400, y: 250, face: -1, clip: 'point', h: 136, hold: { n: 'mhTalitS', nTop: 'mhTefillin' } }),
-    ch(LK.mhBoy3, { x: 400, y: 400, face: -1, clip: 'lookup', h: 88 }),
+    ch(LK.mhFather, { x: 210, y: 310, face: 1, clip: 'mhWrap', h: 142, hold: { n: 'mhTalit', nTop: 'mhTefillin' } }),
+    ch(LK.mhTeen, { x: 330, y: 340, face: -1, clip: 'mhWrap', h: 120, t0: 0.4, hold: { nTop: 'mhTefillin' } }),
+    ch(LK.mhGrandpa, { x: 410, y: 260, face: -1, clip: 'point', h: 136, hold: { n: 'mhTalitS', nTop: 'mhTefillin' } }),
+    ch(LK.mhBoy3, { x: 420, y: 420, face: -1, clip: 'lookup', h: 88, look: Object.assign({}, LK.mhBoy3, { robe: 'b5y3', sash: 'r6' }) }),
     ch(LK.mhMother2, { h: 132, speed: 16, t0: 2, path: [W(40, 425, 5, 'idle', { f: 1 }), W(110, 440, 3, 'idle', { f: 1 }), W(40, 425, 0)] })
   ]
 },
@@ -495,6 +502,8 @@ const SCENES = [
     { P.cyl(462, 267, 26, 10, 36, 'r6b4k1', 0.8, 14); const q = P.I(462, 267, 62); P.shape([[q[0] - 7, q[1]], [q[0] + 7, q[1]], [q[0] + 5, q[1] - 8], [q[0] - 5, q[1] - 8]], 'y7r2', 0.6); P.line([P.I(452, 277, 44), P.I(472, 257, 44)], 1.4, { ink: 0 }); }
     for (const x of [484, 492]) { const q = P.I(x, 262, 26); P.line([[q[0], q[1]], [q[0], q[1] - 12]], 1); P.shape(P.disc(q[0], q[1] - 16, 4.5, 10), 'b1k3', 0.6); }
     mhBench(P, 200, 420, 180, { stand: 0 });
+    P.box(24, 170, 0, 26, 230, 20, 'r4y5k2', 0.9); P.box(24, 170, 20, 26, 230, 3, 'r4y5k1', 0.6);
+    for (const [y, lk, tt, hold] of [[200, LK.mhYoung, 0.3, { n: 'mhTalitS', nTop: 'mhBook' }], [270, LK.mhKittel2, 1.4, { n: 'mhTalit', nTop: 'mhBook' }], [340, LK.mhFather3, 2.2, { n: 'mhTalitB' }]]) mhStatic(P, lk, { x: 42, y, face: 1, clip: y === 340 ? 'sit' : 'mhSitRead', h: 132, hold, tt });
     mhHangLamp(P, 260, 250, 190, 250);
   },
   live(P, t) { mhNerTamid(P, t, 440); },
@@ -503,7 +512,7 @@ const SCENES = [
     ch(LK.mhRabbi, { x: 248, y: 196, z: 30, face: -1, clip: 'mhYadRead', h: 136, hold: { n: 'mhTalit', nTop: 'mhYad' } }),
     ch(LK.mhFather2, { x: 312, y: 190, z: 30, face: -1, clip: 'mhHandles', h: 140, t0: 0.6, hold: { n: 'mhTalitB' } }),
     ch(LK.mhTeen, { x: 196, y: 238, z: 30, face: 1, clip: 'mhDaven', h: 118, t0: 1.2, hold: { n: 'mhTalitS', nTop: 'mhBook' } }),
-    ch(LK.mhSephardi, { x: 350, y: 300, z: 30, face: -1, clip: 'point', h: 136, hold: { n: 'mhTalitS' } }),
+    ch(LK.mhSephardi, { x: 350, y: 244, z: 30, face: -1, clip: 'point', h: 136, hold: { n: 'mhTalitS' } }),
     ch(LK.mhFather, { x: 130, y: 390, face: 1, clip: 'sing', h: 140, hold: { n: 'mhTalit' } }),
     ch(LK.mhGrandpa, { x: 250, y: 432, face: 1, clip: 'mhSitRead', h: 132, hold: { n: 'mhTalitS', nTop: 'mhBook' } }),
     ch(LK.mhBoy, { x: 420, y: 390, face: -1, clip: 'lookup', h: 90 })
@@ -588,16 +597,18 @@ const SCENES = [
     mhShelfR(P, 90, 150, 150, 81);
     P.box(420, 16, 0, 100, 44, 50, 'r4y5k2'); P.box(418, 14, 50, 104, 48, 3, 'r4y5k3', 0.6);
     { const q = P.I(450, 38, 53); P.shape([[q[0] - 16, q[1]], [q[0] + 16, q[1]], [q[0] + 12, q[1] + 4], [q[0] - 12, q[1] + 4]], 'b1k2', 0.6); } P.cyl(490, 36, 53, 4, 18, 'r7b4k3', 0.7, 10); P.cyl(490, 36, 71, 1.6, 8, 'r7b4k3', 0.5, 8);
-    { const q = P.I(330, 280, 0); P.halo(q[0], q[1] - 120, 220, ['y1', 'y2', 'y2r1'], { sq: 0.8 }); }
     mhDoorL(P, 420, 60, 132); mhMezuza(P, 412, 70);
+    mhChair(P, 130, 150, 36, 'y'); mhChair(P, 200, 150, 36, 'y');
+    P.box(18, 250, 0, 44, 120, 52, 'r4y5k2'); P.box(16, 248, 52, 48, 124, 3, 'r4y5k3', 0.6); for (let i = 0; i < 3; i++) Lib.jar(P, 38, 275 + i * 36, 55, 0.8, ['r5y6k1', 'b5y3', 'y6r3k1'][i]);
   },
   chars: [
-    ch(LK.mhFather, { x: 260, y: 250, face: 1, clip: 'mhKiddush', h: 142, hold: { nTop: 'mhGoblet', f: 'mhSiddur' } }),
-    ch(LK.mhTeenG, { x: 350, y: 250, face: -1, clip: 'raise', h: 120, hold: { nTop: 'mhHavdala' } }),
-    ch(LK.mhBoy, { x: 345, y: 330, face: -1, clip: 'mhSniff', h: 94, hold: { nTop: 'mhSpice' } }),
-    ch(LK.mhMother, { x: 225, y: 330, face: 1, clip: 'mhNails', h: 132, t0: 0.6 }),
-    ch(LK.mhGirl, { x: 285, y: 370, face: 1, clip: 'mhNails', h: 84, t0: 1.3 }),
-    ch(LK.mhGrandpa, { x: 420, y: 330, face: -1, clip: 'mhNails', h: 134, t0: 2 })
+    mhTable(120, 90, 130, 60, 44, [mhPlate(150, 110), mhCup(150, 110, 'b1k3'), mhBottle(210, 105), (P, t, z) => { const q = P.I(185, 130, z); P.shape([[q[0] - 6, q[1]], [q[0] + 6, q[1] - 3], [q[0] + 7, q[1] + 1], [q[0] - 5, q[1] + 4]], 'r5y4k2', 0.4); }], { cloth: 'y1b1', hem: 2 }),
+    ch(LK.mhFather, { x: 240, y: 250, face: 1, clip: 'mhKiddush', h: 142, hold: { nTop: 'mhGoblet', f: 'mhSiddur' } }),
+    ch(LK.mhTeenG, { x: 350, y: 235, face: -1, clip: 'raise', h: 120, hold: { nTop: 'mhHavdala' } }),
+    ch(LK.mhBoy, { x: 360, y: 330, face: -1, clip: 'mhSniff', h: 94, hold: { nTop: 'mhSpice' } }),
+    ch(LK.mhMother, { x: 215, y: 345, face: 1, clip: 'mhNails', h: 132, t0: 0.6 }),
+    ch(LK.mhGirl, { x: 290, y: 385, face: 1, clip: 'mhNails', h: 84, t0: 1.3 }),
+    ch(LK.mhGrandpa, { x: 440, y: 320, face: -1, clip: 'mhNails', h: 134, t0: 2 })
   ]
 },
 {
@@ -614,27 +625,28 @@ const SCENES = [
     mhRoom(P, { wl: 'y2r1b1', band: 'b5r3', band2: 'y7r2', h: 235, floor: 'y4r3k2', rug: [70, 200, 280, 200], rugTn: 'b5r3k1' });
     for (const y of [300, 420]) mhArchWinL(P, y, 80, 60, 110, 'b2y1', { band: 'y3r2' });
     const I = (x, y, z) => P.I(x, y, z);
-    P.box(24, 110, 0, 14, 70, 150, 'r6b3k2', 1);
-    { const pts = [I(24, 106, 150), I(24, 184, 150)]; for (let i = 0; i <= 10; i++) { const a = Math.PI * i / 10; pts.push(I(24, 145 + Math.cos(a) * 39, 150 + Math.sin(a) * 30)); } P.shape(pts, 'y7r2', 1); P.line([I(24.5, 125, 158), I(24.5, 165, 158)], 0.8, { ink: 1 }); P.line([I(24.5, 130, 166), I(24.5, 160, 166)], 0.8, { ink: 1 }); }
-    P.box(38, 110, 0, 58, 70, 44, 'r6b3k1', 1);
-    P.box(38, 104, 44, 58, 8, 36, 'y6r3k2', 0.8); P.box(38, 178, 44, 58, 8, 36, 'y6r3k2', 0.8);
-    { const q = P.I(66, 145, 44); P.shape(Lib.bumpy(P, q[0], q[1] - 4, 24, 9, 8), 'b5r3', 0.8); }
-    P.shape([I(96.5, 114, 40), I(96.5, 176, 40), I(96.5, 176, 8), I(96.5, 114, 8)], 'r6b3k2', 0.8);
-    P.line([I(96.8, 118, 14), I(96.8, 172, 14)], 1.2, { ink: 0 });
-    mhChair(P, 128, 255, 40, 'x0', 'r5y4k2');
+    /* le fauteuil d'Élie : dossier haut à fronton doré, velours, laissé vide */
+    P.box(22, 118, 0, 10, 56, 112, 'r6b3k2', 1);
+    { const pts = [I(27, 114, 112), I(27, 178, 112)]; for (let i = 0; i <= 10; i++) { const a = Math.PI * i / 10; pts.push(I(27, 146 + Math.cos(a) * 32, 112 + Math.sin(a) * 24)); } P.shape(pts, 'y7r2', 1); P.line([I(32.5, 132, 120), I(32.5, 160, 120)], 0.8, { ink: 1 }); P.line([I(32.5, 136, 127), I(32.5, 156, 127)], 0.8, { ink: 1 }); }
+    P.shape([I(32.5, 124, 48), I(32.5, 168, 48), I(32.5, 168, 100), I(32.5, 124, 100)], 'r6b3k1', 0.8); P.line([I(32.8, 128, 52), I(32.8, 164, 52), I(32.8, 164, 96), I(32.8, 128, 96), I(32.8, 128, 52)], 0.9, { ink: 0, taper: 0 });
+    P.box(32, 118, 0, 48, 56, 38, 'r6b3k1', 1);
+    { const q = P.I(56, 146, 38); P.shape(Lib.bumpy(P, q[0], q[1] - 4, 20, 8, 8), 'b5r3', 0.8); }
+    for (const y of [112, 174]) { P.box(32, y, 38, 44, 6, 22, 'y6r3k2', 0.8); P.box(72, y - 1, 0, 6, 8, 60, 'y6r3k2', 0.7); }
+    P.shape([I(80.5, 122, 34), I(80.5, 170, 34), I(80.5, 170, 6), I(80.5, 122, 6)], 'r6b3k2', 0.8); P.line([I(80.8, 124, 12), I(80.8, 168, 12)], 1.2, { ink: 0 });
+    mhChair(P, 142, 262, 40, 'x0', 'r5y4k2');
     P.box(300, 20, 0, 170, 60, 44, 'r4y5k2'); P.shape([I(298, 18, 44.5), I(472, 18, 44.5), I(472, 82, 44.5), I(298, 82, 44.5)], 'y1', 0.8); P.shape([I(298, 82.4, 44.5), I(472, 82.4, 44.5), I(472, 82.4, 30), I(298, 82.4, 30)], 'y1b1', 0.8);
     { const q = P.I(330, 50, 44.5); P.shape(Lib.bumpy(P, q[0], q[1] - 8, 20, 10, 6), 'y6r4k1', 0.7); } P.cyl(440, 40, 44.5, 4, 18, 'r7b4k3', 0.7, 10); P.cyl(440, 40, 62.5, 1.6, 8, 'r7b4k3', 0.5, 8);
     mhDoorL(P, 470, 50, 130);
   },
   chars: [
     mhTable(360, 30, 70, 40, 44, [mhCandle(370, 45), mhCandle(385, 42), mhCandle(400, 45), mhCandle(415, 42), mhCup(420, 60, 'b1k3'), mhCup(368, 62, 'y6r2k1')], { cloth: null, depth: 100 }),
-    ch(LK.mhGrandpa, { x: 128, y: 255, face: 1, clip: 'mhSandak', h: 134, hold: { n: 'mhLapBaby' } }),
-    ch(LK.mhMohel, { x: 206, y: 222, face: -1, clip: 'mhKiddush', h: 140, hold: { n: 'mhTalitS', nTop: 'mhGoblet' } }),
-    ch(LK.mhFather, { x: 205, y: 330, face: -1, clip: 'mhDaven', h: 142, t0: 0.5, hold: { n: 'mhTalit', nTop: 'mhBook' } }),
-    ch(LK.mhRabbi, { x: 300, y: 260, face: -1, clip: 'sing', h: 136, t0: 1.1 }),
-    ch(LK.mhYoung, { x: 300, y: 370, face: -1, clip: 'idle', h: 140, t0: 2 }),
-    ch(LK.mhBoy, { x: 250, y: 420, face: -1, clip: 'offer', h: 92, hold: { n: 'mhTaper' } }),
-    ch(LK.mhGrandma, { x: 80, y: 400, face: 1, clip: 'sing', h: 124, t0: 0.8 })
+    ch(LK.mhGrandpa, { x: 142, y: 262, face: 1, clip: 'mhSandak', h: 134, hold: { nTop: 'mhLapBaby' } }),
+    ch(LK.mhMohel, { x: 212, y: 222, face: -1, clip: 'mhKiddush', h: 140, hold: { n: 'mhTalitS', nTop: 'mhGoblet' } }),
+    ch(LK.mhFather, { x: 276, y: 196, face: -1, clip: 'mhDaven', h: 142, t0: 0.5, hold: { n: 'mhTalit', nTop: 'mhBook' } }),
+    ch(LK.mhRabbi, { x: 350, y: 186, face: -1, clip: 'sing', h: 136, t0: 1.1 }),
+    ch(LK.mhYoung, { x: 356, y: 330, face: -1, clip: 'idle', h: 140, t0: 2 }),
+    ch(LK.mhBoy, { x: 290, y: 372, face: -1, clip: 'offer', h: 92, hold: { n: 'mhTaper' } }),
+    ch(LK.mhGrandma, { x: 165, y: 400, face: 1, clip: 'sing', h: 124, t0: 0.8 })
   ]
 },
 {
@@ -653,21 +665,22 @@ const SCENES = [
     mhArk(P, 360, 110, { cur: 'y1', gold: 'y6r2' });
     mhBima(P, 150, 160, 220, 170, 30, { rug: 'y1', rug2: 'y1b1' });
     mhBench(P, 210, 440, 190, { stand: 0 });
+    mhStatic(P, LK.mhKittel2, { x: 340, y: 446, face: 1, clip: 'lookup', h: 132, hold: { n: 'mhTalit' }, tt: 0.7 });
     mhHangLamp(P, 280, 250, 190, 250);
   },
   live(P, t) { mhNerTamid(P, t, 415); },
   top(P, t) {
     const o = this.chars[1].out; if (!o || !o.horn) return;
-    for (let i = 0; i < 3; i++) { const u = (t * 0.55 + i / 3) % 1, r = 8 + u * 60, pts = []; for (let k = 0; k <= 10; k++) { const a = -0.9 + 1.4 * k / 10; pts.push([o.horn[0] + Math.cos(a) * r, o.horn[1] + Math.sin(a) * r * 0.8]); } P.line(pts, 1.8 * (1 - u) + 0.2, { ink: 1, lvl: 7 }); }
+    for (let i = 0; i < 3; i++) { const u = (t * 0.55 + i / 3) % 1, r = 8 + u * 60, pts = []; for (let k = 0; k <= 10; k++) { const a = -0.9 + 1.4 * k / 10; pts.push([o.horn[0] + Math.cos(a) * r, o.horn[1] + Math.sin(a) * r * 0.8]); } P.line(pts, 3 * (1 - u) + 0.4, { ink: 1, lvl: 9 }); }
   },
   chars: [
     mhDesk(226, 216, 84, 52, 30, { h: 36, cloth: 'y1', book: 1 }),
     ch(LK.mhKittel2, { x: 240, y: 196, z: 30, face: 1, clip: 'blow', h: 138, hold: { n: 'mhTalit', nTop: 'mhShofar' } }),
-    ch(LK.mhKittel, { x: 300, y: 192, z: 30, face: -1, clip: 'mhDaven', h: 140, t0: 0.7, hold: { n: 'mhTalitB', nTop: 'mhBook' } }),
+    ch(LK.mhKittel, { x: 318, y: 180, z: 30, face: -1, clip: 'mhDaven', h: 140, t0: 0.7, hold: { n: 'mhTalitB', nTop: 'mhBook' } }),
     ch(LK.mhKittel, { x: 130, y: 380, face: 1, clip: 'idle', h: 140, hold: { n: 'mhTalit' }, look: Object.assign({}, LK.mhKittel, { beard: 'short', hair: 'k8', bt: 'k8' }) }),
-    ch(LK.mhFather3, { x: 250, y: 410, face: 1, clip: 'lookup', h: 138, t0: 1.2, hold: { n: 'mhTalitS' } }),
-    ch(LK.mhFather2, { x: 400, y: 380, face: 1, clip: 'carry', h: 142, hold: { n: 'mhTalitS' } }),
-    ch(LK.mhBoy2, { x: 401, y: 381, z: 86, face: 1, clip: 'sit', h: 80, noShadow: 1, dz: 3 }),
+    ch(LK.mhFather3, { x: 230, y: 380, face: 1, clip: 'lookup', h: 138, t0: 1.2, hold: { n: 'mhTalitS' } }),
+    ch(LK.mhFather2, { x: 440, y: 410, face: 1, clip: 'carry', h: 142, hold: { n: 'mhTalitS' } }),
+    ch(LK.mhBoy2, { x: 438, y: 408, z: 98, face: 1, clip: 'sit', h: 80, noShadow: 1, dz: -2 }),
     ch(LK.mhSephardi, { x: 460, y: 250, face: -1, clip: 'mhDaven', h: 136, t0: 2, hold: { n: 'mhTalit', nTop: 'mhBook' } })
   ]
 },
@@ -699,14 +712,15 @@ const SCENES = [
     P.shape([P.I(X0 + 0.6, 130, 64), P.I(X0 + 0.6, 190, 64), P.I(X0 + 0.6, 190, 112), P.I(X0 + 0.6, 130, 112)], 'b5r3', 0.8);
     { const c = P.I(X0 + 0.8, 160, 88); P.shape([[c[0] - 6, c[1] - 12], [c[0] + 6, c[1] - 12], [c[0] + 9, c[1] + 4], [c[0] - 9, c[1] + 4]], 'y7r2', 0.5); }
     for (const [a, b] of [[P.I(X0, Y0, H - 12), P.I(X1, Y0, H - 12)], [P.I(X0, Y0, H - 12), P.I(X0, Y1, H - 12)]]) { const pts = []; for (let i = 0; i <= 20; i++) { const k = i / 20; pts.push([lerp(a[0], b[0], k), lerp(a[1], b[1], k) + Math.sin(k * Math.PI * 6) * 5 + 4]); } P.line(pts, 1.4, { ink: 1, lvl: 7 }); for (let i = 1; i < 20; i += 2) P.fill(P.disc(pts[i][0], pts[i][1] + 3, 3, 6), i % 4 === 1 ? 'y8' : 'b6', {}); }
-    for (const [px, py] of [[X1, Y0], [X0, Y1], [X1, Y1]]) P.box(px - 4, py - 4, 0, 8, 8, H, 'r5y5k3', 0.8);
-    Lib.tree(P, 500, 160, 0, { h: 150, r: 40, can: 'y5b5k1', trunk: 'r5y4k4', fruit: 8, fruitTone: 'y8' });
-    Lib.palm(P, 490, 490, 0, 170, { lean: -8 });
+    P.box(X1 - 4, Y0 - 4, 0, 8, 8, H, 'r5y5k3', 0.8);
+    Lib.tree(P, 515, 330, 0, { h: 150, r: 40, can: 'y5b5k1', trunk: 'r5y4k4', fruit: 8, fruitTone: 'y8' });
+    Lib.bush(P, 300, 510, 0, 22, 'y4b5k2'); Lib.bush(P, 520, 500, 0, 18, 'y5b5k1');
     for (const [x, y] of [[360, 60], [60, 460]]) { P.cyl(x, y, 0, 14, 20, 'r5y5k2', 0.8, 14); const q = P.I(x, y, 20); P.shape(Lib.bumpy(P, q[0], q[1] - 12, 18, 14, 8), 'y4b6k1', 0.8); }
     Lib.stones(P, 10, 'y3r2k3', [380, 440, 150, 90]);
   },
   front(P) {
     const X0 = 70, X1 = 300, Y0 = 60, Y1 = 280, H = 150;
+    for (const [px, py] of [[X0, Y1], [X1, Y1]]) P.box(px - 4, py - 4, 0, 8, 8, H, 'r5y5k3', 0.8);
     for (let i = 0; i <= 6; i++) P.line([P.I(X0 + i * (X1 - X0) / 6, Y0, H), P.I(X0 + i * (X1 - X0) / 6, Y1, H)], 1.7, { ink: 3 });
     P.line([P.I(X0, Y1, H), P.I(X1, Y1, H)], 2); P.line([P.I(X1, Y0, H), P.I(X1, Y1, H)], 2);
     for (let i = 0; i < 26; i++) { const x = X0 + P.r() * (X1 - X0), y = Y0 + P.r() * (Y1 - Y0), c = P.I(x, y, H + 2), a = P.r() * 0.8 - 0.4, L = 26 + P.r() * 16; P.line([[c[0] - Math.cos(a) * L, c[1] - Math.sin(a) * L * 0.5], [c[0] + Math.cos(a) * L, c[1] + Math.sin(a) * L * 0.5]], 0.9); for (let k = -2; k <= 2; k++) { const q = [c[0] + Math.cos(a) * k * L * 0.4, c[1] + Math.sin(a) * k * L * 0.2]; P.shape([[q[0], q[1]], [q[0] + 9, q[1] - 7], [q[0] + 15, q[1] - 2], [q[0] + 5, q[1] + 3]], i % 3 ? 'y5b6' : 'y4b5k2', 0.5); } }

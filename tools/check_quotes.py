@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Vérifie que chaque `quote:` est copiée mot pour mot du Project Gutenberg n° 1609 et 1610 (Douay-Rheims, AT parties 1 et 2).
 Les textes sont téléchargés une fois dans data/gutenberg-1609.txt et data/gutenberg-1610.txt.
+Les références talmudiques ('Shabbat 31a', 'Mishnah Peah 1:1', 'Pirkei Avot 1:1', 'Jerusalem Talmud Nedarim 9:4')
+sont vérifiées contre le texte original de Sefaria (tools/talmud.py), sans voyelles ni ponctuation.
 
   python3 tools/check_quotes.py                          # tout src/
   python3 tools/check_quotes.py src/parachiot/toledot.js # un seul fichier (la citation doit venir du verset de `ref`)
 """
 import os, re, sys, glob, urllib.request
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import talmud
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TXTS = [os.path.join(ROOT, 'data', f'gutenberg-{n}.txt') for n in (1609, 1610)]  # AT partie 1 (Genèse à Job), partie 2 (Psaumes à Machabées)
 for TXT in TXTS:
@@ -27,7 +31,7 @@ for f in files:
     src = open(f, encoding='utf-8').read()
     for ref, q in re.findall(r"ref: '([^']+)'.*?quote: '((?:[^'\\]|\\.)*)'", src, re.S):
         q = q.replace("\\'", "'")
-        ok = q in verses.get(ref, '') or (not strict and any(q in v for v in verses.values()))
+        ok = talmud.check(ref, q) if talmud.parse(ref) else q in verses.get(ref, '') or (not strict and any(q in v for v in verses.values()))
         bad += not ok
         print(('OK  ' if ok else 'FAUX'), os.path.relpath(f, ROOT), ref)
 print('\n' + ('Toutes les citations sont exactes.' if not bad else f'{bad} citation(s) à corriger.'))
