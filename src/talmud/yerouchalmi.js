@@ -43,6 +43,9 @@ Object.assign(CLIPS, {
   tyPlace: { d: 2.6, k: [{ nU: 60, nL: 30, fU: 54, fL: 36, lean: 40, head: 20, nT: 30, nK: -30, fT: -6, fK: -18 }, { nU: 74, nL: 20, fU: 68, fL: 26, lean: 46, head: 24, nT: 30, nK: -30, fT: -6, fK: -18 }] },
   tyTaste: { d: 3, k: [{ nU: 40, nL: 122, fU: 20, fL: 50, head: 4, lean: 2, nT: 5, fT: -5 }, { nU: 46, nL: 114, fU: 22, fL: 52, head: 0, lean: 1, nT: 5, fT: -5 }] },
   tyDig: { d: 1.3, k: [{ lean: 30, head: 12, nU: 150, nL: 30, fU: 140, fL: 36, nT: 24, nK: -20, fT: -10, fK: -10 }, { lean: 44, head: 18, nU: 60, nL: 20, fU: 54, fL: 26, nT: 24, nK: -20, fT: -10, fK: -10 }] },
+  tyFloor: { d: 3.6, k: [{ nT: 70, nK: -120, fT: 80, fK: -140, lean: 10, head: 8, nU: 30, nL: 60, fU: 24, fL: 66 }, { nT: 70, nK: -120, fT: 80, fK: -140, lean: 6, head: 2, nU: 34, nL: 56, fU: 26, fL: 62 }] },
+  tyFloorHold: { d: 4, k: [{ nT: 70, nK: -120, fT: 80, fK: -140, lean: 16, head: 18, nU: 34, nL: 74, fU: 28, fL: 80 }, { nT: 70, nK: -120, fT: 80, fK: -140, lean: 20, head: 22, nU: 36, nL: 72, fU: 30, fL: 78 }] },
+  tyPointUp: { d: 3, k: [{ lean: -3, head: -20, nU: 128, nL: 6, fU: -4, fL: 14, nT: 10, fT: -8, fK: -4 }, { lean: -4, head: -24, nU: 134, nL: 2, fU: -2, fL: 18, nT: 10, fT: -8, fK: -4 }] },
   tyNod: { d: 2.2, k: [{ nU: 30, nL: 70, fU: 10, fL: 20, head: 8, lean: 4, nT: 6, fT: -6 }, { nU: 34, nL: 66, fU: 12, fL: 22, head: -4, lean: 2, nT: 6, fT: -6 }] }
 });
 /* ---------- accessoires ---------- */
@@ -87,26 +90,20 @@ Object.assign(PROPS2, {
 /* ---------- décors de Galilée ---------- */
 /* bord arrière du plateau vu à l'écran : ce qui est au-dessus est le lointain */
 const tyEdge = x => 361 + Math.min(468, Math.abs(x - 500)) * 0.5774;
-/* une chaîne de collines lointaines, en coordonnées d'écran, qui descend jusqu'au bord du plateau */
+/* une chaîne de collines lointaines posée le long du bord arrière du plateau (coordonnées d'écran) */
 const tyRange = (P, x0, x1, top, amp, tn, seed, o = {}) => {
   const n = 40, pts = [];
   for (let i = 0; i <= n; i++) {
     const k = i / n, x = lerp(x0, x1, k), fall = Math.min(1, Math.min(k, 1 - k) * (o.soft || 5));
-    let y = top - amp * (0.55 + 0.45 * vn(k * (o.freq || 6), 0.3, seed)) * fall;
-    if (o.flat) y = top - amp * Math.min(1, fall * 1.6) * (0.9 + 0.1 * vn(k * 9, 0.5, seed));
-    if (o.cliff && k > o.cliff[0] && k < o.cliff[1]) y -= o.cliff[2] * Math.sin((k - o.cliff[0]) / (o.cliff[1] - o.cliff[0]) * Math.PI) ** 0.4;
-    pts.push([x, Math.min(y, tyEdge(x))]);
+    let a = amp * (0.45 + 0.55 * vn(k * (o.freq || 6), 0.3, seed)) * fall;
+    if (o.flat) a = amp * Math.min(1, fall * 1.6) * (0.9 + 0.1 * vn(k * 9, 0.5, seed));
+    if (o.cliff && k > o.cliff[0] && k < o.cliff[1]) a += o.cliff[2] * Math.sin((k - o.cliff[0]) / (o.cliff[1] - o.cliff[0]) * Math.PI) ** 0.4;
+    pts.push([x, tyEdge(x) - (o.lift || 0) - a]);
   }
   const base = []; for (let i = n; i >= 0; i--) { const x = lerp(x0, x1, i / n); base.push([x, tyEdge(x) + 2]); }
   P.shape(pts.concat(base), tn, o.lw || 0.9);
-  if (o.lines) for (let i = 2; i < n - 2; i += 3) { const p = pts[i]; if (p[1] < tyEdge(p[0]) - 12) P.line([[p[0], p[1] + 4], [p[0] + 6, Math.min(tyEdge(p[0]) - 2, p[1] + 16 + (i % 4) * 5)]], 0.5); }
+  if (o.lines) for (let i = 2; i < n - 2; i += 3) { const p = pts[i], e = tyEdge(p[0]); if (p[1] < e - 14) P.line([[p[0], p[1] + 4], [p[0] + 6, Math.min(e - 3, p[1] + 14 + (i % 4) * 4)]], 0.5); }
   return pts;
-};
-/* le lac de Tibériade au loin, jusqu'à l'horizon */
-const tyFarLake = (P, x0, x1, yH, tn = 'b4y1') => {
-  const pts = [[x0, yH], [x1, yH]], n = 20; for (let i = n; i >= 0; i--) { const x = lerp(x0, x1, i / n); pts.push([x, tyEdge(x) + 2]); }
-  P.shape(pts, tn, 0); P.line([[x0, yH], [x1, yH]], 0.8);
-  for (let i = 0; i < 16; i++) { const x = lerp(x0 + 20, x1 - 20, (i * 0.618) % 1), y = yH + 6 + ((i * 37) % 23) * ((tyEdge(x) - yH - 8) / 23); if (y < tyEdge(x) - 4) P.line([[x - 8, y], [x, y - 1.5], [x + 8, y]], 0.6, { ink: 0, lvl: 4 }); }
 };
 /* olivier au tronc tordu et au feuillage argenté */
 const tyOlive = (P, x, y, s = 1, seed = 1, o = {}) => {
@@ -119,13 +116,15 @@ const tyOlive = (P, x, y, s = 1, seed = 1, o = {}) => {
   for (let i = 0; i < 16; i++) { const cx = b[0] + (r() - 0.5) * 72 * s, cy = b[1] - H * 0.88 + (r() - 0.5) * 32 * s; P.line([[cx, cy], [cx + 4 * s, cy - 1.6 * s]], 1.1, { ink: 0, lvl: 3 }); }
   if (o.fruit) for (let i = 0; i < 9; i++) P.fill(P.disc(b[0] + (r() - 0.5) * 60 * s, b[1] - H * 0.84 + (r() - 0.5) * 26 * s, 1.8 * s, 6), 'k6b2', { noKnock: true });
 };
-/* figuier aux larges feuilles */
+/* figuier : tronc lisse et gris, ramure basse et large, feuilles lobées, figues violettes */
 const tyFig = (P, x, y, s = 1, seed = 3, fruit = 'r6b5') => {
   const b = P.I(x, y, 0), r = rng(seed), H = 80 * s;
-  P.fill(P.disc(b[0] + 4 * s, b[1] + 1, 34 * s, 16).map(p => [p[0], b[1] + (p[1] - b[1]) * 0.3]), 'k2b1', { noKnock: true });
-  P.shape([[b[0] - 6 * s, b[1]], [b[0] - 4 * s, b[1] - H * 0.4], [b[0] - 22 * s, b[1] - H * 0.6], [b[0] - 18 * s, b[1] - H * 0.64], [b[0], b[1] - H * 0.5], [b[0] + 20 * s, b[1] - H * 0.62], [b[0] + 22 * s, b[1] - H * 0.58], [b[0] + 5 * s, b[1] - H * 0.4], [b[0] + 7 * s, b[1]]], 'y2k4', 1);
-  for (let i = 0; i < 14; i++) { const cx = b[0] + (r() - 0.5) * 80 * s, cy = b[1] - H * 0.8 + (r() - 0.5) * 34 * s, rr = (7 + r() * 3) * s, pts = []; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * 0.9; pts.push([cx + Math.cos(a) * rr * 1.2, cy + Math.sin(a) * rr], [cx + Math.cos(a + 0.45) * rr * 0.55, cy + Math.sin(a + 0.45) * rr * 0.55]); } P.shape(pts, i % 3 ? 'y5b5k1' : 'y4b6k2', 0.6); }
-  for (let i = 0; i < 8; i++) P.shape(P.disc(b[0] + (r() - 0.5) * 60 * s, b[1] - H * 0.76 + (r() - 0.5) * 26 * s, 3 * s, 8), fruit, 0.5);
+  P.fill(P.disc(b[0] + 4 * s, b[1] + 1, 36 * s, 16).map(p => [p[0], b[1] + (p[1] - b[1]) * 0.3]), 'k2b1', { noKnock: true });
+  P.shape([[b[0] - 7 * s, b[1]], [b[0] - 5 * s, b[1] - H * 0.3], [b[0] - 24 * s, b[1] - H * 0.55], [b[0] - 20 * s, b[1] - H * 0.6], [b[0] - 1 * s, b[1] - H * 0.42], [b[0] + 2 * s, b[1] - H * 0.64], [b[0] + 7 * s, b[1] - H * 0.62], [b[0] + 5 * s, b[1] - H * 0.4], [b[0] + 22 * s, b[1] - H * 0.56], [b[0] + 25 * s, b[1] - H * 0.52], [b[0] + 7 * s, b[1] - H * 0.28], [b[0] + 8 * s, b[1]]], 'y1r1k4', 1);
+  for (let i = 0; i < 9; i++) { const a = i / 9 * TAU + r() * 0.5, cx = b[0] + Math.cos(a) * 36 * s, cy = b[1] - H * 0.74 + Math.sin(a) * 13 * s, rr = (14 + r() * 5) * s; P.shape(Lib.bumpy(P, cx, cy, rr, rr * 0.62, 7), i % 2 ? 'y5b5k1' : 'y4b6k2', 0.9); }
+  P.shape(Lib.bumpy(P, b[0], b[1] - H * 0.84, 30 * s, 13 * s, 9), 'y5b5', 0.9);
+  for (let i = 0; i < 12; i++) { const cx = b[0] + (r() - 0.5) * 84 * s, cy = b[1] - H * 0.8 + (r() - 0.5) * 30 * s, rr = 3.2 * s; for (let k = -1; k <= 1; k++) P.shape(P.disc(cx + k * rr * 1.1, cy - (k ? 0 : rr * 0.8), rr, 8), i % 3 ? 'y6b6k1' : 'y5b5k2', 0.4); }
+  for (let i = 0; i < 9; i++) { const q = [b[0] + (r() - 0.5) * 70 * s, b[1] - H * 0.7 + (r() - 0.5) * 26 * s]; P.shape([[q[0], q[1] - 3.6 * s], [q[0] + 2.6 * s, q[1]], [q[0], q[1] + 3 * s], [q[0] - 2.6 * s, q[1]]], fruit, 0.5); }
 };
 /* grenadier bas, fruits rouges */
 const tyPomegranate = (P, x, y, s = 1, seed = 5) => { Lib.tree(P, x, y, 0, { h: 90 * s, r: 26 * s, can: 'y5b5k2', trunk: 'r4y4k4', blobs: 6 }); const r = rng(seed), b = P.I(x, y, 0); for (let i = 0; i < 7; i++) { const q = [b[0] + (r() - 0.5) * 50 * s, b[1] - 72 * s + (r() - 0.5) * 30 * s]; P.shape(P.disc(q[0], q[1], 4.4 * s, 10), 'r8y2', 0.6); P.line([[q[0] - 1.5, q[1] - 4 * s], [q[0], q[1] - 6 * s], [q[0] + 1.5, q[1] - 4 * s]], 0.5); } };
@@ -180,20 +179,21 @@ const tyVineRow = (P, x0, x1, y, seed, o = {}) => {
 };
 /* palmier dattier (tronc vers l'avant) */
 const tyPalm = (P, x, y, h = 150, o = {}) => Lib.palm(P, x, y, 0, h, Object.assign({ lean: 14, dates: 1 }, o));
-/* petite barque de pêche du lac, voile latine ; la coque avant se dessine devant les personnages */
-const tyBoatIn = (P, x, y) => {
-  const I = (a, b, c) => P.I(x + a, y + b, c);
-  P.shape([I(-40, 0, 9), I(-22, -11, 9), I(24, -11, 9), I(44, 0, 11), I(24, 11, 9), I(-22, 11, 9)], 'r4y4k4', 1);
-  for (const a of [-18, 6]) P.line([I(a, -10, 9), I(a, 10, 9)], 1.4);
-  P.line([I(4, 0, 9), I(4, 0, 84)], 1.6, { taper: 0 });
-  P.shape([I(4, 0, 82), I(40, -2, 44), I(-30, 2, 16)], 'y1b1', 0.9); P.line([I(4, 0, 82), I(-30, 2, 16)], 1.2);
-  for (let i = 1; i < 4; i++) P.line([I(4 - i * 8, 0, 82 - i * 17), I(4 + i * 9, -0.5, 82 - i * 9.5)], 0.35);
+/* barque de pêche du lac, longue et basse, avec ses rames ; la coque avant se dessine devant les personnages */
+const tyBoatIn = (P, x, y, k = 1.8) => {
+  const I = (a, b, c) => P.I(x + a * k, y + b * k, c);
+  P.shape([I(-40, 0, 12), I(-24, -12, 12), I(26, -12, 12), I(46, 0, 15), I(26, 12, 12), I(-24, 12, 12)], 'r4y4k4', 1);
+  for (const a of [-20, 4, 24]) P.line([I(a, -11, 12), I(a, 11, 12)], 1.6);
+  P.line([I(-10, -12, 12), I(-26, -30, 0.5)], 1.6, { taper: 0 }); P.line([I(12, -12, 12), I(-2, -30, 0.5)], 1.6, { taper: 0 });
+  for (const q of [I(-27, -31, 0.5), I(-3, -31, 0.5)]) P.shape([[q[0] - 6, q[1] + 1], [q[0] + 4, q[1] - 3], [q[0] + 7, q[1] - 1], [q[0] - 3, q[1] + 3]], 'r4y5k3', 0.6);
+  { const c = I(-30, 0, 12); P.shape(Lib.bumpy(P, c[0], c[1] - 3, 12, 5, 7), 'k4y2', 0.6); }
 };
-const tyBoatOut = (P, x, y) => {
-  const I = (a, b, c) => P.I(x + a, y + b, c);
-  P.shape([I(-40, 0, 9), I(-22, 11, 9), I(24, 11, 9), I(44, 0, 11), I(34, 4, 1), I(-18, 7, -1), I(-34, 3, 2)], 'r4y5k3', 1);
-  P.line([I(-37, 2, 6), I(-20, 10, 6), I(26, 10, 6), I(42, 1, 8)], 0.8, { ink: 1, lvl: 7 });
-  P.shape([I(26, 11.5, 8), I(33, 9, 8), I(33, 9, 4), I(26, 11.5, 4)], 'k6', 0.4);
+const tyBoatOut = (P, x, y, k = 1.8) => {
+  const I = (a, b, c) => P.I(x + a * k, y + b * k, c);
+  P.shape([I(-40, 0, 12), I(-24, 12, 12), I(26, 12, 12), I(46, 0, 15), I(36, 4, 1), I(-18, 8, -1), I(-34, 3, 2)], 'r4y5k3', 1);
+  P.line([I(-37, 2, 9), I(-22, 11, 9), I(26, 11, 9), I(44, 1, 11)], 1, { ink: 1, lvl: 7 });
+  P.line([I(10, 12, 12), I(24, 30, 0.5)], 1.6, { taper: 0 }); { const q = I(25, 31, 0.5); P.shape([[q[0] - 6, q[1] + 1], [q[0] + 4, q[1] - 3], [q[0] + 7, q[1] - 1], [q[0] - 3, q[1] + 3]], 'r4y5k3', 0.6); }
+  P.shape([I(28, 12.5, 11), I(34, 10, 11), I(34, 10, 6), I(28, 12.5, 6)], 'k6', 0.4);
 };
 /* bande d'eau sur le plateau entre deux courbes ; renvoie le rivage */
 const tyShore = (P, pts, tn = 'b4y1') => {
@@ -223,6 +223,8 @@ const tyStall = (x, y, w, d, tn, goods) => ({ depth: x + y + d, draw(P, t) {
   for (let i = 0; i <= 8; i++) { const q = A(lerp(x - 6, x + w + 6, i / 8), y + d + 16, 66 + sway); P.line([q, [q[0], q[1] + 5]], 0.6, { ink: 1 }); }
   goods(P, t, 30.5);
 } });
+/* ciel du soir en anneaux concentriques (du bord vers le centre) */
+const tySkyDisc = (P, tones) => P.halo(500, 470, 450, tones);
 /* un personnage figé, dessiné avec le décor */
 const tyStatic = (P, lk, o) => renderChar(P, prepChar(ch(lk, o)), o.tt || 1.3);
 /* herbe qui pousse, en touffes */
@@ -239,11 +241,9 @@ const SCENES = [
   back(P) {
     Lib.sun(P, 250, 150, 20);
     Lib.cloud(P, 420, 120, 190, 30, 'b1'); Lib.cloud(P, 790, 90, 140, 24, 'b1');
-    tyRange(P, 40, 520, 318, 120, 'y4b3k2', 11, { freq: 4, cliff: [0.52, 0.7, 60], lines: 1 });
-    tyRange(P, 30, 420, 352, 40, 'y5b3k1', 12, { freq: 8 });
-    tyFarLake(P, 500, 968, 330);
-    tyRange(P, 560, 960, 330, 36, 'b3y2k2', 13, { flat: 1, soft: 7, lw: 0.8 });
-    tyRange(P, 760, 960, 330, 20, 'b2y1k2', 14, { flat: 1, soft: 5, lw: 0.6 });
+    tyRange(P, 40, 510, 0, 60, 'y4b3k2', 11, { freq: 4, cliff: [0.45, 0.62, 70], lines: 1 });
+    tyRange(P, 40, 470, 0, 26, 'y5b3k1', 12, { freq: 8 });
+    tyRange(P, 500, 960, 0, 40, 'y3b3k2', 13, { flat: 1, soft: 6, lw: 0.9, lines: 1 });
     for (let i = 0; i < 4; i++) Lib.bird(P, 640 + i * 34, 210 + (i % 2) * 14, 1.3, i * 0.3);
     Lib.platform(P, 'y4r2k1', 'y4r3k2', { h: 50 });
     tyFaceWater(P, 0, 190);
@@ -256,22 +256,28 @@ const SCENES = [
     tyHouse(P, 14, 310, 50, 60, 40, 'y2r2k2', { win: [0.5] });
     tySyn(P, 14, 390, 70, 110, 70, { cols: 4 });
     tyHouse(P, 20, 510, 44, 28, 34, 'y3r1k2', { door: false, win: [0.5] });
-    tyPalm(P, 104, 262, 150); tyPalm(P, 470, 228, 130, { lean: -10 });
-    tySeat(P, 250, 262, 30, 16); tySeat(P, 330, 280, 28, 14, 'y4r2k3');
-    Lib.rock(P, 380, 470, 0, 22, 14, 'y3r2k3'); Lib.bush(P, 420, 520, 0, 16, 'y4b5k1');
-    tyBoatIn(P, 360, 90);
-    Lib.jar(P, 470, 290, 0, 1.2, 'r5y5k2'); P.box(488, 300, 0, 22, 18, 10, 'r4y5k3', 0.6);
+    tyPalm(P, 104, 262, 150); tyPalm(P, 140, 234, 124, { lean: -12 });
+    Lib.rock(P, 214, 284, 0, 26, 38, 'y3r2k3'); Lib.rock(P, 326, 250, 0, 24, 36, 'y4r2k3'); Lib.rock(P, 270, 250, 0, 14, 10, 'y3r2k2'); Lib.rock(P, 380, 396, 0, 22, 34, 'y3r2k3'); Lib.rock(P, 436, 342, 0, 20, 32, 'y4r2k3');
+    /* filets qui sèchent, paniers de poissons, barque tirée sur la grève */
+    for (const [x, y] of [[230, 440], [330, 470]]) P.box(x - 2, y - 2, 0, 4, 4, 64, 'r4y5k3', 0.6);
+    { const A = P.I(230, 440, 62), B = P.I(330, 470, 62), pts = []; for (let i = 0; i <= 10; i++) { const k = i / 10; pts.push([lerp(A[0], B[0], k), lerp(A[1], B[1], k) + Math.sin(k * Math.PI) * 10]); } P.line(pts, 0.8); for (let i = 0; i <= 10; i++) { const q = pts[i]; P.line([q, [q[0] + 1, q[1] + 40 - Math.sin(i / 10 * Math.PI) * 8]], 0.5); } for (let r = 1; r < 5; r++) P.line(pts.map((q, i) => [q[0] + 0.2 * r, q[1] + r * 8 - Math.sin(i / 10 * Math.PI) * r * 1.6]), 0.4); for (let i = 0; i < 6; i++) { const q = pts[i * 2]; P.fill(P.disc(q[0], q[1] + 38 - Math.sin(i / 5 * Math.PI) * 8, 1.8, 6), 'k6', { noKnock: true }); } }
+    for (const [x, y] of [[270, 520], [300, 530]]) { const c = P.I(x, y, 0); P.shape([[c[0] - 12, c[1] - 12], [c[0] + 12, c[1] - 12], [c[0] + 9, c[1]], [c[0] - 9, c[1]]], 'y5r4k2', 0.7); for (let i = 0; i < 4; i++) drawFish(P, c[0] - 7 + i * 5, c[1] - 13 - (i % 2) * 3, 8, i % 2 ? 1 : -1, i % 2 ? 'b3y3' : 'y5b2'); }
+    { const I = (a, b, c) => P.I(a, b, c), x = 150, y = 215; P.shape([I(x - 34, y, 1), I(x - 18, y + 10, 1), I(x + 20, y + 10, 1), I(x + 38, y, 3), I(x + 28, y + 3, 16), I(x - 16, y + 6, 18), I(x - 28, y + 2, 14)], 'r4y5k3', 1); P.line([I(x - 30, y + 2, 12), I(x - 16, y + 8, 15), I(x + 24, y + 7, 14), I(x + 36, y + 1, 5)], 0.7, { ink: 1, lvl: 7 }); }
+    Lib.rock(P, 380, 470, 0, 22, 14, 'y3r2k3'); Lib.bush(P, 420, 520, 0, 16, 'y4b5k1'); Lib.bush(P, 500, 500, 0, 18, 'y5b5k1'); Lib.bush(P, 180, 520, 0, 14, 'y4b5k2'); tyTufts(P, [150, 440, 360, 90], 24, 15);
+    tyBoatIn(P, 350, 90);
+    Lib.jar(P, 520, 350, 0, 1.2, 'r5y5k2'); P.box(500, 372, 0, 22, 18, 10, 'r4y5k3', 0.6);
   },
   live(P, t) { tyRipples(P, t, [20, 20, 500, 140], 18); },
-  front(P) { tyBoatOut(P, 360, 90); },
+  front(P) { tyBoatOut(P, 350, 90); },
   chars: [
-    { depth: 150 + 420, draw(P) { tyOlive(P, 150, 420, 1.3, 21, { fruit: 1 }); } },
-    ch(LK.tyAkiva, { x: 250, y: 262, z: 16, face: 1, clip: 'tyArgue', h: 138, noShadow: 1 }),
-    ch(LK.tyAzzai, { x: 330, y: 280, z: 14, face: -1, clip: 'tyArgue', h: 138, t0: 0.8, noShadow: 1 }),
-    ch(LK.tyDisc, { x: 300, y: 360, face: 1, clip: 'tyListen', h: 132, t0: 0.4 }),
-    ch(LK.tyDisc2, { x: 350, y: 400, face: -1, clip: 'tyListen', h: 126, t0: 1.7 }),
-    ch(LK.tyFisher, { x: 360, y: 92, z: 8, face: -1, clip: 'haul', h: 118, noShadow: 1, hold: { nTop: 'tyNet' } }),
-    ch(LK.tyYoung, { h: 130, speed: 16, path: [W(470, 240, 3, 'idle', { f: -1 }), W(470, 330, 3.5, 'lookup', { f: -1 }), W(470, 240, 0)] })
+    { depth: 150 + 420, draw(P) { tyOlive(P, 150, 420, 2.1, 21, { fruit: 1 }); } },
+    ch(LK.tyAkiva, { x: 220, y: 284, face: 1, clip: 'tyArgue', h: 138 }),
+    ch(LK.tyAzzai, { x: 330, y: 254, face: -1, clip: 'tyArgue', h: 138, t0: 0.8 }),
+    ch(LK.tyDisc, { x: 370, y: 390, face: -1, clip: 'tyListen', h: 132, t0: 0.4 }),
+    ch(LK.tyDisc2, { x: 426, y: 336, face: -1, clip: 'tyListen', h: 126, t0: 1.7 }),
+    ch(LK.tyFisher, { x: 380, y: 90, z: 10, face: -1, clip: 'haul', h: 118, noShadow: 1, hold: { nTop: 'tyNet' } }),
+    ch(LK.tyYoung, { x: 316, y: 92, z: 10, face: 1, clip: 'haul', h: 112, noShadow: 1, t0: 0.8, look: Object.assign({}, LK.tyYoung, { robe: 'b4y2k1', ht: 'y1' }) }),
+    ch(LK.tyYoung, { h: 130, speed: 16, path: [W(500, 215, 3, 'idle', { f: -1 }), W(490, 300, 3.5, 'lookup', { f: -1 }), W(500, 215, 0)] })
   ]
 },
 {
@@ -282,7 +288,7 @@ const SCENES = [
     'On objecte que l’objet perdu par un non-Juif peut se garder. Le texte répond : « Pensez-vous que Chimon ben Chetah était un barbare ? » Il préférait entendre « Béni soit le Dieu des Juifs » plutôt que tous les gains de ce monde. La même halakha rapporte d’autres objets rendus qui reçoivent la même bénédiction, dont les bracelets d’une reine retrouvés par Abba Ochaya. Chimon ben Chetah vécut au Ier siècle avant notre ère ; le Talmud de Babylone en fait le frère de la reine (Berakhot 48a).'],
   back(P) {
     Lib.cloud(P, 300, 130, 180, 30, 'b1'); Lib.cloud(P, 760, 150, 150, 26, 'b1');
-    tyRange(P, 40, 960, 300, 70, 'y4b3k1', 21, { freq: 5, lines: 1 });
+    tyRange(P, 40, 960, 0, 50, 'y4b3k1', 21, { freq: 5, lines: 1 });
     Lib.platform(P, 'y4r2k2', 'y4r3k2', { h: 46, pebbles: false });
     for (let v = 30; v < 540; v += 30) { P.line([P.I(v, 60, 0), P.I(v, 540, 0)], 0.3); P.line([P.I(60, v, 0), P.I(540, v, 0)], 0.3); }
     /* rue bordée de maisons et d'un portique */
@@ -296,11 +302,15 @@ const SCENES = [
     tyHouse(P, 0, 150, 50, 80, 60, 'y2r2k1', { dx: 16, win: [0.5] });
     Lib.jar(P, 60, 250, 0, 1.3, 'r5y6k1'); Lib.jar(P, 76, 262, 0, 1.1, 'r4y5k2'); Lib.jar(P, 64, 276, 0, 1.2, 'r5y6k2');
     /* coin du lin : bottes de tiges, écheveaux */
-    for (let i = 0; i < 4; i++) { const c = P.I(30 + i * 8, 330 + i * 16, 0); for (let k = -4; k <= 4; k++) P.line([[c[0] + k * 1.5, c[1]], [c[0] + k * 2.6 - 6, c[1] - 44]], 0.8, { ink: 0, lvl: 7 }); P.line([[c[0] - 7, c[1] - 20], [c[0] + 5, c[1] - 22]], 1.4, { ink: 1 }); }
+    for (let i = 0; i < 5; i++) { const c = P.I(26 + (i % 2) * 14, 300 + i * 20, 0); const pts = [[c[0] - 7, c[1]], [c[0] - 12, c[1] - 30], [c[0] - 16, c[1] - 52], [c[0] - 4, c[1] - 56], [c[0] + 8, c[1] - 50], [c[0] + 6, c[1] - 28], [c[0] + 7, c[1]]]; P.shape(pts, 'y5r2', 0.8); for (let k = -3; k <= 3; k++) P.line([[c[0] + k * 1.6, c[1] - 2], [c[0] + k * 2.8 - 4, c[1] - 52]], 0.5, { ink: 3, lvl: 5 }); P.line([[c[0] - 9, c[1] - 24], [c[0] + 7, c[1] - 26]], 1.6, { ink: 1 }); }
+    for (let i = 0; i < 3; i++) { const c = P.I(60 + i * 12, 440 + i * 6, 0); P.shape(Lib.bumpy(P, c[0], c[1] - 5, 11, 6, 7), 'y2r1', 0.6); P.line([[c[0] - 8, c[1] - 5], [c[0] + 8, c[1] - 6]], 0.5); }
     P.box(70, 380, 0, 40, 30, 20, 'r4y5k2', 0.8);
     for (let i = 0; i < 3; i++) { const c = P.I(80 + i * 10, 395, 20); P.shape(Lib.bumpy(P, c[0], c[1] - 4, 8, 5, 6), 'y2', 0.6); }
     Lib.grass(P, 20, 'y5b4', [300, 480, 200, 50]);
     Lib.stones(P, 12, 'y3r2k3', [120, 470, 380, 60]);
+    /* la fontaine de la place */
+    P.cyl(200, 470, 0, 34, 14, { t: 'y2r1k1', s: 'y2r2k2', d: 'y2r2k3' }, 1, 22); P.shape(P.ell(200, 470, 14.4, 27, 27, 22), 'b4y1', 0.7); P.cyl(200, 470, 14, 6, 26, 'y2r1k1', 0.7, 12); P.cyl(200, 470, 40, 12, 5, 'y2r1k2', 0.7, 14);
+    Lib.jar(P, 150, 500, 0, 1.2, 'r5y6k1'); Lib.jar(P, 250, 510, 0, 1, 'b5y3');
   },
   chars: [
     tyStall(150, 120, 90, 50, 'r6y2', (P, t, z) => { for (let i = 0; i < 12; i++) { const q = P.I(158 + (i % 6) * 13, 128 + Math.floor(i / 6) * 22, z); P.shape(P.disc(q[0], q[1] - 3, 5, 10), ['y7r2', 'r7y3', 'y6b5', 'r6b4'][i % 4], 0.5); } }),
@@ -309,11 +319,14 @@ const SCENES = [
     ch(LK.tyShimon, { x: 90, y: 330, face: 1, clip: 'tyNod', h: 136 }),
     ch(LK.tyDisc, { x: 170, y: 330, face: -1, clip: 'talk', h: 134, t0: 0.6 }),
     { beast: 'donkey', h: 96, x: 235, y: 330, face: 1 },
-    { depth: 235 + 330 + 1, draw(P, t) { const c = P.I(235, 330, 0), s = 96 / 100, q = [c[0] + 32 * s, c[1] - 56 * s]; P.line([[q[0] - 9 * s, q[1] - 12 * s], [q[0] - 3 * s, q[1] - 2 * s], [q[0] + 1 * s, q[1] + 1 * s], [q[0] + 6 * s, q[1] - 11 * s]], 0.8, { ink: 1, lvl: 8 }); const g = 0.6 + 0.4 * Math.sin(t * 2.4); P.halo(q[0], q[1] + 5 * s, 16 * g + 6, ['y1', 'y2', 'b1y1']); P.shape(P.disc(q[0], q[1] + 5 * s, 4.2, 12), 'b1y1', 0.6); P.fill(P.disc(q[0] - 1.2, q[1] + 3.6 * s, 1.3, 6), null); } },
-    ch(LK.tyDisc3, { h: 132, speed: 18, t0: 1, path: [W(270, 400, 4, 'point', { f: -1 }), W(360, 300, 4.5, 'talk', { f: 1 }), W(270, 400, 0)] }),
-    ch(LK.tyArab, { x: 420, y: 300, face: -1, clip: 'bless', h: 138, t0: 0.3 }),
-    { beast: 'camel', h: 112, x: 470, y: 230, face: -1 },
-    ch(LK.tyBoy, { x: 330, y: 470, face: -1, clip: 'lookup', h: 84 })
+    { depth: 235 + 330 + 1, draw(P, t) { const c = P.I(235, 330, 0), s = 96 / 100, q = [c[0] + 43 * s, c[1] - 62 * s]; P.line([[q[0] - 8 * s, q[1] - 10 * s], [q[0] - 3 * s, q[1] - 1 * s], [q[0] + 1 * s, q[1] + 1 * s], [q[0] + 7 * s, q[1] - 9 * s]], 0.8, { ink: 1, lvl: 8 }); const g = 0.6 + 0.4 * Math.sin(t * 2.4); P.halo(q[0], q[1] + 6 * s, 20 * g + 10, ['y1', 'y2', 'y3b1']); P.shape(P.disc(q[0], q[1] + 6 * s, 6, 14), 'b1y1', 0.7); P.fill(P.disc(q[0] - 1.8, q[1] + 4 * s, 1.8, 6), null); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + t * 0.6, L = 10 + 6 * g; P.line([[q[0] + Math.cos(a) * 8, q[1] + 6 * s + Math.sin(a) * 8], [q[0] + Math.cos(a) * L * 1.6, q[1] + 6 * s + Math.sin(a) * L * 1.6]], 0.8, { ink: 0, lvl: 7 }); } } },
+    ch(LK.tyDisc3, { h: 132, speed: 18, t0: 1, path: [W(360, 400, 4, 'talk', { f: 1 }), W(200, 410, 4.5, 'point', { f: -1 }), W(360, 400, 0)] }),
+    ch(LK.tyArab, { x: 440, y: 330, face: -1, clip: 'bless', h: 138, t0: 0.3 }),
+    { beast: 'camel', h: 112, x: 490, y: 250, face: -1 },
+    ch(LK.tyBoy, { x: 330, y: 470, face: -1, clip: 'lookup', h: 84 }),
+    { depth: 200 + 470 + 30, draw(P, t) { const q = P.I(200, 470, 46); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + 0.6, u = (t * 0.8 + i * 0.25) % 1; P.line([[q[0] + Math.cos(a) * 4, q[1] - 4], [q[0] + Math.cos(a) * (6 + u * 18), q[1] - 6 + u * u * 40 - u * 10]], 1, { ink: 2, lvl: 7 }); } } },
+    ch(LK.tyWoman, { h: 126, hold: { nTop: 'jarhead' }, over: 'carry', speed: 14, t0: 3, path: [W(100, 530, 2), W(146, 452, 3.5, 'fill', { f: 1 }), W(100, 530, 0)] }),
+    ch(LK.tyWorker2, { h: 128, hold: { nTop: 'bundle' }, speed: 16, t0: 6, path: [W(440, 520, 1), W(520, 400, 2, 'idle', { f: -1 }), W(440, 520, 0)] })
   ]
 },
 {
@@ -324,7 +337,7 @@ const SCENES = [
     'Juste avant, Rabbi Chimon bar Yohaï enseigne : si tu vois en terre d’Israël des villes arrachées de leur place, sache qu’on n’y a pas soutenu le salaire des maîtres. Le Talmud de Babylone garde la même idée : Yehochoua ben Gamla fit établir des maîtres pour les enfants dans chaque ville (Bava Batra 21a), et « le monde ne subsiste que par le souffle des enfants qui étudient » (Chabbat 119b).'],
   back(P) {
     Lib.cloud(P, 240, 110, 170, 28, 'b1'); Lib.cloud(P, 820, 140, 130, 24, 'b1');
-    tyRange(P, 40, 960, 330, 60, 'y4b3k1', 31, { freq: 5 });
+    tyRange(P, 40, 960, 0, 44, 'y4b3k1', 31, { freq: 5 });
     Lib.platform(P, 'y4r2k1', 'y4r3k2', { h: 52 });
     /* la ville derrière ses murs : toits, synagogue, tours */
     tyHouse(P, 10, 0, 60, 40, 110, 'y3r2k1', { door: false, win: [] });
@@ -339,24 +352,35 @@ const SCENES = [
     tyTower(P, 212, 40, 44, 128); tyTower(P, 330, 40, 44, 128);
     for (const x of [60, 470]) { P.shape([P.I(x, 78.5, 0), P.I(x + 1, 78.5, 0)], 'k6', 0.5); }
     /* l'école : un auvent de palmes sous un figuier, une natte */
-    tyFig(P, 70, 470, 1.25, 33);
-    { const I = (a, b, z) => P.I(a, b, z); for (const [a, b] of [[110, 330], [230, 330], [110, 440], [230, 440]]) P.box(a - 2, b - 2, 0, 5, 5, 76, 'r4y5k3', 0.7); P.shape([I(104, 324, 78), I(236, 324, 78), I(236, 446, 70), I(104, 446, 70)], 'y6r2k1', 1); for (let i = 1; i < 12; i++) P.line([I(104 + i * 11, 324, 78), I(104 + i * 11, 446, 70)], 0.5, { ink: 3, lvl: 6 }); }
-    { const I = (a, b) => P.I(a, b, 0.4); P.shape([I(120, 340), I(226, 340), I(226, 434), I(120, 434)], 'r5y5k1', 0.9); P.shape([I(130, 350), I(216, 350), I(216, 424), I(130, 424)], 'b5y2k1', 0.5); }
-    P.box(120, 346, 0, 16, 26, 20, 'r4y5k2', 0.6); for (let i = 0; i < 3; i++) P.box(122 + i * 4, 348, 20, 3, 22, 3, ['y2r1', 'y1b1', 'y2'][i], 0.4);
-    Lib.grass(P, 40, 'y5b4', [260, 300, 260, 220]);
+    /* l'école : une maison basse, sa natte devant la porte, l'ombre d'un figuier */
+    tyHouse(P, 14, 250, 70, 150, 64, 'y2r2k1', { dx: 30, win: [0.25, 0.75], roof: 'y5r3k1' });
+    { const F = (a, z) => P.I(a, 400.5, z); P.shape([F(20, 44), F(40, 44), F(40, 56), F(20, 56)], 'y1b1', 0.6); for (let i = 0; i < 3; i++) P.line([F(23, 47 + i * 3), F(37, 47 + i * 3)], 0.35); }
+    { const I = (a, b) => P.I(a, b, 0.4); P.shape([I(110, 330), I(236, 330), I(236, 450), I(110, 450)], 'r5y5k1', 0.9); P.shape([I(120, 340), I(226, 340), I(226, 440), I(120, 440)], 'b5y2k1', 0.5); for (let i = 1; i < 6; i++) P.line([I(120, 340 + i * 17), I(226, 340 + i * 17)], 0.4, { ink: 0, lvl: 6 }); }
+    P.box(130, 350, 0, 26, 24, 38, 'r4y5k2', 0.8);
+    P.box(226, 344, 0, 16, 104, 22, 'r4y5k2', 0.8); P.box(226, 346, 22, 16, 100, 3, 'r4y5k1', 0.5);
+    P.box(96, 460, 0, 20, 30, 20, 'r4y5k2', 0.6); for (let i = 0; i < 3; i++) P.box(98 + i * 5, 462, 20, 4, 26, 4, ['y2r1', 'y1b1', 'y2'][i], 0.4);
+    Lib.grass(P, 40, 'y5b4', [330, 300, 200, 220]);
+    /* la route pavée qui monte à la porte */
+    P.shape([P.I(264, 80, 0.3), P.I(316, 80, 0.3), P.I(330, 540, 0.3), P.I(250, 540, 0.3)], 'y3r2k2', 0.8);
+    for (let y = 96; y < 540; y += 18) { const w = lerp(26, 40, (y - 80) / 460); P.line([P.I(290 - w, y, 0.4), P.I(290 + w, y, 0.4)], 0.35); for (let k = -1; k <= 1; k++) P.line([P.I(290 + k * w * 0.5 + ((y / 18) % 2) * 6, y, 0.4), P.I(290 + k * w * 0.5 + ((y / 18) % 2) * 6, y + 18, 0.4)], 0.3); }
+    Lib.bush(P, 380, 470, 0, 16, 'y4b5k1'); Lib.bush(P, 520, 300, 0, 14, 'y5b5k1'); Lib.rock(P, 460, 520, 0, 20, 12, 'y3r2k3');
     Lib.stones(P, 14, 'y3r2k3', [240, 100, 200, 60]);
   },
   chars: [
     ch(LK.tyGuard, { x: 120, y: 66, z: 92, face: 1, clip: 'guard', h: 118, hold: { n: 'spear' }, noShadow: 1 }),
     ch(LK.tyGuard, { h: 118, hold: { n: 'spear', f: 'shield' }, noShadow: 1, speed: 12, t0: 2, path: [W(390, 66, 3, 'guard', { z: 92, f: -1 }), W(490, 66, 2.5, 'guard', { z: 92, f: 1 }), W(390, 66, 0, null, { z: 92 })] }),
     ch(LK.tyGuard, { x: 262, y: 120, face: 1, clip: 'guard', h: 132, hold: { n: 'spear', f: 'shield' }, look: Object.assign({}, LK.tyGuard, { beard: 'full', robe: 'r5y4k2' }) }),
-    ch(LK.tyHiyya, { x: 330, y: 200, face: -1, clip: 'point', h: 136 }),
-    ch(LK.tyAssi, { x: 380, y: 250, face: -1, clip: 'talk', h: 138, t0: 0.9 }),
-    ch(LK.tyAmmi, { x: 320, y: 290, face: -1, clip: 'point', h: 136, t0: 1.6, hold: {} }),
-    ch(LK.tyTeacher, { x: 150, y: 362, face: 1, clip: 'tyArgue', h: 130, hold: { f: 'tyRoll' } }),
-    ch(LK.tyKid, { x: 214, y: 360, face: -1, clip: 'tySitHold', h: 84, hold: { nTop: 'tyTablet' } }),
-    ch(LK.tyKid2, { x: 200, y: 412, face: -1, clip: 'tySitHold', h: 80, t0: 1.1, hold: { nTop: 'tyTablet' } }),
-    ch(LK.tyKid3, { x: 150, y: 420, face: 1, clip: 'tyListen', h: 82, t0: 2.2, hold: { nTop: 'tyTablet' } })
+    ch(LK.tyHiyya, { x: 360, y: 196, face: -1, clip: 'point', h: 136 }),
+    { depth: 500 + 470, draw(P) { tyOlive(P, 500, 470, 1.8, 34, { fruit: 1 }); } },
+    ch(LK.tyShepherd, { h: 126, hold: { n: 'staffV' }, speed: 14, t0: 1, path: [W(300, 530, 1.5), W(300, 150, 3, 'idle', { f: -1 }), W(300, 530, 0)] }),
+    { beast: 'donkey', h: 88, speed: 14, t0: 0, path: [W(286, 520, 1.5), W(286, 180, 3), W(286, 520, 0)] },
+    ch(LK.tyAssi, { x: 410, y: 246, face: -1, clip: 'talk', h: 138, t0: 0.9 }),
+    ch(LK.tyAmmi, { x: 356, y: 296, face: -1, clip: 'point', h: 136, t0: 1.6, hold: {} }),
+    { depth: 60 + 500, draw(P) { tyFig(P, 60, 500, 2.1, 33); } },
+    ch(LK.tyTeacher, { x: 146, y: 362, face: 1, clip: 'tyArgue', h: 130, hold: { f: 'tyRoll' } }),
+    ch(LK.tyKid, { x: 236, y: 362, face: -1, clip: 'tySitHold', h: 84, hold: { nTop: 'tyTablet' } }),
+    ch(LK.tyKid2, { x: 236, y: 398, face: -1, clip: 'tySitHold', h: 80, t0: 1.1, hold: { nTop: 'tyTablet' } }),
+    ch(LK.tyKid3, { x: 236, y: 434, face: -1, clip: 'tySitHold', h: 82, t0: 2.2, hold: { nTop: 'tyTablet' } })
   ]
 },
 {
@@ -367,8 +391,8 @@ const SCENES = [
     'Le même passage interdit d’habiter une ville sans médecin, sans bain et sans tribunal ; Rabbi Yossé bar Boun ajoute : ni une ville sans jardin potager. La tradition a fait de la bénédiction des fruits un art : on dit « boré péri haèts » sur le fruit de l’arbre, et, sur un fruit nouveau de la saison, « chéhé’héyanou », pour remercier d’être parvenu jusqu’à ce moment.'],
   back(P) {
     Lib.sun(P, 780, 140, 22); Lib.cloud(P, 300, 120, 170, 28, 'b1');
-    tyRange(P, 40, 960, 318, 90, 'y4b3k1', 41, { freq: 4, lines: 1 });
-    tyRange(P, 300, 800, 352, 34, 'y5b4k1', 42, { freq: 7 });
+    tyRange(P, 40, 960, 0, 60, 'y4b3k1', 41, { freq: 4, lines: 1 });
+    tyRange(P, 60, 940, 0, 24, 'y5b4k1', 42, { freq: 7 });
     Lib.platform(P, 'y4r3k1', 'y4r3k2', { h: 50 });
     tyDryWall(P, [[0, 18], [540, 18]], 18); tyDryWall(P, [[18, 30], [18, 540]], 18);
     /* treille sur piliers au fond */
@@ -380,14 +404,15 @@ const SCENES = [
     tyPalm(P, 510, 120, 160);
     /* le potager : planches de légumes */
     for (let r = 0; r < 4; r++) { const y = 380 + r * 34; P.shape([P.I(330, y, 0.3), P.I(510, y, 0.3), P.I(510, y + 20, 0.3), P.I(330, y + 20, 0.3)], 'r5y4k3', 0.6); for (let i = 0; i < 9; i++) { const c = P.I(340 + i * 20, y + 10, 0); P.shape(Lib.bumpy(P, c[0], c[1] - 5, 7, 5, 6), r % 2 ? 'y5b6k1' : 'y6b4', 0.5); if (r === 2) P.fill(P.disc(c[0] + 3, c[1] - 2, 2.4, 6), 'r7y4', {}); } }
-    tyPomegranate(P, 90, 300, 1.1, 43);
+    tyPomegranate(P, 80, 290, 1.7, 43); tyOlive(P, 330, 60, 1.6, 46, { fruit: 1 });
     Lib.grass(P, 60, 'y5b4', [40, 160, 280, 360]);
     Lib.well(P, 270, 120, 22);
   },
   chars: [
-    { depth: 190 + 180, draw(P) { tyFig(P, 190, 180, 1.35, 44); } },
-    { depth: 80 + 460, draw(P) { tyFig(P, 80, 460, 1.2, 45, 'r5b6k1'); } },
-    ch(LK.tyPicker, { x: 216, y: 214, face: -1, clip: 'reach', h: 132, hold: { n: 'fruit' } }),
+    { depth: 190 + 180, draw(P) { tyFig(P, 190, 180, 2.2, 44); } },
+    { depth: 380 + 170, draw(P) { tyPomegranate(P, 380, 170, 1.6, 47); } },
+    { depth: 80 + 460, draw(P) { tyFig(P, 80, 460, 2, 45, 'r5b6k1'); } },
+    ch(LK.tyPicker, { x: 226, y: 216, face: -1, clip: 'reach', h: 132, hold: { n: 'fruit' } }),
     ch(LK.tyOld, { x: 150, y: 250, face: 1, clip: 'tyTaste', h: 132, t0: 0.6, hold: { n: 'fruit' } }),
     ch(LK.tyLazar, { x: 300, y: 290, face: 1, clip: 'offer', h: 138, hold: { n: 'tyCoin', f: 'tyPurse' } }),
     ch(LK.tySeller, { x: 360, y: 280, face: -1, clip: 'tyHug', h: 128, hold: { nTop: 'tyBasket' }, look: Object.assign({}, LK.tySeller, { robe: 'b5y3k1', ht: 'r5y4' }) }),
@@ -404,7 +429,7 @@ const SCENES = [
     'Rabbi Yohanan, qui rapporte son enseignement, dit de lui-même l’inverse : « nous qui ne sommes pas ainsi plongés dans l’étude, nous interrompons même pour la prière ». Le Talmud de Babylone raconte comment Rabbi Chimon et son fils Rabbi Éléazar vécurent treize ans cachés dans une grotte, à étudier sans relâche (Chabbat 33b). La tradition lui attribue le Zohar, et l’on fête Lag Baomer auprès de sa tombe, à Méron.'],
   back(P) {
     Lib.cloud(P, 180, 170, 150, 26, 'r1y1'); Lib.cloud(P, 850, 180, 140, 24, 'r1y1');
-    tyRange(P, 40, 960, 340, 60, 'y5r4k2', 51, { freq: 5 });
+    tyRange(P, 40, 960, 0, 40, 'y5r4k2', 51, { freq: 5 });
     const m = Lib.mound(P, 150, 110, 190, 330, 'y5r4k3', { px: 10 });
     Lib.mound(P, 390, 40, 110, 180, 'y4r4k3'); Lib.mound(P, 30, 330, 80, 120, 'y5r4k2');
     { const pk = m.peak; P.halo(pk[0], pk[1] - 20, 120, ['y1', 'y2', 'y3r1', 'y4r1']); Lib.cloud(P, pk[0] + 10, pk[1] + 10, 200, 44, 'y1b1', { noShade: 1 }); Lib.cloud(P, pk[0] - 30, pk[1] - 18, 120, 30, 'y1', { noShade: 1 }); }
@@ -412,8 +437,12 @@ const SCENES = [
     Lib.stones(P, 30, 'y4r3k3', [100, 260, 420, 260]);
     for (const [x, y, w, h] of [[250, 250, 30, 20], [460, 300, 26, 18], [130, 420, 24, 16]]) Lib.rock(P, x, y, 0, w, h, 'y4r3k3');
     /* acacias du désert */
-    for (const [x, y, s] of [[470, 200, 1], [80, 480, 0.8]]) { const b = P.I(x, y, 0); P.line([b, [b[0] + 4, b[1] - 40 * s], [b[0] - 10, b[1] - 62 * s]], 2.4 * s, { taper: 0.3 }); P.line([[b[0] + 4, b[1] - 40 * s], [b[0] + 20, b[1] - 60 * s]], 1.8 * s); P.shape([[b[0] - 40 * s, b[1] - 60 * s], [b[0] + 40 * s, b[1] - 66 * s], [b[0] + 32 * s, b[1] - 76 * s], [b[0] - 30 * s, b[1] - 74 * s]].map(p => p), 'y4b5k2', 0.8); P.shape(Lib.bumpy(P, b[0], b[1] - 72 * s, 34 * s, 7 * s, 8), 'y5b4k1', 0.7); }
-    Lib.tent(P, 380, 420, 50, 40, 40, 'k5r2'); Lib.tent(P, 450, 450, 40, 36, 32, 'r4y3k3');
+    for (const [x, y, s] of [[510, 150, 1.9], [60, 470, 1.6]]) { const b = P.I(x, y, 0); P.line([b, [b[0] + 4, b[1] - 40 * s], [b[0] - 10, b[1] - 62 * s]], 2.4 * s, { taper: 0.3 }); P.line([[b[0] + 4, b[1] - 40 * s], [b[0] + 20, b[1] - 60 * s]], 1.8 * s); P.shape([[b[0] - 40 * s, b[1] - 60 * s], [b[0] + 40 * s, b[1] - 66 * s], [b[0] + 32 * s, b[1] - 76 * s], [b[0] - 30 * s, b[1] - 74 * s]].map(p => p), 'y4b5k2', 0.8); P.shape(Lib.bumpy(P, b[0], b[1] - 72 * s, 34 * s, 7 * s, 8), 'y5b4k1', 0.7); }
+    /* une source et ses palmiers au pied de la montagne */
+    P.shape(P.ell(120, 230, 0.4, 40, 26, 20), 'b4y1', 1); P.fill(P.ell(116, 226, 0.5, 26, 14, 16), 'b2y1', { noKnock: true });
+    tyPalm(P, 80, 200, 150); tyPalm(P, 150, 190, 128, { lean: -16 }); tyPalm(P, 96, 262, 110, { lean: 20 });
+    Lib.bush(P, 160, 250, 0, 14, 'y5b5k1'); Lib.bush(P, 70, 240, 0, 12, 'y4b5k1');
+    Lib.tent(P, 370, 440, 84, 60, 58, 'k6r1'); Lib.tent(P, 460, 470, 60, 50, 46, 'r4y3k3');
     Lib.grass(P, 16, 'y5b3', [150, 400, 300, 120]);
   },
   live(P, t) { const pk = P.I(150, 110, 330); for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + (i - 2) * 0.32 + Math.sin(t * 0.5 + i) * 0.03, r0 = 70, r1 = 150 + (i % 2) * 30; P.line([[pk[0] + Math.cos(a) * r0, pk[1] - 20 + Math.sin(a) * r0], [pk[0] + Math.cos(a) * r1, pk[1] - 20 + Math.sin(a) * r1]], 2.2, { ink: 0, lvl: 6 }); } },
@@ -425,7 +454,8 @@ const SCENES = [
     ch(LK.tyShepherd, { x: 470, y: 250, face: -1, clip: 'idle', h: 128, hold: { n: 'staffV' } }),
     { beast: 'sheep', h: 60, speed: 6, path: [W(420, 200, 3), W(460, 150, 2), W(420, 200, 0)] },
     { beast: 'sheep', h: 56, x: 500, y: 310, face: -1 },
-    { beast: 'ram', h: 62, x: 440, y: 290, face: 1 }
+    { beast: 'ram', h: 62, x: 440, y: 290, face: 1 },
+    { beast: 'camel', h: 104, x: 230, y: 500, face: 1 }
   ]
 },
 {
@@ -436,8 +466,7 @@ const SCENES = [
     'Le Talmud de Babylone rapporte la même idée sur la chute du second Temple (Yoma 9b). Chaque année, le 9 Av, on pleure le Temple détruit et l’on lit les Lamentations. La sentence ne désespère pas : si la haine a défait, l’amour gratuit, la bonté sans calcul, peut rebâtir, et chacun y apporte sa pierre.'],
   back(P) {
     Lib.cloud(P, 280, 140, 200, 32, 'b1'); Lib.cloud(P, 760, 110, 150, 26, 'b1');
-    tyRange(P, 40, 960, 322, 80, 'y4b3k1', 61, { freq: 4, lines: 1 });
-    for (let i = 0; i < 12; i++) { const x = 560 + i * 34, y = tyEdge(x) - 30 - (i % 3) * 8; if (y < 320) continue; P.shape(Lib.bumpy(P, x, y, 9, 6, 6), 'y3b4k2', 0.5); }
+    { const rp = tyRange(P, 40, 960, 0, 70, 'y4b3k1', 61, { freq: 4, lines: 1 }); for (let i = 3; i < rp.length - 3; i += 2) { const q = rp[i], e = tyEdge(q[0]); if (e - q[1] < 26) continue; for (let k = 0; k < 2; k++) { const y = q[1] + 12 + k * 16; if (y > e - 6) break; P.shape(Lib.bumpy(P, q[0] + k * 9, y, 7, 5, 6), k ? 'y3b4k2' : 'y4b4k1', 0.5); } } }
     Lib.platform(P, 'y3r2k1', 'y3r3k2', { h: 56 });
     for (let v = 40; v < 540; v += 40) { P.line([P.I(v, 0, 0), P.I(v, 540, 0)], 0.25); P.line([P.I(0, v, 0), P.I(540, v, 0)], 0.25); }
     /* le mur resté debout : grandes pierres à bossage */
@@ -445,21 +474,27 @@ const SCENES = [
     for (const [x, z] of [[140, 110], [300, 82], [230, 128]]) { const q = P.I(x, 45, z); P.shape(Lib.bumpy(P, q[0], q[1] - 6, 10, 7, 6), 'y5b5k1', 0.6); }
     /* tambours de colonnes tombés, chapiteau */
     for (const [x, y, r] of [[470, 120, 16], [500, 180, 14], [120, 150, 15]]) { P.cyl(x, y, 0, r, 18, 'y2r1k1', 0.8, 14); P.line([P.I(x - r, y, 9), P.I(x + r, y, 9)], 0.4); }
-    { const I = (a, b, c) => P.I(a, b, c); P.shape([I(60, 250, 0), I(110, 262, 0), I(118, 250, 34), I(76, 240, 30)], 'y2r1k2', 1); P.shape([I(60, 250, 0), I(76, 240, 30), I(62, 222, 30), I(50, 230, 2)], 'y2r1k3', 1); for (let i = 0; i < 4; i++) P.line([I(80 + i * 8, 256, 4), I(84 + i * 8, 246, 30)], 0.5); }
+    P.box(380, 440, 0, 70, 34, 30, { t: 'y3r1k1', l: 'y2r2k2', r: 'y2r2k3' }, 1); P.line([P.I(386, 474.5, 5), P.I(444, 474.5, 5), P.I(444, 474.5, 25), P.I(386, 474.5, 25), P.I(386, 474.5, 5)], 0.5);
+    Lib.bush(P, 470, 500, 0, 16, 'y4b5k1'); Lib.bush(P, 360, 510, 0, 12, 'y5b5k1'); tyTufts(P, [300, 420, 220, 110], 20, 64);
     for (const [x, y, w, h] of [[200, 110, 34, 22], [380, 100, 26, 18], [90, 380, 30, 20], [470, 470, 26, 16]]) Lib.rock(P, x, y, 0, w, h, 'y3r2k2');
     Lib.stones(P, 26, 'y3r2k3', [60, 90, 460, 400]);
     tyTufts(P, [60, 200, 440, 300], 26, 62);
     /* le nouveau rang de pierres que chacun pose */
     for (let i = 0; i < 6; i++) P.box(180 + i * 34, 300, 0, 32, 26, 20, { t: 'y3r1', l: 'y3r2k1', r: 'y3r2k2' }, 0.9);
     for (let i = 0; i < 2; i++) P.box(196 + i * 34, 300, 20, 32, 26, 18, { t: 'y3r1', l: 'y3r2k1', r: 'y3r2k2' }, 0.9);
-    tyOlive(P, 30, 480, 1, 63);
+    tyOlive(P, 30, 490, 1.7, 63);
+    /* colonnes restées debout, arc brisé */
+    for (const [x, y, h] of [[480, 250, 96], [510, 330, 58]]) { P.cyl(x, y, 0, 13, h, 'y2r1', 0.9, 14); for (let k = -2; k <= 2; k++) { const a = P.I(x + k * 4, y + 13 - Math.abs(k) * 2, 2), b = P.I(x + k * 4, y + 13 - Math.abs(k) * 2, h - 3); P.line([a, b], 0.35); } }
+    P.box(464, 234, 96, 32, 32, 10, 'y2r1k1', 0.8); P.box(468, 238, 106, 24, 24, 6, 'y2r1k2', 0.6);
+    P.box(2, 290, 0, 26, 26, 118, { t: 'y3r1', l: 'y2r2k1', r: 'y2r2k2' }); P.box(2, 410, 0, 26, 26, 86, { t: 'y3r1', l: 'y2r2k1', r: 'y2r2k2' });
+    for (let i = 0; i < 6; i++) { const a = Math.PI - i * 0.24, c = [2, 355 + Math.cos(a) * 60, 118 + Math.sin(a) * 50]; P.box(c[0], c[1] - 9, c[2] - 6, 26, 18, 14, { t: 'y3r1', l: 'y2r2k1', r: 'y2r2k2' }, 0.8); }
   },
   chars: [
     ch(LK.tyOld, { x: 300, y: 266, face: 1, clip: 'tyPlace', h: 132, hold: { nTop: 'tyStone' } }),
     ch(LK.tyWoman, { h: 128, hold: { nTop: 'tyStone' }, speed: 14, path: [W(470, 420, 1.5, 'tyHug'), W(270, 350, 2.5, 'tyPlace', { f: -1 }), W(470, 420, 0, 'tyHug')], walk: 'walk', over: 'tyHug' }),
     ch(LK.tyBoy, { h: 86, hold: { nTop: 'tyStone' }, speed: 14, t0: 4, over: 'tyHug', path: [W(420, 490, 1), W(330, 350, 2.5, 'tyPlace', { f: -1 }), W(420, 490, 0)] }),
     ch(LK.tyYoung, { h: 136, hold: { nTop: 'tyStone' }, speed: 16, t0: 2, over: 'tyHug', path: [W(130, 470, 1.5), W(200, 350, 2.5, 'tyPlace', { f: 1 }), W(130, 470, 0)] }),
-    ch(LK.tyAssi, { x: 160, y: 300, face: 1, clip: 'bless', h: 138, t0: 0.4 }),
+    ch(LK.tyAssi, { x: 80, y: 410, face: 1, clip: 'bless', h: 138, t0: 0.4 }),
     ch(LK.tyGirl, { x: 390, y: 330, face: -1, clip: 'tyHug', h: 84, hold: { nTop: 'tyStone' } }),
     ch(LK.tySeller, { x: 320, y: 440, face: -1, clip: 'tyNod', h: 126, t0: 1.3, look: Object.assign({}, LK.tySeller, { robe: 'y4r3k2', ht: 'b3y1' }) })
   ]
@@ -471,11 +506,11 @@ const SCENES = [
   more: ['Vers 132, Chimon bar Koziba soulève la Judée contre Rome. Rabbi Akiva lit en lui le verset « Une étoile s’avance de Jacob » (Nombres 24, 17), d’où le surnom de Bar Kokhba, « fils de l’étoile ». Rabbi Yohanan ben Torta lui répond : l’herbe poussera sur tes joues, et le fils de David ne sera pas encore venu. Le texte dit que l’empereur Hadrien assiégea trois ans et demi Béthar, la dernière forteresse, dans les collines au sud-ouest de Jérusalem.',
     'La Michna (Taanit 4, 6) compte la prise de Béthar parmi les malheurs du 9 Av. Maïmonide (Lois des rois 11, 3) rappelle que Rabbi Akiva, le plus grand sage de son temps, tint Bar Koziba pour le roi Messie jusqu’à sa mort, et que les sages ne lui demandèrent ni signe ni prodige. La même halakha mêle à ce récit la prière de Rabbi Éléazar de Modiin, assis dans le sac et la cendre pendant le siège.'],
   back(P) {
-    P.shape(P.disc(500, 470, 450, 64), 'b3r2', 0);
-    P.fill(P.disc(500, 470, 450, 64).map(p => [p[0], Math.max(p[1], 250)]), 'r2y3', { noKnock: true });
-    for (let i = 0; i < 16; i++) { const a = i * 2.39996, r = 150 + (i * 97) % 280, x = 500 + Math.cos(a) * r * 1.02, y = 80 + (i * 53) % 180; if (Math.hypot(x - 500, y - 470) < 440) Lib.star(P, x, y, 1.5 + (i % 3), 'y4'); }
-    tyRange(P, 40, 960, 330, 50, 'b4r3k3', 71, { freq: 5 });
-    const hill = Lib.mound(P, 120, 90, 150, 170, 'y4b3k3', { px: 20 });
+    tySkyDisc(P, ['b6r3', 'b5r3', 'b4r3', 'r3b3y1', 'r2y3b1', 'r2y4']);
+    for (let i = 0; i < 22; i++) { const x = 90 + ((i * 0.618034) % 1) * 820, y = 40 + ((i * 0.3819) % 1) * 150; if (Math.hypot(x - 500, y - 470) < 430 && Math.hypot(x - 300, y - 150) > 70) Lib.star(P, x, y, 1.5 + (i % 3), i % 4 ? 'y4' : 'y6'); }
+    tyRange(P, 40, 960, 0, 50, 'b4r3k3', 71, { freq: 5 });
+    Lib.platform(P, 'y4b2k2', 'y4r3k3', { h: 50 });
+    const hill = Lib.mound(P, 90, 80, 120, 150, 'y4b3k2', { px: 14, shade: 'k1b1' });
     /* Béthar sur sa colline : muraille, tours */
     { const pk = hill.peak, bx = pk[0], by = pk[1] + 14; const S = (a, b) => [bx + a, by + b];
       P.shape([S(-110, 20), S(-110, -14), S(110, -14), S(110, 20)], 'y3r3k3', 1);
@@ -484,10 +519,9 @@ const SCENES = [
       for (let i = 0; i < 5; i++) P.fill([S(-80 + i * 34, -4), S(-76 + i * 34, -4), S(-76 + i * 34, 4), S(-80 + i * 34, 4)], 'y6r2', { noKnock: true });
       for (let i = 0; i < 6; i++) { const q = S(-90 + i * 30, -24); P.line([[q[0], q[1]], [q[0], q[1] - 9]], 1.4); P.fill(P.disc(q[0], q[1] - 11, 2.2, 6), 'k7', { noKnock: true }); }
     }
-    Lib.mound(P, 420, 30, 90, 90, 'y4b3k3');
-    Lib.platform(P, 'y4b2k2', 'y4r3k3', { h: 50 });
     /* terrasses de pierre sèche sur le coteau */
-    for (let r = 0; r < 4; r++) { const y = 120 + r * 50; tyDryWall(P, [[260, y], [540, y - 10]], 12, 'y3r2k4'); }
+    for (let r = 0; r < 3; r++) { const y = 70 + r * 50; tyDryWall(P, [[300, y], [540, y - 10]], 12, 'y3r2k4'); }
+    Lib.bush(P, 250, 200, 0, 14, 'y3b4k3'); Lib.bush(P, 200, 240, 0, 10, 'y3b4k2');
     Lib.grass(P, 60, 'y4b4k1', [40, 200, 480, 320]);
     tyTufts(P, [300, 330, 120, 80], 18, 72, 'y5b4');
     Lib.stones(P, 18, 'y3r2k4', [60, 250, 400, 250]);
@@ -499,11 +533,12 @@ const SCENES = [
     Lib.star(P, c[0], c[1], 16, 'y8r1');
   },
   chars: [
-    { depth: 90 + 330, draw(P) { tyOlive(P, 90, 330, 1.25, 73, { fruit: 1 }); } },
-    { depth: 470 + 440, draw(P) { tyOlive(P, 470, 440, 1.05, 74); } },
-    ch(LK.tyAkiva, { x: 250, y: 330, face: 1, clip: 'point', h: 140, hold: { f: 'staffV' } }),
+    { depth: 90 + 330, draw(P) { tyOlive(P, 90, 330, 2, 73, { fruit: 1 }); } },
+    { depth: 130 + 500, draw(P) { tyOlive(P, 130, 500, 1.7, 74); } },
+    { depth: 500 + 480, draw(P) { tyOlive(P, 500, 480, 1.5, 75); } },
+    ch(LK.tyAkiva, { x: 250, y: 330, face: -1, clip: 'tyPointUp', h: 140, hold: { f: 'staffV' } }),
     ch(LK.tyTorta, { x: 330, y: 370, face: -1, clip: 'talk', h: 138, t0: 0.7 }),
-    ch(LK.tyDisc, { x: 190, y: 400, face: 1, clip: 'lookup', h: 130, t0: 1.4 }),
+    ch(LK.tyDisc, { x: 200, y: 420, face: -1, clip: 'lookup', h: 130, t0: 1.4 }),
     ch(LK.tyShepherd, { h: 128, hold: { n: 'staffV' }, speed: 12, path: [W(380, 150, 3), W(460, 230, 3), W(380, 150, 0)] }),
     { beast: 'sheep', h: 56, speed: 8, path: [W(420, 170, 2), W(490, 240, 2.5), W(420, 170, 0)] },
     { beast: 'sheep', h: 52, x: 470, y: 300, face: -1 }
@@ -516,16 +551,16 @@ const SCENES = [
   more: ['Rabbi Boun bar Rabbi Hiyya mourut jeune. Rabbi Zeira fit son éloge sur le verset « Doux est le sommeil du travailleur, qu’il mange peu ou beaucoup » (Ecclésiaste 5, 11), et sur une parabole : un roi embauche beaucoup d’ouvriers ; l’un d’eux travaille mieux que tous, et le roi l’emmène se promener avec lui, en long et en large. Le soir, les ouvriers viennent chercher leur salaire, et celui-là reçoit le sien entier ; les autres protestent, et le roi leur répond par les mots de cet extrait.',
     'La réponse du roi console : la valeur d’une vie ne se compte pas en années. Le même passage rassemble d’autres éloges funèbres prononcés par les maîtres de Galilée, chacun avec son verset et sa parabole : le juste est comparé à une belle plante que le roi met dans son jardin, à la figue que le maître du figuier cueille à son heure, à l’unique cep qui donne autant de vin que toute une vigne.'],
   back(P) {
-    P.shape(P.disc(500, 470, 450, 64), 'y2r1', 0);
-    P.fill(P.disc(500, 470, 450, 64).map(p => [p[0], Math.max(p[1], 220)]), 'y3r2', { noKnock: true });
+    tySkyDisc(P, ['b2r2y1', 'r2y2b1', 'r2y3', 'r3y4', 'r2y5', 'y5r2']);
     Lib.sun(P, 700, 280, 34);
     Lib.cloud(P, 300, 170, 180, 26, 'r2y2', { noShade: 1 }); Lib.cloud(P, 820, 200, 120, 20, 'r2y2', { noShade: 1 });
     for (let i = 0; i < 3; i++) Lib.bird(P, 380 + i * 30, 230 + (i % 2) * 12, 1.2, i * 0.4);
-    tyRange(P, 40, 960, 330, 70, 'r3b3k2', 81, { freq: 4 });
-    tyRange(P, 300, 900, 348, 30, 'r2y3b2k2', 82, { freq: 7 });
+    tyRange(P, 40, 960, 0, 50, 'r3b3k2', 81, { freq: 4 });
+    tyRange(P, 60, 940, 0, 22, 'r2y3b2k2', 82, { freq: 7 });
     Lib.platform(P, 'y4r3k1', 'y4r3k2', { h: 50 });
     /* rangées de vigne, parallèles à l'axe x, au fond et à droite */
     for (let r = 0; r < 4; r++) tyVineRow(P, 150, 530, 30 + r * 42, 83 + r);
+    for (let r = 0; r < 4; r++) tyVineRow(P, 20, 130, 340 + r * 48, 90 + r);
     /* la tour de garde et le pressoir taillé dans la roche */
     P.box(20, 20, 0, 60, 60, 120, { t: 'y4r2k1', l: 'y3r2k2', r: 'y3r2k3' }); P.box(16, 16, 120, 68, 68, 8, 'y3r2k3', 0.8);
     { const I = (a, b, c) => P.I(a, b, c); P.shape([I(16, 16, 128), I(84, 16, 128), I(84, 84, 128), I(50, 50, 160)], 'y6r2k2', 0.9); P.shape([I(84, 16, 128), I(84, 84, 128), I(50, 50, 160)], 'y6r2k3', 0.9); P.shape([I(16, 84, 128), I(84, 84, 128), I(50, 50, 160)], 'y5r2k2', 0.9); const F = (a, z) => P.I(20 + a, 80.5, z); P.shape([F(22, 0), F(38, 0), F(38, 34), F(22, 34)], 'k6r2', 0.8); P.shape([P.I(80.5, 44, 70), P.I(80.5, 54, 70), P.I(80.5, 54, 86), P.I(80.5, 44, 86)], 'k7', 0.6); }
@@ -535,7 +570,7 @@ const SCENES = [
   },
   chars: [
     ch(LK.tyKing, { h: 144, speed: 12, path: [W(170, 480, 2.5, 'talk', { f: 1 }), W(250, 210, 2, 'point', { f: -1 }), W(170, 480, 0)] }),
-    ch(LK.tyWorker, { h: 132, speed: 12, t0: 0, path: [W(195, 500, 2.5, 'tyNod', { f: -1 }), W(275, 230, 2, 'lookup', { f: -1 }), W(195, 500, 0)] }),
+    ch(LK.tyWorker, { h: 132, speed: 12, t0: 0, path: [W(210, 440, 2.5, 'tyNod', { f: -1 }), W(290, 170, 2, 'lookup', { f: -1 }), W(210, 440, 0)] }),
     { depth: 420 + 330, draw(P, t) { const x = 390, y = 300, w = 70, d = 44, h = 38; for (const [a, b] of [[x + 4, y + 4], [x + w - 10, y + 4], [x + 4, y + d - 10], [x + w - 10, y + d - 10]]) P.box(a, b, 0, 6, 6, h - 4, 'r4y5k3', 0.7); P.box(x, y, h - 4, w, d, 4, 'r4y5k2', 0.9); for (let i = 0; i < 8; i++) { const q = P.I(x + 12 + (i % 4) * 14, y + 12 + Math.floor(i / 4) * 16, h); P.shape([[q[0] - 4, q[1]], [q[0] + 4, q[1]], [q[0] + 4, q[1] - 2 - (i % 3)], [q[0] - 4, q[1] - 2 - (i % 3)]], 'y7r2', 0.4); } P.box(x + 44, y + 8, h, 16, 12, 8, 'r5y5k3', 0.5); } },
     ch(LK.tySteward, { x: 440, y: 280, face: -1, clip: 'offer', h: 136, hold: { n: 'tyCoin' } }),
     ch(LK.tyWorker2, { x: 380, y: 380, face: 1, clip: 'offer', h: 132, t0: 0.5 }),
