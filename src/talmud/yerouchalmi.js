@@ -121,13 +121,15 @@ const tyOlive = (P, x, y, s = 1, seed = 1, o = {}) => {
   for (let i = 0; i < 16; i++) { const cx = b[0] + (r() - 0.5) * 72 * s, cy = b[1] - H * 0.88 + (r() - 0.5) * 32 * s; P.line([[cx, cy], [cx + 4 * s, cy - 1.6 * s]], 1.1, { ink: 0, lvl: 3 }); }
   if (o.fruit) for (let i = 0; i < 9; i++) P.fill(P.disc(b[0] + (r() - 0.5) * 60 * s, b[1] - H * 0.84 + (r() - 0.5) * 26 * s, 1.8 * s, 6), 'k6b2', { noKnock: true });
 };
-/* figuier aux larges feuilles */
+/* figuier : tronc lisse et gris, ramure basse et large, feuilles lobées, figues violettes */
 const tyFig = (P, x, y, s = 1, seed = 3, fruit = 'r6b5') => {
   const b = P.I(x, y, 0), r = rng(seed), H = 80 * s;
-  P.fill(P.disc(b[0] + 4 * s, b[1] + 1, 34 * s, 16).map(p => [p[0], b[1] + (p[1] - b[1]) * 0.3]), 'k2b1', { noKnock: true });
-  P.shape([[b[0] - 6 * s, b[1]], [b[0] - 4 * s, b[1] - H * 0.4], [b[0] - 22 * s, b[1] - H * 0.6], [b[0] - 18 * s, b[1] - H * 0.64], [b[0], b[1] - H * 0.5], [b[0] + 20 * s, b[1] - H * 0.62], [b[0] + 22 * s, b[1] - H * 0.58], [b[0] + 5 * s, b[1] - H * 0.4], [b[0] + 7 * s, b[1]]], 'y2k4', 1);
-  for (let i = 0; i < 14; i++) { const cx = b[0] + (r() - 0.5) * 80 * s, cy = b[1] - H * 0.8 + (r() - 0.5) * 34 * s, rr = (7 + r() * 3) * s, pts = []; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * 0.9; pts.push([cx + Math.cos(a) * rr * 1.2, cy + Math.sin(a) * rr], [cx + Math.cos(a + 0.45) * rr * 0.55, cy + Math.sin(a + 0.45) * rr * 0.55]); } P.shape(pts, i % 3 ? 'y5b5k1' : 'y4b6k2', 0.6); }
-  for (let i = 0; i < 8; i++) P.shape(P.disc(b[0] + (r() - 0.5) * 60 * s, b[1] - H * 0.76 + (r() - 0.5) * 26 * s, 3 * s, 8), fruit, 0.5);
+  P.fill(P.disc(b[0] + 4 * s, b[1] + 1, 36 * s, 16).map(p => [p[0], b[1] + (p[1] - b[1]) * 0.3]), 'k2b1', { noKnock: true });
+  P.shape([[b[0] - 7 * s, b[1]], [b[0] - 5 * s, b[1] - H * 0.3], [b[0] - 24 * s, b[1] - H * 0.55], [b[0] - 20 * s, b[1] - H * 0.6], [b[0] - 1 * s, b[1] - H * 0.42], [b[0] + 2 * s, b[1] - H * 0.64], [b[0] + 7 * s, b[1] - H * 0.62], [b[0] + 5 * s, b[1] - H * 0.4], [b[0] + 22 * s, b[1] - H * 0.56], [b[0] + 25 * s, b[1] - H * 0.52], [b[0] + 7 * s, b[1] - H * 0.28], [b[0] + 8 * s, b[1]]], 'y1r1k4', 1);
+  for (let i = 0; i < 9; i++) { const a = i / 9 * TAU + r() * 0.5, cx = b[0] + Math.cos(a) * 36 * s, cy = b[1] - H * 0.74 + Math.sin(a) * 13 * s, rr = (14 + r() * 5) * s; P.shape(Lib.bumpy(P, cx, cy, rr, rr * 0.62, 7), i % 2 ? 'y5b5k1' : 'y4b6k2', 0.9); }
+  P.shape(Lib.bumpy(P, b[0], b[1] - H * 0.84, 30 * s, 13 * s, 9), 'y5b5', 0.9);
+  for (let i = 0; i < 12; i++) { const cx = b[0] + (r() - 0.5) * 84 * s, cy = b[1] - H * 0.8 + (r() - 0.5) * 30 * s, rr = 3.2 * s; for (let k = -1; k <= 1; k++) P.shape(P.disc(cx + k * rr * 1.1, cy - (k ? 0 : rr * 0.8), rr, 8), i % 3 ? 'y6b6k1' : 'y5b5k2', 0.4); }
+  for (let i = 0; i < 9; i++) { const q = [b[0] + (r() - 0.5) * 70 * s, b[1] - H * 0.7 + (r() - 0.5) * 26 * s]; P.shape([[q[0], q[1] - 3.6 * s], [q[0] + 2.6 * s, q[1]], [q[0], q[1] + 3 * s], [q[0] - 2.6 * s, q[1]]], fruit, 0.5); }
 };
 /* grenadier bas, fruits rouges */
 const tyPomegranate = (P, x, y, s = 1, seed = 5) => { Lib.tree(P, x, y, 0, { h: 90 * s, r: 26 * s, can: 'y5b5k2', trunk: 'r4y4k4', blobs: 6 }); const r = rng(seed), b = P.I(x, y, 0); for (let i = 0; i < 7; i++) { const q = [b[0] + (r() - 0.5) * 50 * s, b[1] - 72 * s + (r() - 0.5) * 30 * s]; P.shape(P.disc(q[0], q[1], 4.4 * s, 10), 'r8y2', 0.6); P.line([[q[0] - 1.5, q[1] - 4 * s], [q[0], q[1] - 6 * s], [q[0] + 1.5, q[1] - 4 * s]], 0.5); } };
@@ -259,7 +261,12 @@ const SCENES = [
     tySyn(P, 14, 390, 70, 110, 70, { cols: 4 });
     tyHouse(P, 20, 510, 44, 28, 34, 'y3r1k2', { door: false, win: [0.5] });
     tyPalm(P, 104, 262, 150); tyPalm(P, 470, 228, 130, { lean: -10 });
-    Lib.rock(P, 214, 284, 0, 26, 38, 'y3r2k3'); Lib.rock(P, 326, 250, 0, 24, 36, 'y4r2k3'); Lib.rock(P, 270, 250, 0, 14, 10, 'y3r2k2');
+    Lib.rock(P, 214, 284, 0, 26, 38, 'y3r2k3'); Lib.rock(P, 326, 250, 0, 24, 36, 'y4r2k3'); Lib.rock(P, 270, 250, 0, 14, 10, 'y3r2k2'); Lib.rock(P, 380, 396, 0, 22, 34, 'y3r2k3'); Lib.rock(P, 436, 342, 0, 20, 32, 'y4r2k3');
+    /* filets qui sèchent, paniers de poissons, barque tirée sur la grève */
+    for (const [x, y] of [[230, 440], [330, 470]]) P.box(x - 2, y - 2, 0, 4, 4, 64, 'r4y5k3', 0.6);
+    { const A = P.I(230, 440, 62), B = P.I(330, 470, 62), pts = []; for (let i = 0; i <= 10; i++) { const k = i / 10; pts.push([lerp(A[0], B[0], k), lerp(A[1], B[1], k) + Math.sin(k * Math.PI) * 10]); } P.line(pts, 0.8); for (let i = 0; i <= 10; i++) { const q = pts[i]; P.line([q, [q[0] + 1, q[1] + 40 - Math.sin(i / 10 * Math.PI) * 8]], 0.5); } for (let r = 1; r < 5; r++) P.line(pts.map((q, i) => [q[0] + 0.2 * r, q[1] + r * 8 - Math.sin(i / 10 * Math.PI) * r * 1.6]), 0.4); for (let i = 0; i < 6; i++) { const q = pts[i * 2]; P.fill(P.disc(q[0], q[1] + 38 - Math.sin(i / 5 * Math.PI) * 8, 1.8, 6), 'k6', { noKnock: true }); } }
+    for (const [x, y] of [[270, 520], [300, 530]]) { const c = P.I(x, y, 0); P.shape([[c[0] - 12, c[1] - 12], [c[0] + 12, c[1] - 12], [c[0] + 9, c[1]], [c[0] - 9, c[1]]], 'y5r4k2', 0.7); for (let i = 0; i < 4; i++) drawFish(P, c[0] - 7 + i * 5, c[1] - 13 - (i % 2) * 3, 8, i % 2 ? 1 : -1, i % 2 ? 'b3y3' : 'y5b2'); }
+    { const I = (a, b, c) => P.I(a, b, c), x = 150, y = 215; P.shape([I(x - 34, y, 1), I(x - 18, y + 10, 1), I(x + 20, y + 10, 1), I(x + 38, y, 3), I(x + 28, y + 3, 16), I(x - 16, y + 6, 18), I(x - 28, y + 2, 14)], 'r4y5k3', 1); P.line([I(x - 30, y + 2, 12), I(x - 16, y + 8, 15), I(x + 24, y + 7, 14), I(x + 36, y + 1, 5)], 0.7, { ink: 1, lvl: 7 }); }
     Lib.rock(P, 380, 470, 0, 22, 14, 'y3r2k3'); Lib.bush(P, 420, 520, 0, 16, 'y4b5k1');
     tyBoatIn(P, 360, 90);
     Lib.jar(P, 470, 290, 0, 1.2, 'r5y5k2'); P.box(488, 300, 0, 22, 18, 10, 'r4y5k3', 0.6);
@@ -270,8 +277,8 @@ const SCENES = [
     { depth: 150 + 420, draw(P) { tyOlive(P, 150, 420, 2.1, 21, { fruit: 1 }); } },
     ch(LK.tyAkiva, { x: 220, y: 284, face: 1, clip: 'tyArgue', h: 138 }),
     ch(LK.tyAzzai, { x: 330, y: 254, face: -1, clip: 'tyArgue', h: 138, t0: 0.8 }),
-    ch(LK.tyDisc, { x: 370, y: 390, face: -1, clip: 'tyFloor', h: 132, t0: 0.4 }),
-    ch(LK.tyDisc2, { x: 420, y: 340, face: -1, clip: 'tyFloor', h: 126, t0: 1.7 }),
+    ch(LK.tyDisc, { x: 370, y: 390, face: -1, clip: 'tyListen', h: 132, t0: 0.4 }),
+    ch(LK.tyDisc2, { x: 426, y: 336, face: -1, clip: 'tyListen', h: 126, t0: 1.7 }),
     ch(LK.tyFisher, { x: 360, y: 92, z: 8, face: -1, clip: 'haul', h: 118, noShadow: 1, hold: { nTop: 'tyNet' } }),
     ch(LK.tyYoung, { h: 130, speed: 16, path: [W(500, 215, 3, 'idle', { f: -1 }), W(490, 300, 3.5, 'lookup', { f: -1 }), W(500, 215, 0)] })
   ]
@@ -347,6 +354,7 @@ const SCENES = [
     { const F = (a, z) => P.I(a, 400.5, z); P.shape([F(20, 44), F(40, 44), F(40, 56), F(20, 56)], 'y1b1', 0.6); for (let i = 0; i < 3; i++) P.line([F(23, 47 + i * 3), F(37, 47 + i * 3)], 0.35); }
     { const I = (a, b) => P.I(a, b, 0.4); P.shape([I(110, 330), I(236, 330), I(236, 450), I(110, 450)], 'r5y5k1', 0.9); P.shape([I(120, 340), I(226, 340), I(226, 440), I(120, 440)], 'b5y2k1', 0.5); for (let i = 1; i < 6; i++) P.line([I(120, 340 + i * 17), I(226, 340 + i * 17)], 0.4, { ink: 0, lvl: 6 }); }
     P.box(130, 350, 0, 26, 24, 38, 'r4y5k2', 0.8);
+    P.box(226, 344, 0, 16, 104, 22, 'r4y5k2', 0.8); P.box(226, 346, 22, 16, 100, 3, 'r4y5k1', 0.5);
     P.box(96, 460, 0, 20, 30, 20, 'r4y5k2', 0.6); for (let i = 0; i < 3; i++) P.box(98 + i * 5, 462, 20, 4, 26, 4, ['y2r1', 'y1b1', 'y2'][i], 0.4);
     Lib.grass(P, 40, 'y5b4', [260, 300, 260, 220]);
     Lib.stones(P, 14, 'y3r2k3', [240, 100, 200, 60]);
@@ -360,9 +368,9 @@ const SCENES = [
     ch(LK.tyAmmi, { x: 320, y: 290, face: -1, clip: 'point', h: 136, t0: 1.6, hold: {} }),
     { depth: 60 + 500, draw(P) { tyFig(P, 60, 500, 2.1, 33); } },
     ch(LK.tyTeacher, { x: 146, y: 362, face: 1, clip: 'tyArgue', h: 130, hold: { f: 'tyRoll' } }),
-    ch(LK.tyKid, { x: 214, y: 356, face: -1, clip: 'tyFloorHold', h: 84, hold: { nTop: 'tyTablet' } }),
-    ch(LK.tyKid2, { x: 210, y: 410, face: -1, clip: 'tyFloorHold', h: 80, t0: 1.1, hold: { nTop: 'tyTablet' } }),
-    ch(LK.tyKid3, { x: 160, y: 428, face: 1, clip: 'tyFloorHold', h: 82, t0: 2.2, hold: { nTop: 'tyTablet' } })
+    ch(LK.tyKid, { x: 236, y: 362, face: -1, clip: 'tySitHold', h: 84, hold: { nTop: 'tyTablet' } }),
+    ch(LK.tyKid2, { x: 236, y: 398, face: -1, clip: 'tySitHold', h: 80, t0: 1.1, hold: { nTop: 'tyTablet' } }),
+    ch(LK.tyKid3, { x: 236, y: 434, face: -1, clip: 'tySitHold', h: 82, t0: 2.2, hold: { nTop: 'tyTablet' } })
   ]
 },
 {
