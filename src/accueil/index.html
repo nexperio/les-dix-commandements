@@ -57,11 +57,15 @@ footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-
   <a class="card" data-ink="2" href="parachiot/index.html"><canvas></canvas><div class="n" style="color:#2D5BA6">Année 5787 · 2026-2027</div><h3>Parachiot</h3><div class="fr">Les Dix Paroles et l’index des lectures de la semaine, dates de la diaspora.</div><span class="go" style="color:#2D5BA6">Voir l’index ›</span></a>
 </div>
 <div class="orn"><i></i><b></b><i></i></div>
+<h2>Les femmes et le foyer</h2>
+<p class="h2s">Les femmes de la Torah, le chalom bayit et les mitsvot des femmes avec leurs berakhot</p>
+<div class="grid" id="femmes"></div>
+<div class="orn"><i></i><b></b><i></i></div>
 <div id="now"></div>
 <h2>Les parachiot de l’année</h2>
 <p class="h2s">Une feuille par paracha, de Haazinou à Nitsavim-Vayélekh</p>
 <div class="grid" id="grid"></div>
-<footer>Versets traduits en français depuis la Douay-Rheims, Old Testament Part 1 (Project Gutenberg n° 1609).<br>Glisser, molette, pincer, double-clic : chaque feuille se parcourt comme une carte.<br><span class="credit">Une réalisation <a href="https://nexperio.tech">nexperio.tech</a></span></footer>
+<footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610).<br>Glisser, molette, pincer, double-clic : chaque feuille se parcourt comme une carte.<br><span class="credit">Une réalisation <a href="https://nexperio.tech">nexperio.tech</a></span></footer>
 </div>
 <script>
 /*CORE*/
@@ -75,6 +79,11 @@ if (cur) {
   a.className = 'card' + (cur.href ? '' : ' wait'); if (cur.href) a.href = cur.href; a.dataset.ink = cur.ink;
   a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Cette semaine · ${cur.date}</div><h3>${cur.he}</h3><div class="fr">${cur.sens}</div><span class="go" style="color:${hex}">${cur.href ? 'Ouvrir la feuille ›' : 'Feuille à paraître'}</span>`;
   document.getElementById('now').appendChild(a);
+}
+for (const it of ITEMS.filter(i => i.sec === 'femmes')) {
+  const a = document.createElement('a'), hex = INKS[it.ink].hex; a.className = 'card'; a.href = it.href; a.dataset.ink = it.ink;
+  a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Feuille ${it.mark}</div><h3>${it.he}</h3><div class="fr">${it.fr}</div><span class="go" style="color:${hex}">Ouvrir ›</span>`;
+  document.getElementById('femmes').appendChild(a);
 }
 for (const it of SHEETS) {
   const a = document.createElement('a'); a.className = 'card' + (it.href ? '' : ' soon') + (it === cur ? ' cur' : ''); if (it.href) a.href = it.href; a.style.setProperty('--o', INKS[it.ink].hex);

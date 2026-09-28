@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
-"""Vérifie que chaque `quote:` est copiée mot pour mot du Project Gutenberg n° 1609 (Douay-Rheims, AT partie 1).
-Le texte est téléchargé une fois dans data/gutenberg-1609.txt.
+"""Vérifie que chaque `quote:` est copiée mot pour mot du Project Gutenberg n° 1609 et 1610 (Douay-Rheims, AT parties 1 et 2).
+Les textes sont téléchargés une fois dans data/gutenberg-1609.txt et data/gutenberg-1610.txt.
 
   python3 tools/check_quotes.py                          # tout src/
   python3 tools/check_quotes.py src/parachiot/toledot.js # un seul fichier (la citation doit venir du verset de `ref`)
 """
 import os, re, sys, glob, urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TXT = os.path.join(ROOT, 'data', 'gutenberg-1609.txt')
-if not os.path.exists(TXT):
-    os.makedirs(os.path.dirname(TXT), exist_ok=True)
-    urllib.request.urlretrieve('https://www.gutenberg.org/ebooks/1609.txt.utf-8', TXT)
+TXTS = [os.path.join(ROOT, 'data', f'gutenberg-{n}.txt') for n in (1609, 1610)]  # AT partie 1 (Genèse à Job), partie 2 (Psaumes à Machabées)
+for TXT in TXTS:
+    if not os.path.exists(TXT):
+        os.makedirs(os.path.dirname(TXT), exist_ok=True)
+        urllib.request.urlretrieve(f'https://www.gutenberg.org/ebooks/{TXT[-8:-4]}.txt.utf-8', TXT)
 verses, book, cur = {}, None, None
-for ln in open(TXT, encoding='utf-8').read().replace('\r', '').split('\n'):
+for ln in ''.join(open(t, encoding='utf-8').read() for t in TXTS).replace('\r', '').split('\n'):
     m = re.match(r'^(.+?) Chapter (\d+)$', ln)
     if m: book, cur = m.group(1), None; continue
     m = re.match(r'^(\d+):(\d+)\. (.*)$', ln)

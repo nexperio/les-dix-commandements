@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Construit toutes les pages autonomes (un fichier HTML chacune) à la racine du dépôt :
-index.html (accueil), ancien-testament.html et parachiot/*.html.
+index.html (accueil), ancien-testament.html, parachiot/*.html et femmes/*.html.
 
   python3 tools/build.py            # tout
-  python3 tools/build.py noach      # une seule paracha
+  python3 tools/build.py noach      # une seule paracha (ou une feuille de la section Femmes : femmes, chalombayit, mitsvot)
 """
 import json, os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,6 +26,24 @@ PARACHIOT = [
     (12, 'miketz',   '5787-12-mikets.html'),
     (13, 'vayigash', '5787-13-vayigach.html'),
     (14, 'vayechi',  '5787-14-vayehi.html'),
+    (15, 'shemot',   '5787-15-chemot.html'),
+    (16, 'vaera',    '5787-16-vaera.html'),
+    (17, 'bo',       '5787-17-bo.html'),
+    (18, 'beshalach', '5787-18-bechalah.html'),
+    (19, 'yitro',    '5787-19-yitro.html'),
+    (20, 'mishpatim', '5787-20-michpatim.html'),
+    (21, 'terumah',  '5787-21-terouma.html'),
+    (22, 'tetzaveh', '5787-22-tetsave.html'),
+    (23, 'kitisa',   '5787-23-ki-tissa.html'),
+    (24, 'vayakhel', '5787-24-vayakhel.html'),
+    (25, 'pekudei',  '5787-25-pekoude.html'),
+]
+
+# section « Les femmes et le foyer » : (marque du menu, id du fichier src/femmes/<id>.js, nom de sortie, titre, sous-titre, encre)
+FEMMES = [
+    ('א', 'femmes',      'femmes-de-la-torah.html',  'Les femmes de la Torah', 'Matriarches, prophétesses, sages', 1),
+    ('ב', 'chalombayit', 'chalom-bayit.html',        'Chalom bayit',           'La paix du foyer', 2),
+    ('ג', 'mitsvot',     'mitsvot-des-femmes.html',  'Les mitsvot des femmes', 'Bougies, hallah, mikvé : les berakhot', 0),
 ]
 ENGINE = ['core.js', 'figures.js', 'lib2.js']
 read = lambda p: open(p, encoding='utf-8').read()
@@ -35,8 +53,10 @@ MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août
 def nav_items():
     """Entrées du menu vertical, tirées du tableau PARA de l'index (source unique)."""
     items = [{'mark': '⌂', 'he': 'Accueil', 'fr': 'Toutes les feuilles', 'href': 'index.html', 'ink': 3},
-             {'mark': 'AT', 'he': 'L’Ancien Testament', 'fr': 'Seize scènes, une seule feuille', 'href': 'ancien-testament.html', 'ink': 3, 'sep': 1},
-             {'mark': '✦', 'he': 'Parachiot 5787', 'fr': 'Les Dix Paroles et l’index', 'href': 'parachiot/index.html', 'ink': 1, 'sep': 1}]
+             {'mark': 'AT', 'he': 'L’Ancien Testament', 'fr': 'Seize scènes, une seule feuille', 'href': 'ancien-testament.html', 'ink': 3, 'sep': 1}]
+    for i, (mark, fid, out, he, fr, ink) in enumerate(FEMMES):
+        items.append({'mark': mark, 'he': he, 'fr': fr, 'href': 'femmes/' + out, 'ink': ink, 'sec': 'femmes', 'sep': int(i == 0)})
+    items.append({'mark': '✦', 'he': 'Parachiot 5787', 'fr': 'Les Dix Paroles et l’index', 'href': 'parachiot/index.html', 'ink': 1, 'sep': 1})
     for m in re.finditer(r"\{ n: (\d+), he: '([^']*)', fr: '([^']*)', date: '([^']*)'(.*?)ink: (\d) \}", read(S('index', 'index.html'))):
         n, he, fr, date, rest, ink = m.groups()
         f = re.search(r"file: '([^']*)'", rest)
@@ -73,21 +93,21 @@ def write(path, html):
     print(f'{os.path.relpath(path, ROOT):45s} {os.path.getsize(path):>8,d} octets')
 
 def build_at():
-    parts = [S('engine', p) for p in ENGINE] + [S('scenes', 'ancien-testament.js'), S('scenes', 'main-ancien-testament.js'), S('engine', 'app.js')]
+    parts = [S('engine', p) for p in ENGINE] + [S('scenes', 'ancien-testament.js'), S('scenes', 'main-ancien-testament.js'), S('engine', 'app.js'), S('engine', 'print.js')]
     write(os.path.join(DIST, 'ancien-testament.html'), page("L'Ancien Testament, scène par scène", read(S('scenes', 'ancien-testament.liste.txt')), parts, 'ancien-testament.html'))
 
 def build_home():
     html = read(S('accueil', 'index.html')).replace('/*CORE*/', read(S('engine', 'core.js'))).replace('/*ITEMS*/', json.dumps(nav_items(), ensure_ascii=False))
     write(os.path.join(DIST, 'index.html'), html.replace('</body>', nav_script('index.html') + '</body>'))
 
-def build_paracha(pid, out):
-    src = read(S('parachiot', pid + '.js'))
+def build_paracha(pid, out, sec='parachiot'):
+    src = read(S(sec, pid + '.js'))
     body = src.split('const SCENES', 1)[1]
     n = len(re.findall(r"refFr: '", body)) + len(re.findall(r"reuse\(AT\[\d+\](?![^)]*refFr)", body))
     if not 4 <= n <= 12: sys.exit(f'{pid} : {n} scènes, il en faut entre 4 et 12.')
     title = re.search(r"title: '([^']*)'", src).group(1)
-    parts = [S('engine', p) for p in ENGINE] + [S('scenes', 'ancien-testament.js'), S('scenes', 'personnages.js'), S('parachiot', pid + '.js'), S('engine', 'app.js')]
-    write(os.path.join(DIST, 'parachiot', out), page(title, comment_for(src), parts, 'parachiot/' + out))
+    parts = [S('engine', p) for p in ENGINE] + [S('scenes', 'ancien-testament.js'), S('scenes', 'personnages.js'), S(sec, pid + '.js'), S('engine', 'app.js'), S('engine', 'print.js')]
+    write(os.path.join(DIST, sec, out), page(title, comment_for(src), parts, sec + '/' + out))
 
 def build_index():
     html = read(S('index', 'index.html')).replace('/*CORE*/', read(S('engine', 'core.js'))).replace('</body>', nav_script('parachiot/index.html') + '</body>')
@@ -98,3 +118,5 @@ if __name__ == '__main__':
     if not only: build_home(); build_at(); build_index()
     for n, pid, out in PARACHIOT:
         if (not only or pid in only) and os.path.exists(S('parachiot', pid + '.js')): build_paracha(pid, out)
+    for mark, fid, out, *_ in FEMMES:
+        if (not only or fid in only) and os.path.exists(S('femmes', fid + '.js')): build_paracha(fid, out, 'femmes')

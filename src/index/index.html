@@ -37,7 +37,7 @@ h2{font-weight:normal;font-size:32px;text-align:center;margin:0 0 6px}
 .card{position:relative;display:block;text-decoration:none;color:inherit;padding:22px 24px 20px;background:rgba(255,255,255,.18);border:1px solid rgba(47,39,41,.25);box-shadow:0 1px 0 rgba(47,39,41,.1);transition:transform .25s,box-shadow .25s}
 .card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
 .card canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.card .n{font-variant:small-caps;letter-spacing:.14em;font-size:13px}
+.card .n{font-variant:small-caps;letter-spacing:.14em;font-size:13px;line-height:1.5}.card .n .d{white-space:nowrap}
 .card h3{font-weight:normal;font-size:28px;margin:6px 0 2px}
 .card .fr{font-style:italic;font-size:16px;margin-bottom:10px}
 .card .meta{font-size:14px;line-height:1.5}
@@ -65,7 +65,7 @@ footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-
 <li><div><b>Je suis le Seigneur ton Dieu, qui t’ai fait sortir du pays d’Égypte, de la maison de servitude.</b><small>Exode 20, 2</small></div></li>
 <li><div><b>Tu n’auras pas d’autres dieux devant moi. Tu ne te feras aucune image taillée, et tu ne te prosterneras pas devant elles.</b><small>Exode 20, 3 à 6</small></div></li>
 <li><div><b>Tu ne prendras pas en vain le nom du Seigneur ton Dieu.</b><small>Exode 20, 7</small></div></li>
-<li><div><b>Souviens-toi de sanctifier le jour du sabbat. Six jours tu travailleras ; le septième est le sabbat du Seigneur ton Dieu.</b><small>Exode 20, 8 à 11</small></div></li>
+<li><div><b>Souviens-toi de sanctifier le jour du Shabbat. Six jours tu travailleras ; le septième est le Shabbat du Seigneur ton Dieu.</b><small>Exode 20, 8 à 11</small></div></li>
 <li><div><b>Honore ton père et ta mère, afin de vivre longtemps sur la terre que le Seigneur ton Dieu te donnera.</b><small>Exode 20, 12</small></div></li>
 </ol>
 <ol style="--start:5">
@@ -100,13 +100,24 @@ const PARA = [
   { n: 12, he: 'Mikets', fr: 'Au bout', date: 'Hanoucca · 12 décembre 2026', ref: 'Genèse 41, 1 à 44, 17', note: 'Les songes de Pharaon, les greniers, la coupe', file: '5787-12-mikets.html', ink: 0 },
   { n: 13, he: 'Vayigach', fr: 'Il s’approcha', date: 'Chabbat 19 décembre 2026', ref: 'Genèse 44, 18 à 47, 27', note: 'Juda plaide, « Je suis Joseph », Jacob en Égypte', file: '5787-13-vayigach.html', ink: 2 },
   { n: 14, he: 'Vaye’hi', fr: 'Il vécut', date: 'Chabbat 26 décembre 2026', ref: 'Genèse 47, 28 à 50, 26', note: 'Les bénédictions de Jacob, la fin de la Genèse', file: '5787-14-vayehi.html', ink: 1 },
-  { n: 15, he: 'Chemot', fr: 'Les noms', date: 'Chabbat 2 janvier 2027', ref: 'Exode 1, 1 à 6, 1', note: 'À paraître', soon: 1, ink: 0 }
+  { n: 15, he: 'Chemot', fr: 'Les noms', date: 'Chabbat 2 janvier 2027', ref: 'Exode 1, 1 à 6, 1', note: 'Le panier sur le Nil, le buisson ardent', file: '5787-15-chemot.html', ink: 0 },
+  { n: 16, he: 'Vaéra', fr: 'J’apparus', date: 'Chabbat Roch ’Hodech · 9 janvier 2027', ref: 'Exode 6, 2 à 9, 35', note: 'Les sept premières plaies', file: '5787-16-vaera.html', ink: 2 },
+  { n: 17, he: 'Bo', fr: 'Viens', date: 'Chabbat 16 janvier 2027', ref: 'Exode 10, 1 à 13, 16', note: 'Les ténèbres, l’agneau pascal, la sortie d’Égypte', file: '5787-17-bo.html', ink: 1 },
+  { n: 18, he: 'Bechala’h', fr: 'Quand il laissa partir', date: 'Chabbat Chira · 23 janvier 2027', ref: 'Exode 13, 17 à 17, 16', note: 'La mer ouverte, le cantique, la manne', file: '5787-18-bechalah.html', ink: 2 },
+  { n: 19, he: 'Yitro', fr: 'Jéthro', date: 'Chabbat 30 janvier 2027', ref: 'Exode 18, 1 à 20, 23', note: 'Jéthro, le Sinaï, les Dix Paroles', file: '5787-19-yitro.html', ink: 1 },
+  { n: 20, he: 'Michpatim', fr: 'Les lois', date: 'Chabbat 6 février 2027', ref: 'Exode 21, 1 à 24, 18', note: 'Les lois, l’alliance, Moïse dans la nuée', file: '5787-20-michpatim.html', ink: 0 },
+  { n: 21, he: 'Terouma', fr: 'Le prélèvement', date: 'Chabbat 13 février 2027', ref: 'Exode 25, 1 à 27, 19', note: 'L’arche, la table, la ménora, le parvis', file: '5787-21-terouma.html', ink: 0 },
+  { n: 22, he: 'Tetsavé', fr: 'Tu ordonneras', date: 'Chabbat 20 février 2027', ref: 'Exode 27, 20 à 30, 10', note: 'L’huile, les vêtements du grand prêtre', file: '5787-22-tetsave.html', ink: 2 },
+  { n: 23, he: 'Ki Tissa', fr: 'Quand tu compteras', date: 'Chabbat 27 février 2027', ref: 'Exode 30, 11 à 34, 35', note: 'Le veau d’or, les tables, le visage de Moïse', file: '5787-23-ki-tissa.html', ink: 1 },
+  { n: 24, he: 'Vayakhel', fr: 'Il rassembla', date: 'Chabbat Chekalim · 6 mars 2027', ref: 'Exode 35, 1 à 38, 20', note: 'Les offrandes, Betsalel à l’ouvrage', file: '5787-24-vayakhel.html', ink: 0 },
+  { n: 25, he: 'Pekoudé', fr: 'Les comptes', date: 'Chabbat 13 mars 2027', ref: 'Exode 38, 21 à 40, 38', note: 'La Demeure dressée, la nuée, fin de l’Exode', file: '5787-25-pekoude.html', ink: 2 },
+  { n: 26, he: 'Vayikra', fr: 'Il appela', date: 'Chabbat Zakhor · 20 mars 2027', ref: 'Lévitique 1, 1 à 5, 26', note: 'À paraître', soon: 1, ink: 1 }
 ];
 const grid = document.getElementById('grid');
 for (const p of PARA) {
   const a = document.createElement('a'); a.className = 'card' + (p.soon ? ' soon' : ''); if (!p.soon) a.href = p.file;
   a.style.color = 'var(--ink)';
-  a.innerHTML = `<canvas></canvas><div class="n" style="color:${INKS[p.ink].hex}">Feuille ${p.n} · ${p.date}</div><h3>${p.he}</h3><div class="fr">${p.fr}</div><div class="meta">${p.ref}<br>${p.note}</div>${p.soon ? '' : `<span class="go" style="color:${INKS[p.ink].hex}">Ouvrir la feuille ›</span>`}`;
+  a.innerHTML = `<canvas></canvas><div class="n" style="color:${INKS[p.ink].hex}">Feuille ${p.n} · ${p.date.replace(/\s*·?\s*(\d+\S* \S+ \d{4})$/, '')}<br><span class="d">${p.date.match(/\d+\S* \S+ \d{4}$/)[0]}</span></div><h3>${p.he}</h3><div class="fr">${p.fr}</div><div class="meta">${p.ref}<br>${p.note}</div>${p.soon ? '' : `<span class="go" style="color:${INKS[p.ink].hex}">Ouvrir la feuille ›</span>`}`;
   grid.appendChild(a); a.dataset.ink = p.ink;
 }
 function paintBg() {
