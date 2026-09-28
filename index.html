@@ -22,22 +22,25 @@ header{text-align:center;margin-bottom:10px}
 h1{font-weight:normal;font-size:clamp(40px,7vw,78px);line-height:1;margin:10px 0 12px}
 .sub{font-style:italic;color:var(--r);font-size:18px;max-width:640px;margin:0 auto;line-height:1.45}
 .orn{display:flex;align-items:center;gap:12px;margin:30px auto;max-width:520px;color:var(--r)}.orn i{flex:1;height:1px;background:currentColor}.orn b{width:7px;height:7px;transform:rotate(45deg);background:currentColor}
-h2{font-weight:normal;font-size:32px;text-align:center;margin:0 0 6px}
-.h2s{text-align:center;font-style:italic;opacity:.75;margin:0 0 22px;font-size:15px}
-.doors{display:grid;grid-template-columns:1fr 1fr;gap:26px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
-.card{position:relative;display:block;text-decoration:none;color:inherit;padding:22px 24px 20px;background:rgba(255,255,255,.18);border:1px solid rgba(47,39,41,.25);box-shadow:0 1px 0 rgba(47,39,41,.1);transition:transform .25s,box-shadow .25s}
-.card:hover,.card:focus-visible{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
+.doors{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+.card{position:relative;display:block;text-decoration:none;color:inherit;padding:30px 32px 26px;background:rgba(255,255,255,.18);border:1px solid rgba(47,39,41,.25);box-shadow:0 1px 0 rgba(47,39,41,.1);transition:transform .25s,box-shadow .25s}
+.card:hover,.card:focus-within{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
 .card canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .card .n{font-variant:small-caps;letter-spacing:.14em;font-size:13px}
-.card h3{font-weight:normal;font-size:28px;margin:6px 0 4px}
-.doors .card{padding:30px 32px 26px}.doors .card h3{font-size:36px}
+.card h3{font-weight:normal;font-size:36px;margin:6px 0 4px}
+.card h3 a{color:inherit;text-decoration:none}.card h3 a::after{content:"";position:absolute;inset:0;z-index:1}
 .card .fr{font-style:italic;font-size:16px;line-height:1.45}
 .card .go{display:inline-block;margin-top:14px;font-style:italic;border-bottom:1px solid currentColor}
-.card.soon{opacity:.55;pointer-events:none}
-#now{max-width:640px;margin:0 auto 34px}#now .card{text-align:center;padding:26px 30px 24px}#now h3{font-size:40px}
-#now .card.wait{pointer-events:none}#now .card.wait .go{border:0;opacity:.7}
-.grid .card.cur{outline:2px solid var(--o);outline-offset:3px}
+.card.wait{pointer-events:none}.card.wait .go{border:0;opacity:.7}
+.card details,.card .list{position:relative;z-index:2}
+.card details{margin-top:16px}.card summary{cursor:pointer;font-style:italic;font-size:15px;opacity:.8}
+.lab{font-variant:small-caps;letter-spacing:.12em;font-size:13px;opacity:.7;margin:16px 0 0}
+.list{list-style:none;padding:0;margin:14px 0 0;columns:2;column-gap:22px;font-size:15px;line-height:1.35}
+.list.one{columns:1;margin-top:6px}
+.list li{break-inside:avoid;display:flex;gap:8px;margin:0 0 7px}
+.list b{font-weight:normal;min-width:1.5em;text-align:right}
+.list a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}.list a:hover,.list a:focus-visible{border-color:currentColor}
+#now{max-width:640px;margin:34px auto 0}#now .card{text-align:center;padding:26px 30px 24px}#now h3{font-size:40px}
 .find{display:flex;gap:10px;max-width:620px;margin:26px auto 0}
 .find input{flex:1;min-width:0;font:inherit;font-size:18px;color:var(--ink);background:rgba(255,255,255,.35);border:1px solid rgba(47,39,41,.45);padding:11px 14px;border-radius:0}
 .find input:focus{outline:2px solid var(--r);outline-offset:1px}
@@ -45,7 +48,7 @@ h2{font-weight:normal;font-size:32px;text-align:center;margin:0 0 6px}
 .findq{text-align:center;margin:10px 0 0;font-style:italic;font-size:15px}.findq a{color:var(--r);text-decoration:none;border-bottom:1px solid currentColor}
 footer{margin-top:44px;text-align:center;font-size:13px;opacity:.7;line-height:1.6}
 footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-decoration:none;border-bottom:1px solid currentColor}
-@media (max-width:760px){.doors{grid-template-columns:1fr}.sheet{padding:72px 16px 60px}}
+@media (max-width:760px){.doors{grid-template-columns:1fr}.card{padding:24px 22px 20px}.card h3{font-size:30px}.sheet{padding:72px 16px 60px}}
 </style>
 </head>
 <body>
@@ -54,32 +57,18 @@ footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-
 <header>
   <div class="kick">Feuilles riso animées</div>
   <h1>La Torah</h1>
-  <div class="sub">Des dioramas imprimés encre par encre, une grande feuille de seize scènes et une feuille par paracha de l’année 5787</div>
+  <div class="sub">Des dioramas imprimés encre par encre : la Torah scène par scène, les parachiot de l’année 5787, le Talmud, les mitsvot</div>
 </header>
 <form class="find" action="recherche.html" role="search"><input type="search" name="q" placeholder="Chercher une scène, un verset, une bénédiction…" aria-label="Chercher dans les feuilles"><button type="submit">Chercher</button></form>
 <p class="findq"><a href="recherche.html#question">ou poser une question ›</a></p>
+<div id="now"></div>
 <div class="orn"><i></i><b></b><i></i></div>
 <div class="doors">
-  <a class="card" data-ink="1" href="ancien-testament.html"><canvas></canvas><div class="n" style="color:#E0453A">La grande feuille</div><h3>Scène par scène</h3><div class="fr">Seize scènes, de la Genèse à Esther : Éden, le déluge, Moïse, le Sinaï, David, Élie, Esther.</div><span class="go" style="color:#E0453A">Ouvrir la feuille ›</span></a>
-  <a class="card" data-ink="2" href="parachiot/index.html"><canvas></canvas><div class="n" style="color:#2D5BA6">Année 5787 · 2026-2027</div><h3>Parachiot</h3><div class="fr">Les Dix Paroles et l’index des lectures de la semaine, dates de la diaspora.</div><span class="go" style="color:#2D5BA6">Voir l’index ›</span></a>
+  <div class="card" data-ink="1"><canvas></canvas><div class="n" style="color:#E0453A">La grande feuille</div><h3><a href="ancien-testament.html">Scène par scène</a></h3><div class="fr">Seize scènes, de la Genèse à Esther : Éden, le déluge, Moïse, le Sinaï, David, Élie, Esther.</div><span class="go" style="color:#E0453A">Ouvrir la feuille ›</span></div>
+  <div class="card" data-ink="2"><canvas></canvas><div class="n" style="color:#2D5BA6">Année 5787 · 2026-2027</div><h3><a href="parachiot/index.html">Parachiot</a></h3><div class="fr">Une feuille par paracha, de Haazinou à Nitsavim-Vayélekh, et les Dix Paroles.</div><span class="go" style="color:#2D5BA6">Voir l’index ›</span><details><summary id="s-para"></summary><ul class="list" id="l-para"></ul></details></div>
+  <div class="card" data-ink="3"><canvas></canvas><div class="n">Index · Daf Yomi</div><h3><a href="talmud/index.html">Le Talmud</a></h3><div class="fr">La Michna et la Guemara : les six ordres, Pirké Avot, les maîtres, la page du jour.</div><ul class="list" id="l-talmud"></ul></div>
+  <div class="card" data-ink="0"><canvas></canvas><div class="n" style="color:#B8830F">Mitsvot et berakhot</div><h3><a href="femmes/femmes-de-la-torah.html">Femmes et hommes</a></h3><div class="fr">Les femmes de la Torah, le foyer, les gestes de chacun et leurs bénédictions.</div><div class="lab">Les femmes et le foyer</div><ul class="list one" id="l-femmes"></ul><div class="lab">Les hommes</div><ul class="list one" id="l-hommes"></ul></div>
 </div>
-<div class="orn"><i></i><b></b><i></i></div>
-<h2>Les femmes et le foyer</h2>
-<p class="h2s">Les femmes de la Torah, le chalom bayit et les mitsvot des femmes avec leurs berakhot</p>
-<div class="grid" id="femmes"></div>
-<div class="orn"><i></i><b></b><i></i></div>
-<h2>Les hommes</h2>
-<p class="h2s">Les mitsvot des hommes avec leurs berakhot : talit, tefillin, Torah, kiddouch, havdala, fêtes</p>
-<div class="grid" id="hommes"></div>
-<div class="orn"><i></i><b></b><i></i></div>
-<h2>Le Talmud</h2>
-<p class="h2s">La Michna et la Guemara en dix feuilles : les six ordres, Pirké Avot, les maîtres, le Talmud de Jérusalem ; le Daf Yomi et l’accès direct à un passage</p>
-<div class="grid" id="talmud"><a class="card" data-ink="2" href="talmud/index.html"><canvas></canvas><div class="n" style="color:#2D5BA6">Index · Daf Yomi</div><h3>Le Talmud</h3><div class="fr">Les six ordres traité par traité, la page du jour, aller à « Chabbat 31a ».</div><span class="go" style="color:#2D5BA6">Ouvrir l’index ›</span></a></div>
-<div class="orn"><i></i><b></b><i></i></div>
-<div id="now"></div>
-<h2>Les parachiot de l’année</h2>
-<p class="h2s">Une feuille par paracha, de Haazinou à Nitsavim-Vayélekh</p>
-<div class="grid" id="grid"></div>
 <footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610) ; passages du Talmud traduits de l’hébreu et de l’araméen (textes de Sefaria).<br>Glisser, molette, pincer, double-clic : chaque feuille se parcourt comme une carte.<br><span class="credit">Une réalisation <a href="https://nexperio.tech">nexperio.tech</a></span></footer>
 </div>
 <script>
@@ -422,27 +411,22 @@ const Lib = {
 };
 
 const ITEMS = [{"mark": "⌂", "he": "Accueil", "fr": "Toutes les feuilles", "href": "index.html", "ink": 3}, {"mark": "<svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"6.2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><path d=\"M14.6 14.6 20.5 20.5\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\"/></svg>", "he": "Rechercher", "fr": "Chercher ou poser une question", "href": "recherche.html", "ink": 1}, {"mark": "AT", "he": "L’Ancien Testament", "fr": "Seize scènes, une seule feuille", "href": "ancien-testament.html", "ink": 3, "sep": 1}, {"mark": "א", "he": "Les femmes de la Torah", "fr": "Matriarches, prophétesses, sages", "href": "femmes/femmes-de-la-torah.html", "ink": 1, "sec": "femmes", "sep": 1}, {"mark": "ב", "he": "Chalom bayit", "fr": "La paix du foyer", "href": "femmes/chalom-bayit.html", "ink": 2, "sec": "femmes", "sep": 0}, {"mark": "ג", "he": "Les mitsvot des femmes", "fr": "Bougies, hallah, mikvé : les berakhot", "href": "femmes/mitsvot-des-femmes.html", "ink": 0, "sec": "femmes", "sep": 0}, {"mark": "א", "he": "Les mitsvot des hommes", "fr": "Talit, tefillin, kiddouch : les berakhot", "href": "hommes/mitsvot-des-hommes.html", "ink": 2, "sec": "hommes", "sep": 1}, {"mark": "ת", "he": "Le Talmud", "fr": "Les six ordres, le Daf Yomi", "href": "talmud/index.html", "ink": 2, "sep": 1}, {"mark": "א", "he": "Qu’est-ce que le Talmud ?", "fr": "La Michna, la Guemara, la page, l’étude", "href": "talmud/quest-ce-que-le-talmud.html", "ink": 1, "sec": "talmud", "sep": 0}, {"mark": "ב", "he": "Zeraïm · Semences", "fr": "La prière, les bénédictions, les récoltes", "href": "talmud/zeraim.html", "ink": 0, "sec": "talmud", "sep": 0}, {"mark": "ג", "he": "Moed · Temps fixés", "fr": "Chabbat, fêtes et jeûnes", "href": "talmud/moed.html", "ink": 2, "sec": "talmud", "sep": 0}, {"mark": "ד", "he": "Nachim · Femmes", "fr": "Mariage, promesses, la chute de Jérusalem", "href": "talmud/nachim.html", "ink": 1, "sec": "talmud", "sep": 0}, {"mark": "ה", "he": "Nezikin · Dommages", "fr": "Le droit, la justice, le tribunal", "href": "talmud/nezikin.html", "ink": 3, "sec": "talmud", "sep": 0}, {"mark": "ו", "he": "Pirké Avot", "fr": "Les maximes des Pères", "href": "talmud/pirke-avot.html", "ink": 0, "sec": "talmud", "sep": 0}, {"mark": "ז", "he": "Kodachim · Choses saintes", "fr": "Le Temple et son service", "href": "talmud/kodachim.html", "ink": 2, "sec": "talmud", "sep": 0}, {"mark": "ח", "he": "Taharot · Puretés", "fr": "Le mikvé, la vie, la pureté", "href": "talmud/taharot.html", "ink": 1, "sec": "talmud", "sep": 0}, {"mark": "ט", "he": "Les maîtres", "fr": "Hillel, Rabbi Akiva, Rabbi Méïr, Beroura…", "href": "talmud/les-maitres.html", "ink": 3, "sec": "talmud", "sep": 0}, {"mark": "י", "he": "Le Talmud de Jérusalem", "fr": "L’autre Talmud, celui de la terre d’Israël", "href": "talmud/talmud-de-jerusalem.html", "ink": 2, "sec": "talmud", "sep": 0}, {"mark": "✦", "he": "Parachiot 5787", "fr": "Les Dix Paroles et l’index", "href": "parachiot/index.html", "ink": 1, "sep": 1}, {"mark": "1", "he": "Haazinou", "fr": "Prêtez l’oreille · 19 septembre 2026", "href": "parachiot/5787-01-haazinou.html", "ink": 1, "day": "2026-09-19", "date": "Chabbat Chouva · 19 septembre 2026", "sens": "Prêtez l’oreille"}, {"mark": "2", "he": "Vezot haBerakha", "fr": "Voici la bénédiction · 4 octobre 2026", "href": "parachiot/5787-02-vezot-haberakha.html", "ink": 2, "day": "2026-10-04", "date": "Simhat Torah · 4 octobre 2026", "sens": "Voici la bénédiction"}, {"mark": "3", "he": "Bereshit", "fr": "Au commencement · 10 octobre 2026", "href": "parachiot/5787-03-bereshit.html", "ink": 0, "day": "2026-10-10", "date": "Chabbat 10 octobre 2026", "sens": "Au commencement"}, {"mark": "4", "he": "Noa’h", "fr": "Noé · 17 octobre 2026", "href": "parachiot/5787-04-noach.html", "ink": 2, "day": "2026-10-17", "date": "Chabbat 17 octobre 2026", "sens": "Noé"}, {"mark": "5", "he": "Lekh Lekha", "fr": "Va pour toi · 24 octobre 2026", "href": "parachiot/5787-05-lekh-lekha.html", "ink": 1, "day": "2026-10-24", "date": "Chabbat 24 octobre 2026", "sens": "Va pour toi"}, {"mark": "6", "he": "Vayera", "fr": "Il apparut · 31 octobre 2026", "href": "parachiot/5787-06-vayera.html", "ink": 0, "day": "2026-10-31", "date": "Chabbat 31 octobre 2026", "sens": "Il apparut"}, {"mark": "7", "he": "Hayé Sarah", "fr": "La vie de Sarah · 7 novembre 2026", "href": "parachiot/5787-07-haye-sarah.html", "ink": 2, "day": "2026-11-07", "date": "Chabbat 7 novembre 2026", "sens": "La vie de Sarah"}, {"mark": "8", "he": "Toledot", "fr": "Les générations · 14 novembre 2026", "href": "parachiot/5787-08-toledot.html", "ink": 1, "day": "2026-11-14", "date": "Chabbat 14 novembre 2026", "sens": "Les générations"}, {"mark": "9", "he": "Vayetsé", "fr": "Il sortit · 21 novembre 2026", "href": "parachiot/5787-09-vayetse.html", "ink": 0, "day": "2026-11-21", "date": "Chabbat 21 novembre 2026", "sens": "Il sortit"}, {"mark": "10", "he": "Vayichla’h", "fr": "Il envoya · 28 novembre 2026", "href": "parachiot/5787-10-vayichlach.html", "ink": 2, "day": "2026-11-28", "date": "Chabbat 28 novembre 2026", "sens": "Il envoya"}, {"mark": "11", "he": "Vayéchev", "fr": "Il s’établit · 5 décembre 2026", "href": "parachiot/5787-11-vayechev.html", "ink": 1, "day": "2026-12-05", "date": "Hanoucca · 5 décembre 2026", "sens": "Il s’établit"}, {"mark": "12", "he": "Mikets", "fr": "Au bout · 12 décembre 2026", "href": "parachiot/5787-12-mikets.html", "ink": 0, "day": "2026-12-12", "date": "Hanoucca · 12 décembre 2026", "sens": "Au bout"}, {"mark": "13", "he": "Vayigach", "fr": "Il s’approcha · 19 décembre 2026", "href": "parachiot/5787-13-vayigach.html", "ink": 2, "day": "2026-12-19", "date": "Chabbat 19 décembre 2026", "sens": "Il s’approcha"}, {"mark": "14", "he": "Vaye’hi", "fr": "Il vécut · 26 décembre 2026", "href": "parachiot/5787-14-vayehi.html", "ink": 1, "day": "2026-12-26", "date": "Chabbat 26 décembre 2026", "sens": "Il vécut"}, {"mark": "15", "he": "Chemot", "fr": "Les noms · 2 janvier 2027", "href": "parachiot/5787-15-chemot.html", "ink": 0, "day": "2027-01-02", "date": "Chabbat 2 janvier 2027", "sens": "Les noms"}, {"mark": "16", "he": "Vaéra", "fr": "J’apparus · 9 janvier 2027", "href": "parachiot/5787-16-vaera.html", "ink": 2, "day": "2027-01-09", "date": "Chabbat Roch ’Hodech · 9 janvier 2027", "sens": "J’apparus"}, {"mark": "17", "he": "Bo", "fr": "Viens · 16 janvier 2027", "href": "parachiot/5787-17-bo.html", "ink": 1, "day": "2027-01-16", "date": "Chabbat 16 janvier 2027", "sens": "Viens"}, {"mark": "18", "he": "Bechala’h", "fr": "Quand il laissa partir · 23 janvier 2027", "href": "parachiot/5787-18-bechalah.html", "ink": 2, "day": "2027-01-23", "date": "Chabbat Chira · 23 janvier 2027", "sens": "Quand il laissa partir"}, {"mark": "19", "he": "Yitro", "fr": "Jéthro · 30 janvier 2027", "href": "parachiot/5787-19-yitro.html", "ink": 1, "day": "2027-01-30", "date": "Chabbat 30 janvier 2027", "sens": "Jéthro"}, {"mark": "20", "he": "Michpatim", "fr": "Les lois · 6 février 2027", "href": "parachiot/5787-20-michpatim.html", "ink": 0, "day": "2027-02-06", "date": "Chabbat 6 février 2027", "sens": "Les lois"}, {"mark": "21", "he": "Terouma", "fr": "Le prélèvement · 13 février 2027", "href": "parachiot/5787-21-terouma.html", "ink": 0, "day": "2027-02-13", "date": "Chabbat 13 février 2027", "sens": "Le prélèvement"}, {"mark": "22", "he": "Tetsavé", "fr": "Tu ordonneras · 20 février 2027", "href": "parachiot/5787-22-tetsave.html", "ink": 2, "day": "2027-02-20", "date": "Chabbat 20 février 2027", "sens": "Tu ordonneras"}, {"mark": "23", "he": "Ki Tissa", "fr": "Quand tu compteras · 27 février 2027", "href": "parachiot/5787-23-ki-tissa.html", "ink": 1, "day": "2027-02-27", "date": "Chabbat 27 février 2027", "sens": "Quand tu compteras"}, {"mark": "24", "he": "Vayakhel", "fr": "Il rassembla · 6 mars 2027", "href": "parachiot/5787-24-vayakhel.html", "ink": 0, "day": "2027-03-06", "date": "Chabbat Chekalim · 6 mars 2027", "sens": "Il rassembla"}, {"mark": "25", "he": "Pekoudé", "fr": "Les comptes · 13 mars 2027", "href": "parachiot/5787-25-pekoude.html", "ink": 2, "day": "2027-03-13", "date": "Chabbat 13 mars 2027", "sens": "Les comptes"}, {"mark": "26", "he": "Vayikra", "fr": "À paraître · 20 mars 2027", "href": null, "ink": 1, "day": "2027-03-20", "date": "Chabbat Zakhor · 20 mars 2027", "sens": "Il appela"}];
-const grid = document.getElementById('grid'), SHEETS = ITEMS.filter(i => /^\d+$/.test(i.mark));
+const SHEETS = ITEMS.filter(i => /^\d+$/.test(i.mark));
 /* paracha de la semaine : le premier Chabbat (ou jour de lecture) qui n'est pas encore passé */
 const today = new Date(); today.setHours(0, 0, 0, 0);
 const cur = SHEETS.find(i => new Date(i.day + 'T00:00:00') >= today);
 if (cur) {
-  const hex = INKS[cur.ink].hex, a = document.createElement(cur.href ? 'a' : 'div');
-  a.className = 'card' + (cur.href ? '' : ' wait'); if (cur.href) a.href = cur.href; a.dataset.ink = cur.ink;
-  a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Cette semaine · ${cur.date}</div><h3>${cur.he}</h3><div class="fr">${cur.sens}</div><span class="go" style="color:${hex}">${cur.href ? 'Ouvrir la feuille ›' : 'Feuille à paraître'}</span>`;
+  const hex = INKS[cur.ink].hex, a = document.createElement('div');
+  a.className = 'card' + (cur.href ? '' : ' wait'); a.dataset.ink = cur.ink;
+  a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Cette semaine · ${cur.date}</div><h3>${cur.href ? `<a href="${cur.href}">${cur.he}</a>` : cur.he}</h3><div class="fr">${cur.sens}</div><span class="go" style="color:${hex}">${cur.href ? 'Ouvrir la feuille ›' : 'Feuille à paraître'}</span>`;
   document.getElementById('now').appendChild(a);
 }
-for (const it of ITEMS.filter(i => i.sec === 'femmes' || i.sec === 'hommes' || i.sec === 'talmud')) {
-  const a = document.createElement('a'), hex = INKS[it.ink].hex; a.className = 'card'; a.href = it.href; a.dataset.ink = it.ink;
-  a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Feuille ${it.mark}</div><h3>${it.he}</h3><div class="fr">${it.fr}</div><span class="go" style="color:${hex}">Ouvrir ›</span>`;
-  document.getElementById(it.sec).appendChild(a);
-}
-for (const it of SHEETS) {
-  const a = document.createElement('a'); a.className = 'card' + (it.href ? '' : ' soon') + (it === cur ? ' cur' : ''); if (it.href) a.href = it.href; a.style.setProperty('--o', INKS[it.ink].hex);
-  const hex = INKS[it.ink].hex;
-  a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Feuille ${it.mark}</div><h3>${it.he}</h3><div class="fr">${it.fr}</div>${it.href ? `<span class="go" style="color:${hex}">Ouvrir ›</span>` : ''}`;
-  a.dataset.ink = it.ink; grid.appendChild(a);
-}
+/* les feuilles de chaque porte, en liste compacte */
+const li = it => `<li><b style="color:${INKS[it.ink].hex}">${it.mark}</b><a href="${it.href}">${it.he.split(' · ')[0].replace(' ?', '\u00a0?')}</a></li>`;
+for (const sec of ['femmes', 'hommes', 'talmud']) document.getElementById('l-' + sec).innerHTML = ITEMS.filter(i => i.sec === sec).map(li).join('');
+const paru = SHEETS.filter(i => i.href);
+document.getElementById('l-para').innerHTML = paru.map(li).join('');
+document.getElementById('s-para').textContent = `Les ${paru.length} feuilles parues`;
 function paintBg() {
   const c = document.getElementById('bg'), dp = Math.min(2, devicePixelRatio || 1); c.width = innerWidth * dp; c.height = innerHeight * dp;
   const g = c.getContext('2d'); g.fillStyle = PAPER; g.fillRect(0, 0, c.width, c.height);
@@ -458,6 +442,7 @@ function paintCards() {
 }
 function paint() { paintBg(); paintCards(); }
 addEventListener('resize', () => { clearTimeout(paint.t); paint.t = setTimeout(paint, 150); });
+for (const d of document.querySelectorAll('details')) d.addEventListener('toggle', paintCards);
 paint();
 </script>
 <script>
