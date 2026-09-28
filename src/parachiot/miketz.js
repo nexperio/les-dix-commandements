@@ -122,7 +122,6 @@ const SCENES = [
     P.fill([P.I(0, 250, 0.5), P.I(540, 250, 0.5), P.I(540, 350, 0.5), P.I(0, 350, 0.5)], 'y3r1', {});
     for (let i = 0; i < 9; i++) P.line([P.I(i * 60, 252, 1), P.I(i * 60 + 30, 348, 1)], 0.4);
     P.box(20, 20, 0, 70, 60, 180, 'y3r2k1'); P.box(20, 150, 0, 70, 60, 180, 'y3r2k1'); P.box(20, 80, 120, 70, 70, 40, 'y4r2k1');
-    for (let z = 30; z < 170; z += 30) { Lib.wallR(P, 25, z, 55, 4, 'r6y4', 0.3); }
     mkObelisk(P, 170, 200, 200); mkObelisk(P, 430, 200, 200);
     Lib.palm(P, 300, 60, 0, 170, { lean: -8, dates: 1 }); Lib.palm(P, 500, 80, 0, 150, { lean: 12 });
     Lib.city(P, 140, 20, 120, 110, 4, 'y2r1', 41);
@@ -135,9 +134,9 @@ const SCENES = [
       const I = (a, b, c) => P.I(a, b, c);
       P.line([I(326, 300, 26), I(410, 305, 44)], 2.4, { ink: 3 });
       P.shape([I(280, 316, 22), I(326, 316, 22), I(326, 316, 40), I(280, 316, 34)], 'y7r3', 0.9);
-      P.shape([I(326, 284, 22), I(326, 316, 22), I(326, 316, 52), I(326, 284, 52)], 'r6y5', 1);
-      const w = []; for (let k = 0; k < 20; k++) { const a = k / 20 * TAU; w.push(I(300 + Math.cos(a) * 22, 320, 22 + Math.sin(a) * 22)); } P.shape(w, 'r5y6k3', 1.2);
-      for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI; P.line([I(300 + Math.cos(a) * 20, 320, 22 + Math.sin(a) * 20), I(300 - Math.cos(a) * 20, 320, 22 - Math.sin(a) * 20)], 0.9); }
+      P.shape([I(326, 284, 22), I(326, 316, 22), I(326, 316, 60), I(326, 300, 66), I(326, 284, 60)], 'r6y5', 1); P.line([I(326, 288, 44), I(326, 312, 44)], 1.6, { ink: 0 });
+      const w = []; for (let k = 0; k < 20; k++) { const a = k / 20 * TAU; w.push(I(300 + Math.cos(a) * 26, 320, 26 + Math.sin(a) * 26)); } P.shape(w, 'r5y6k3', 1.2);
+      for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI; P.line([I(300 + Math.cos(a) * 24, 320, 26 + Math.sin(a) * 24), I(300 - Math.cos(a) * 24, 320, 26 - Math.sin(a) * 24)], 0.9); }
     }, depth: 640 },
     { beast: 'mk_horse', h: 118, x: 420, y: 285, face: 1 },
     { beast: 'mk_horse', h: 114, x: 430, y: 325, face: 1 },
