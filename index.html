@@ -1,0 +1,1625 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>L'Ancien Testament, scène par scène</title>
+<!--
+  L'ANCIEN TESTAMENT, SCÈNE PAR SCÈNE
+  Un seul fichier. Canvas 2D. Aucune image, aucune police, aucune bibliothèque.
+  Chaque scène, personnage, vague et point d'encre est dessiné en code.
+  Citations : traduites en français de la Douay-Rheims, Old Testament Part 1,
+  Project Gutenberg n° 1609 (texte anglais d'origine affiché dans le commentaire).
+
+  Scènes (ordre du livre)                       Chapitre                    Fête juive
+   1  Le jardin d'Éden                          Genèse 3      (Gn 3:6)      Rosh Hashana
+   2  La colombe et le rameau (Noé)             Genèse 8      (Gn 8:11)     -
+   3  Le bélier dans le buisson (Isaac)         Genèse 22     (Gn 22:13)    Rosh Hashana
+   4  L'échelle de Jacob                        Genèse 28     (Gn 28:12)    -
+   5  Joseph tiré de la citerne                 Genèse 37     (Gn 37:28)    -
+   6  Le buisson ardent (Moïse)                 Exode 3       (Ex 3:5)      -
+   7  Le passage de la mer                      Exode 14      (Ex 14:22)    Pessah
+   8  Le Sinaï dans la fumée                    Exode 19      (Ex 19:18)    Chavouot
+   9  Le veau d'or                              Exode 32      (Ex 32:19)    Yom Kippour
+  10  Les cabanes du désert                     Lévitique 23  (Lv 23:42)    Souccot
+  11  Moïse au mont Nebo                        Deutéronome 34 (Dt 34:4)    Simhat Torah
+  12  Les murailles de Jéricho                  Josué 6       (Josue 6:20)  -
+  13  Ruth dans le champ de Booz                Ruth 2        (Ruth 2:3)    Chavouot
+  14  David et Goliath                          1 Samuel 17   (1 Kings 17:49, Douay) -
+  15  Le feu du Carmel (Élie)                   1 Rois 18     (3 Kings 18:38, Douay) -
+  16  Esther devant le roi                      Esther 5      (Esther 5:2)  Pourim
+
+  Commandes : glisser (inertie), molette (zoom sous le curseur), pincer, double-clic
+  sur une scène, flèches, + / -, 0 (toute la feuille), C (carte de chapitre).
+
+-->
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#26211d;touch-action:none;-webkit-user-select:none;user-select:none}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+#card{position:fixed;left:24px;bottom:24px;width:min(390px,calc(100vw - 32px));opacity:0;transform:translateY(10px);transition:opacity .7s ease,transform .7s ease;pointer-events:none;color:#2F2729;font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;box-shadow:0 12px 34px rgba(0,0,0,.4);--acc:#E0453A}
+#card.on{opacity:1;transform:none;pointer-events:auto}
+#card canvas{position:absolute;inset:0;width:100%;height:100%}
+#card .in{position:relative;padding:24px 28px 20px}
+.kick{font-variant:small-caps;letter-spacing:.16em;font-size:13px;color:var(--acc)}
+#card h1{font-weight:normal;font-size:35px;line-height:1.04;margin:6px 0 12px;letter-spacing:.005em}
+.orn{display:flex;align-items:center;gap:10px;margin:0 0 14px;color:var(--acc)}.orn i{flex:1;height:1px;background:currentColor;opacity:.8}.orn b{width:6px;height:6px;transform:rotate(45deg);background:currentColor}
+.q{font-style:italic;font-size:16.5px;line-height:1.46;margin:0;hyphens:auto}
+.q .dc{float:left;font-style:normal;font-size:60px;line-height:.8;padding:5px 7px 0 0;color:var(--acc)}.q .dc small{font-size:26px;vertical-align:top;margin-right:1px}
+.src{font-size:12.5px;letter-spacing:.08em;margin-top:12px;opacity:.72;font-variant:small-caps;clear:both}
+.lk{display:inline-block;margin-top:10px;color:var(--acc);font-size:14.5px;cursor:pointer;border-bottom:1px solid currentColor;text-decoration:none;font-style:italic}
+.more{max-height:0;overflow:hidden;transition:max-height .7s ease}.more.open{max-height:52vh;overflow:auto}
+.more p{font-size:14.5px;line-height:1.52;margin:12px 0 0}.more p.orig{font-size:13px;opacity:.78;border-top:1px solid var(--acc);padding-top:10px}
+@media (max-width:640px){#card{left:12px;bottom:12px;width:calc(100vw - 24px)}#card .in{padding:16px 18px 14px}#card h1{font-size:26px}.q{font-size:14.5px}.q .dc{font-size:46px}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="card"><canvas></canvas><div class="in"></div></div>
+<script>
+'use strict';
+/* ============================================================
+   NOYAU : aléatoire seedé, bruit, encres, trames, peintre riso
+   ============================================================ */
+const TAU = Math.PI * 2, DEG = Math.PI / 180;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+function rng(seed) { let a = seed >>> 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function h2(x, y, s) { let h = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263) + Math.imul(s | 0, 1442695041)) | 0; h = Math.imul(h ^ h >>> 13, 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967296; }
+function vn(x, y, s) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); const a = h2(xi, yi, s), b = h2(xi + 1, yi, s), c = h2(xi, yi + 1, s), d = h2(xi + 1, yi + 1, s); return a + (b - a) * u + (c - a + (d - c - b + a) * u) * v; }
+function vnP(x, y, P, s) { const m = k => ((k % P) + P) % P; const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); const a = h2(m(xi), m(yi), s), b = h2(m(xi + 1), m(yi), s), c = h2(m(xi), m(yi + 1), s), d = h2(m(xi + 1), m(yi + 1), s); return a + (b - a) * u + (c - a + (d - c - b + a) * u) * v; }
+
+/* Les quatre encres d'accompagnement. Angles de trame et défauts de repérage (unités de feuille). */
+const INKS = [
+  { key: 'y', name: 'Safran', hex: '#F0B21F', ang: 0, reg: [0.9, -0.55] },
+  { key: 'r', name: 'Écarlate', hex: '#E0453A', ang: 75, reg: [-0.75, 0.6] },
+  { key: 'b', name: 'Tekhelet', hex: '#2D5BA6', ang: 15, reg: [0.45, 0.85] },
+  { key: 'k', name: 'Encre de galle', hex: '#2F2729', ang: 45, reg: [0, 0] }
+];
+const PAPER = '#F4E9D3';
+const PITCH = 2.5; // pas de trame, unités de feuille
+
+/* Teintes : 'y4r2b1k3' = pourcentages de chaque encre par dixièmes */
+const TC = new Map();
+function T(t) { if (Array.isArray(t)) return t; let r = TC.get(t); if (r) return r; r = [0, 0, 0, 0]; const re = /([yrbk])(\d+)/g; let m; while ((m = re.exec(t))) r['yrbk'.indexOf(m[1])] = Math.min(10, +m[2]); TC.set(t, r); return r; }
+function tadd(t, u) { t = T(t); u = T(u); return [0, 1, 2, 3].map(i => clamp(t[i] + u[i], 0, 10)); }
+
+/* ---------- Tuiles de demi-teinte : points tramés, jitter, manques d'encre ---------- */
+function makeTile(ink, lvl, p) {
+  const N = 24, S = Math.max(8, Math.round(N * p)), q = S / N;
+  const c = document.createElement('canvas'); c.width = c.height = S; c.N = N;
+  const g = c.getContext('2d'); g.fillStyle = INKS[ink].hex;
+  const sd = ink * 131 + 7, cov = lvl / 10;
+  const dot = (cx, cy, r) => {
+    for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) {
+      const x = cx + ox * S, y = cy + oy * S;
+      if (x < -r || y < -r || x > S + r || y > S + r) continue;
+      g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+    }
+  };
+  if (lvl >= 10) {
+    g.fillRect(0, 0, S, S);
+    g.globalCompositeOperation = 'destination-out'; g.fillStyle = '#000';
+    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+      const v = vnP(i / 4, j / 4, N / 4, sd + 9);
+      if (v > 0.73) dot((i + h2(i, j, sd)) * q, (j + h2(j, i, sd)) * q, q * (v - 0.73) * 2.6 * (0.5 + h2(i, j, sd + 3)));
+      else if (h2(i, j, sd + 17) > 0.985) dot((i + .5) * q, (j + .5) * q, q * 0.28);
+    }
+    return c;
+  }
+  const base = cov <= 0.72 ? Math.sqrt(cov / Math.PI) : lerp(0.4787, 0.74, (cov - 0.72) / 0.28);
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    const jx = (h2(i, j, sd + 1) - .5) * 0.24, jy = (h2(i, j, sd + 2) - .5) * 0.24;
+    let r = base * (1 + (h2(i, j, sd + 4) - .5) * 0.2);
+    const v = vnP(i / 4, j / 4, N / 4, sd + lvl);
+    if (v > 0.74) r *= clamp(1 - (v - 0.74) * 2.4, 0.3, 1);
+    r *= q; if (r < 0.06) continue;
+    dot((i + .5 + jx) * q, (j + .5 + jy) * q, r);
+  }
+  return c;
+}
+const patBank = new Map(); let _pctx = null;
+function bucket(s) { return Math.pow(2, Math.ceil(Math.log2(s) * 4 - 0.05) / 4); }
+function pats(s) {
+  const key = Math.round(s * 4096); let b = patBank.get(key); if (b) return b;
+  _pctx = _pctx || document.createElement('canvas').getContext('2d');
+  b = [];
+  for (let i = 0; i < 4; i++) {
+    b[i] = [null];
+    for (let l = 1; l <= 10; l++) {
+      const tile = makeTile(i, l, PITCH * s);
+      const p = _pctx.createPattern(tile, 'repeat');
+      const sc = tile.N * PITCH / tile.width;
+      p.setTransform(new DOMMatrix().rotateSelf(INKS[i].ang).scaleSelf(sc));
+      b[i][l] = p;
+    }
+  }
+  patBank.set(key, b); return b;
+}
+
+/* ---------- Le peintre : knockout papier + surimpression multiply, trait qui bout ---------- */
+class Painter {
+  constructor(ctx, s, variant, sid, mask = 15) {
+    this.ctx = ctx; this.s = s; this.v = variant; this.sid = sid; this.mask = mask;
+    this.pats = pats(s); this.amp = 1.15; this.seed = variant * 7919 + 11; this.vr = rng(variant * 104729 + sid * 17 + 5);
+    this.r = rng(sid * 1009 + 1); this.O = [500, 360]; this.L = 540; this.detail = s * 140 > 70;
+  }
+  I(x, y, z = 0) { return [this.O[0] + (x - y) * 0.8660254, this.O[1] + (x + y) * 0.5 - z]; }
+  wob(x, y) { const a = this.amp; if (!a) return [x, y]; const s = this.seed; return [x + (vn(x * .034, y * .034, s) - .5) * 2 * a, y + (vn(x * .034 + 31.7, y * .034 - 17.3, s + 1) - .5) * 2 * a]; }
+  prep(pts, closed, step = 6) {
+    const out = [], n = pts.length, m = closed ? n : n - 1;
+    for (let i = 0; i < m; i++) {
+      const a = pts[i], b = pts[(i + 1) % n], dx = b[0] - a[0], dy = b[1] - a[1];
+      const k = Math.max(1, Math.ceil(Math.hypot(dx, dy) / step));
+      for (let j = 0; j < k; j++) out.push(this.wob(a[0] + dx * j / k, a[1] + dy * j / k));
+    }
+    if (!closed) out.push(this.wob(pts[n - 1][0], pts[n - 1][1]));
+    return out;
+  }
+  path(pts, closed = true, step) { const q = this.prep(pts, closed, step), p = new Path2D(); p.moveTo(q[0][0], q[0][1]); for (let i = 1; i < q.length; i++) p.lineTo(q[i][0], q[i][1]); p.closePath(); return p; }
+  inkFill(path, tone, rule = 'nonzero') {
+    const c = this.ctx; tone = T(tone); c.globalCompositeOperation = 'multiply';
+    for (let i = 0; i < 4; i++) {
+      const l = tone[i]; if (!l || !(this.mask & (1 << i))) continue;
+      const r = INKS[i].reg; c.translate(r[0], r[1]); c.fillStyle = this.pats[i][l]; c.fill(path, rule); c.translate(-r[0], -r[1]);
+    }
+    c.globalCompositeOperation = 'source-over';
+  }
+  knock(path, rule = 'nonzero') { const c = this.ctx; c.globalCompositeOperation = 'source-over'; c.fillStyle = PAPER; c.fill(path, rule); }
+  fill(pts, tone, o = {}) {
+    let path;
+    if (o.rings) { path = new Path2D(); for (const ring of pts) { const q = this.prep(ring, true, o.step); path.moveTo(q[0][0], q[0][1]); for (let i = 1; i < q.length; i++) path.lineTo(q[i][0], q[i][1]); path.closePath(); } }
+    else path = this.path(pts, true, o.step);
+    const rule = o.rings ? 'evenodd' : 'nonzero';
+    if (!o.noKnock) this.knock(path, rule);
+    if (tone) this.inkFill(path, tone, rule);
+    return path;
+  }
+  /* trait effilé à la main : épaisseur modulée, pointes fines */
+  line(pts, w = 1.2, o = {}) {
+    if (w * this.s < 0.18) return;
+    const q = this.prep(pts, !!o.closed, o.step || 5); if (o.closed) { q.push(q[0], q[1] || q[0]); }
+    const n = q.length; if (n < 2) return;
+    const cum = [0]; for (let i = 1; i < n; i++) cum.push(cum[i - 1] + Math.hypot(q[i][0] - q[i - 1][0], q[i][1] - q[i - 1][1]));
+    const tot = cum[n - 1] || 1, sd = (this.vr() * 1000) | 0, Lp = [], Rp = [];
+    const tp = o.taper === undefined ? 1 : o.taper;
+    for (let i = 0; i < n; i++) {
+      const a = q[Math.max(0, i - 1)], b = q[Math.min(n - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1;
+      const t = cum[i] / tot, tw = (1 - tp) + tp * (0.18 + 0.82 * Math.pow(Math.sin(Math.PI * t), 0.45));
+      const hw = w * 0.5 * tw * (0.78 + 0.44 * vn(cum[i] * 0.045, 0.5, sd));
+      Lp.push([q[i][0] - dy / d * hw, q[i][1] + dx / d * hw]); Rp.push([q[i][0] + dy / d * hw, q[i][1] - dx / d * hw]);
+    }
+    const p = new Path2D(); p.moveTo(Lp[0][0], Lp[0][1]);
+    for (let i = 1; i < n; i++) p.lineTo(Lp[i][0], Lp[i][1]);
+    for (let i = n - 1; i >= 0; i--) p.lineTo(Rp[i][0], Rp[i][1]);
+    p.closePath();
+    const ink = o.ink === undefined ? 3 : o.ink;
+    if (!(this.mask & (1 << ink))) return;
+    const c = this.ctx, r = INKS[ink].reg; c.globalCompositeOperation = 'multiply'; c.translate(r[0], r[1]);
+    c.fillStyle = this.pats[ink][o.lvl || 10]; c.fill(p); c.translate(-r[0], -r[1]); c.globalCompositeOperation = 'source-over';
+  }
+  outline(pts, w = 1.2, o = {}) {
+    const n = pts.length; if (n < 2) return;
+    const st = (this.vr() * n) | 0, seq = [];
+    for (let i = 0; i <= n; i++) seq.push(pts[(st + i) % n]);
+    const a = seq[n], b = pts[(st + 1) % n]; seq.push([a[0] + (b[0] - a[0]) * 0.3, a[1] + (b[1] - a[1]) * 0.3]);
+    this.line(seq, w, o);
+  }
+  shape(pts, tone, w = 1.2, o = {}) { this.fill(pts, tone, o); if (w > 0) this.outline(pts, w, o); }
+  /* ---- primitives isométriques ---- */
+  box(x, y, z, w, d, h, tn, lw = 1.2) {
+    const I = (a, b, c) => this.I(a, b, c); tn = typeof tn === 'string' || Array.isArray(tn) ? { t: tn, l: tadd(tn, 'k1'), r: tadd(tn, 'k2b1') } : tn;
+    this.shape([I(x, y + d, z + h), I(x + w, y + d, z + h), I(x + w, y + d, z), I(x, y + d, z)], tn.l, lw);
+    this.shape([I(x + w, y, z + h), I(x + w, y + d, z + h), I(x + w, y + d, z), I(x + w, y, z)], tn.r, lw);
+    this.shape([I(x, y, z + h), I(x + w, y, z + h), I(x + w, y + d, z + h), I(x, y + d, z + h)], tn.t, lw);
+  }
+  ell(x, y, z, rx, ry, n = 22, a0 = 0, a1 = TAU) { const o = []; for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; o.push(this.I(x + Math.cos(a) * rx, y + Math.sin(a) * (ry || rx), z)); } return o; }
+  cyl(x, y, z, r, h, tn, lw = 1.1, n = 18) {
+    tn = typeof tn === 'string' || Array.isArray(tn) ? { t: tn, s: tadd(tn, 'k1'), d: tadd(tn, 'k2b1') } : tn;
+    const A = -Math.PI / 4, B = 3 * Math.PI / 4, M = Math.PI / 4;
+    const side = (a0, a1) => { const bot = this.ell(x, y, z, r, r, n / 2, a0, a1), top = this.ell(x, y, z + h, r, r, n / 2, a1, a0); return bot.concat(top); };
+    this.shape(side(M, B), tn.s, lw); this.shape(side(A, M), tn.d, lw);
+    this.shape(this.ell(x, y, z + h, r, r, n), tn.t, lw);
+  }
+  disc(cx, cy, r, n = 24) { const o = []; for (let i = 0; i < n; i++) { const a = i / n * TAU; o.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); } return o; }
+  /* lumière = encre : anneaux concentriques en paliers, jamais de dégradé */
+  halo(cx, cy, r, tones, o = {}) {
+    const n = tones.length, sq = o.sq || 1;
+    if (o.knock) this.fill(this.disc(cx, cy, r, 40).map(p => [p[0], cy + (p[1] - cy) * sq]), null);
+    for (let i = 0; i < n; i++) {
+      const r0 = r * (1 - i / n), r1 = r * (1 - (i + 1) / n);
+      const rings = [this.disc(cx, cy, r0, 40).map(p => [p[0], cy + (p[1] - cy) * sq])];
+      if (r1 > 0.5 && i < n - 1) rings.push(this.disc(cx, cy, r1, 40).map(p => [p[0], cy + (p[1] - cy) * sq]));
+      this.fill(rings, tones[i], { rings: true, noKnock: true });
+    }
+  }
+}
+
+/* ---------- Bibliothèque de décors ---------- */
+const Lib = {
+  platform(P, top, faces, o = {}) {
+    const L = P.L, h = o.h || 60, I = (a, b, c) => P.I(a, b, c);
+    const strata = o.strata || [[0, 0.35, faces], [0.35, 0.7, tadd(faces, 'k1')], [0.7, 1, tadd(faces, 'r1k2')]];
+    const faceBand = (side) => {
+      for (const [f0, f1, tn] of strata) {
+        const top = [], bot = [], N = 12;
+        for (let i = 0; i <= N; i++) {
+          const u = i / N * L, w0 = f0 === 0 ? 0 : Math.sin(u * 0.05 + f0 * 9) * 4, w1 = f1 === 1 ? 0 : Math.sin(u * 0.05 + f1 * 9) * 4;
+          top.push(side ? I(L, u, -h * f0 + w0) : I(u, L, -h * f0 + w0));
+          bot.push(side ? I(L, u, -h * f1 + w1) : I(u, L, -h * f1 + w1));
+        }
+        const tn2 = side ? tadd(tn, 'k1b1') : tn;
+        P.fill(top.concat(bot.reverse()), tn2);
+      }
+      const c = side ? [I(L, 0, 0), I(L, L, 0), I(L, L, -h), I(L, 0, -h)] : [I(0, L, 0), I(L, L, 0), I(L, L, -h), I(0, L, -h)];
+      P.outline(c, 1.3);
+      if (o.pebbles !== false) for (let i = 0; i < 16; i++) { const u = P.r() * L, zz = -h * (0.2 + P.r() * 0.7), rr = 1.5 + P.r() * 3; const c0 = side ? I(L, u, zz) : I(u, L, zz); P.shape(P.disc(c0[0], c0[1], rr, 8), tadd(faces, 'k3'), 0.6); }
+    };
+    faceBand(0); faceBand(1);
+    const tp = [I(0, 0, 0), I(L, 0, 0), I(L, L, 0), I(0, L, 0)];
+    P.shape(tp, top, 1.3);
+  },
+  walls(P, tn, o = {}) {
+    const L = P.L, H = o.h || 300, th = 16, I = (a, b, c) => P.I(a, b, c);
+    const wl = typeof tn === 'string' ? { l: tn, r: tadd(tn, 'k1'), cut: 'r3y4k2' } : tn;
+    P.shape([I(0, 0, 0), I(0, L, 0), I(0, L, H), I(0, 0, H)], wl.l, 1.3);
+    P.shape([I(0, 0, 0), I(L, 0, 0), I(L, 0, H), I(0, 0, H)], wl.r, 1.3);
+    P.shape([I(-th, -th, H), I(L, -th, H), I(L, 0, H), I(0, 0, H), I(0, L, H), I(-th, L, H)], wl.cut, 1.1);
+    P.shape([I(-th, L, 0), I(0, L, 0), I(0, L, H), I(-th, L, H)], tadd(wl.cut, 'k1'), 1.1);
+    P.shape([I(L, -th, 0), I(L, 0, 0), I(L, 0, H), I(L, -th, H)], tadd(wl.cut, 'k2'), 1.1);
+    // assises de pierre visibles dans la coupe
+    for (let z = 22; z < H; z += 22) { P.line([I(-th, L, z), I(0, L, z)], 0.6); P.line([I(L, -th, z), I(L, 0, z)], 0.6); }
+  },
+  wallL(P, y, z, w, h, tn, lw = 1) { const I = (a, b, c) => P.I(a, b, c); P.shape([I(0.5, y, z), I(0.5, y + w, z), I(0.5, y + w, z + h), I(0.5, y, z + h)], tn, lw); },
+  wallR(P, x, z, w, h, tn, lw = 1) { const I = (a, b, c) => P.I(a, b, c); P.shape([I(x, 0.5, z), I(x + w, 0.5, z), I(x + w, 0.5, z + h), I(x, 0.5, z + h)], tn, lw); },
+  archR(P, x, z, w, h, tn, lw = 1) { const I = (a, b, c) => P.I(a, b, c), pts = [I(x, 0.5, z)]; for (let i = 0; i <= 10; i++) { const a = Math.PI - Math.PI * i / 10; pts.push(I(x + w / 2 + Math.cos(a) * w / 2, 0.5, z + h - w / 2 + Math.sin(a) * w / 2)); } pts.push(I(x + w, 0.5, z)); P.shape(pts, tn, lw); },
+  archL(P, y, z, w, h, tn, lw = 1) { const I = (a, b, c) => P.I(a, b, c), pts = [I(0.5, y, z)]; for (let i = 0; i <= 10; i++) { const a = Math.PI - Math.PI * i / 10; pts.push(I(0.5, y + w / 2 + Math.cos(a) * w / 2, z + h - w / 2 + Math.sin(a) * w / 2)); } pts.push(I(0.5, y + w, z)); P.shape(pts, tn, lw); },
+  grass(P, n, tn = 'y5b4', area) {
+    const L = P.L;
+    for (let i = 0; i < n; i++) {
+      const x = area ? area[0] + P.r() * area[2] : 10 + P.r() * (L - 20), y = area ? area[1] + P.r() * area[3] : 10 + P.r() * (L - 20);
+      const b = P.I(x, y, 0), hh = 5 + P.r() * 7;
+      P.line([[b[0] - 3, b[1]], [b[0] - 4, b[1] - hh * 0.8]], 0.7, { ink: 2 });
+      P.line([[b[0], b[1]], [b[0] + 1, b[1] - hh]], 0.7, { ink: 2 });
+      P.line([[b[0] + 3, b[1]], [b[0] + 5, b[1] - hh * 0.7]], 0.7, { ink: 3 });
+    }
+  },
+  stones(P, n, tn, area) {
+    for (let i = 0; i < n; i++) {
+      const x = area[0] + P.r() * area[2], y = area[1] + P.r() * area[3], c = P.I(x, y, 0), r = 3 + P.r() * 6;
+      const pts = []; for (let k = 0; k < 7; k++) { const a = Math.PI + Math.PI * k / 6; pts.push([c[0] + Math.cos(a) * r * 1.3, c[1] + Math.sin(a) * r * (0.9 + P.r() * 0.3)]); }
+      pts.push([c[0] + r * 1.2, c[1] + r * 0.25], [c[0] - r * 1.2, c[1] + r * 0.25]);
+      P.shape(pts, tn, 0.8);
+    }
+  },
+  rock(P, x, y, z, w, h, tn, lw = 1.2) {
+    const c = P.I(x, y, z), pts = [], n = 9;
+    for (let i = 0; i <= n; i++) { const a = Math.PI + Math.PI * i / n; const rr = 0.8 + P.r() * 0.35; pts.push([c[0] + Math.cos(a) * w * rr, c[1] + Math.sin(a) * h * rr]); }
+    pts.push([c[0] + w * 0.9, c[1] + h * 0.22], [c[0] - w * 0.9, c[1] + h * 0.22]);
+    P.shape(pts, tn, lw);
+    P.fill([[c[0] + w * 0.1, c[1] - h * 0.8], [c[0] + w * 0.9, c[1] - h * 0.1], [c[0] + w * 0.9, c[1] + h * 0.2], [c[0] + w * 0.2, c[1] + h * 0.2]], tadd(tn, 'k2'), { noKnock: false });
+    P.line([[c[0] + w * 0.1, c[1] - h * 0.75], [c[0] + w * 0.25, c[1] + h * 0.15]], 0.7);
+  },
+  /* colline / montagne : silhouette en masse, deux flancs ombrés, strates */
+  mound(P, x, y, r, hgt, tn, o = {}) {
+    const b = P.I(x, y, 0), pk = [b[0] + (o.px || 0), b[1] - hgt], rx = r * 1.22, ry = r * 0.61, n = 14, conc = o.conc || 1.35;
+    const side = (s) => { const out = []; for (let i = 0; i <= n; i++) { const t = i / n, prof = Math.pow(1 - t, conc), jit = i === 0 || i === n ? 0 : (P.r() - .4) * hgt * 0.09 * Math.sin(t * Math.PI); out.push([lerp(pk[0], b[0] + s * rx, t) + Math.sin(t * 9 + s) * rx * 0.03, b[1] - hgt * prof + jit]); } return out; };
+    const L = side(-1), R = side(1);
+    for (const Q of [L, R]) for (let i = 1; i < n; i++) Q[i][1] = Math.min(Q[i][1], b[1] - 4);
+    const front = []; for (let i = 0; i <= 12; i++) { const a = Math.PI - Math.PI * i / 12; front.push([b[0] + Math.cos(a) * rx, b[1] + Math.sin(a) * ry]); }
+    const whole = L.concat(front.slice(1, -1), R.slice().reverse());
+    P.fill(whole, tn);
+    // flanc droit à l'ombre, arêtes et ravines
+    const ridge = [pk]; for (let i = 1; i <= 6; i++) { const t = i / 6; ridge.push([lerp(pk[0], b[0] + rx * 0.12, t) + (P.r() - .5) * 18, lerp(pk[1], b[1] + ry, t)]); }
+    P.fill(ridge.concat([[b[0] + rx * 0.7, b[1] + ry * 0.7]], R.slice(1).reverse()), tadd(tn, o.shade || 'k2b1'), { noKnock: true });
+    P.line(ridge, 1);
+    for (let k = 0; k < 7; k++) { const t0 = 0.15 + P.r() * 0.6, sgn = P.r() > .5 ? 1 : -1, sx = lerp(pk[0], b[0] + sgn * rx * 0.5, t0), sy = lerp(pk[1], b[1], t0); P.line([[sx, sy], [sx + sgn * 10 + (P.r() - .5) * 10, sy + 18 + P.r() * 16], [sx + sgn * 16, sy + 34 + P.r() * 20]], 0.7); }
+    for (let k = 0; k < 5; k++) { const t0 = 0.3 + P.r() * 0.6, sgn = P.r() > .5 ? 1 : -1, sx = lerp(pk[0], b[0] + sgn * rx * 0.75, t0), sy = lerp(pk[1], b[1], t0) + 4; P.line([[sx - 12, sy], [sx + 12, sy + 3]], 0.9); }
+    P.outline(whole, 1.4);
+    return { peak: pk, base: b };
+  },
+  tree(P, x, y, z, o = {}) {
+    const b = P.I(x, y, z), h = o.h || 150, tr = o.trunk || 'r4y5k4', can = o.can || 'y5b5';
+    P.shape([[b[0] - 7, b[1]], [b[0] - 4, b[1] - h * 0.45], [b[0] - 18, b[1] - h * 0.7], [b[0] - 14, b[1] - h * 0.72], [b[0] + 1, b[1] - h * 0.55], [b[0] + 14, b[1] - h * 0.75], [b[0] + 17, b[1] - h * 0.72], [b[0] + 5, b[1] - h * 0.45], [b[0] + 8, b[1]]], tr, 1.1);
+    const blobs = o.blobs || 7, R = o.r || 42;
+    for (let i = 0; i < blobs; i++) {
+      const a = i / blobs * TAU + P.r(), cx = b[0] + Math.cos(a) * R * 0.75, cy = b[1] - h * 0.78 + Math.sin(a) * R * 0.45, rr = R * (0.5 + P.r() * 0.25);
+      P.shape(Lib.bumpy(P, cx, cy, rr, rr * 0.8, 9), i % 2 ? can : tadd(can, 'k1b1'), 1);
+    }
+    P.shape(Lib.bumpy(P, b[0], b[1] - h * 0.86, R * 0.75, R * 0.55, 10), tadd(can, 'y1'), 1);
+    if (o.fruit) for (let i = 0; i < o.fruit; i++) { const cx = b[0] + (P.r() - .5) * R * 2.2, cy = b[1] - h * 0.8 + (P.r() - .5) * R * 1.1; P.shape(P.disc(cx, cy, 4.2, 10), o.fruitTone || 'r8y4', 0.7); }
+    return [b[0], b[1] - h * 0.8];
+  },
+  bumpy(P, cx, cy, rx, ry, n) { const o = []; for (let i = 0; i < n; i++) { const a0 = i / n * TAU, a1 = (i + 1) / n * TAU; for (let k = 0; k < 4; k++) { const a = lerp(a0, a1, k / 4), bump = 1 + Math.sin(k / 4 * Math.PI) * 0.18; o.push([cx + Math.cos(a) * rx * bump, cy + Math.sin(a) * ry * bump]); } } return o; },
+  palm(P, x, y, z, h = 170, o = {}) {
+    const b = P.I(x, y, z), lean = o.lean || 18, top = [b[0] + lean, b[1] - h];
+    const seg = 9, L = [], R = [];
+    for (let i = 0; i <= seg; i++) { const t = i / seg, cx = b[0] + lean * t * t, cy = b[1] - h * t, w = lerp(6, 3.5, t); L.push([cx - w, cy]); R.push([cx + w, cy]); }
+    P.shape(L.concat(R.reverse()), 'r4y5k4', 1);
+    for (let i = 1; i < seg; i++) { const t = i / seg, cx = b[0] + lean * t * t, cy = b[1] - h * t; P.line([[cx - 5, cy + 2], [cx + 5, cy - 1]], 0.6); }
+    for (let i = 0; i < 8; i++) {
+      const a = -Math.PI / 2 + (i - 3.5) * 0.42, len = 62 + (i % 2) * 14, droop = 26;
+      const tip = [top[0] + Math.cos(a) * len, top[1] + Math.sin(a) * len * 0.5 + droop], mid = [top[0] + Math.cos(a) * len * 0.5, top[1] + Math.sin(a) * len * 0.35 - 6];
+      const nx = -(tip[1] - top[1]) / len * 7, ny = (tip[0] - top[0]) / len * 7;
+      P.shape([top, [mid[0] + nx, mid[1] + ny], tip, [mid[0] - nx, mid[1] - ny]], i % 2 ? 'y6b5' : 'y5b6k1', 0.9);
+      P.line([top, mid, tip], 0.6);
+    }
+    if (o.dates) for (let i = 0; i < 5; i++) P.shape(P.disc(top[0] - 8 + i * 4, top[1] + 8 + (i % 2) * 4, 3, 8), 'r6y6k2', 0.5);
+  },
+  bush(P, x, y, z, r, tn = 'y5b5k1') { const b = P.I(x, y, z); P.shape(Lib.bumpy(P, b[0], b[1] - r * 0.55, r, r * 0.65, 8), tn, 1); P.line([[b[0] - r * 0.3, b[1] - r * 0.4], [b[0] - r * 0.05, b[1] - r * 0.7]], 0.6); },
+  cloud(P, cx, cy, w, h, tn = 'b2', o = {}) {
+    const n = o.n || Math.max(3, Math.round(w / h * 1.3)), sd = (cx * 7 + cy * 13) | 0;
+    const puffs = [];
+    for (let i = 0; i < n; i++) { const u = n === 1 ? .5 : i / (n - 1), r = h * (0.42 + 0.5 * Math.sin(Math.PI * (0.15 + u * 0.7))) * (0.85 + 0.3 * h2(i, 3, sd)); puffs.push([cx - w / 2 + r * 0.8 + u * (w - r * 1.6), cy - r * 0.35, r, 0]); }
+    for (let i = 0; i < n - 1; i++) { const r = h * (0.3 + 0.2 * h2(i, 5, sd)); puffs.push([(puffs[i][0] + puffs[i + 1][0]) / 2, cy - r * 0.1, r, 1]); }
+    puffs.sort((p, q) => q[2] - p[2] + (p[3] - q[3]) * 100);
+    for (const [x, y, r, f] of puffs) {
+      const pts = []; for (let k = 0; k < 20; k++) { const a = k / 20 * TAU; pts.push([x + Math.cos(a) * r, Math.min(cy, y + Math.sin(a) * r)]); }
+      P.shape(pts, f ? tn : tadd(tn, 'b1'), 0.9, o);
+      if (!o.noShade) P.fill(pts.map(p => [p[0], Math.max(p[1], cy - r * 0.35)]), tadd(tn, 'b1k1'), { noKnock: true });
+    }
+  },
+  star(P, x, y, r, tn = 'y7') { P.fill([[x, y - r], [x + r * 0.22, y - r * 0.22], [x + r, y], [x + r * 0.22, y + r * 0.22], [x, y + r], [x - r * 0.22, y + r * 0.22], [x - r, y], [x - r * 0.22, y - r * 0.22]], tn, { noKnock: true }); },
+  flame(P, x, y, w, h, ph, o = {}) {
+    const tones = o.tones || ['r7y9', 'r4y10', 'y9'], n = tones.length;
+    for (let k = 0; k < n; k++) {
+      const s = 1 - k * 0.28, pts = [];
+      for (let i = 0; i <= 14; i++) {
+        const t = i / 14, a = Math.PI * t, ww = Math.sin(a) * w * s * 0.5 * (1 + 0.35 * Math.sin(t * 9 + ph * 5 + k)), hh = h * s;
+        const flick = Math.sin(t * 13 + ph * 7 + k * 2) * 0.12 * hh * (1 - Math.abs(t - .5) * 2);
+        pts.push([x + Math.cos(a) * w * s * 0.5, y - Math.pow(Math.sin(a), 0.5) * hh * (0.55 + 0.45 * Math.sin(t * 5 + ph * 3 + k)) - flick]);
+      }
+      P.shape(pts, tones[k], k === 0 ? 0.9 : 0, { noKnock: !!o.noKnock });
+    }
+  },
+  waves(P, area, n, z = 0, ink = 2) {
+    for (let i = 0; i < n; i++) { const x = area[0] + P.r() * area[2], y = area[1] + P.r() * area[3], c = P.I(x, y, z); P.line([[c[0] - 9, c[1] + 1], [c[0] - 4, c[1] - 2.5], [c[0], c[1]], [c[0] + 5, c[1] - 2.5], [c[0] + 9, c[1] + 1]], 0.8, { ink }); }
+  },
+  tent(P, x, y, w, d, h, tn) {
+    const I = (a, b, c) => P.I(a, b, c);
+    P.shape([I(x, y + d, 0), I(x + w, y + d, 0), I(x + w, y + d / 2, h), I(x, y + d / 2, h)], tn, 1.1);
+    P.shape([I(x + w, y, 0), I(x + w, y + d, 0), I(x + w, y + d / 2, h)], tadd(tn, 'k2'), 1.1);
+    P.shape([I(x + w * 0.7, y + d, 0), I(x + w * 0.85, y + d * 0.93, h * 0.2), I(x + w, y + d * 0.93, h * 0.12), I(x + w, y + d, 0)], tadd(tn, 'k5'), 0.7);
+    for (let i = 1; i < 4; i++) P.line([I(x + w * i / 4, y + d, 0), I(x + w * i / 4, y + d / 2, h)], 0.55);
+    for (let i = 0; i < 2; i++) { const s = i ? I(x + w, y + d, 0) : I(x, y + d, 0), e = i ? I(x + w + 30, y + d + 10, 0) : I(x - 25, y + d + 12, 0); P.line([s, e], 0.5); }
+  },
+  jar(P, x, y, z, s = 1, tn = 'r5y6k1') { const b = P.I(x, y, z); P.shape([[b[0] - 5 * s, b[1]], [b[0] - 9 * s, b[1] - 10 * s], [b[0] - 7 * s, b[1] - 18 * s], [b[0] - 3 * s, b[1] - 21 * s], [b[0] - 4 * s, b[1] - 25 * s], [b[0] + 4 * s, b[1] - 25 * s], [b[0] + 3 * s, b[1] - 21 * s], [b[0] + 7 * s, b[1] - 18 * s], [b[0] + 9 * s, b[1] - 10 * s], [b[0] + 5 * s, b[1]]], tn, 0.9); P.line([[b[0] - 8 * s, b[1] - 13 * s], [b[0] + 8 * s, b[1] - 13 * s]], 0.5, { ink: 1 }); },
+  lamp(P, x, y, z, big = 1) { const b = P.I(x, y, z); P.halo(b[0], b[1] - 6, 40 * big, ['y2', 'y3', 'y4r1', 'y6r2']); P.shape([[b[0] - 8, b[1]], [b[0] + 8, b[1]], [b[0] + 5, b[1] - 5], [b[0] - 6, b[1] - 5]], 'r5y6k2', 0.8); Lib.flame(P, b[0] + 2, b[1] - 5, 6, 12, 0); },
+  sun(P, x, y, r) { P.halo(x, y, r * 2.6, ['y1', 'y2', 'y3r1', 'y4r1']); P.shape(P.disc(x, y, r, 30), 'y8r3', 1.2); },
+  moon(P, x, y, r) { P.halo(x, y, r * 3, ['b1', 'b2', 'b2y1', 'b3y1']); P.shape(P.disc(x, y, r, 30), 'y4', 1.1); P.fill(P.disc(x - r * 0.3, y + r * 0.2, r * 0.25, 12), 'y5k1', { noKnock: true }); P.fill(P.disc(x + r * 0.3, y - r * 0.3, r * 0.15, 10), 'y5k1', { noKnock: true }); },
+  rainbow(P, cx, cy, r, bw) { const tones = ['r7', 'r6y6', 'y7', 'y6b5', 'b7', 'b6r4']; tones.forEach((t, i) => { const r0 = r - i * bw, r1 = r0 - bw, pts = []; for (let k = 0; k <= 30; k++) { const a = Math.PI + Math.PI * k / 30; pts.push([cx + Math.cos(a) * r0, cy + Math.sin(a) * r0]); } for (let k = 30; k >= 0; k--) { const a = Math.PI + Math.PI * k / 30; pts.push([cx + Math.cos(a) * r1, cy + Math.sin(a) * r1]); } P.fill(pts, t, { noKnock: true }); }); },
+  bird(P, x, y, s, ph, tn = 'k1') {
+    const f = Math.sin(ph * TAU);
+    P.shape([[x - 7 * s, y], [x, y - 2 * s], [x + 8 * s, y - 1 * s], [x + 11 * s, y - 3 * s], [x + 9 * s, y + 1 * s], [x, y + 3 * s], [x - 9 * s, y + 3 * s]], tn, 0.6);
+    P.shape([[x - 2 * s, y - 1 * s], [x - 8 * s, y - 14 * s * f], [x + 4 * s, y - 1 * s]], tadd(tn, 'k1'), 0.6);
+  }
+};
+
+/* ============================================================
+   FIGURES : squelette unique, clips en keyframes, volumes effilés,
+   costumes d'époque, visages ; animaux
+   ============================================================ */
+const CLIPS = {
+  idle: { d: 3.4, k: [{ lean: 2, nU: 5, nL: 14, fU: -4, fL: 12, head: -3, nT: 3, fT: -3 }, { lean: 0, nU: 2, nL: 10, fU: -2, fL: 16, head: 2, nT: 3, fT: -3 }] },
+  walk: { d: 1, k: [
+    { nT: 24, nK: -4, fT: -20, fK: -12, nU: -18, nL: 14, fU: 20, fL: 22, lean: 4 },
+    { nT: 4, nK: -6, fT: 14, fK: -55, nU: 0, nL: 10, fU: 0, fL: 12, lean: 3 },
+    { nT: -20, nK: -12, fT: 24, fK: -4, nU: 20, nL: 22, fU: -18, fL: 14, lean: 4 },
+    { nT: 14, nK: -55, fT: 4, fK: -6, nU: 0, nL: 12, fU: 0, fL: 10, lean: 3 }] },
+  haul: { d: 1.6, k: [{ lean: -24, head: -8, nU: 78, nL: 12, fU: 70, fL: 18, nT: 30, nK: -4, fT: -22, fK: -6 }, { lean: -10, head: -3, nU: 96, nL: 55, fU: 88, fL: 58, nT: 26, nK: -10, fT: -16, fK: -12 }] },
+  sit: { d: 3.2, k: [{ nT: 86, nK: -86, fT: 82, fK: -80, lean: -3, nU: 24, nL: 58, fU: 16, fL: 62, hy: 0.3 }, { nT: 86, nK: -86, fT: 82, fK: -80, lean: 0, head: 5, nU: 20, nL: 62, fU: 14, fL: 66, hy: 0.3 }] },
+  eat: { d: 2.2, k: [{ nT: 86, nK: -86, fT: 82, fK: -80, lean: 6, nU: 38, nL: 55, fU: 30, fL: 70, hy: 0.3 }, { nT: 86, nK: -86, fT: 82, fK: -80, lean: 4, head: -4, nU: 30, nL: 128, fU: 30, fL: 70, hy: 0.3 }] },
+  throne: { d: 3.6, k: [{ nT: 84, nK: -84, fT: 80, fK: -82, lean: -4, nU: 74, nL: 4, fU: 18, fL: 64, head: -2, hy: 0.3 }, { nT: 84, nK: -84, fT: 80, fK: -82, lean: -2, nU: 70, nL: 8, fU: 16, fL: 66, head: 2, hy: 0.3 }] },
+  sleep: { d: 4, k: [{ rot: -90, nT: 10, nK: -18, fT: 4, fK: -8, nU: -12, nL: 40, fU: 170, fL: 50, head: -14, lean: 0 }, { rot: -90, nT: 10, nK: -18, fT: 4, fK: -8, nU: -10, nL: 44, fU: 170, fL: 50, head: -12, lean: 2 }] },
+  bound: { d: 3, k: [{ rot: -90, nT: 55, nK: -95, fT: 50, fK: -92, nU: -40, nL: 70, fU: -45, fL: 70, head: -20 }, { rot: -92, nT: 55, nK: -95, fT: 50, fK: -92, nU: -40, nL: 70, fU: -45, fL: 70, head: -26 }] },
+  pray: { d: 3.2, k: [{ nT: 2, nK: -95, fT: -2, fK: -95, lean: 4, head: -18, nU: 150, nL: 14, fU: 140, fL: 20 }, { nT: 2, nK: -95, fT: -2, fK: -95, lean: 2, head: -24, nU: 162, nL: 8, fU: 152, fL: 14 }] },
+  kneel: { d: 3.6, k: [{ nT: 4, nK: -95, fT: 0, fK: -95, lean: 28, head: 14, nU: 62, nL: 72, fU: 56, fL: 76 }, { nT: 4, nK: -95, fT: 0, fK: -95, lean: 34, head: 18, nU: 60, nL: 76, fU: 54, fL: 80 }] },
+  point: { d: 3, k: [{ lean: 3, head: -3, nU: 88, nL: 2, fU: -4, fL: 14, nT: 10, fT: -8, fK: -4 }, { lean: 2, head: -6, nU: 84, nL: 6, fU: -2, fL: 18, nT: 10, fT: -8, fK: -4 }] },
+  raise: { d: 3, k: [{ nU: 140, nL: 4, fU: 26, fL: 34, lean: -4, head: -12, nT: 14, nK: -2, fT: -12, fK: -4 }, { nU: 152, nL: 2, fU: 30, fL: 30, lean: -6, head: -16, nT: 14, nK: -2, fT: -12, fK: -4 }] },
+  hold2: { d: 3, k: [{ nU: 164, nL: 16, fU: 158, fL: 22, lean: -6, head: -14, nT: 8, fT: -6 }, { nU: 170, nL: 12, fU: 165, fL: 18, lean: -7, head: -18, nT: 8, fT: -6 }] },
+  smash: { d: 2.8, k: [{ nU: 168, nL: 14, fU: 162, fL: 20, lean: -10, head: -12, nT: 16, fT: -14, fK: -4 }, { nU: 175, nL: 30, fU: 170, fL: 34, lean: -14, head: -16, nT: 16, fT: -14, fK: -4 }, { nU: 70, nL: 8, fU: 62, fL: 10, lean: 20, head: 12, nT: 24, nK: -8, fT: -16, fK: -6 }] },
+  dance: { d: 1.2, k: [{ nU: 150, nL: 20, fU: 118, fL: 40, nT: 42, nK: -80, fT: -4, fK: -6, lean: -4, head: -8 }, { nU: 112, nL: 40, fU: 155, fL: 14, nT: -4, nK: -6, fT: 42, fK: -80, lean: 4, head: 6 }] },
+  blow: { d: 2, k: [{ nU: 52, nL: 118, fU: 44, fL: 122, head: -16 }, { nU: 55, nL: 114, fU: 46, fL: 119, head: -13 }] },
+  carry: { d: 2, k: [{ nU: 152, nL: 52, fU: 142, fL: 62 }, { nU: 150, nL: 55, fU: 140, fL: 64 }] },
+  reach: { d: 3.8, k: [{ nU: 150, nL: 12, fU: 10, fL: 20, head: -18, lean: -3, nT: 6, fT: -10 }, { nU: 162, nL: 5, fU: 14, fL: 25, head: -22, lean: -5, nT: 6, fT: -10 }, { nU: 78, nL: 22, fU: 10, fL: 30, head: -2, lean: 2, nT: 6, fT: -10 }] },
+  offer: { d: 3.2, k: [{ nU: 66, nL: 26, fU: 10, fL: 20, lean: 3, nT: 8, fT: -8, head: 2 }, { nU: 74, nL: 20, fU: 8, fL: 24, lean: 4, nT: 8, fT: -8, head: -2 }] },
+  glean: { d: 2.6, k: [{ lean: 64, head: 18, nU: 52, nL: 10, fU: 44, fL: 34, nT: 34, nK: -32, fT: -8, fK: -22 }, { lean: 56, head: 10, nU: 78, nL: 28, fU: 28, fL: 64, nT: 34, nK: -32, fT: -8, fK: -22 }] },
+  reap: { d: 1.4, k: [{ lean: 42, head: 10, nU: 18, nL: 30, fU: 72, fL: 10, nT: 30, nK: -36, fT: -14, fK: -16 }, { lean: 34, head: 4, nU: 104, nL: 40, fU: 42, fL: 22, nT: 30, nK: -36, fT: -14, fK: -16 }] },
+  sling: { d: 0.9, k: [{ nU: 168, nL: 12, fU: 42, fL: 30, lean: -6, head: -6, nT: 22, nK: -6, fT: -20, fK: -8 }, { nU: 176, nL: 22, fU: 46, fL: 26, lean: -8, head: -8, nT: 22, nK: -6, fT: -20, fK: -8 }] },
+  climb: { d: 1.1, k: [{ hy: 0.52, nU: 165, nL: 12, fU: 128, fL: 42, nT: 62, nK: -92, fT: 8, fK: -14, lean: 6, head: -10 }, { hy: 0.52, nU: 128, nL: 42, fU: 165, fL: 12, nT: 8, nK: -14, fT: 62, fK: -92, lean: 6, head: -10 }] },
+  guard: { d: 4, k: [{ nU: 14, nL: 78, fU: -4, fL: 12, nT: 4, fT: -4 }, { nU: 16, nL: 76, fU: -2, fL: 16, nT: 4, fT: -4, lean: 1, head: 3 }] },
+  knife: { d: 2.6, k: [{ nU: 170, nL: 24, fU: 58, fL: 22, lean: 3, head: -10, nT: 18, nK: -4, fT: -14, fK: -6 }, { nU: 164, nL: 36, fU: 56, fL: 28, lean: 5, head: -26, nT: 18, nK: -4, fT: -14, fK: -6 }] },
+  wave: { d: 0.8, k: [{ nU: 72, nL: 40, fU: 60, fL: 52, head: -2 }, { nU: 88, nL: 30, fU: 64, fL: 46, head: 0 }] },
+  hover: { d: 2.8, k: [{ nU: 96, nL: 10, fU: 30, fL: 30, nT: 12, nK: -24, fT: -4, fK: -34, lean: 6, head: 4, hy: 0.6 }, { nU: 88, nL: 16, fU: 34, fL: 26, nT: 14, nK: -28, fT: -2, fK: -30, lean: 8, head: 6, hy: 0.66 }] },
+  stagger: { d: 3, k: [{ lean: -2, nU: 15, nL: 72, fU: 30, fL: 40, head: 0, nT: 10, fT: -8 }, { lean: -9, head: -10, nU: 22, nL: 66, fU: 48, fL: 36, nT: 10, fT: -8 }] },
+  talk: { d: 2.4, k: [{ nU: 40, nL: 60, fU: 6, fL: 20, head: -2, nT: 6, fT: -6 }, { nU: 60, nL: 40, fU: 8, fL: 24, head: 2, nT: 6, fT: -6 }] },
+  rest: { d: 4, k: [{ nT: 70, nK: -120, fT: 80, fK: -140, lean: -8, nU: 40, nL: 60, fU: -20, fL: 20, head: -4 }, { nT: 70, nK: -120, fT: 80, fK: -140, lean: -6, nU: 42, nL: 64, fU: -18, fL: 22, head: 2 }] },
+  sink: { d: 3.6, k: [{ nU: 150, nL: 20, fU: 30, fL: 50, lean: -6, head: -20, nT: 6, fT: -4, fK: -8 }, { nU: 140, nL: 30, fU: 40, fL: 40, lean: -4, head: -14, nT: 6, fT: -4, fK: -8 }] }
+};
+function samplePose(name, ph) {
+  const c = CLIPS[name] || CLIPS.idle, k = c.k, n = k.length;
+  ph = ((ph % 1) + 1) % 1;
+  const f = ph * n, i = Math.floor(f) % n, u = f - Math.floor(f), e = (1 - Math.cos(Math.PI * u)) / 2, a = k[i], b = k[(i + 1) % n], o = {};
+  for (const key in a) { const va = a[key], vb = b[key] !== undefined ? b[key] : va; o[key] = va + (vb - va) * e; }
+  for (const key in b) if (a[key] === undefined) o[key] = b[key];
+  return o;
+}
+function rig(p) {
+  const S = Math.sin, C = Math.cos, lean = (p.lean || 0) * DEG, hd = lean + (p.head || 0) * DEG;
+  const dn = a => [S(a), C(a)], add = (o, d, l) => [o[0] + d[0] * l, o[1] + d[1] * l];
+  const up = [S(lean), -C(lean)], fw = [C(lean), S(lean)];
+  const hip = [0, 0], neck = add(hip, up, 0.3), sh = add(hip, up, 0.262);
+  const head = add(add(neck, [S(hd), -C(hd)], 0.07), [C(hd), S(hd)], 0.008);
+  const arm = (u, l, o) => { const a = lean + u * DEG, e = add(o, dn(a), 0.18), b = a + l * DEG, w = add(e, dn(b), 0.16), t = add(w, dn(b), 0.062); return { s: o, e, w, t }; };
+  const leg = (t, k, o) => { const a = t * DEG, kn = add(o, dn(a), 0.245), b = a + k * DEG, an = add(kn, dn(b), 0.24), pf = [C(b), -S(b)], toe = add(add(an, pf, 0.078), dn(b), 0.026), heel = add(add(an, pf, -0.026), dn(b), 0.024); return { h: o, k: kn, a: an, toe, heel }; };
+  const shF = add(sh, fw, -0.036), hipF = add(hip, fw, -0.03);
+  const J = { hip, neck, sh, head, aN: arm(p.nU || 0, p.nL || 0, sh), aF: arm(p.fU || 0, p.fL || 0, shF), lN: leg(p.nT || 0, p.nK || 0, [hip[0], hip[1]]), lF: leg(p.fT || 0, p.fK || 0, hipF) };
+  const set = new Set([J.hip, J.neck, J.sh, J.head]);
+  for (const g of [J.aN, J.aF, J.lN, J.lF]) for (const k in g) set.add(g[k]);
+  if (p.rot) { const r = p.rot * DEG, c = C(r), s = S(r); for (const q of set) { const x = q[0], y = q[1]; q[0] = x * c - y * s; q[1] = x * s + y * c; } }
+  let dy;
+  if (p.hy !== undefined) dy = -p.hy - J.hip[1];
+  else {
+    let m = -1e9; const c = (q, r) => { if (q[1] + r > m) m = q[1] + r; };
+    for (const L of [J.lN, J.lF]) { c(L.toe, 0); c(L.heel, 0.004); c(L.k, 0.035); c(L.a, 0.02); }
+    c(J.hip, 0.07); c(J.sh, 0.06); c(J.head, 0.068); c(J.aN.t, 0.01); c(J.aF.t, 0.01); dy = -m;
+  }
+  for (const q of set) q[1] += dy;
+  const un = (a, b) => { const x = b[0] - a[0], y = b[1] - a[1], l = Math.hypot(x, y) || 1; return [x / l, y / l]; };
+  J.up = un(J.hip, J.neck); J.fw = [-J.up[1], J.up[0]]; J.hu = un(J.neck, J.head); J.hf = [-J.hu[1], J.hu[0]];
+  return J;
+}
+function limbPoly(pts, rads) {
+  const n = pts.length, L = [], R = [], o = [];
+  for (let i = 0; i < n; i++) { const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1, nx = -dy / d, ny = dx / d, r = rads[i]; L.push([pts[i][0] + nx * r, pts[i][1] + ny * r]); R.push([pts[i][0] - nx * r, pts[i][1] - ny * r]); }
+  const cap = (c, from, r, tip) => { const a0 = Math.atan2(from[1] - c[1], from[0] - c[0]), at = Math.atan2(tip[1], tip[0]); let dd = a0 + Math.PI / 2 - at; dd = Math.atan2(Math.sin(dd), Math.cos(dd)); const dir = Math.abs(dd) < Math.PI / 2 ? 1 : -1; for (let k = 1; k < 6; k++) { const a = a0 + dir * Math.PI * k / 6; o.push([c[0] + Math.cos(a) * r, c[1] + Math.sin(a) * r]); } };
+  for (const p of L) o.push(p);
+  cap(pts[n - 1], L[n - 1], rads[n - 1], [pts[n - 1][0] - pts[n - 2][0], pts[n - 1][1] - pts[n - 2][1]]);
+  for (let i = n - 1; i >= 0; i--) o.push(R[i]);
+  cap(pts[0], R[0], rads[0], [pts[0][0] - pts[1][0], pts[0][1] - pts[1][1]]);
+  return o;
+}
+function caps(a, b, ra, rb, n = 5) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1e-6, ux = dx / L, uy = dy / L, nx = -uy, ny = ux, o = [];
+  for (let i = 0; i <= n; i++) { const t = Math.PI / 2 - Math.PI * i / n, c = Math.cos(t), s = Math.sin(t); o.push([b[0] + (ux * c + nx * s) * rb, b[1] + (uy * c + ny * s) * rb]); }
+  for (let i = 0; i <= n; i++) { const t = -Math.PI / 2 - Math.PI * i / n, c = Math.cos(t), s = Math.sin(t); o.push([a[0] + (ux * c + nx * s) * ra, a[1] + (uy * c + ny * s) * ra]); }
+  return o;
+}
+const HEADS = {
+  m: [[0, -0.075], [0.035, -0.068], [0.056, -0.035], [0.061, -0.014], [0.058, -0.004], [0.074, 0.014], [0.06, 0.021], [0.062, 0.029], [0.057, 0.035], [0.06, 0.041], [0.052, 0.058], [0.032, 0.068], [0.004, 0.058], [-0.028, 0.036], [-0.056, 0.004], [-0.054, -0.04], [-0.028, -0.068]],
+  f: [[0, -0.072], [0.034, -0.065], [0.054, -0.034], [0.058, -0.014], [0.056, -0.004], [0.068, 0.013], [0.057, 0.02], [0.059, 0.028], [0.054, 0.034], [0.057, 0.04], [0.047, 0.056], [0.028, 0.064], [0.004, 0.054], [-0.026, 0.034], [-0.053, 0.004], [-0.052, -0.038], [-0.027, -0.066]]
+};
+const HAIR = {
+  short: [[0.05, -0.05], [0.04, -0.072], [0.0, -0.085], [-0.04, -0.071], [-0.063, -0.035], [-0.063, 0.005], [-0.045, 0.032], [-0.022, 0.022], [-0.012, -0.012], [0.01, -0.036], [0.035, -0.046]],
+  curly: [[0.054, -0.048], [0.05, -0.08], [0.02, -0.097], [-0.02, -0.098], [-0.06, -0.08], [-0.078, -0.04], [-0.074, 0.01], [-0.055, 0.04], [-0.026, 0.026], [-0.012, -0.01], [0.012, -0.036], [0.036, -0.04]],
+  long: [[0.05, -0.05], [0.04, -0.075], [0, -0.087], [-0.046, -0.073], [-0.07, -0.03], [-0.078, 0.04], [-0.088, 0.13], [-0.075, 0.23], [-0.04, 0.26], [-0.024, 0.16], [-0.022, 0.06], [-0.012, -0.01], [0.012, -0.036], [0.036, -0.046]],
+  fringe: [[-0.02, -0.06], [-0.05, -0.05], [-0.063, -0.02], [-0.063, 0.01], [-0.045, 0.034], [-0.022, 0.022], [-0.016, -0.02]]
+};
+const BEARD = {
+  short: [[-0.006, 0.016], [0.012, 0.03], [0.03, 0.03], [0.05, 0.031], [0.062, 0.044], [0.056, 0.068], [0.03, 0.084], [0.004, 0.072], [-0.016, 0.044]],
+  long: [[-0.006, 0.016], [0.012, 0.03], [0.03, 0.03], [0.05, 0.031], [0.063, 0.046], [0.062, 0.08], [0.05, 0.12], [0.034, 0.165], [0.016, 0.18], [0.004, 0.13], [-0.01, 0.08], [-0.018, 0.044]],
+  full: [[-0.008, 0.012], [0.012, 0.03], [0.03, 0.03], [0.05, 0.031], [0.064, 0.046], [0.066, 0.09], [0.058, 0.15], [0.044, 0.21], [0.026, 0.25], [0.01, 0.2], [-0.006, 0.13], [-0.02, 0.06]]
+};
+const HAT = {
+  cloth: [[0.058, -0.028], [0.052, -0.076], [0.0, -0.094], [-0.05, -0.082], [-0.078, -0.03], [-0.088, 0.06], [-0.094, 0.17], [-0.05, 0.2], [-0.036, 0.1], [-0.022, 0.03], [-0.006, -0.02], [0.03, -0.038]],
+  veil: [[0.056, -0.03], [0.05, -0.078], [0.0, -0.095], [-0.05, -0.083], [-0.08, -0.03], [-0.095, 0.08], [-0.11, 0.24], [-0.06, 0.28], [-0.036, 0.14], [-0.022, 0.03], [-0.006, -0.02], [0.03, -0.04]],
+  turban: [[0.06, -0.03], [0.064, -0.08], [0.034, -0.112], [-0.03, -0.118], [-0.072, -0.088], [-0.074, -0.03], [-0.03, -0.034]],
+  crown: [[0.05, -0.058], [0.056, -0.102], [0.041, -0.084], [0.03, -0.116], [0.016, -0.09], [0.0, -0.122], [-0.015, -0.092], [-0.03, -0.116], [-0.042, -0.086], [-0.056, -0.102], [-0.056, -0.054]],
+  tall: [[0.052, -0.058], [0.058, -0.16], [0.042, -0.15], [0.03, -0.178], [0.014, -0.156], [0.0, -0.182], [-0.016, -0.158], [-0.03, -0.18], [-0.046, -0.154], [-0.06, -0.164], [-0.058, -0.056]],
+  helmet: [[0.064, -0.018], [0.062, -0.07], [0.022, -0.1], [-0.04, -0.096], [-0.072, -0.05], [-0.072, 0.028], [-0.034, 0.036], [-0.018, -0.016], [0.034, -0.018]],
+  cap: [[0.054, -0.046], [0.05, -0.08], [0.0, -0.094], [-0.05, -0.08], [-0.064, -0.04], [0.0, -0.05]]
+};
+/* ---- la figure humaine ---- */
+function drawFig(P, F, pose, t) {
+  const J = rig(pose), h = F.h, fc = F.face || 1, b = F.base, lk = F.look, lw = Math.max(0.35, h / 170);
+  const M = q => [b[0] + fc * q[0] * h, b[1] + q[1] * h], Ms = a => a.map(M);
+  const add = (o, d, l) => [o[0] + d[0] * l, o[1] + d[1] * l];
+  const amp0 = P.amp; P.amp = 0.5 * h / 140;
+  const det = P.s * h > 55, fine = P.s * h > 110, HS = lk.child ? 1.4 : 1.12;
+  const skin = lk.skin || 'y5r4', skinD = tadd(skin, 'k1r1'), robe = lk.robe, robeD = robe ? tadd(robe, 'k2') : null;
+  const legT = lk.legs || skin, legD = tadd(legT, 'k1');
+  const up = J.up, fw = J.fw, T_ = (al, ac) => [J.hip[0] + up[0] * al + fw[0] * ac, J.hip[1] + up[1] * al + fw[1] * ac];
+  const H = (x, y) => (x *= HS, y *= HS, [J.head[0] + J.hf[0] * x - J.hu[0] * y, J.head[1] + J.hf[1] * x - J.hu[1] * y]), Hs = a => a.map(p => M(H(p[0], p[1])));
+  const out = F.out = { hN: M(J.aN.t), hF: M(J.aF.t), head: M(J.head), wN: M(J.aN.w), wF: M(J.aF.w) };
+  const sleeve = lk.sleeves || (robe ? 'long' : 'none');
+  // ailes (anges)
+  if (lk.wings) {
+    const root = T_(0.22, -0.06), fl = Math.sin(t * 2.2) * 0.04;
+    for (const s of [0, 1]) {
+      const d = s ? 1 : 0.8, pts = [root, T_(0.38 + fl, -0.12 * d), T_(0.52 + fl, -0.3 * d), T_(0.44 + fl, -0.36 * d), T_(0.3, -0.34 * d), T_(0.16, -0.3 * d), T_(0.06, -0.2 * d), T_(0.1, -0.1)];
+      P.shape(Ms(pts), s ? lk.wings : tadd(lk.wings, 'k1'), lw);
+      if (det) for (let i = 1; i < 5; i++) P.line(Ms([T_(0.16 + i * 0.02, -0.08), T_(0.1 + i * 0.07 + fl, -0.3 * d)]), lw * 0.5);
+    }
+  }
+  if (lk.halo && det) { const c = M(H(0, -0.01)); P.halo(c[0], c[1], h * 0.13, ['y2', 'y4', 'y6r1']); }
+  // manteau (derrière le corps)
+  if (lk.cloak) {
+    const fl = Math.sin(t * 1.7 + (F.x || 0)) * 0.015;
+    const lowB = J.lN.a[1] < J.lF.a[1] ? J.lF : J.lN, hem = add(lowB.k, [0, 1], lk.len === 'knee' ? 0.08 : 0.2);
+    const pts = [T_(0.29, 0.03), T_(0.28, -0.08), T_(0.18, -0.12), [T_(0, -0.13)[0] - 0.03 + fl, T_(0, -0.13)[1]], [Math.min(J.lN.k[0], J.lF.k[0]) - 0.16 + fl, hem[1]], [Math.max(J.lN.k[0], J.lF.k[0]) - 0.02, hem[1] + 0.01], T_(0.02, 0.0), T_(0.2, 0.04)];
+    P.shape(Ms(pts), lk.cloak, lw);
+    if (det) for (let i = 0; i < 3; i++) P.line(Ms([T_(0.2 - i * 0.04, -0.1), [Math.min(J.lN.k[0], J.lF.k[0]) - 0.12 + i * 0.04 + fl, hem[1] - 0.01]]), lw * 0.6);
+  }
+  const limb = (a, bb, ra, rb, tn) => P.shape(Ms(caps(a, bb, ra, rb)), tn, lw);
+  const hand = (A, tn) => { const d = [A.t[0] - A.w[0], A.t[1] - A.w[1]], L = Math.hypot(d[0], d[1]) || 1, u = [d[0] / L, d[1] / L], n = [-u[1], u[0]]; P.shape(Ms([add(A.w, n, 0.02), add(add(A.w, u, 0.045), n, 0.024), add(A.t, n, 0.012), add(A.t, u, 0.008), add(A.t, n, -0.014), add(add(A.w, u, 0.03), n, -0.026), add(A.w, n, -0.019)]), tn, lw * 0.8); };
+  const foot = (Lg, tn) => { const up2 = [(Lg.k[0] - Lg.a[0]) * 0.18, (Lg.k[1] - Lg.a[1]) * 0.18]; P.shape(Ms([Lg.heel, add(Lg.a, up2, 1), [Lg.a[0] + (Lg.toe[0] - Lg.a[0]) * 0.5 + up2[0] * 0.3, Lg.a[1] + (Lg.toe[1] - Lg.a[1]) * 0.5 + up2[1] * 0.3], Lg.toe, [Lg.toe[0], Lg.toe[1] + 0.008], [Lg.heel[0], Lg.heel[1] + 0.01]]), tn, lw * 0.8); };
+  const armDraw = (A, far) => {
+    const bare = far ? skinD : skin, st = sleeve === 'none' ? bare : (far ? robeD || lk.sleeveT : lk.sleeveT || robe);
+    const lp = (a, c, u) => [a[0] + (c[0] - a[0]) * u, a[1] + (c[1] - a[1]) * u];
+    if (sleeve === 'long') P.shape(Ms(limbPoly([A.s, lp(A.s, A.e, .5), A.e, lp(A.e, A.w, .45), A.w], [.04, .036, .031, lk.wide ? .036 : .03, lk.wide ? .046 : .031])), st, lw);
+    else if (sleeve === 'short') { P.shape(Ms(limbPoly([A.s, lp(A.s, A.e, .45), A.e, lp(A.e, A.w, .35), A.w], [.036, .033, .026, .028, .02])), bare, lw); P.shape(Ms(limbPoly([A.s, lp(A.s, A.e, .55)], [.042, .038])), st, lw); }
+    else P.shape(Ms(limbPoly([A.s, lp(A.s, A.e, .45), A.e, lp(A.e, A.w, .35), A.w], [.036, .033, .026, .028, .02])), bare, lw);
+    hand(A, bare);
+  };
+  const legDraw = (Lg, far) => {
+    const tn = far ? legD : legT, lp = (a, c, u) => [a[0] + (c[0] - a[0]) * u, a[1] + (c[1] - a[1]) * u];
+    P.shape(Ms(limbPoly([Lg.h, lp(Lg.h, Lg.k, .45), Lg.k, lp(Lg.k, Lg.a, .3), Lg.a], [.06, .052, .036, .04, .022])), tn, lw);
+    foot(Lg, lk.feet === 'bare' ? (far ? skinD : skin) : lk.feet === 'boot' ? 'k6r2' : 'r5y5k3');
+    if (lk.greaves) P.shape(Ms(limbPoly([lp(Lg.k, Lg.a, .05), lp(Lg.k, Lg.a, .4), lp(Lg.k, Lg.a, .85)], [.04, .043, .028])), lk.greaves, lw);
+    if (lk.feet !== 'bare' && lk.feet !== 'boot' && det) P.line(Ms([lp(Lg.a, Lg.k, .12), lp(Lg.heel, Lg.toe, .55)]), lw * 0.6);
+  };
+  const props = (which) => { const hp = F.hold && F.hold[which]; if (hp) drawProp(P, hp, which === 'n' ? J.aN : J.aF, J, M, h, t, lw, F); };
+  // bras lointain, jambe lointaine
+  props('f'); armDraw(J.aF, true);
+  legDraw(J.lF, true);
+  // torse
+  const torso = [T_(-0.02, -0.085), T_(0.1, -0.078), T_(0.2, -0.09), T_(0.27, -0.078), T_(0.3, -0.03), T_(0.305, 0.03), T_(0.27, 0.07), T_(0.21, lk.fem ? 0.1 : 0.095), T_(0.15, 0.078), T_(0.08, 0.078), T_(-0.02, 0.078), T_(-0.05, 0.03), T_(-0.05, -0.05)];
+  P.shape(Ms(torso), lk.armor || (robe && !lk.skirt ? robe : skin), lw);
+  if (!robe && !lk.armor && det) { P.line(Ms([T_(0.2, 0.08), T_(0.18, 0.02), T_(0.21, -0.01)]), lw * 0.5); P.line(Ms([T_(0.12, 0.05), T_(0.06, 0.05)]), lw * 0.4); }
+  if (lk.armor) { for (let r = 0; r < 5; r++) for (let c = 0; c < 3; c++) { const q = M(T_(0.04 + r * 0.05, -0.05 + c * 0.05 + (r % 2) * 0.02)); if (det) P.line([[q[0] - 2, q[1]], [q[0], q[1] + 2.5 * h / 140], [q[0] + 2, q[1]]], lw * 0.5); } }
+  legDraw(J.lN, false);
+  // robe
+  if (robe) drawRobe(P, J, lk, M, Ms, T_, h, lw, det);
+  if (lk.sash) { P.shape(Ms([T_(0.14, -0.082), T_(0.145, 0.082), T_(0.1, 0.083), T_(0.095, -0.084)]), lk.sash, lw * 0.8); P.shape(Ms([T_(0.12, 0.06), T_(0.02, 0.085), T_(0.0, 0.07), T_(0.1, 0.05)]), lk.sash, lw * 0.6); }
+  // tête
+  limb([J.neck[0] - up[0] * 0.02, J.neck[1] - up[1] * 0.02], [J.neck[0] * 0.4 + J.head[0] * 0.6, J.neck[1] * 0.4 + J.head[1] * 0.6], 0.027, 0.025, skin);
+  const hb = HAT[lk.head];
+  if (hb && (lk.head === 'cloth' || lk.head === 'veil')) { /* tissu tombant derrière */ P.shape(Hs(hb), lk.ht || 'y2', lw); }
+  else if (lk.hs === 'long') P.shape(Hs(HAIR.long), lk.hair || 'k7', lw);
+  P.shape(Hs(lk.fem ? HEADS.f : HEADS.m), skin, lw);
+  if (det) {
+    const eye = M(H(0.039, -0.006));
+    P.fill(P.disc(eye[0], eye[1], Math.max(0.35, h * 0.0062), 8), 'k9', { noKnock: true });
+    P.line(Hs([[0.027, -0.013], [0.036, -0.016], [0.048, -0.012]]), lw * 0.45);
+    P.line(Hs([[0.024, -0.024], [0.04, -0.028], [0.054, -0.023]]), lw * (lk.fem ? 0.55 : 0.9), { ink: 3 });
+    P.line(Hs([[0.058, -0.004], [0.052, 0.014], [0.06, 0.019]]), lw * 0.4);
+    if (!lk.beard) P.line(Hs([[0.046, 0.036], [0.058, 0.035]]), lw * 0.55, { ink: lk.fem ? 1 : 3 });
+    P.shape(Hs([[-0.012, -0.012], [0.004, -0.01], [0.008, 0.012], [-0.004, 0.022], [-0.013, 0.006]]), tadd(skin, 'r1'), lw * 0.5);
+    if (lk.fem) { const ck = M(H(0.034, 0.018)); P.fill(P.disc(ck[0], ck[1], h * 0.011, 8), 'r3', { noKnock: true }); }
+    if (lk.old && fine) { P.line(Hs([[0.03, -0.045], [0.048, -0.043]]), lw * 0.3); P.line(Hs([[0.046, 0.005], [0.04, 0.02]]), lw * 0.3); }
+  }
+  if (lk.beard) { const bd = BEARD[lk.beard], bt = lk.bt || lk.hair || 'k7'; P.shape(Hs(bd), bt, lw); if (det) { P.line(Hs([[0.046, 0.03], [0.058, 0.028], [0.068, 0.036]]), lw * 0.7); const n = lk.beard === 'short' ? 2 : 4; for (let i = 0; i < n; i++) P.line(Hs([[0.012 + i * 0.012, 0.045], [0.014 + i * 0.01, 0.07 + (lk.beard === 'full' ? 0.12 : lk.beard === 'long' ? 0.07 : 0)]]), lw * 0.45); } }
+  if (lk.hs && lk.hs !== 'long' && !(hb && lk.head !== 'crown' && lk.head !== 'tall' && lk.head !== 'cap')) P.shape(Hs(HAIR[lk.hs]), lk.hair || 'k7', lw);
+  if (lk.hs === 'long' && !hb) { P.shape(Hs(HAIR.short), lk.hair || 'k7', lw * 0.8); if (det) P.line(Hs([[-0.02, -0.07], [-0.06, 0.0], [-0.07, 0.15]]), lw * 0.5); }
+  if (hb) {
+    if (lk.head === 'cloth' || lk.head === 'veil') { P.shape(Hs(hb.slice(0, 5).concat([[-0.02, -0.02], [0.03, -0.04]])), lk.ht || 'y2', lw); if (lk.head === 'cloth') P.shape(Hs([[0.056, -0.05], [0.0, -0.064], [-0.058, -0.052], [-0.06, -0.038], [0.0, -0.05], [0.057, -0.038]]), lk.band || 'k6', lw * 0.7); else if (lk.crown) P.shape(Hs(HAT.crown), 'y8r2', lw * 0.8); }
+    else { P.shape(Hs(hb), lk.ht || 'y8r2', lw); if (lk.head === 'turban' && det) for (let i = 0; i < 3; i++) P.line(Hs([[0.06, -0.04 - i * 0.022], [0.0, -0.07 - i * 0.02], [-0.07, -0.04 - i * 0.018]]), lw * 0.5); if (lk.head === 'helmet') P.shape(Hs([[0.02, -0.1], [0.0, -0.15], [-0.07, -0.16], [-0.12, -0.1], [-0.06, -0.09]]), 'r7y3', lw); if ((lk.head === 'crown' || lk.head === 'tall') && det) P.line(Hs([[0.05, -0.066], [-0.056, -0.062]]), lw * 0.6, { ink: 1 }); }
+  }
+  if (lk.rays && det) { for (const s of [-1, 1]) { const o = H(0.01 + s * 0.022, -0.078); for (let i = -1; i <= 1; i++) { const a = -Math.PI / 2 + s * 0.35 + i * 0.16; P.line([M(o), M([o[0] + Math.cos(a) * 0.1 * J.hf[0] * 0 + Math.cos(a) * 0.07, o[1] + Math.sin(a) * 0.07])], lw * 0.9, { ink: 0 }); } } }
+  // bras proche
+  props('n'); armDraw(J.aN, false);
+  if (F.hold && F.hold.nTop) drawProp(P, F.hold.nTop, J.aN, J, M, h, t, lw, F);
+  P.amp = amp0;
+}
+function drawRobe(P, J, lk, M, Ms, T_, h, lw, det) {
+  const add = (o, d, l) => [o[0] + d[0] * l, o[1] + d[1] * l], fw = J.fw, up = J.up;
+  const len = lk.len || 'ankle', f = len === 'knee' ? 0.14 : len === 'thigh' ? -0.35 : len === 'floor' ? 1.0 : 0.8;
+  const hemPt = Lg => f >= 0 ? [Lg.k[0] + (Lg.a[0] - Lg.k[0]) * f, Lg.k[1] + (Lg.a[1] - Lg.k[1]) * f] : [Lg.k[0] + (Lg.h[0] - Lg.k[0]) * -f, Lg.k[1] + (Lg.h[1] - Lg.k[1]) * -f];
+  const A = hemPt(J.lN), B = hemPt(J.lF), pr = q => (q[0] - J.hip[0]) * fw[0] + (q[1] - J.hip[1]) * fw[1];
+  let fr = pr(A) > pr(B) ? A : B, bk = fr === A ? B : A;
+  const flare = len === 'knee' || len === 'thigh' ? 0.05 : 0.078, dn = [-up[0], -up[1]];
+  let hemF = add(add(fr, fw, flare), dn, 0.01), hemB = add(add(bk, fw, -flare), dn, 0.012);
+  if (len === 'floor') { hemF = add(hemF, dn, 0.03); hemB = add(add(hemB, dn, 0.03), fw, -0.06); }
+  const top = lk.skirt ? 0.1 : 0.29;
+  const back = lk.skirt ? [T_(0.11, -0.082), T_(0.02, -0.09)] : [T_(0.29, -0.035), T_(0.255, -0.09), T_(0.13, -0.084), T_(0.02, -0.09)];
+  const front = lk.skirt ? [T_(0.11, 0.078), T_(0.02, 0.082)] : [T_(0.3, 0.036), T_(0.22, lk.fem ? 0.104 : 0.098), T_(0.13, 0.082), T_(0.02, 0.084)];
+  const bl = back[back.length - 1], fl = front[front.length - 1];
+  back.push(add([(bl[0] + hemB[0]) / 2, (bl[1] + hemB[1]) / 2], fw, -0.012), hemB);
+  front.push(add([(fl[0] + hemF[0]) / 2, (fl[1] + hemF[1]) / 2], fw, 0.012), hemF);
+  const hemMid = add([(hemB[0] + hemF[0]) / 2, (hemB[1] + hemF[1]) / 2], dn, 0.012);
+  const outline = back.concat([hemMid], front.slice().reverse());
+  if (lk.stripes) {
+    P.fill(Ms(outline), lk.stripes[0]);
+    const n = back.length;
+    for (let i = 0; i < n - 1; i++) for (let s = 0; s < 2; s++) {
+      const u0 = s / 2, u1 = (s + 1) / 2, lp = (a, c, u) => [a[0] + (c[0] - a[0]) * u, a[1] + (c[1] - a[1]) * u];
+      const q = [lp(back[i], back[i + 1], u0), lp(front[i], front[i + 1], u0), lp(front[i], front[i + 1], u1), lp(back[i], back[i + 1], u1)];
+      P.fill(Ms(q), lk.stripes[(i * 2 + s) % lk.stripes.length]);
+    }
+    P.outline(Ms(outline), lw);
+  } else P.shape(Ms(outline), lk.robe, lw);
+  // ombre du pli arrière
+  const sh = back.map(q => add(q, fw, 0.03));
+  P.fill(Ms(back.concat(sh.reverse())), tadd(lk.stripes ? lk.stripes[1] : lk.robe, 'k2'), { noKnock: false });
+  if (lk.leafy) { const n = 7; for (let i = 0; i <= n; i++) { const q = [hemB[0] + (hemF[0] - hemB[0]) * i / n, hemB[1] + (hemF[1] - hemB[1]) * i / n]; P.shape(Ms([add(q, up, 0.03), add(add(q, fw, 0.02), up, 0.0), add(q, dn, 0.035), add(add(q, fw, -0.02), up, 0.0)]), i % 2 ? 'y6b6' : 'y5b5k1', lw * 0.5); } }
+  if (det) {
+    for (let i = 1; i <= 3; i++) { const u = i / 4, s0 = T_(0.08, -0.06 + 0.04 * i), e = [hemB[0] + (hemF[0] - hemB[0]) * u, hemB[1] + (hemF[1] - hemB[1]) * u]; P.line(Ms([s0, [(s0[0] + e[0]) / 2 + 0.01 * Math.sin(i * 3), (s0[1] + e[1]) / 2], e]), lw * 0.5); }
+    if (lk.trim) P.line(Ms([hemB, hemMid, hemF]), lw * 2.2, { ink: 0 });
+    if (!lk.skirt && lk.collar !== false) P.line(Ms([T_(0.3, -0.02), T_(0.27, 0.03), T_(0.3, 0.05)]), lw * 0.6);
+  }
+}
+function drawProp(P, kind, A, J, M, h, t, lw, F) {
+  const add = (o, d, l) => [o[0] + d[0] * l, o[1] + d[1] * l];
+  const d0 = [A.t[0] - A.e[0], A.t[1] - A.e[1]], L = Math.hypot(d0[0], d0[1]) || 1, u = [d0[0] / L, d0[1] / L], n = [-u[1], u[0]];
+  const Ms = a => a.map(M);
+  switch (kind) {
+    case 'staff': P.shape(Ms([add(A.w, u, -0.25), add(add(A.w, u, 0.85), n, 0.012), add(A.w, u, 0.86), add(A.w, n, 0.012)]).concat([]), 'r5y6k4', lw * 0.8); break;
+    case 'staffV': { const a = add(A.w, [0, -1], 0.34), c = [A.w[0] + 0.03, 0.0]; P.shape(Ms([a, add(a, [1, 0], 0.016), add(c, [1, 0], 0.016), c]), 'r5y6k4', lw * 0.8); P.line(Ms([a, add(add(a, [0, -1], 0.04), [1, 0], 0.03), add(add(a, [0, -1], 0.03), [1, 0], 0.06)]), lw * 1.6); break; }
+    case 'spear': { const a = add(A.w, [0, -1], 0.9), c = [A.w[0] + 0.02, 0.0]; P.shape(Ms([a, add(a, [1, 0], 0.014), add(c, [1, 0], 0.014), c]), 'r4y5k5', lw * 0.7); P.shape(Ms([add(a, [0, -1], 0.13), add(a, [1, 0], 0.03), [a[0] + 0.007, a[1] + 0.01], add(a, [1, 0], -0.018)]), 'k5b3', lw * 0.7); break; }
+    case 'bigspear': { const a = add(A.w, u, -0.5), c = add(A.w, u, 0.75); P.shape(Ms([a, add(a, n, 0.022), add(c, n, 0.022), c]), 'r4y5k5', lw * 0.9); P.shape(Ms([add(c, u, 0.2), add(c, n, 0.04), add(c, n, -0.02)]), 'k6b3', lw); break; }
+    case 'knife': P.shape(Ms([add(A.t, n, 0.012), add(A.t, u, 0.16), add(A.t, n, -0.01)]), 'b2k3', lw * 0.7); P.line(Ms([add(A.t, n, 0.02), add(A.t, n, -0.02)]), lw * 1.4); break;
+    case 'tablets': {
+      const c = [(J.aN.t[0] + J.aF.t[0]) / 2, (J.aN.t[1] + J.aF.t[1]) / 2 - 0.08];
+      for (const s of [-1, 1]) { const x0 = c[0] + s * 0.045, w = 0.043, pts = [[x0 - w, c[1] + 0.09], [x0 - w, c[1] - 0.04]]; for (let i = 0; i <= 6; i++) { const a = Math.PI + Math.PI * i / 6; pts.push([x0 + Math.cos(a) * w, c[1] - 0.04 + Math.sin(a) * w]); } pts.push([x0 + w, c[1] + 0.09]); P.shape(Ms(pts), 'k2y3b1', lw); for (let r = 0; r < 5; r++) P.line(Ms([[x0 - w * 0.6, c[1] - 0.03 + r * 0.025], [x0 + w * 0.6, c[1] - 0.03 + r * 0.025]]), lw * 0.4); }
+      break;
+    }
+    case 'shofar': { const m = add(add(J.head, J.hf, 0.07), J.hu, -0.035), pts = []; for (let i = 0; i <= 8; i++) { const s = i / 8; pts.push([m[0] + s * 0.2, m[1] - Math.sin(s * 2.4) * 0.06 - s * s * 0.05]); } const w0 = 0.008, w1 = 0.03, top = pts.map((p, i) => [p[0], p[1] - lerp(w0, w1, i / 8)]), bot = pts.map((p, i) => [p[0], p[1] + lerp(w0, w1, i / 8)]); P.shape(Ms(top.concat(bot.reverse())), 'y5r3k1', lw * 0.8); break; }
+    case 'scepter': { const a = add(A.w, u, -0.05), c = add(A.w, u, 0.4); P.line(Ms([a, c]), h * 0.012, { ink: 0, taper: 0 }); P.line(Ms([a, c]), h * 0.004, { ink: 1, taper: 0.2 }); const q = M(c); P.shape(P.disc(q[0], q[1], h * 0.018, 10), 'y9r3', lw * 0.7); break; }
+    case 'sling': { const a = t * TAU * 1.8, c = [A.t[0] + Math.cos(a) * 0.16, A.t[1] - 0.05 + Math.sin(a) * 0.08]; P.line(Ms([A.t, c]), lw * 0.7); const q = M(c); P.shape(P.disc(q[0], q[1], h * 0.014, 8), 'k4y2', lw * 0.5); break; }
+    case 'sickle': { const pts = []; for (let i = 0; i <= 8; i++) { const a = -0.3 + i / 8 * 2.4; pts.push(add(add(A.t, u, Math.cos(a) * 0.06 + 0.04), n, Math.sin(a) * 0.06)); } P.line(Ms(pts), lw * 1.5, { ink: 3 }); break; }
+    case 'lulav': { const a = A.w, c = add(add(A.w, [0, -1], 0.44), [1, 0], 0.05); P.line(Ms([a, c]), lw * 1.2); for (let i = 1; i < 7; i++) { const q = [a[0] + (c[0] - a[0]) * i / 7, a[1] + (c[1] - a[1]) * i / 7]; P.shape(Ms([q, [q[0] + 0.05, q[1] - 0.05], [q[0] + 0.01, q[1] - 0.02], [q[0] - 0.05, q[1] - 0.05]]), 'y6b6', lw * 0.4); } break; }
+    case 'etrog': { const q = M(add(A.t, u, 0.01)); P.shape(P.disc(q[0], q[1], h * 0.026, 12).map((p, i) => [p[0] + (p[0] - q[0]) * 0.3, p[1]]), 'y9', lw * 0.6); break; }
+    case 'sheaf': { const c = add(A.w, u, 0.02); for (let i = -3; i <= 3; i++) P.line(Ms([add(c, [0.3, 1], 0.08), add(c, [i * 0.08 - 0.2, -1], 0.16)]), lw * 0.9, { ink: 0 }); for (let i = -3; i <= 3; i++) { const q = M(add(c, [i * 0.08 - 0.2, -1], 0.17)); P.fill(P.disc(q[0], q[1], h * 0.012, 6), 'y8r2', {}); } P.line(Ms([add(c, [0, 1], -0.01), add(add(c, [0, 1], -0.01), [1, 0], 0.04)]), lw * 1.2, { ink: 1 }); break; }
+    case 'branches': { const c = add(A.w, [0, -1], 0.04); for (let i = 0; i < 5; i++) { const a = add(c, [1, 0], -0.25 + i * 0.02), e = add(add(c, [1, 0], 0.3), [0, -1], 0.03 + i * 0.02); P.line(Ms([a, e]), lw * 0.9); for (let k = 1; k < 6; k++) { const q = [a[0] + (e[0] - a[0]) * k / 6, a[1] + (e[1] - a[1]) * k / 6]; P.shape(Ms([q, [q[0] + 0.03, q[1] - 0.04], [q[0] + 0.05, q[1] - 0.01]]), 'y5b6', lw * 0.3); } } break; }
+    case 'fruit': { const q = M(add(A.t, u, 0.01)); P.shape(P.disc(q[0], q[1], h * 0.024, 10), 'r8y5', lw * 0.6); break; }
+    case 'shield': { const c = add(A.w, n, 0.02), pts = []; for (let i = 0; i < 16; i++) { const a = i / 16 * TAU; pts.push([c[0] + Math.cos(a) * 0.06, c[1] + Math.sin(a) * 0.14]); } P.shape(Ms(pts), 'y7r4k2', lw); P.shape(Ms(pts.map(p => [c[0] + (p[0] - c[0]) * 0.35, c[1] + (p[1] - c[1]) * 0.35])), 'y9r2', lw * 0.6); break; }
+    case 'bundle': { const c = add(J.sh, J.up, 0.08); P.shape(Ms([[c[0] - 0.1, c[1] + 0.02], [c[0] - 0.08, c[1] - 0.07], [c[0] + 0.02, c[1] - 0.08], [c[0] + 0.05, c[1] + 0.0]]), 'r4y5k2', lw); P.line(Ms([[c[0] - 0.05, c[1] - 0.075], [c[0] - 0.03, c[1] + 0.01]]), lw * 0.6); break; }
+    case 'jarhead': { const c = add(J.head, J.hu, 0.1); P.shape(Ms([[c[0] - 0.035, c[1] + 0.02], [c[0] - 0.05, c[1] - 0.04], [c[0] - 0.02, c[1] - 0.08], [c[0] + 0.02, c[1] - 0.08], [c[0] + 0.05, c[1] - 0.04], [c[0] + 0.035, c[1] + 0.02]]), 'r5y6k1', lw); break; }
+    case 'lamb': { const c = add(J.sh, J.up, 0.05); P.shape(Ms([[c[0] - 0.12, c[1] + 0.03], [c[0] - 0.12, c[1] - 0.05], [c[0] + 0.08, c[1] - 0.06], [c[0] + 0.12, c[1] - 0.02], [c[0] + 0.08, c[1] + 0.03]]), 'y1', lw); const q = M([c[0] + 0.13, c[1] - 0.04]); P.shape(P.disc(q[0], q[1], h * 0.025, 8), 'k2y1', lw * 0.6); break; }
+    case 'torch': { const c = add(A.w, [0, -1], 0.12); P.line(Ms([A.w, c]), lw * 2); const q = M(c); Lib.flame(P, q[0], q[1], h * 0.06, h * 0.1, t); break; }
+  }
+}
+/* ---- animaux ---- */
+/* quadrupèdes : silhouette lissée, pattes articulées (coude, genou, jarret, boulet) */
+function smooth(pts, k = 3) { const n = pts.length, o = []; for (let i = 0; i < n; i++) { const p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n]; for (let j = 0; j < k; j++) { const t = j / k, t2 = t * t, t3 = t2 * t; o.push([0.5 * ((2 * p1[0]) + (-p0[0] + p2[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3), 0.5 * ((2 * p1[1]) + (-p0[1] + p2[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3)]); } } return o; }
+const BEAST = {
+  sheep: { bl: .56, bh: .3, lh: .22, nk: [.08, -40], hd: [.16, 35, .07, .045], tone: 'y1', legT: 'k6', wool: 1, ears: 'side' },
+  ram: { bl: .6, bh: .32, lh: .24, nk: [.1, -40], hd: [.17, 40, .075, .05], tone: 'y2r1', legT: 'k6', wool: 1, horns: 'curl', ears: 'side' },
+  camel: { bl: .78, bh: .32, lh: .62, nk: [.44, -18, 'camel'], hd: [.2, 30, .06, .045], tone: 'y5r3k1', hump: 1, ears: 'small', tail: 1, pads: 1 },
+  donkey: { bl: .66, bh: .3, lh: .42, nk: [.24, -45], hd: [.24, 50, .075, .05], tone: 'k3y2r1', ears: 'long', tail: 1, mane: 'k5' },
+  lion: { bl: .74, bh: .32, lh: .34, nk: [.1, -25], hd: [.17, 25, .085, .06], tone: 'y6r2', ruff: 'r5y6k2', tail: 2, ears: 'round', paws: 1 },
+  bull: { bl: .86, bh: .44, lh: .32, nk: [.12, -10], hd: [.2, 55, .1, .075], tone: 'r4y4k3', horns: 'bull', tail: 1, ears: 'side' },
+  calf: { bl: .72, bh: .38, lh: .32, nk: [.12, -20], hd: [.19, 50, .09, .065], tone: 'y9r2', horns: 'bull', tail: 1, ears: 'side' },
+  deer: { bl: .62, bh: .26, lh: .46, nk: [.3, -58], hd: [.17, 45, .06, .035], tone: 'r4y6k1', antler: 1, ears: 'long', tail: 0 },
+  elephant: { bl: .95, bh: .56, lh: .38, nk: [.04, -20], hd: [.26, 70, .17, .11], tone: 'k3b1', trunk: 1, ears: 'big', pillar: 1, tail: 1 },
+  giraffe: { bl: .62, bh: .3, lh: .7, nk: [.78, -68], hd: [.17, 40, .055, .04], tone: 'y6r2', spots: 1, ears: 'small', oss: 1, tail: 1 }
+};
+function drawBeast(P, kind, base, s, face, ph, walking) {
+  const B = BEAST[kind], M = q => [base[0] + face * q[0] * s, base[1] + q[1] * s], Ms = a => a.map(M), lw = Math.max(0.4, s / 150);
+  const amp0 = P.amp; P.amp = 0.4 * s / 100;
+  const tone = B.tone, dark = tadd(tone, 'k2'), belly = -B.lh, top = -B.lh - B.bh, hb = B.bl / 2, legT = B.legT || tone;
+  const sw = walking ? Math.sin(ph * TAU) * 0.42 : 0.04;
+  const rot = (p, c, a) => { const x = p[0] - c[0], y = p[1] - c[1], co = Math.cos(a), si = Math.sin(a); return [c[0] + x * co - y * si, c[1] + x * si + y * co]; };
+  const fore = (x, a, tn) => { const t = [x, top + B.bh * 0.5], pts = [t, [x - .01, belly + .02], [x + .012, belly + B.lh * 0.5], [x, -0.05], [x + .025, -0.004]].map((p, i) => i ? rot(p, t, a * (i > 2 ? 1.2 : 1)) : p); if (a < 0) pts[3] = rot(pts[3], pts[2], a * 0.8), pts[4] = rot(pts[4], pts[2], a * 0.9); const r = B.pillar ? [B.bh * .22, B.bh * .2, B.bh * .18, B.bh * .17, B.bh * .18] : [B.bh * .2, B.bh * .12, B.bh * .085, B.bh * .065, B.pads ? B.bh * .11 : B.bh * .075]; P.shape(Ms(limbPoly(pts, r)), tn, lw); hoof(pts[4], tn); };
+  const hind = (x, a, tn) => { const t = [x, top + B.bh * 0.4], pts = [t, [x + .05, belly + .01], [x - .045, belly + B.lh * 0.52], [x - .015, -0.05], [x + .005, -0.004]].map((p, i) => i ? rot(p, t, a) : p); if (a > 0) pts[3] = rot(pts[3], pts[2], -a * 0.8), pts[4] = rot(pts[4], pts[2], -a * 0.8); const r = B.pillar ? [B.bh * .28, B.bh * .22, B.bh * .18, B.bh * .17, B.bh * .18] : [B.bh * .27, B.bh * .15, B.bh * .075, B.bh * .065, B.pads ? B.bh * .11 : B.bh * .075]; P.shape(Ms(limbPoly(pts, r)), tn, lw); hoof(pts[4], tn); };
+  const hoof = (p, tn) => { if (B.wool || B.bl > .7 && !B.paws && !B.pads && !B.pillar) P.fill(Ms([[p[0] - .022, p[1] - .03], [p[0] + .03, p[1] - .03], [p[0] + .035, p[1] + .004], [p[0] - .025, p[1] + .004]]), 'k7', {}); };
+  // queue
+  if (B.tail) { const tb = [-hb - .01, top + B.bh * 0.2], sway = Math.sin(ph * TAU + 1) * 0.03; P.line(Ms([tb, [tb[0] - .06, tb[1] + .1 + sway], [tb[0] - .05 + sway, tb[1] + (B.tail === 2 ? .3 : .22)]]), lw * (B.pillar ? 2.4 : 1.6)); if (B.tail === 2) { const q = M([tb[0] - .05 + sway, tb[1] + .31]); P.shape(P.disc(q[0], q[1], s * .028, 8), 'r6y4k4', lw * .5); } }
+  fore(hb - .1, -sw, tadd(legT, 'k2')); hind(-hb + .12, sw, tadd(legT, 'k2'));
+  // corps
+  let body = [[-hb + .04, top + .02], [-hb * .3, top + .035], [hb * .2, top + .02], [hb - .08, top - (B.hump ? 0 : .02)], [hb + .03, top + B.bh * .45], [hb - .05, belly + .01], [0, belly + .02], [-hb + .1, belly - B.bh * .08], [-hb - .03, top + B.bh * .4]];
+  body = smooth(body, 4);
+  if (B.wool) body = body.map((p, i) => [p[0] + Math.cos(i * 1.3) * .008, p[1] + Math.sin(i * 1.7) * .012]);
+  if (B.hump) P.shape(Ms(smooth([[-hb * .5, top + .03], [-hb * .15, top - B.bh * .5], [hb * .25, top - B.bh * .45], [hb * .45, top + .03]], 4)), tone, lw);
+  P.shape(Ms(body), tone, lw);
+  P.fill(Ms(body.filter(p => p[1] > top + B.bh * .62)), tadd(tone, 'k1b1'), { noKnock: true });
+  if (B.wool && P.detail) for (let i = 0; i < 12; i++) { const q = M([(h2(i, 1, 7) - .5) * B.bl * .85, top + B.bh * (.2 + h2(i, 2, 7) * .55)]); P.line([[q[0] - s * .02, q[1]], [q[0], q[1] - s * .015], [q[0] + s * .02, q[1]]], lw * .6); }
+  if (B.spots) for (let i = 0; i < 11; i++) { const q = M([(h2(i, 1, 3) - .5) * B.bl * .8, top + B.bh * (.15 + h2(i, 2, 3) * .6)]); P.fill(P.disc(q[0], q[1], s * .028, 6).map((p, k) => [p[0] + Math.cos(k) * s * .006, p[1]]), 'r6y6k2', { noKnock: true }); }
+  // cou et tête
+  const nb = [hb - .06, top + B.bh * .25], na = B.nk[1] * DEG, bob = walking ? Math.sin(ph * TAU * 2) * .012 : Math.sin(ph * TAU * .5) * .01;
+  const nt = [nb[0] + Math.cos(na) * B.nk[0], nb[1] + Math.sin(na) * B.nk[0] + bob];
+  if (B.nk[2] === 'camel') { const mid = [nb[0] + B.nk[0] * .55, nb[1] + .06]; P.shape(Ms(limbPoly([nb, mid, [mid[0] + .1, mid[1] - .22 + bob]], [B.bh * .32, B.bh * .2, B.bh * .17])), tone, lw); nt[0] = mid[0] + .1; nt[1] = mid[1] - .22 + bob; }
+  else if (B.nk[0] > .05) P.shape(Ms(limbPoly([nb, [(nb[0] + nt[0]) / 2, (nb[1] + nt[1]) / 2], nt], [B.bh * .36, B.bh * .26, B.bh * .2])), tone, lw);
+  if (B.ruff) P.shape(Ms(smooth(Lib.bumpy(P, nt[0] - .02, nt[1] + .02, B.bh * .62, B.bh * .7, 10), 1)), B.ruff, lw);
+  if (B.mane && P.detail) P.line(Ms([[nb[0] - .02, nb[1] - B.bh * .25], nt]), lw * 2.2, { ink: 3, lvl: 6 });
+  if (B.ears === 'big') P.shape(Ms(smooth([[nt[0] - .02, nt[1] - .1], [nt[0] - .16, nt[1] - .06], [nt[0] - .17, nt[1] + .12], [nt[0] - .06, nt[1] + .16], [nt[0] + .01, nt[1] + .04]], 3)), tadd(tone, 'k1r1'), lw);
+  const ha = B.hd[1] * DEG, mz = [nt[0] + Math.cos(ha) * B.hd[0], nt[1] + Math.sin(ha) * B.hd[0]];
+  if (B.ears === 'long') for (const e of [0, .025]) P.shape(Ms([[nt[0] - .01 - e, nt[1] - .01], [nt[0] - .05 - e, nt[1] - .17], [nt[0] + .02 - e, nt[1] - .03]]), dark, lw * .7);
+  if (B.ears === 'side' || B.ears === 'small' || B.ears === 'round') P.shape(Ms([[nt[0] - .01, nt[1] - .005], [nt[0] - .09, nt[1] + (B.ears === 'side' ? .03 : -.04)], [nt[0] - .02, nt[1] + .03]]), dark, lw * .7);
+  if (B.oss) for (const e of [0, .02]) { P.line(Ms([[nt[0] - e, nt[1] - .02], [nt[0] - .01 - e, nt[1] - .08]]), lw * 1.4); P.fill(Ms(P.disc(nt[0] - .01 - e, nt[1] - .085, .012, 6)), 'k6', {}); }
+  if (B.trunk) { const tk = [mz, [mz[0] + .06, mz[1] + .12], [mz[0] + .03 + bob * 2, mz[1] + .28], [mz[0] + .08, mz[1] + .34]]; P.shape(Ms(limbPoly(tk, [.07, .05, .03, .022])), tone, lw); P.shape(Ms([[mz[0] - .02, mz[1] - .01], [mz[0] + .12, mz[1] + .04], [mz[0] + .14, mz[1] + .01], [mz[0] - .01, mz[1] - .04]]), 'y1', lw * .7); }
+  P.shape(Ms(limbPoly([nt, mz], [B.hd[2], B.hd[3]])), B.wool ? 'k2y1' : tone, lw);
+  const eye = M([nt[0] + Math.cos(ha) * B.hd[0] * .3 - .005, nt[1] + Math.sin(ha) * B.hd[0] * .3 - B.hd[2] * .45]); P.fill(P.disc(eye[0], eye[1], Math.max(0.35, s * .011), 6), 'k9', { noKnock: true });
+  if (P.detail && !B.trunk) { const n0 = M([mz[0] - .005, mz[1] - B.hd[3] * .3]); P.fill(P.disc(n0[0], n0[1], Math.max(.3, s * .007), 5), 'k8', { noKnock: true }); P.line(Ms([[mz[0] - .03, mz[1] + B.hd[3] * .5], [mz[0] + .005, mz[1] + B.hd[3] * .6]]), lw * .5); }
+  if (B.horns === 'curl') { const c = [nt[0] - .005, nt[1] - .01], pts = []; for (let i = 0; i <= 16; i++) { const a = -1.6 + i / 16 * 5.4, r = .075 * (1 - i / 20); pts.push([c[0] - .02 + Math.cos(a) * r, c[1] + .02 + Math.sin(a) * r]); } P.line(Ms(pts), s * .035, { ink: 0, lvl: 8 }); P.line(Ms(pts), lw * .8); for (let i = 2; i < 15; i += 2) P.line(Ms([pts[i], [pts[i][0] + (c[0] - .02 - pts[i][0]) * .3, pts[i][1] + (c[1] + .02 - pts[i][1]) * .3]]), lw * .4); }
+  if (B.horns === 'bull') for (const e of [0, .035]) P.shape(Ms(limbPoly([[nt[0] - e, nt[1] - .02], [nt[0] - .05 - e, nt[1] - .08], [nt[0] - .01 - e, nt[1] - .15]], [.018, .014, .005])), 'y3k1', lw * .7);
+  if (B.antler) for (const e of [0, .03]) { P.line(Ms([[nt[0] - e, nt[1] - .03], [nt[0] - .03 - e, nt[1] - .18], [nt[0] + .03 - e, nt[1] - .28]]), lw * 1.4); P.line(Ms([[nt[0] - .025 - e, nt[1] - .12], [nt[0] + .04 - e, nt[1] - .16]]), lw * 1.1); P.line(Ms([[nt[0] - .03 - e, nt[1] - .2], [nt[0] - .09 - e, nt[1] - .25]]), lw * 1.1); }
+  if (B.ruff && P.detail) for (let i = 0; i < 6; i++) { const a = i / 6 * TAU, q = [nt[0] - .02 + Math.cos(a) * B.bh * .45, nt[1] + .02 + Math.sin(a) * B.bh * .5]; P.line(Ms([q, [q[0] + Math.cos(a) * .04, q[1] + Math.sin(a) * .05]]), lw * .6); }
+  fore(hb - .13, sw, legT); hind(-hb + .09, -sw, legT);
+  P.amp = amp0;
+}
+function drawFish(P, x, y, s, face, tn = 'b5y3') { const M = q => [x + face * q[0] * s, y + q[1] * s]; P.shape([M([-0.5, 0]), M([-0.2, -0.22]), M([0.25, -0.2]), M([0.5, 0]), M([0.25, 0.2]), M([-0.2, 0.2])], tn, 0.6); P.shape([M([-0.45, 0]), M([-0.75, -0.22]), M([-0.68, 0]), M([-0.75, 0.22])], tadd(tn, 'k1'), 0.5); const e = M([0.3, -0.05]); P.fill(P.disc(e[0], e[1], s * 0.05, 6), 'k9', { noKnock: true }); }
+function drawSnake(P, pts, w, tn = 'y7b4') {
+  const L = [], R = [], n = pts.length;
+  for (let i = 0; i < n; i++) { const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1, ww = w * (i < n - 3 ? 0.3 + 0.7 * (i / n) : 1.2); L.push([pts[i][0] - dy / d * ww, pts[i][1] + dx / d * ww]); R.push([pts[i][0] + dy / d * ww, pts[i][1] - dx / d * ww]); }
+  P.shape(L.concat(R.reverse()), tn, 0.8);
+  for (let i = 2; i < n - 2; i += 2) P.line([L[i], R[n - 1 - i]], 0.9, { ink: 1 });
+  const h = pts[n - 1]; P.fill(P.disc(h[0] + 2, h[1] - 1, 1, 6), 'k9', { noKnock: true }); P.line([[h[0] + 4, h[1]], [h[0] + 9, h[1] + 1], [h[0] + 11, h[1] - 1]], 0.5, { ink: 1 });
+}
+/* ---- personnages : trajets en boucle ---- */
+function prepChar(c) {
+  c.speed = c.speed || 34; c.h = c.h || 140; c.t0 = c.t0 || 0;
+  if (!c.path) { c.cycle = 0; return c; }
+  let T = 0; c.segs = [];
+  const n = c.path.length;
+  for (let i = 0; i < n; i++) {
+    const a = c.path[i], b = c.path[(i + 1) % n];
+    const w = a.w || 0; if (w) { c.segs.push({ t0: T, t1: T + w, wait: a }); T += w; }
+    if (c.loop === false && i === n - 1) break;
+    const d = Math.hypot(b.x - a.x, b.y - a.y, (b.z || 0) - (a.z || 0));
+    if (d > 0.1 && !b.jump) { const dt = d / (a.sp || c.speed); c.segs.push({ t0: T, t1: T + dt, a, b, d }); T += dt; }
+  }
+  c.cycle = T; return c;
+}
+function charState(c, t) {
+  if (!c.path) return { x: c.x, y: c.y, z: c.z || 0, face: c.face || 1, clip: c.clip || 'idle', ph: (t + c.t0) / (CLIPS[c.clip || 'idle'] || CLIPS.idle).d, over: c.over, walking: false };
+  const tt = ((t + c.t0) % c.cycle + c.cycle) % c.cycle;
+  let prevFace = c.face || 1;
+  for (let i = 0; i < c.segs.length; i++) {
+    const s = c.segs[i];
+    if (s.a) { const sdx = ((s.b.x - s.a.x) - (s.b.y - s.a.y)); if (Math.abs(sdx) > 1) prevFace = sdx > 0 ? 1 : -1; else if (s.a.f) prevFace = s.a.f; }
+    if (tt < s.t1) {
+      if (s.wait) { const w = s.wait, cl = w.c || c.idle || 'idle'; let face = w.f || prevFace; if (!w.f) { for (let j = i - 1; j >= 0; j--) if (c.segs[j].a) { const q = c.segs[j], sdx = (q.b.x - q.a.x) - (q.b.y - q.a.y); if (Math.abs(sdx) > 1) { face = sdx > 0 ? 1 : -1; break; } } } return { x: w.x, y: w.y, z: w.z || 0, face, clip: cl, ph: (tt - s.t0) / (CLIPS[cl] || CLIPS.idle).d, over: w.o || null, walking: false }; }
+      const u = (tt - s.t0) / (s.t1 - s.t0), a = s.a, b = s.b;
+      const walkClip = a.c || c.walk || 'walk';
+      return { x: lerp(a.x, b.x, u), y: lerp(a.y, b.y, u), z: lerp(a.z || 0, b.z || 0, u), face: prevFace, clip: walkClip, ph: walkClip === 'walk' ? (u * s.d) / (c.h * 0.95) : (tt - s.t0) / (CLIPS[walkClip] || CLIPS.idle).d, over: a.o || c.over || null, walking: true };
+    }
+  }
+  const p = c.path[0]; return { x: p.x, y: p.y, z: p.z || 0, face: 1, clip: 'idle', ph: 0, walking: false };
+}
+function renderChar(P, c, t) {
+  const st = charState(c, t);
+  const base = P.I(st.x, st.y, st.z);
+  if (c.beast) { drawBeast(P, c.beast, base, c.h, st.face, st.walking ? st.ph * 0.95 * c.h / (c.h * 0.9) : t / 3, st.walking); return st; }
+  if (!c.noShadow) { const g = P.I(st.x, st.y, c.gz !== undefined ? c.gz : st.z); P.fill(P.disc(g[0], g[1], c.h * 0.16, 16).map(p => [p[0], g[1] + (p[1] - g[1]) * 0.36]), 'k2b1', { noKnock: true }); }
+  let pose = samplePose(st.clip, st.ph);
+  const ov = st.over || c.over; if (ov) Object.assign(pose, samplePose(ov, t / (CLIPS[ov] || CLIPS.idle).d));
+  const F = { h: c.h, face: st.face, base, look: c.look, hold: c.hold, x: st.x };
+  if (c.clipFn) { const q = c.clipFn(P), p = new Path2D(); p.moveTo(q[0][0], q[0][1]); for (const v of q) p.lineTo(v[0], v[1]); p.closePath(); P.ctx.save(); P.ctx.clip(p); }
+  drawFig(P, F, pose, t);
+  if (c.clipFn) P.ctx.restore();
+  c.out = F.out; return st;
+}
+
+/* ============================================================
+   LES SCÈNES (ordre du livre, Genèse → Esther)
+   ============================================================ */
+const LK = {
+  adam: { skin: 'y6r5k1', hs: 'curly', hair: 'k7r2', beard: 'short', robe: 'y6b6', skirt: 1, len: 'thigh', leafy: 1, sleeves: 'none', feet: 'bare' },
+  eve: { fem: 1, skin: 'y5r4', hs: 'long', hair: 'r6y5k3', robe: 'y5b6', len: 'thigh', leafy: 1, sleeves: 'none', feet: 'bare', collar: false },
+  noah: { old: 1, skin: 'y5r4', hs: 'fringe', hair: 'k1', beard: 'full', bt: 'k1b1', robe: 'r4y6k2', cloak: 'b5k1', sash: 'r6y3', head: 'cloth', ht: 'y2k1', band: 'r6k3' },
+  noahWife: { fem: 1, skin: 'y5r4', hs: 'long', hair: 'k3', robe: 'b4y3', len: 'floor', head: 'veil', ht: 'r4y3', sash: 'r5' },
+  abraham: { old: 1, skin: 'y5r4k1', hs: 'fringe', hair: 'k2', beard: 'full', bt: 'k2b1', robe: 'y2k1', cloak: 'r5b3k1', sash: 'b5', head: 'cloth', ht: 'y2r1', band: 'k6' },
+  isaac: { skin: 'y5r4', hs: 'curly', hair: 'k7r2', robe: 'y2', len: 'knee', sleeves: 'short', sash: 'r5', feet: 'bare' },
+  angel: { skin: 'y4r3', hs: 'curly', hair: 'y7r2', robe: 'y1b1', len: 'floor', sleeves: 'long', wide: 1, wings: 'y2b1', halo: 1, sash: 'y7', feet: 'bare' },
+  jacob: { skin: 'y5r4', hs: 'short', hair: 'k7', beard: 'short', robe: 'r5y5k2', cloak: 'b4k2', sash: 'y6r2', head: 'cloth', ht: 'y3r2', band: 'k5' },
+  joseph: { skin: 'y5r4', hs: 'short', hair: 'k6r2', robe: 'y2', len: 'knee', sleeves: 'short', sash: 'y6', feet: 'bare' },
+  bro1: { skin: 'y6r5k1', hs: 'curly', hair: 'k8', beard: 'short', robe: 'r4y5k2', len: 'knee', sleeves: 'short', sash: 'b5', head: 'cloth', ht: 'b3y2', band: 'k6' },
+  bro2: { skin: 'y5r4k1', hs: 'short', hair: 'k7r2', beard: 'long', robe: 'b5y2k1', len: 'knee', sleeves: 'short', sash: 'r6', head: 'cloth', ht: 'y3r1', band: 'k6' },
+  bro3: { skin: 'y6r4k1', hs: 'curly', hair: 'k8', beard: 'short', robe: 'y6b4k1', len: 'ankle', sash: 'r5y4', cloak: 'r6b2k1', head: 'cloth', ht: 'y2', band: 'r5k4' },
+  ismaelite: { skin: 'y6r5k2', hs: 'short', hair: 'k8', beard: 'long', robe: 'b6r2', cloak: 'y6r4', head: 'turban', ht: 'y2r1', sash: 'r7y3' },
+  moses: { skin: 'y5r4k1', hs: 'short', hair: 'k6', beard: 'long', bt: 'k6', robe: 'r5y6k2', cloak: 'b5k1', sash: 'r6y3', head: 'cloth', ht: 'y2r1', band: 'k6' },
+  mosesOld: { old: 1, skin: 'y5r4k1', hs: 'fringe', hair: 'k1', beard: 'full', bt: 'k1b1', robe: 'r5y6k2', cloak: 'b5k2', sash: 'r6y3', rays: 1, head: null },
+  isrM: { skin: 'y6r4k1', hs: 'curly', hair: 'k8', beard: 'short', robe: 'b4y3', sash: 'r5y3', head: 'cloth', ht: 'y2k1', band: 'k6' },
+  isrM2: { skin: 'y5r4k1', hs: 'short', hair: 'k7r2', beard: 'long', robe: 'r4y5k1', cloak: 'y4b3', sash: 'b6', head: 'cloth', ht: 'r3y2', band: 'k6' },
+  isrOld: { old: 1, skin: 'y5r4', hs: 'fringe', hair: 'k2', beard: 'long', bt: 'k2', robe: 'y3r2k1', cloak: 'b3k2', head: 'cloth', ht: 'y2', band: 'k5' },
+  isrW: { fem: 1, skin: 'y5r4', hs: 'long', hair: 'k7', robe: 'r6y2', len: 'floor', head: 'veil', ht: 'b4y2', sash: 'y6' },
+  isrW2: { fem: 1, skin: 'y5r4k1', hs: 'long', hair: 'k6r2', robe: 'y5b5', len: 'floor', head: 'veil', ht: 'r5y4', sash: 'r6' },
+  child: { child: 1, skin: 'y5r4', hs: 'curly', hair: 'k7', robe: 'y3r3', len: 'knee', sleeves: 'short', sash: 'b5', feet: 'bare' },
+  childG: { child: 1, fem: 1, skin: 'y5r4', hs: 'long', hair: 'r5k4', robe: 'b4r2', len: 'ankle', sleeves: 'short', sash: 'y6' },
+  priest: { skin: 'y5r4', hs: 'short', hair: 'k7', beard: 'long', robe: 'y1k1', trim: 1, sash: 'b6r5', head: 'turban', ht: 'y1b1', sleeves: 'long' },
+  soldier: { skin: 'y6r4k1', hs: 'short', hair: 'k7', beard: 'short', robe: 'r5y3k1', len: 'knee', sleeves: 'short', sash: 'k6', head: 'helmet', ht: 'y5r3k3', feet: 'boot', greaves: 'y5r3k3' },
+  ruth: { fem: 1, skin: 'y6r4k1', hs: 'long', hair: 'k8', robe: 'b5r2', len: 'ankle', head: 'veil', ht: 'r6y3', sash: 'y7r1', sleeves: 'long' },
+  boaz: { skin: 'y5r4k1', hs: 'short', hair: 'k5', beard: 'long', bt: 'k4', robe: 'r6y4k1', cloak: 'b6k1', sash: 'y7', head: 'turban', ht: 'y2', trim: 1 },
+  reaper: { skin: 'y6r5k1', hs: 'curly', hair: 'k8', beard: 'short', robe: 'y3r2k1', len: 'knee', sleeves: 'short', sash: 'r5', head: 'cap', ht: 'y2' },
+  david: { skin: 'y5r5', hs: 'curly', hair: 'r6y4k2', robe: 'r3y4', len: 'knee', sleeves: 'short', sash: 'b5', feet: 'sandal' },
+  goliath: { skin: 'y6r5k2', hs: 'curly', hair: 'k8', beard: 'full', bt: 'k8', robe: 'r6y2k1', len: 'knee', armor: 'y6r4k3', head: 'helmet', ht: 'y6r4k3', greaves: 'y6r4k3', feet: 'boot', sleeves: 'short' },
+  elijah: { skin: 'y6r4k1', hs: 'curly', hair: 'k8', beard: 'full', bt: 'k7', robe: 'r3y3k3', cloak: 'r5y4k4', sash: 'k7', feet: 'bare' },
+  baal: { skin: 'y6r5k1', hs: 'short', hair: 'k8', beard: 'short', robe: 'r7y4', len: 'knee', sleeves: 'none', sash: 'y8', head: 'tall', ht: 'r5y6', feet: 'bare' },
+  esther: { fem: 1, skin: 'y5r4', hs: 'long', hair: 'k8', robe: 'r6b5', len: 'floor', trim: 1, sleeves: 'long', wide: 1, head: 'veil', ht: 'y2r1', crown: 1, sash: 'y8r2' },
+  king: { skin: 'y5r5', hs: 'curly', hair: 'k8', beard: 'long', robe: 'r8y3', len: 'ankle', trim: 1, cloak: 'b6r4', head: 'tall', ht: 'y8r3', sash: 'y7', sleeves: 'long', wide: 1 },
+  guard: { skin: 'y6r5k1', hs: 'curly', hair: 'k8', beard: 'short', robe: 'b5y2', len: 'knee', sash: 'r6', head: 'cap', ht: 'r5y5', feet: 'boot', sleeves: 'short' },
+  maid: { fem: 1, skin: 'y5r4', hs: 'long', hair: 'k7r2', robe: 'y4r1', len: 'floor', head: 'veil', ht: 'b3', sleeves: 'long', sash: 'b5' }
+};
+const PX = 240, PY = 190;
+const ch = (look, o) => Object.assign({ look }, o);
+const W = (x, y, w, c, extra) => Object.assign({ x, y, w, c }, extra || {});
+const nightSky = (P, tn, n = 70) => { P.shape(P.disc(500, 470, 450, 64), tn, 0); for (let i = 0; i < n; i++) { const a = P.r() * TAU, r = Math.sqrt(P.r()) * 430, x = 500 + Math.cos(a) * r, y = 470 + Math.sin(a) * r; if (y > 380 && Math.abs(x - 500) < 470 - (y - 380) * 0.9) continue; Lib.star(P, x, y, 2 + P.r() * 4, P.r() > 0.7 ? 'y8' : 'y5'); } };
+const stoneStack = (P, x, y, w, d, h, tn) => { const rows = Math.round(h / 16); for (let r = 0; r < rows; r++) { const n = Math.max(2, Math.round(w / 30)); for (let i = 0; i < n; i++) { const sw = w / n; P.box(x + i * sw + (r % 2) * 3, y, r * 16, sw - 2, d, 15, P.r() > .5 ? tn : tadd(tn, 'k1')); } } };
+const fenceRing = (P, cx, cy, r, a0, a1, n) => { let prev = null; for (let i = 0; i <= n; i++) { const a = lerp(a0, a1, i / n), x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r; P.box(x - 3, y - 3, 0, 6, 6, 30, 'r4y5k3', 0.7); const t = P.I(x, y, 26); if (prev) P.line([prev, t], 0.8); prev = t; } };
+
+const SCENES = [
+/* 1 · LE JARDIN D'ÉDEN */
+{
+  title: 'Le jardin d’Éden', book: 'Genèse', ch: 3, ref: 'Genesis 3:6', refFr: 'Genèse 3, 6', fr: 'La femme vit donc que l’arbre était bon à manger, beau aux yeux et agréable à regarder : elle prit de son fruit, en mangea, et en donna à son mari, qui en mangea.', accent: 2, feast: 'Rosh Hashana',
+  quote: 'And the woman saw that the tree was good to eat, and fair to the eyes, and delightful to behold:  and she took of the fruit thereof, and did eat, and gave to her husband, who did eat.',
+  more: ['Le jardin planté « à l’orient », ses quatre fleuves, et au milieu l’arbre de la connaissance du bien et du mal. Le serpent parle, la femme regarde, cueille, partage. Le texte est d’une sobriété clinique : trois verbes, et le monde bascule.',
+    'Correspondance : <b>Rosh Hashana</b>. Pour la tradition rabbinique (Lévitique Rabba 29, 1), l’homme fut créé le 1er Tichri, jour de Rosh Hashana. Le même jour il faute, est jugé, puis gracié : d’où le sens du Nouvel An juif, jour du jugement où l’on espère la même clémence.'],
+  back(P) {
+    Lib.sun(P, 190, 150, 34);
+    Lib.cloud(P, 770, 150, 170, 40, 'b1');
+    Lib.platform(P, 'y4b3', 'r3y5k1', { strata: [[0, .3, 'y5b4k1'], [.3, .65, 'r3y5k2'], [.65, 1, 'r4y4k3']] });
+    const riv = [[330, 0], [360, 90], [300, 200], [360, 330], [430, 430], [540, 470], [540, 520], [420, 480], [330, 370], [260, 220], [320, 90], [300, 0]];
+    P.shape(riv.map(p => P.I(p[0], p[1], 0.5)), 'b5y1', 1.1);
+    Lib.waves(P, [300, 100, 80, 300], 8, 1, 2);
+    P.shape([P.I(540, 470, 0), P.I(540, 520, 0), P.I(540, 520, -60), P.I(540, 470, -60)], 'b6', 1);
+    for (let i = 0; i < 4; i++) P.line([P.I(540, 478 + i * 11, -2), P.I(540, 480 + i * 11, -58)], 0.7, { ink: 3, lvl: 3 });
+    Lib.grass(P, 80);
+    for (let i = 0; i < 46; i++) { const x = 20 + P.r() * 500, y = 20 + P.r() * 500; const c = P.I(x, y, 0); P.fill(P.disc(c[0], c[1] - 3, 2.6, 7), i % 3 ? 'r8y2' : 'y8', {}); }
+    Lib.tree(P, 60, 120, 0, { h: 170, r: 40, can: 'y5b6', fruit: 6, fruitTone: 'y9r1' });
+    Lib.palm(P, 80, 450, 0, 180, { lean: -20, dates: 1 });
+    Lib.bush(P, 470, 120, 0, 24); Lib.bush(P, 140, 300, 0, 20, 'y6b4');
+    Lib.tree(P, 230, 200, 0, { h: 270, r: 78, blobs: 9, can: 'y6b5', fruit: 18, fruitTone: 'r9y4', trunk: 'r5y5k4' });
+  },
+  front(P) { Lib.bush(P, 420, 525, 0, 22, 'y6b5k1'); },
+  chars: [
+    { draw(P, t) { const b = P.I(230, 200, 0), pts = []; for (let i = 0; i <= 26; i++) { const u = i / 26, a = u * 10 + t * 0.4; pts.push([b[0] + Math.sin(a) * (10 + u * 4) + u * u * 34 + Math.sin(t * 1.3) * u * u * 6, b[1] - 12 - u * 150 + Math.cos(a) * 3]); } drawSnake(P, pts, 4.4, 'y7b4k1'); }, depth: 431 },
+    ch(LK.eve, { x: 290, y: 240, face: -1, clip: 'reach', hold: { n: 'fruit' }, h: 136 }),
+    ch(LK.adam, { h: 146, path: [W(380, 330, 3), W(330, 400, 0), W(200, 380, 2, 'point'), W(180, 280, 0), W(345, 290, 5, 'offer', { f: -1 })] }),
+    { beast: 'lion', h: 105, path: [W(60, 330, 6, 'idle'), W(120, 250, 0), W(60, 330, 0)], speed: 14 },
+    { beast: 'deer', h: 100, path: [W(430, 190, 4), W(480, 330, 0), W(430, 190, 0)], speed: 20 },
+    { beast: 'sheep', h: 78, x: 160, y: 470, face: 1 },
+    { draw(P, t) { for (let i = 0; i < 3; i++) { const a = t * 0.5 + i * 2.1; Lib.bird(P, 560 + Math.cos(a) * 160, 190 + Math.sin(a * 1.3) * 40, 1.1, t * 2 + i, 'b3k2'); } }, depth: 2000 }
+  ]
+},
+/* 2 · L'ARCHE DE NOÉ */
+{
+  title: 'La colombe et le rameau', book: 'Genèse', ch: 8, ref: 'Genesis 8:11', refFr: 'Genèse 8, 11', fr: 'Et elle revint vers lui le soir, portant dans son bec un rameau d’olivier aux feuilles vertes. Noé comprit donc que les eaux avaient cessé sur la terre.', accent: 2, feast: null,
+  quote: 'And she came to him in the evening carrying a bough of an olive tree, with green leaves, in her mouth.  Noe therefore understood that the waters were ceased upon the earth.',
+  more: ['Après quarante jours de pluie et des mois de dérive, l’arche s’est posée sur les monts d’Ararat. Noé lâche un corbeau, puis une colombe. Au second essai, elle revient le soir avec une feuille d’olivier : la terre respire de nouveau. Juste après viendra l’arc dans la nuée, signe d’alliance.',
+    'Pas de fête juive attachée à ce récit. La paracha Noa’h se lit à l’automne, peu après les fêtes de Tichri, et la tradition prévoit une bénédiction spéciale quand on aperçoit un arc-en-ciel.'],
+  back(P) {
+    Lib.rainbow(P, 520, 400, 370, 13);
+    Lib.cloud(P, 170, 130, 210, 46, 'b2k1'); Lib.cloud(P, 840, 110, 150, 34, 'b2k1');
+    Lib.platform(P, 'b4y1', 'b5', { h: 84, pebbles: false, strata: [[0, .3, 'b5'], [.3, .65, 'b6k1'], [.65, 1, 'b7k2']] });
+    for (let i = 0; i < 9; i++) { const side = i % 2, u = 60 + P.r() * 440, z = -20 - P.r() * 55, c = side ? P.I(540, u, z) : P.I(u, 540, z); drawFish(P, c[0], c[1], 10 + P.r() * 8, P.r() > .5 ? 1 : -1, P.r() > .5 ? 'y6r2' : 'y4b2'); }
+    Lib.mound(P, 40, 470, 60, 120, 'y3r3k2'); const pk = P.I(40, 470, 120); P.shape([[pk[0], pk[1]], [pk[0] + 22, pk[1] + 22], [pk[0] + 8, pk[1] + 18], [pk[0] - 4, pk[1] + 26], [pk[0] - 20, pk[1] + 20]], 'b1', 0.9);
+    Lib.waves(P, [0, 0, 540, 540], 46, 1, 2);
+    // la coque : une caisse, comme dans le texte
+    P.box(130, 150, -10, 300, 150, 75, { t: 'r4y6k1', l: 'r4y5k3', r: 'r5y5k4' });
+    for (let z = 5; z < 60; z += 11) P.line([P.I(130, 300, z), P.I(430, 300, z)], 0.7);
+    for (let z = 5; z < 60; z += 11) P.line([P.I(430, 150, z), P.I(430, 300, z)], 0.7);
+    P.fill([P.I(130, 300, -10), P.I(430, 300, -10), P.I(430, 300, 4), P.I(130, 300, 4)], 'k6r2', { noKnock: true });
+    Lib.waves(P, [130, 300, 300, 20], 10, 1, 2);
+    P.box(170, 175, 65, 215, 100, 58, 'r3y5k1');
+    for (let i = 0; i < 4; i++) P.shape([P.I(190 + i * 50, 275, 85), P.I(215 + i * 50, 275, 85), P.I(215 + i * 50, 275, 108), P.I(190 + i * 50, 275, 108)], 'k6b2', 0.8);
+    P.shape([P.I(385, 200, 65), P.I(385, 245, 65), P.I(385, 245, 110), P.I(385, 200, 110)], 'k7r1', 0.9);
+    P.shape([P.I(160, 165, 123), P.I(395, 165, 123), P.I(395, 225, 160), P.I(160, 225, 160)], 'r5y4k2', 1);
+    P.shape([P.I(160, 285, 123), P.I(395, 285, 123), P.I(395, 225, 160), P.I(160, 225, 160)], 'r5y4k3', 1);
+    P.shape([P.I(395, 165, 123), P.I(395, 285, 123), P.I(395, 225, 160)], 'r4y5k2', 1);
+    for (let i = 1; i < 8; i++) P.line([P.I(160 + i * 30, 285, 123), P.I(160 + i * 30, 225, 160)], 0.5);
+    P.box(390, 290, -6, 60, 18, 8, 'r4y5k3'); // passerelle
+  },
+  chars: [
+    ch(LK.noah, { x: 150, y: 245, z: 65, face: -1, clip: 'offer', h: 140, noShadow: 0 }),
+    ch(LK.noahWife, { x: 410, y: 270, z: 65, face: 1, clip: 'idle', h: 128 }),
+    { beast: 'giraffe', h: 100, x: 405, y: 190, z: 65, face: 1 },
+    { draw(P, t) { const u = (t % 9) / 9, A = [60, 260], Bp = P.I(150, 245, 65), B = [Bp[0] - 58, Bp[1] - 118]; let x, y, ph = t * 3; if (u < .4) { const k = u / .4; x = lerp(A[0], B[0], k); y = lerp(A[1], B[1], k) - Math.sin(k * Math.PI) * 40; } else if (u < .6) { x = B[0]; y = B[1] + Math.sin(t * 6) * 2; ph = t * 7; } else { const k = (u - .6) / .4; x = lerp(B[0], 140, k); y = lerp(B[1], 60, k) - Math.sin(k * Math.PI) * 30; } P.ctx.save(); Lib.bird(P, x, y, 1.5, ph, 'b1'); P.shape([[x + 15, y - 3], [x + 24, y - 7], [x + 20, y - 1]], 'y6b6', 0.5); P.ctx.restore(); }, depth: 2000 },
+    { draw(P, t) { const a = t * 0.35; Lib.bird(P, 800 + Math.cos(a) * 110, 230 + Math.sin(a) * 30, 1.3, t * 2.4, 'k8'); }, depth: 2001 },
+    { draw(P, t) { const u = (t % 5) / 5; if (u < .35) { const k = u / .35, b = P.I(470, 420, 0); drawFish(P, b[0] + k * 40, b[1] - Math.sin(k * Math.PI) * 30, 12, 1, 'y6r3'); } }, depth: 900 }
+  ]
+},
+/* 3 · LA LIGATURE D'ISAAC */
+{
+  title: 'Le bélier dans le buisson', book: 'Genèse', ch: 22, ref: 'Genesis 22:13', refFr: 'Genèse 22, 13', fr: 'Abraham leva les yeux et vit derrière lui un bélier pris par les cornes dans les ronces ; il le prit et l’offrit en holocauste à la place de son fils.', accent: 1, feast: 'Rosh Hashana',
+  quote: 'Abraham lifted up his eyes, and saw behind his back a ram, amongst the briers, sticking fast by the horns, which he took and offered for a holocaust instead of his son.',
+  more: ['Sur une montagne du pays de Moriah, Abraham a lié Isaac sur le bois de l’autel. Le couteau est levé quand l’ange l’appelle deux fois par son nom. Derrière lui, un bélier est pris par les cornes dans un buisson : c’est lui qui sera offert. Les serviteurs et l’âne attendent au pied du mont.',
+    'Correspondance : <b>Rosh Hashana</b>. Ce chapitre, la Akéda, est lu le deuxième jour de la fête. Le shofar est une corne de bélier : selon le Talmud (Rosh Hashana 16a), on en sonne pour que soit rappelé le mérite de la ligature d’Isaac.'],
+  back(P) {
+    Lib.sun(P, 810, 150, 28);
+    Lib.cloud(P, 250, 170, 150, 30, 'b1');
+    Lib.platform(P, 'y4r3k1', 'y4r3k2', { strata: [[0, .35, 'y4r3k2'], [.35, .7, 'y3r4k3'], [.7, 1, 'r4y3k4']] });
+    Lib.mound(P, 100, 90, 85, 110, 'y4r3k2');
+    Lib.stones(P, 30, 'y3r2k3', [20, 20, 500, 500]);
+    Lib.rock(P, 470, 120, 0, 30, 20, 'y4r3k2'); Lib.rock(P, 60, 300, 0, 26, 18, 'y4r3k3');
+    stoneStack(P, 200, 205, 100, 70, 48, 'y3r2k3');
+    for (let i = 0; i < 6; i++) P.box(205, 208 + i * 11, 48, 92, 9, 7, 'r5y5k3', 0.7);
+    // feu porté par Abraham
+    const pot = P.I(330, 190, 0); Lib.jar(P, 330, 190, 0, 1.1, 'k5r3'); Lib.flame(P, pot[0], pot[1] - 26, 14, 26, 0);
+    Lib.bush(P, 450, 385, 0, 42, 'y4b5k2');
+    for (let i = 0; i < 12; i++) { const c = P.I(430 + P.r() * 50, 370 + P.r() * 40, 20 + P.r() * 30); P.line([[c[0] - 8, c[1]], [c[0] + 8, c[1] - 5]], 0.8); }
+    Lib.palm(P, 40, 470, 0, 150, { lean: 14 });
+  },
+  front(P) { const b = P.I(468, 408, 0); for (let i = 0; i < 11; i++) { const x = b[0] - 34 + i * 7; P.line([[x, b[1] + 2], [x + (P.r() - .5) * 14, b[1] - 20 - P.r() * 16], [x + (P.r() - .5) * 20, b[1] - 34 - P.r() * 10]], 0.9); } for (let i = 0; i < 9; i++) P.fill(Lib.bumpy(P, b[0] - 30 + P.r() * 60, b[1] - 14 - P.r() * 18, 7, 5, 4), 'y4b5k2', {}); },
+  chars: [
+    ch(LK.isaac, { x: 250, y: 238, z: 55, face: -1, clip: 'bound', h: 124, noShadow: 1 }),
+    ch(LK.abraham, { x: 175, y: 262, face: 1, clip: 'knife', hold: { n: 'knife' }, h: 150 }),
+    ch(LK.angel, { x: 420, y: 190, z: 150, face: -1, clip: 'hover', h: 138, noShadow: 1 }),
+    { beast: 'ram', h: 88, x: 455, y: 395, face: -1 },
+    { beast: 'donkey', h: 96, x: 90, y: 400, face: 1 },
+    ch(LK.bro2, { x: 150, y: 460, face: -1, clip: 'rest', h: 132 }),
+    ch(LK.bro1, { h: 134, path: [W(60, 470, 5, 'idle'), W(120, 500, 3, 'talk'), W(60, 470, 0)], speed: 16 })
+  ]
+},
+/* 4 · L'ÉCHELLE DE JACOB */
+{
+  title: 'L’échelle de Jacob', book: 'Genèse', ch: 28, ref: 'Genesis 28:12', refFr: 'Genèse 28, 12', fr: 'Et il vit en songe une échelle dressée sur la terre, dont le sommet touchait le ciel : et les anges de Dieu y montaient et y descendaient.', accent: 0, feast: null,
+  quote: 'And he saw in his sleep a ladder standing upon the earth, and the top thereof touching heaven:  the angels also of God ascending and descending by it.',
+  more: ['Jacob fuit la colère d’Ésaü. La nuit le surprend en chemin ; il prend une pierre pour oreiller. En songe, une échelle relie la terre au ciel, parcourue par des anges qui montent et descendent. Au réveil il nomme le lieu Béthel, « maison de Dieu », et dresse la pierre en stèle.',
+    'Pas de fête juive attachée à ce récit (paracha Vayétsé, lue en hiver). Les commentateurs lisent dans l’ordre des verbes, monter puis descendre, les anges gardiens de Jacob qui se relaient à la frontière du pays.'],
+  back(P) {
+    nightSky(P, 'b7k4', 90);
+    P.halo(440, 140, 118, ['y1b1', 'y2', 'y3', 'y4', 'y5r1', 'y7r1'], { knock: true });
+    Lib.moon(P, 170, 170, 26);
+    Lib.cloud(P, 420, 170, 240, 46, 'y2b1', { noShade: 1 }); Lib.cloud(P, 520, 140, 190, 38, 'y1', { noShade: 1 });
+    Lib.platform(P, 'y3r2b3k1', 'y3r3b2k2', { strata: [[0, .4, 'y3r3b2k2'], [.4, 1, 'y3r3b3k3']] });
+    Lib.stones(P, 40, 'y2r2b3k2', [20, 20, 500, 500]);
+    Lib.rock(P, 440, 110, 0, 34, 22, 'y3r2b3k2'); Lib.rock(P, 90, 110, 0, 24, 18, 'y3r2b3k3');
+    Lib.rock(P, 190, 350, 0, 16, 10, 'y3r2b2k3');
+    // l'échelle
+    const b0 = [300, 240, 0], b1 = [175, 240, 520], rails = [0, 36];
+    for (const dy of rails) { const a = P.I(b0[0], b0[1] + dy, b0[2]), c = P.I(b1[0], b1[1] + dy, b1[2]); P.line([a, c], 4.5, { taper: 0.25, ink: 3 }); P.line([[a[0] + 1.5, a[1]], [c[0] + 1.5, c[1]]], 2.2, { ink: 0, taper: 0.2 }); }
+    for (let i = 1; i < 19; i++) { const u = i / 19, x = lerp(b0[0], b1[0], u), z = lerp(b0[2], b1[2], u); P.line([P.I(x, b0[1], z), P.I(x, b0[1] + 36, z)], 2.2, { taper: 0.2 }); }
+    Lib.cloud(P, 360, 120, 200, 38, 'y1b1', { noShade: 1 });
+  },
+  chars: [
+    { draw(P) { const b = P.I(230, 360, 0); P.shape(smooth(Lib.bumpy(P, b[0] - 70, b[1] - 3, 18, 10, 6), 1), 'y3r2b2k2', 1); P.line([[b[0] - 20, b[1] + 22], [b[0] + 90, b[1] - 8]], 2.4); const q = [b[0] + 96, b[1] + 6]; P.shape(smooth([[q[0] - 14, q[1]], [q[0] - 10, q[1] - 16], [q[0] + 10, q[1] - 18], [q[0] + 16, q[1]]], 3), 'r4y5k2', 0.9); }, depth: 589 },
+    ch(LK.jacob, { x: 230, y: 360, face: 1, clip: 'sleep', h: 172 }),
+    ...[0, 1, 2].map(i => ch(LK.angel, { h: 108, noShadow: 1, t0: i * 11, speed: 26, path: [W(292, 258, 0.5, 'climb', { z: 10 }), W(180, 258, 0.5, 'climb', { z: 500, c: 'climb' })], walk: 'climb' }))
+  ]
+},
+/* 5 · JOSEPH VENDU PAR SES FRÈRES */
+{
+  title: 'Joseph tiré de la citerne', book: 'Genèse', ch: 37, ref: 'Genesis 37:28', refFr: 'Genèse 37, 28', fr: 'Et comme passaient les marchands madianites, ils le tirèrent de la citerne et le vendirent aux Ismaélites pour vingt pièces d’argent : et ceux-ci l’emmenèrent en Égypte.', accent: 1, feast: null,
+  quote: 'And when the Madianite merchants passed by, they drew him out of the pit, and sold him to the Ismaelites, for twenty pieces of silver: and they led him into Egypt.',
+  more: ['Jacob aime Joseph plus que ses autres fils et lui a fait une tunique de couleurs variées. Jaloux, ses frères l’arrachent de ce vêtement et le jettent dans une citerne vide. Une caravane passe, en route vers l’Égypte : ils le revendent vingt pièces d’argent. La tunique, trempée de sang de chevreau, sera rapportée au père.',
+    'Pas de fête juive attachée à cet épisode. Correspondance de calendrier seulement : les parachiot de Joseph (Vayéchev, Mikets) tombent presque chaque année pendant Hanoucca.'],
+  back(P) {
+    Lib.sun(P, 180, 150, 30);
+    Lib.platform(P, 'y5r2', 'y5r3k1', { strata: [[0, .3, 'y5r3k1'], [.3, .6, 'y6r3k2'], [.6, 1, 'y5r4k3']] });
+    Lib.palm(P, 60, 70, 0, 170, { lean: 16, dates: 1 }); Lib.palm(P, 110, 40, 0, 140, { lean: -12 });
+    Lib.stones(P, 26, 'y4r3k2', [20, 20, 500, 500]);
+    // la citerne
+    P.shape(P.ell(PX, PY, 0.5, 50, 50, 24), 'k8b3r2', 1.2);
+    P.fill(P.ell(PX, PY, 0.6, 50, 50, 12, Math.PI * 1.25, Math.PI * 2.25).concat(P.ell(PX, PY, -40, 50, 50, 12, Math.PI * 2.25, Math.PI * 1.25)), 'y4r3k4', {});
+    for (let i = 0; i < 18; i++) { const a = i / 18 * TAU; if (a > -Math.PI / 4 + TAU * 0 && a < 3 * Math.PI / 4) continue; const c = P.I(PX + Math.cos(a) * 56, PY + Math.sin(a) * 56, 0); P.shape(Lib.bumpy(P, c[0], c[1] - 5, 11, 7, 5), 'y3r2k3', 0.8); }
+    // la tunique de couleurs sur une pierre
+    Lib.rock(P, 170, 330, 0, 34, 20, 'y4r2k3');
+    const c = P.I(170, 330, 18), st = ['r7', 'b6', 'y8', 'r5b4', 'y6b5', 'r7y5'];
+    for (let i = 0; i < 6; i++) P.shape([[c[0] - 30 + i * 9, c[1] - 12 + i * 2], [c[0] - 21 + i * 9, c[1] - 14 + i * 2], [c[0] - 16 + i * 9, c[1] + 10], [c[0] - 25 + i * 9, c[1] + 12]], st[i], 0.6);
+    for (let i = 0; i < 20; i++) { const cc = P.I(360 + P.r() * 150, 440 + P.r() * 60, 0); P.fill(P.disc(cc[0], cc[1], 1.8, 6), 'y2k3', {}); }
+  },
+  front(P) { for (let i = 0; i < 18; i++) { const a = i / 18 * TAU; if (!(a > -Math.PI / 4 && a < 3 * Math.PI / 4)) continue; const c = P.I(PX + Math.cos(a) * 56, PY + Math.sin(a) * 56, 0); P.shape(Lib.bumpy(P, c[0], c[1] - 5, 11, 7, 5), 'y3r2k3', 0.8); } },
+  chars: [
+    ch(LK.joseph, { h: 132, dz: -200, noShadow: 1, clipFn(P) { const arc = P.ell(PX, PY, 0, 50, 50, 16, -Math.PI / 4, 3 * Math.PI / 4); return arc.concat([[arc[arc.length - 1][0], -2000], [arc[0][0], -2000]]); }, speed: 14, path: [W(PX, PY, 2, 'sink', { z: -90 }), W(PX, PY, 3.5, 'sink', { z: -8, c: 'sink' }), W(PX, PY, 0, 'sink', { z: -90, c: 'sink' })], walk: 'sink' }),
+    ch(LK.bro1, { x: 350, y: 270, face: -1, clip: 'haul', h: 140 }),
+    ch(LK.bro2, { x: 420, y: 320, face: -1, clip: 'haul', h: 142, t0: 0.4 }),
+    ch(LK.bro3, { x: 190, y: 430, face: 1, clip: 'talk', h: 144 }),
+    ch(LK.ismaelite, { x: 260, y: 470, face: -1, clip: 'offer', h: 142 }),
+    { beast: 'camel', h: 120, t0: 0, speed: 18, path: [W(520, 110, 0), W(330, 40, 0), W(150, 30, 0), W(520, 110, 0, null, { jump: 1 })] },
+    { beast: 'camel', h: 115, t0: 4.5, speed: 18, path: [W(520, 110, 0), W(330, 40, 0), W(150, 30, 0), W(520, 110, 0, null, { jump: 1 })] },
+    ch(LK.ismaelite, { h: 136, t0: 2.3, speed: 18, path: [W(520, 110, 0), W(330, 40, 0), W(150, 30, 0), W(520, 110, 0, null, { jump: 1 })] }),
+    { beast: 'sheep', h: 70, x: 90, y: 250, face: 1 }, { beast: 'sheep', h: 66, x: 120, y: 200, face: -1 }
+  ],
+  top(P, t) {
+    const cs = this.chars, j = cs[0].out, a = cs[1].out, b = cs[2].out; if (!j || !a || !b) return;
+    P.line([j.hN, [(j.hN[0] + a.hF[0]) / 2, Math.max(j.hN[1], a.hF[1]) + 6], a.hF, a.hN, b.hF], 1.6, { ink: 1, lvl: 8, taper: 0.1 });
+  }
+},
+/* 6 · LE BUISSON ARDENT */
+{
+  title: 'Le buisson ardent', book: 'Exode', ch: 3, ref: 'Exodus 3:5', refFr: 'Exode 3, 5', fr: 'Et il dit : N’approche pas d’ici ; ôte les chaussures de tes pieds, car le lieu où tu te tiens est une terre sainte.', accent: 1, feast: null,
+  quote: 'And he said:  Come not nigh hither, put off the shoes from thy feet; for the place, whereon thou standest, is holy ground.',
+  more: ['Moïse, exilé au pays de Madian, garde le troupeau de son beau-père Jéthro près de l’Horeb, la montagne de Dieu. Un buisson brûle sans se consumer. Quand il s’approche, une voix l’arrête : ôte tes sandales, le sol est saint. C’est ici qu’il reçoit sa mission et le Nom.',
+    'Pas de fête juive attachée à ce récit, lu en hiver avec la paracha Chemot. Le buisson (séné) deviendra l’image d’un peuple éprouvé qui brûle sans être détruit.'],
+  back(P) {
+    Lib.cloud(P, 820, 140, 150, 34, 'b1');
+    Lib.platform(P, 'y4r2k2', 'y4r3k2', { strata: [[0, .4, 'y4r3k2'], [.4, .75, 'r3y4k3'], [.75, 1, 'r4y3k4']] });
+    Lib.mound(P, 90, 80, 110, 250, 'y4r3k3', { px: 20 }); Lib.mound(P, 300, 20, 80, 150, 'y3r3k2');
+    Lib.stones(P, 30, 'y3r2k3', [20, 20, 500, 500]);
+    Lib.rock(P, 460, 180, 0, 30, 18, 'y4r2k3'); Lib.rock(P, 110, 380, 0, 34, 22, 'y4r3k3');
+    Lib.grass(P, 30, 'y5b4', [300, 300, 220, 220]);
+    const s = P.I(360, 380, 0); P.shape([[s[0] - 4, s[1]], [s[0] + 10, s[1] - 3], [s[0] + 12, s[1] + 2], [s[0] - 2, s[1] + 4]], 'r5y5k4', 0.6); P.shape([[s[0] + 8, s[1] + 6], [s[0] + 22, s[1] + 3], [s[0] + 24, s[1] + 8], [s[0] + 10, s[1] + 10]], 'r5y5k4', 0.6);
+    P.line([P.I(380, 360, 1), P.I(470, 380, 1)], 2.2, { ink: 3 });
+  },
+  live(P, t) { const b = P.I(240, 260, 0); P.halo(b[0], b[1] - 40, 118, ['y1', 'y2', 'y3r1', 'y4r2', 'y6r3'], { knock: true, sq: 0.8 }); P.r = rng(55); Lib.bush(P, 240, 260, 0, 48, 'y5b6k2'); Lib.flame(P, b[0] - 22, b[1] - 24, 40, 90, t, { noKnock: true }); Lib.flame(P, b[0] + 20, b[1] - 22, 36, 80, t + 1.3, { noKnock: true }); Lib.flame(P, b[0], b[1] - 36, 42, 120, t + 0.6); for (let i = 0; i < 6; i++) { const u = (t * 0.7 + i / 6) % 1; Lib.star(P, b[0] + Math.sin(i * 2.3 + t) * 30, b[1] - 60 - u * 110, 3 * (1 - u), 'y7r3'); } },
+  chars: [
+    ch(Object.assign({}, LK.moses, { feet: 'bare' }), { x: 350, y: 350, face: -1, clip: 'kneel', h: 146 }),
+    { beast: 'sheep', h: 70, speed: 8, path: [W(420, 250, 3), W(470, 330, 2), W(420, 250, 0)] },
+    { beast: 'sheep', h: 66, speed: 7, t0: 5, path: [W(400, 450, 4), W(470, 470, 2), W(400, 450, 0)] },
+    { beast: 'ram', h: 72, x: 150, y: 460, face: 1 }, { beast: 'sheep', h: 64, x: 200, y: 490, face: -1 }
+  ]
+},
+/* 7 · LA MER ROUGE */
+{
+  title: 'Le passage de la mer', book: 'Exode', ch: 14, ref: 'Exodus 14:22', refFr: 'Exode 14, 22', fr: 'Et les enfants d’Israël entrèrent au milieu de la mer desséchée ; car l’eau était comme un mur à leur droite et à leur gauche.', accent: 2, feast: 'Pessah',
+  quote: 'And the children of Israel went in through the midst of the sea dried up; for the water was as a wall on their right hand and on their left.',
+  more: ['Poursuivis par les chars de Pharaon, les Hébreux sont acculés à la mer. Moïse étend la main, un vent d’est souffle toute la nuit, et les eaux se dressent en murailles de part et d’autre. Le peuple traverse à pied sec ; la colonne de nuée et de feu se place entre les deux camps.',
+    'Correspondance : <b>Pessah</b>. Le passage de la mer est lu le septième jour de la fête, que la tradition date au 21 Nissan. On y chante le Cantique de la mer (Exode 15), l’un des sommets poétiques de la Torah.'],
+  back(P) {
+    const pb = P.I(270, 0, 0); P.halo(pb[0] - 40, pb[1] - 170, 150, ['y1', 'y2', 'y3r1', 'y5r2', 'r4y7'], { sq: 1.5 });
+    Lib.cloud(P, pb[0] - 40, pb[1] - 290, 120, 50, 'k2b1'); Lib.cloud(P, pb[0] - 30, pb[1] - 330, 90, 40, 'k2b2');
+    Lib.platform(P, 'y5r1', 'y5r2k1', { strata: [[0, .5, 'y5r2k1'], [.5, 1, 'y5r3k2']] });
+    Lib.stones(P, 14, 'y4r2k2', [180, 20, 180, 500]);
+    for (let i = 0; i < 16; i++) { const c = P.I(180 + P.r() * 180, 20 + P.r() * 500, 0); P.line([[c[0], c[1]], [c[0] + 2, c[1] - 9], [c[0] - 1, c[1] - 15]], 1, { ink: 2 }); }
+    Lib.rock(P, 270, 35, 0, 34, 24, 'y4r3k3');
+    const wall = (x0, x1, H) => {
+      P.box(x0, 0, 0, x1 - x0, 540, H, { t: 'b3', l: 'b6k1', r: 'b5' });
+      for (let i = 0; i < 8; i++) { const onRight = x0 === 0, u = 40 + P.r() * 460, z = 8 + P.r() * (H - 20); const c = onRight ? P.I(x1, u, z) : P.I(x0 + 20 + P.r() * (x1 - x0 - 40), 540, z); drawFish(P, c[0], c[1], 10 + P.r() * 7, P.r() > .5 ? 1 : -1, P.r() > .5 ? 'y6r3' : 'y5b2'); }
+      for (let i = 0; i < 26; i++) { const c = P.I(x0 + P.r() * (x1 - x0), P.r() * 540, H); P.line([[c[0] - 7, c[1]], [c[0], c[1] - 3], [c[0] + 7, c[1]]], 0.8, { ink: 2 }); }
+      for (let z = 15; z < H; z += 30) { if (x0 === 0) P.line([P.I(x1, 0, z + Math.sin(z) * 5), P.I(x1, 270, z + 8), P.I(x1, 540, z)], 0.7, { ink: 2, lvl: 6 }); P.line([P.I(x0, 540, z), P.I(x1, 540, z + 6)], 0.7, { ink: 2, lvl: 6 }); }
+      const foam = []; for (let i = 0; i <= 20; i++) foam.push(P.I(x0 === 0 ? x1 : x0, i * 27, H + Math.sin(i * 1.7) * 8)); P.line(foam, 3, { ink: 2, lvl: 3 });
+    };
+    this.wall = wall; wall(0, 170, 180);
+  },
+  front(P) { this.wall(375, 540, 46); },
+  chars: [
+    ch(LK.moses, { x: 270, y: 35, z: 24, face: 1, clip: 'raise', hold: { n: 'staff' }, h: 144 }),
+    ...[[LK.isrM, 0, {}], [LK.isrW, 4.2, { hold: { nTop: 'jarhead' }, over: 'carry' }], [LK.child, 5.4, { h: 92 }], [LK.isrOld, 9, { hold: { f: 'staffV' } }], [LK.isrM2, 13, { hold: { f: 'lamb' } }], [LK.isrW2, 17.5, {}], [LK.childG, 18.7, { h: 90 }]].map(([lk, t0, o]) => ch(lk, Object.assign({ h: 138, t0, speed: 24, path: [W(300, 530, 0), W(250, 90, 0), W(300, 530, 0, null, { jump: 1 })] }, o)))
+  ]
+},
+/* 8 · LE SINAÏ */
+{
+  title: 'Le Sinaï dans la fumée', book: 'Exode', ch: 19, ref: 'Exodus 19:18', refFr: 'Exode 19, 18', fr: 'Et tout le mont Sinaï fumait, parce que le Seigneur y était descendu dans le feu ; la fumée s’en élevait comme d’une fournaise, et toute la montagne était terrible.', accent: 1, feast: 'Chavouot',
+  quote: 'And all Mount Sinai was on a smoke:  because the Lord was come down upon it in fire, and the smoke arose from it as out of a furnace: and all the mount was terrible.',
+  more: ['Trois mois après la sortie d’Égypte, le peuple campe au pied du Sinaï. Une limite est tracée autour de la montagne : nul ne doit la franchir. Au troisième jour, tonnerre, éclairs, son du cor, et la montagne fume comme une fournaise. Moïse monte ; il en redescendra avec les Tables de la Loi.',
+    'Correspondance : <b>Chavouot</b> (6 Sivan), fête du don de la Torah. Ces chapitres (Exode 19 et 20, avec les Dix Paroles) sont lus le premier jour. Beaucoup veillent toute la nuit à étudier, le Tikoun Leil Chavouot.'],
+  back(P) {
+    for (const [x, y, w, h] of [[430, 90, 300, 70], [560, 60, 220, 50], [300, 70, 240, 60]]) Lib.cloud(P, x, y, w, h, 'k3b2');
+    Lib.platform(P, 'y4r3k1', 'y4r3k2', { strata: [[0, .35, 'y4r3k2'], [.35, .7, 'r4y4k3'], [.7, 1, 'r4y3k4']] });
+    const m = Lib.mound(P, 200, 190, 170, 320, 'y4r3k3', { px: 10 });
+    fenceRing(P, 200, 190, 250, -0.55, 2.1, 14);
+    Lib.tent(P, 420, 60, 70, 60, 55, 'y3r2k1'); Lib.tent(P, 470, 150, 60, 55, 50, 'r4y4k1');
+    Lib.stones(P, 20, 'y3r2k3', [300, 300, 220, 220]);
+    Lib.cloud(P, m.peak[0] - 60, m.peak[1] + 60, 160, 50, 'k4b2'); Lib.cloud(P, m.peak[0] + 70, m.peak[1] + 30, 130, 44, 'k3b1');
+  },
+  live(P, t) {
+    const pk = P.I(200, 190, 320);
+    P.halo(pk[0] + 10, pk[1] - 60, 120, ['r1y2', 'r2y3', 'r3y5', 'r5y7']);
+    Lib.flame(P, pk[0] - 30, pk[1] + 4, 36, 60, t, { noKnock: true }); Lib.flame(P, pk[0] + 40, pk[1] + 10, 30, 50, t + 2, { noKnock: true });
+    Lib.cloud(P, pk[0] + 10, pk[1] - 110 - Math.sin(t) * 6, 180, 60, 'k4b2'); Lib.cloud(P, pk[0] - 60, pk[1] - 160 - Math.cos(t * .8) * 8, 150, 50, 'k3b1');
+    if (Math.floor(t * 3) % 4 === 0) { const x0 = pk[0] + 150, y0 = pk[1] - 200; P.line([[x0, y0], [x0 - 20, y0 + 40], [x0 - 5, y0 + 44], [x0 - 30, y0 + 95]], 4, { ink: 0, taper: 0.6 }); P.line([[x0, y0], [x0 - 20, y0 + 40], [x0 - 5, y0 + 44], [x0 - 30, y0 + 95]], 1.2); }
+  },
+  chars: [
+    ch(LK.mosesOld, { x: 200, y: 190, z: 318, face: 1, clip: 'hold2', hold: { nTop: 'tablets' }, h: 110, noShadow: 1 }),
+    ch(LK.isrM, { x: 380, y: 360, face: -1, clip: 'kneel', h: 136 }),
+    ch(LK.isrW, { x: 430, y: 330, face: -1, clip: 'pray', h: 130 }),
+    ch(LK.isrOld, { x: 460, y: 430, face: -1, clip: 'idle', h: 136, hold: { f: 'staffV' } }),
+    ch(LK.isrM2, { x: 330, y: 460, face: -1, clip: 'kneel', h: 138, t0: 1 }),
+    ch(LK.childG, { x: 400, y: 470, face: -1, clip: 'idle', h: 90 }),
+    ch(LK.isrW2, { x: 500, y: 250, face: -1, clip: 'pray', h: 130, t0: 1.5 })
+  ]
+},
+/* 9 · LE VEAU D'OR */
+{
+  title: 'Le veau d’or', book: 'Exode', ch: 32, ref: 'Exodus 32:19', refFr: 'Exode 32, 19', fr: 'Et lorsqu’il approcha du camp, il vit le veau et les danses : saisi d’une grande colère, il jeta les tables de sa main et les brisa au pied de la montagne.', accent: 0, feast: 'Yom Kippour',
+  quote: 'And when he came nigh to the camp, he saw the calf, and the dances:  and being very angry, he threw the tables out of his hand, and broke them at the foot of the mount:',
+  more: ['Moïse tarde à redescendre. Le peuple réclame un dieu visible ; Aaron fond les anneaux d’or en un veau. On danse, on sacrifie. En approchant du camp, Moïse voit la fête et brise les tables de pierre au pied de la montagne.',
+    'Correspondance : <b>Yom Kippour</b>. Selon la tradition (Seder Olam, Rachi sur Exode 33, 11), Moïse redescend avec les secondes tables le 10 Tichri, signe du pardon accordé : ce jour devient le Grand Pardon. Le bris des premières tables est, lui, commémoré par le jeûne du 17 Tamouz.'],
+  back(P) {
+    Lib.mound(P, 20, 20, 90, 170, 'y4r3k3');
+    Lib.platform(P, 'y5r2', 'y5r3k1', { strata: [[0, .4, 'y5r3k1'], [.4, 1, 'y5r4k3']] });
+    Lib.tent(P, 420, 40, 80, 70, 64, 'b3y2k1'); Lib.tent(P, 450, 170, 70, 60, 56, 'r5y3k1'); Lib.tent(P, 40, 440, 70, 60, 56, 'y3r2k1');
+    Lib.rock(P, 70, 120, 0, 50, 34, 'y4r3k3');
+    for (let i = 0; i < 5; i++) { const c = P.I(130 + i * 9, 170 + i * 5, 0); P.shape([[c[0], c[1]], [c[0] + 10, c[1] - 4], [c[0] + 16, c[1] + 2], [c[0] + 5, c[1] + 6]], 'k2y3b1', 0.6); }
+    P.box(330, 210, 0, 36, 36, 26, 'y3r2k3');
+    Lib.stones(P, 18, 'y4r3k2', [150, 350, 300, 150]);
+  },
+  live(P, t) { const a = P.I(348, 228, 26); Lib.flame(P, a[0], a[1], 26, 44, t); const c = P.I(265, 265, 36); P.halo(c[0], c[1] - 60, 90, ['y1', 'y2', 'y3']); },
+  chars: [
+    { draw(P) { P.box(235, 235, 0, 60, 60, 36, 'y4r3k2'); }, depth: 520 },
+    { beast: 'calf', h: 86, x: 262, y: 262, z: 36, face: 1, noShadow: 1, dz: 20 },
+    ch(LK.mosesOld, { x: 70, y: 120, z: 44, face: 1, clip: 'smash', hold: { nTop: 'tablets' }, h: 142 }),
+    ch(LK.isrM2, { x: 120, y: 60, face: 1, clip: 'idle', h: 136, hold: { f: 'spear' } }),
+    ch(LK.priest, { x: 360, y: 290, face: -1, clip: 'offer', h: 140 }),
+    ...[0, 1, 2, 3, 4].map(i => { const pts = []; for (let k = 0; k < 10; k++) { const a = -k / 10 * TAU; pts.push(W(265 + Math.cos(a) * 140, 265 + Math.sin(a) * 120, 0)); } return ch([LK.isrW, LK.isrM, LK.isrW2, LK.isrM2, LK.childG][i], { h: i === 4 ? 92 : 132, t0: i * 5.2, speed: 22, walk: 'dance', path: pts }); }),
+    ch(LK.isrW, { x: 420, y: 420, face: -1, clip: 'dance', h: 128 })
+  ]
+},
+/* 10 · SOUCCOTH */
+{
+  title: 'Les cabanes du désert', book: 'Lévitique', ch: 23, ref: 'Leviticus 23:42', refFr: 'Lévitique 23, 42', fr: 'Et vous demeurerez sept jours sous des tentes de feuillage. Quiconque est de la race d’Israël habitera sous des tabernacles.', accent: 0, feast: 'Souccot',
+  quote: 'And you shall dwell in bowers seven days.  Every one that is of the race of Israel, shall dwell in tabernacles:',
+  more: ['Le calendrier des fêtes de Lévitique 23 prescrit, au quinzième jour du septième mois, de prendre « du fruit du plus bel arbre, des palmes, des branches d’arbres touffus et des saules » et d’habiter sept jours dans des cabanes, en mémoire des années de désert.',
+    'Correspondance : <b>Souccot</b> (15 Tichri, pleine lune). On mange sous un toit de branchages assez clairsemé pour voir les étoiles, et l’on agite chaque jour le loulav et l’étrog, les quatre espèces. La fête s’achève sur Chemini Atseret et Simhat Torah.'],
+  back(P) {
+    nightSky(P, 'b6r2k3', 70);
+    Lib.moon(P, 800, 150, 34);
+    Lib.platform(P, 'y4r2b2', 'y4r3b1k2', { strata: [[0, .4, 'y4r3b1k2'], [.4, 1, 'y4r3b2k3']] });
+    Lib.palm(P, 470, 60, 0, 190, { lean: -10 }); Lib.palm(P, 500, 140, 0, 150, { lean: 18 });
+    Lib.tent(P, 380, 20, 70, 60, 60, 'y3r2b1k1');
+    const booth = (x, y, w, d, h) => {
+      P.shape([P.I(x, y, 0), P.I(x, y + d, 0), P.I(x, y + d, h), P.I(x, y, h)], 'y4b5k2', 1);
+      P.shape([P.I(x, y, 0), P.I(x + w, y, 0), P.I(x + w, y, h), P.I(x, y, h)], 'y5b5k1', 1);
+      for (let i = 1; i < 10; i++) { P.line([P.I(x, y + d * i / 10, 2), P.I(x, y + d * i / 10 + 8, h - 2)], 0.6); P.line([P.I(x + w * i / 10, y, 2), P.I(x + w * i / 10 + 8, y, h - 2)], 0.6); }
+      for (let z = 20; z < h; z += 26) { P.line([P.I(x, y, z), P.I(x, y + d, z + 4)], 0.8, { ink: 1, lvl: 6 }); P.line([P.I(x, y, z), P.I(x + w, y, z + 4)], 0.8, { ink: 1, lvl: 6 }); }
+      for (const [px, py] of [[x + w, y + d], [x + w, y], [x, y + d]]) P.box(px - 4, py - 4, 0, 8, 8, h, 'r5y5k3', 0.8);
+    };
+    booth(40, 40, 230, 210, 170); booth(330, 250, 150, 140, 150);
+    P.box(110, 110, 0, 100, 70, 38, 'r5y4k2');
+    P.shape([P.I(112, 112, 38.5), P.I(208, 112, 38.5), P.I(208, 178, 38.5), P.I(112, 178, 38.5)], 'y2', 0.8);
+    Lib.lamp(P, 160, 140, 38, 1.4);
+    for (let i = 0; i < 3; i++) { const c = P.I(130 + i * 25, 160, 38); P.shape(P.disc(c[0], c[1] - 3, 5, 10), ['r7y4', 'y8', 'r8b3'][i], 0.6); }
+  },
+  front(P) {
+    const roof = (x, y, w, d, h) => { for (let i = 0; i <= 8; i++) P.line([P.I(x + w * i / 8, y, h), P.I(x + w * i / 8, y + d, h)], 1.6, { ink: 3 }); for (let i = 0; i < 14; i++) { const c = P.I(x + P.r() * w, y + P.r() * d, h + 2); P.shape([[c[0], c[1]], [c[0] + 12, c[1] - 7], [c[0] + 20, c[1] - 2], [c[0] + 8, c[1] + 4]], 'y5b6', 0.6); } };
+    roof(40, 40, 230, 210, 170); roof(330, 250, 150, 140, 150);
+  },
+  chars: [
+    ch(LK.isrOld, { x: 80, y: 150, face: 1, clip: 'eat', h: 134, dz: -10 }),
+    ch(LK.isrW, { x: 150, y: 90, face: 1, clip: 'eat', h: 126, t0: 1.1, dz: -10 }),
+    ch(LK.childG, { x: 175, y: 205, face: -1, clip: 'sit', h: 88 }),
+    ch(LK.isrM, { x: 330, y: 170, face: 1, clip: 'wave', hold: { n: 'lulav', f: 'etrog' }, h: 140 }),
+    ch(LK.child, { h: 92, over: 'carry', hold: { n: 'branches' }, speed: 20, path: [W(500, 470, 2), W(300, 480, 0), W(250, 330, 1.5, 'idle'), W(300, 480, 0)] }),
+    ch(LK.isrW2, { x: 390, y: 320, face: -1, clip: 'sit', h: 126 }),
+    ch(LK.isrM2, { x: 440, y: 300, face: -1, clip: 'eat', h: 132, t0: .6 })
+  ]
+},
+/* 11 · LE MONT NEBO */
+{
+  title: 'Moïse au mont Nebo', book: 'Deutéronome', ch: 34, ref: 'Deuteronomy 34:4', refFr: 'Deutéronome 34, 4', fr: 'Et le Seigneur lui dit : Voici la terre que j’ai juré de donner à Abraham, à Isaac et à Jacob, en disant : Je la donnerai à ta postérité. Tu l’as vue de tes yeux, et tu n’y passeras point.', accent: 2, feast: 'Simhat Torah',
+  quote: 'And the Lord said to him:  This is the land, for which I swore to Abraham, Isaac, and Jacob, saying:  I will give it to thy seed.  Thou hast seen it with thy eyes, and shalt not pass over to it.',
+  more: ['Dernier chapitre de la Torah. Moïse monte des plaines de Moab au sommet du Pisga, face à Jéricho. Dieu lui montre tout le pays, de Galaad jusqu’à Dan, jusqu’à la mer. Il le voit et n’y entrera pas. Il meurt là, à cent vingt ans, « l’œil non terni ».',
+    'Correspondance : <b>Simhat Torah</b>. Ce passage clôt la lecture annuelle ; on enchaîne aussitôt sur le premier chapitre de la Genèse. Les rouleaux sortent de l’arche et l’on danse avec eux : la fin du livre ouvre le suivant.'],
+  back(P) {
+    P.ctx.save(); const cl = new Path2D(); cl.ellipse(500, 420, 480, 330, 0, 0, TAU); P.ctx.clip(cl);
+    const band = (y0, amp, f, tn, ph) => { const pts = [[0, 700]]; for (let x = 0; x <= 1000; x += 20) pts.push([x, y0 - Math.abs(Math.sin(x * f + ph)) * amp - Math.sin(x * f * 2.3 + ph) * amp * 0.3]); pts.push([1000, 700]); P.fill(pts, tn, {}); P.line(pts.slice(1, -1), 0.8, { lvl: 7 }); };
+    band(250, 50, 0.006, 'b2', 1); band(300, 40, 0.009, 'b3y1', 2);
+    P.fill([[0, 330], [1000, 318], [1000, 700], [0, 700]], 'y3b2', {});
+    P.fill([[40, 380], [210, 360], [300, 390], [180, 420], [60, 410]], 'b5', {}); P.outline([[40, 380], [210, 360], [300, 390], [180, 420], [60, 410]], 0.7);
+    P.line([[820, 330], [760, 360], [800, 390], [720, 420], [760, 460], [700, 500]], 2.2, { ink: 2 });
+    band(470, 26, 0.012, 'y4b3', 3);
+    const jr = [860, 430];
+    P.shape([[jr[0] - 40, jr[1]], [jr[0] + 40, jr[1] - 6], [jr[0] + 40, jr[1] - 26], [jr[0] - 40, jr[1] - 20]], 'y5r3k1', 0.8);
+    for (let i = 0; i < 6; i++) P.line([[jr[0] - 40 + i * 16, jr[1] - 20 - i], [jr[0] - 40 + i * 16, jr[1] - 27 - i]], 1.4);
+    for (let i = 0; i < 5; i++) { const x = jr[0] - 60 + i * 30, y = jr[1] + 14; P.line([[x, y], [x + 2, y - 22]], 1.2); P.fill(Lib.bumpy(P, x + 2, y - 24, 7, 4, 5), 'y5b6', {}); }
+    P.ctx.restore(); P.line(P.disc(500, 420, 1, 80).map((p, i) => { const a = i / 80 * TAU; return [500 + Math.cos(a) * 480, 420 + Math.sin(a) * 330]; }).filter(p => p[1] < 560), 1, { lvl: 8 });
+    Lib.cloud(P, 180, 130, 130, 28, 'b1'); Lib.cloud(P, 700, 110, 110, 24, 'b1');
+    Lib.sun(P, 880, 110, 24);
+    Lib.platform(P, 'y4r3k2', 'y4r3k3', { h: 70, strata: [[0, .35, 'y4r3k3'], [.35, .7, 'r3y4k3'], [.7, 1, 'r4y3k5']] });
+    Lib.mound(P, 90, 90, 90, 70, 'y4r3k3'); Lib.rock(P, 200, 80, 0, 40, 30, 'y4r3k3');
+    Lib.rock(P, 380, 160, 0, 60, 36, 'y4r3k2');
+    Lib.stones(P, 36, 'y3r2k3', [20, 200, 500, 320]);
+    Lib.bush(P, 250, 420, 0, 22, 'y4b5k2'); Lib.bush(P, 450, 360, 0, 16, 'y4b5k2');
+  },
+  chars: [
+    ch(LK.mosesOld, { x: 385, y: 160, z: 34, face: 1, clip: 'point', hold: { f: 'staffV' }, h: 150 }),
+    { beast: 'deer', h: 80, x: 180, y: 380, face: 1 },
+    { beast: 'deer', h: 70, speed: 12, path: [W(300, 470, 4), W(420, 480, 3), W(300, 470, 0)] },
+    { draw(P, t) { const a = t * 0.3; Lib.bird(P, 640 + Math.cos(a) * 120, 130 + Math.sin(a) * 40, 1.6, t * 1.2, 'k7r2'); }, depth: 3000 }
+  ]
+},
+/* 12 · JÉRICHO */
+{
+  title: 'Les murailles de Jéricho', book: 'Josué', ch: 6, ref: 'Josue 6:20', refFr: 'Josué 6, 20', fr: 'Alors tout le peuple poussa un cri et les trompettes sonnèrent ; et quand la voix et le son eurent retenti aux oreilles de la multitude, les murailles tombèrent aussitôt.', accent: 1, feast: null,
+  quote: 'So all the people making a shout, and the trumpets sounding, when the voice and the sound thundered in the ears of the multitude, the walls forthwith fell down:',
+  more: ['Six jours durant, l’armée fait le tour de Jéricho en silence, derrière sept prêtres sonnant du cor devant l’arche de l’alliance. Le septième jour, sept tours, un long son de trompe, un cri du peuple : la muraille s’effondre. Seule la maison de Rahab, marquée d’un cordon écarlate à la fenêtre, est épargnée.',
+    'Pas de fête juive attachée à ce récit. Les cors des prêtres sont des shofarot, les mêmes cornes de bélier que celles de Rosh Hashana.'],
+  back(P) {
+    Lib.sun(P, 160, 140, 26);
+    Lib.platform(P, 'y5r2', 'y5r3k1', { strata: [[0, .4, 'y5r3k1'], [.4, 1, 'y5r4k3']] });
+    for (const [x, y, h] of [[40, 80, 150], [70, 30, 120], [30, 180, 130]]) Lib.palm(P, x, y, 0, h, { lean: 10, dates: 1 });
+    const wt = 'y4r3k1';
+    P.box(120, 120, 0, 24, 280, 92, wt); P.box(120, 120, 0, 280, 24, 92, wt);
+    for (let i = 0; i < 11; i++) { P.box(120, 126 + i * 25, 92, 24, 12, 12, wt, 0.8); P.box(126 + i * 25, 120, 92, 12, 24, 12, wt, 0.8); }
+    for (const [x, y] of [[110, 110]]) P.box(x, y, 0, 46, 46, 128, 'y4r3k2');
+    for (const [x, y, w, d, h] of [[170, 170, 60, 50, 60], [250, 160, 50, 60, 76], [180, 250, 50, 50, 50], [260, 250, 60, 60, 66], [320, 180, 44, 50, 52]]) { P.box(x, y, 0, w, d, h, 'y3r2'); P.shape([P.I(x + w * 0.3, y + d, 0), P.I(x + w * 0.55, y + d, 0), P.I(x + w * 0.55, y + d, 26), P.I(x + w * 0.3, y + d, 26)], 'k6r2', 0.7); }
+    // mur de droite encore debout avec la maison de Rahab
+    P.box(376, 140, 0, 24, 110, 92, wt); P.box(360, 180, 92, 50, 60, 52, 'y3r3k1');
+    const win = P.I(410, 205, 118); P.shape([[win[0], win[1]], [win[0] + 12, win[1] + 6], [win[0] + 12, win[1] - 10], [win[0], win[1] - 16]], 'k7', 0.7);
+    P.line([[win[0] + 6, win[1] - 2], [win[0] + 8, win[1] + 30], [win[0] + 5, win[1] + 70], [win[0] + 9, win[1] + 110]], 2.4, { ink: 1, taper: 0.3 });
+    // gravats
+    for (let i = 0; i < 26; i++) { const x = 140 + P.r() * 270, y = 380 + P.r() * 40, s = 10 + P.r() * 14; if (x > 360 && y < 250) continue; P.box(x, y, 0, s, s * 0.8, s * 0.6, wt, 0.8); }
+    for (let i = 0; i < 14; i++) { const x = 380 + P.r() * 40, y = 260 + P.r() * 140, s = 10 + P.r() * 12; P.box(x, y, 0, s, s, s * 0.6, wt, 0.8); }
+    P.box(380, 380, 0, 36, 30, 44, wt); P.box(150, 382, 0, 40, 30, 36, wt);
+  },
+  live(P, t) {
+    for (let k = 0; k < 3; k++) { const u = ((t * 0.5 + k * 0.33) % 1), x = 200 + k * 70, c = P.I(x, 400, 92 * (1 - u * u)); P.shape([[c[0] - 10, c[1] - 6], [c[0] + 10, c[1] - 9], [c[0] + 12, c[1] + 6], [c[0] - 8, c[1] + 8]].map(p => [c[0] + (p[0] - c[0]) * Math.cos(u * 3) - (p[1] - c[1]) * Math.sin(u * 3), c[1] + (p[0] - c[0]) * Math.sin(u * 3) + (p[1] - c[1]) * Math.cos(u * 3)]), 'y4r3k2', 0.8); if (u > 0.75) Lib.cloud(P, c[0], c[1] + 10, 50 * (u - 0.6) * 3, 16, 'y3r2k1', { noShade: 1 }); }
+  },
+  chars: (() => {
+    const path = [W(500, 40, 0), W(500, 480, 0), W(40, 480, 0), W(500, 40, 0, null, { jump: 1 })];
+    const L = [];
+    for (let i = 0; i < 4; i++) L.push(ch(LK.priest, { h: 136, t0: 30 - i * 3.2, speed: 24, over: 'blow', hold: { n: 'shofar' }, path }));
+    const ark = ch(LK.priest, { h: 134, t0: 30 - 15, speed: 24, over: 'carry', path });
+    const ark2 = ch(LK.priest, { h: 134, t0: 30 - 17.6, speed: 24, over: 'carry', path });
+    L.push(ark, ark2, { depth: t => { const s = charState(ark, t); return s.x + s.y - 1; }, draw(P, t) { const a = charState(ark, t), b = charState(ark2, t), pa = P.I(a.x, a.y, 118), pb = P.I(b.x, b.y, 118), c = [(pa[0] + pb[0]) / 2, (pa[1] + pb[1]) / 2]; P.line([pa, pb], 3, { ink: 3, taper: 0 }); P.shape([[c[0] - 26, c[1] - 4], [c[0] + 26, c[1] - 4], [c[0] + 26, c[1] - 28], [c[0] - 26, c[1] - 28]], 'y9r3', 1); P.shape([[c[0] - 26, c[1] - 28], [c[0] + 26, c[1] - 28], [c[0] + 30, c[1] - 33], [c[0] - 22, c[1] - 33]], 'y9r4k1', 0.8); for (const s of [-1, 1]) P.shape([[c[0] + s * 4, c[1] - 33], [c[0] + s * 20, c[1] - 52], [c[0] + s * 24, c[1] - 40], [c[0] + s * 14, c[1] - 33]], 'y8r2', 0.7); } });
+    for (let i = 0; i < 3; i++) L.push(ch(i === 1 ? LK.isrM2 : LK.soldier, { h: 138, t0: 30 - 21 - i * 3.3, speed: 24, hold: { n: 'spear' }, over: 'guard', path }));
+    L.push(ch(LK.isrW, { x: 470, y: 520, face: -1, clip: 'pray', h: 126 }));
+    return L;
+  })()
+},
+/* 13 · RUTH */
+{
+  title: 'Ruth dans le champ de Booz', book: 'Ruth', ch: 2, ref: 'Ruth 2:3', refFr: 'Ruth 2, 3', fr: 'Elle alla donc, et glanait les épis derrière les moissonneurs. Et il se trouva que ce champ appartenait à Booz, qui était de la parenté d’Élimélech.', accent: 0, feast: 'Chavouot',
+  quote: 'She went, therefore, and gleaned the ears of corn after the reapers.  And it happened that the owner of that field was Booz, who was of the kindred of Elimelech.',
+  more: ['Ruth la Moabite a suivi sa belle-mère Noémi jusqu’à Bethléem. C’est le début de la moisson des orges. Pour les nourrir, elle glane derrière les moissonneurs les épis oubliés, comme la Loi le permet aux pauvres et aux étrangers. Le champ appartient à Booz, un parent : il la remarque et la protège.',
+    'Correspondance : <b>Chavouot</b>, fête des moissons. On y lit le livre de Ruth : récolte, don de la Torah et fidélité d’une étrangère qui choisit ce peuple. Ruth sera l’arrière-grand-mère de David, que la tradition fait naître et mourir à Chavouot.'],
+  back(P) {
+    Lib.sun(P, 820, 150, 30); Lib.cloud(P, 210, 130, 160, 32, 'b1');
+    Lib.mound(P, 40, 30, 80, 90, 'y4b3k1');
+    Lib.platform(P, 'y5r1', 'y5r3k1', { strata: [[0, .35, 'y5r3k1'], [.35, .7, 'r3y5k2'], [.7, 1, 'r4y4k3']] });
+    for (let r = 0; r < 14; r++) for (let i = 0; i < 26; i++) {
+      const x = 20 + i * 20 + (r % 2) * 10, y = 20 + r * 37; const c = P.I(x, y, 0), tall = x < 250;
+      if (tall) { P.line([[c[0], c[1]], [c[0] + 1, c[1] - 24]], 1, { ink: 0, lvl: 9 }); P.line([[c[0] - 3, c[1]], [c[0] - 4, c[1] - 20]], 0.8, { ink: 0 }); P.fill([[c[0] - 2, c[1] - 24], [c[0] + 1, c[1] - 34], [c[0] + 3, c[1] - 24]], 'y8r2', {}); }
+      else P.line([[c[0], c[1]], [c[0] + 1, c[1] - 5]], 0.8, { ink: 0, lvl: 8 });
+    }
+    for (const [x, y] of [[300, 120], [360, 90], [330, 220], [420, 170], [470, 300]]) { const c = P.I(x, y, 0); for (let k = -4; k <= 4; k++) P.line([[c[0] + k * 1.5, c[1]], [c[0] + k * 4, c[1] - 30]], 1.2, { ink: 0 }); P.fill([[c[0] - 20, c[1] - 30], [c[0] + 20, c[1] - 30], [c[0] + 14, c[1] - 40], [c[0] - 14, c[1] - 40]], 'y8r3', {}); P.line([[c[0] - 7, c[1] - 14], [c[0] + 7, c[1] - 14]], 2, { ink: 1 }); }
+    P.box(440, 40, 0, 6, 6, 80, 'r4y5k3'); P.box(510, 110, 0, 6, 6, 80, 'r4y5k3');
+    P.shape([P.I(430, 30, 80), P.I(530, 30, 80), P.I(530, 130, 76), P.I(430, 130, 76)], 'b4y2', 1);
+    Lib.jar(P, 480, 70, 0, 1.2); Lib.jar(P, 500, 80, 0, 1); Lib.jar(P, 470, 95, 0, 1.1, 'r6y5k2');
+  },
+  chars: [
+    ch(LK.reaper, { h: 136, hold: { n: 'sickle' }, speed: 5, walk: 'reap', path: [W(240, 120, 0), W(240, 420, 0), W(240, 120, 0, null, { jump: 1 })] }),
+    ch(LK.reaper, { h: 134, hold: { n: 'sickle' }, speed: 5, t0: 20, walk: 'reap', path: [W(250, 200, 0), W(250, 500, 0), W(250, 200, 0, null, { jump: 1 })], look: Object.assign({}, LK.reaper, { robe: 'b3y2', hs: 'short', head: null }) }),
+    ch(LK.ruth, { h: 130, speed: 6, hold: { f: 'sheaf' }, path: [W(300, 260, 3, 'glean'), W(330, 380, 4, 'glean'), W(360, 450, 3, 'glean'), W(300, 260, 0)], walk: 'walk' }),
+    ch(LK.boaz, { x: 420, y: 430, face: -1, clip: 'talk', h: 146 }),
+    ch(LK.reaper, { x: 470, y: 470, face: -1, clip: 'idle', h: 132, hold: { f: 'staffV' }, look: Object.assign({}, LK.reaper, { robe: 'r4y5k1', beard: 'long' }) }),
+    ch(LK.maid, { h: 124, over: 'carry', hold: { nTop: 'jarhead' }, speed: 18, path: [W(470, 140, 4), W(420, 300, 3), W(470, 140, 0)] })
+  ]
+},
+/* 14 · DAVID ET GOLIATH */
+{
+  title: 'David et Goliath', book: '1 Samuel', ch: 17, ref: '1 Kings 17:49', refFr: '1 Samuel 17, 49', fr: 'Il mit la main dans sa panetière, en tira une pierre, la lança avec la fronde en la faisant tournoyer, et frappa le Philistin au front ; et celui-ci tomba face contre terre.', accent: 1, feast: null,
+  quote: 'And he put his hand into his scrip, and took a stone, and cast it with the sling, and fetching it about, struck the Philistine in the forehead, and he fell on his face upon the earth.',
+  more: ['Vallée du Térébinthe. Deux armées sur deux collines, un torrent entre elles. Goliath, champion philistin, casque et cuirasse de bronze, défie Israël depuis quarante jours. David, berger roux, refuse l’armure du roi, choisit cinq pierres lisses dans le torrent et tend sa fronde.',
+    'Pas de fête juive attachée à ce récit (le livre est appelé « 1 Rois » dans la Douay-Rheims, « 1 Samuel » dans les bibles hébraïques). David reste lié à Chavouot par la tradition de sa naissance et de sa mort.'],
+  back(P) {
+    Lib.cloud(P, 500, 110, 200, 38, 'b1');
+    Lib.platform(P, 'y5b2', 'y4r3k1', { strata: [[0, .4, 'y4r3k1'], [.4, 1, 'y4r4k3']] });
+    const m1 = Lib.mound(P, 70, 70, 80, 90, 'y5b3k1'), m2 = Lib.mound(P, 470, 60, 70, 80, 'y5b3k1');
+    Lib.tent(P, 20, 20, 50, 40, 40, 'r5y4k1'); Lib.tent(P, 450, 10, 50, 40, 40, 'b4y2k1');
+    const riv = [[0, 300], [120, 330], [260, 300], [400, 350], [540, 330], [540, 370], [400, 390], [260, 340], [120, 370], [0, 340]];
+    P.shape(riv.map(p => P.I(p[0], p[1], 0.5)), 'b5y1', 1); Lib.waves(P, [40, 320, 460, 30], 10, 1, 2);
+    Lib.stones(P, 16, 'b2k3', [40, 300, 460, 60]);
+    Lib.grass(P, 60, 'y5b4');
+    Lib.bush(P, 120, 480, 0, 24, 'y5b5k2'); Lib.tree(P, 500, 460, 0, { h: 150, r: 42, can: 'y5b5k1' });
+  },
+  top(P, t) {
+    const d = this.chars[1].out, g = this.chars[0].out; if (!d || !g) return;
+    const u = (t % 3) / 3; if (u < 0.35) return; const k = (u - 0.35) / 0.65, x = lerp(d.hN[0], g.head[0] + 6, k), y = lerp(d.hN[1] - 20, g.head[1] - 6, k) - Math.sin(k * Math.PI) * 50;
+    P.shape(P.disc(x, y, 3, 8), 'k5y2', 0.6); for (let i = 1; i < 4; i++) P.line([[x - i * 6, y + i * 1.5], [x - i * 6 - 4, y + i * 1.5 + 1]], 0.6);
+    if (k > 0.92) P.halo(g.head[0] + 6, g.head[1] - 6, 16, ['y3', 'y6r3']);
+  },
+  chars: [
+    ch(LK.goliath, { x: 170, y: 220, face: 1, clip: 'stagger', hold: { n: 'spear', f: 'shield' }, h: 250 }),
+    ch(LK.david, { x: 400, y: 410, face: -1, clip: 'sling', hold: { n: 'sling' }, h: 120, over: null }),
+    ch(LK.soldier, { x: 60, y: 160, face: 1, clip: 'guard', hold: { n: 'spear' }, h: 110 }),
+    ch(LK.soldier, { x: 100, y: 120, face: 1, clip: 'guard', hold: { n: 'spear' }, h: 106, t0: 1 }),
+    ch(LK.isrM, { x: 480, y: 170, face: -1, clip: 'guard', hold: { n: 'spear' }, h: 110 }),
+    ch(LK.isrM2, { x: 440, y: 130, face: -1, clip: 'point', h: 108 }),
+    { beast: 'sheep', h: 62, x: 460, y: 500, face: -1 }
+  ]
+},
+/* 15 · ÉLIE AU CARMEL */
+{
+  title: 'Le feu du Carmel', book: '1 Rois', ch: 18, ref: '3 Kings 18:38', refFr: '1 Rois 18, 38', fr: 'Alors le feu du Seigneur tomba, et il consuma l’holocauste, le bois, les pierres et la poussière, et il lécha l’eau qui était dans la rigole.', accent: 1, feast: null,
+  quote: 'Then the fire of the Lord fell, and consumed the holocaust, and the wood, and the stones, and the dust, and licked up the water that was in the trench.',
+  more: ['Sécheresse de trois ans sous le roi Achab. Au mont Carmel, Élie défie seul les quatre cent cinquante prophètes de Baal : chacun prépare un taureau, et le vrai Dieu répondra par le feu. Les prêtres de Baal dansent et crient en vain toute la journée. Élie fait inonder son autel de douze pierres, prie, et le feu tombe.',
+    'Pas de fête juive attachée à cet épisode (le livre est le « 3 Rois » de la Douay-Rheims). Le prophète Élie est pourtant présent à Pessah, où l’on remplit pour lui une coupe au Séder, et chaque samedi soir dans les chants de la Havdala.'],
+  back(P) {
+    Lib.cloud(P, 250, 160, 220, 44, 'k2b2'); Lib.cloud(P, 700, 120, 170, 36, 'k2b1');
+    Lib.platform(P, 'y4b2r1', 'y4r3k2', { strata: [[0, .4, 'y4r3k2'], [.4, 1, 'r4y4k3']] });
+    Lib.grass(P, 50, 'y5b4'); Lib.stones(P, 20, 'y3r2k3', [20, 20, 500, 500]);
+    Lib.tree(P, 60, 60, 0, { h: 150, r: 40, can: 'y5b5k1' });
+    stoneStack(P, 120, 150, 80, 60, 32, 'y4r3k2'); P.box(125, 155, 32, 70, 50, 8, 'r5y5k3', 0.8);
+    // autel de douze pierres et sa rigole d'eau
+    P.shape(P.ell(330, 300, 0.5, 85, 70, 28), 'b6y1', 1.1);
+    P.shape(P.ell(330, 300, 0.8, 66, 52, 28), 'y4r2k2', 1);
+    for (let i = 0; i < 12; i++) { const a = i / 12 * TAU, x = 330 + Math.cos(a) * 34, y = 300 + Math.sin(a) * 26; if (Math.sin(a) > 0.2) continue; P.box(x - 10, y - 10, 0, 20, 20, 34, 'y3r2k2', 0.9); }
+    P.box(300, 270, 0, 60, 50, 34, 'y3r2k3');
+    for (let i = 0; i < 12; i++) { const a = i / 12 * TAU, x = 330 + Math.cos(a) * 34, y = 300 + Math.sin(a) * 26; if (Math.sin(a) <= 0.2) continue; P.box(x - 10, y - 10, 0, 20, 20, 34, 'y3r2k2', 0.9); }
+    for (let i = 0; i < 5; i++) P.box(298, 272 + i * 10, 34, 64, 8, 7, 'r5y5k3', 0.7);
+  },
+  live(P, t) {
+    const c = P.I(330, 300, 44), top = [c[0] + 30, 0];
+    const w0 = 34, pts = [[top[0] - w0 * 2.2, top[1]], [top[0] + w0 * 2.2, top[1]], [c[0] + w0 * 1.2, c[1] - 20], [c[0] - w0 * 1.2, c[1] - 20]];
+    P.fill(pts, 'y3r1', { noKnock: true });
+    P.fill([[top[0] - w0, top[1]], [top[0] + w0, top[1]], [c[0] + w0 * 0.6, c[1] - 20], [c[0] - w0 * 0.6, c[1] - 20]], 'y4r2', { noKnock: true });
+    P.halo(c[0], c[1] - 20, 110, ['y2', 'y3r1', 'y4r2', 'y6r3', 'r5y8'], { sq: 0.7 });
+    for (let i = -2; i <= 2; i++) Lib.flame(P, c[0] + i * 16, c[1] - 6 + Math.abs(i) * 3, 24, 60 - Math.abs(i) * 10, t + i, { noKnock: i !== 0 });
+  },
+  chars: [
+    { beast: 'bull', h: 80, x: 160, y: 175, z: 40, face: 1, noShadow: 1 },
+    ch(LK.elijah, { x: 430, y: 380, face: -1, clip: 'pray', h: 146 }),
+    ...[0, 1, 2].map(i => { const pts = []; for (let k = 0; k < 8; k++) { const a = -k / 8 * TAU; pts.push(W(160 + Math.cos(a) * 110, 180 + Math.sin(a) * 90, 0)); } return ch(LK.baal, { h: 132, t0: i * 4.2, speed: 20, walk: 'dance', path: pts }); }),
+    ch(LK.isrM, { x: 200, y: 450, face: 1, clip: 'kneel', h: 136 }),
+    ch(LK.isrW, { x: 150, y: 400, face: 1, clip: 'kneel', h: 128, t0: 1 }),
+    ch(LK.isrOld, { x: 260, y: 500, face: 1, clip: 'pray', h: 134 })
+  ]
+},
+/* 16 · ESTHER */
+{
+  title: 'Esther devant le roi', book: 'Esther', ch: 5, ref: 'Esther 5:2', refFr: 'Esther 5, 2', fr: 'Et quand il vit la reine Esther debout, elle plut à ses yeux ; il tendit vers elle le sceptre d’or qu’il tenait à la main ; elle s’approcha et baisa le bout du sceptre.', accent: 1, feast: 'Pourim',
+  quote: 'And when he saw Esther the queen standing, she pleased his eyes, and he held out toward her the golden sceptre, which he held in his hand and she drew near, and kissed the top of his sceptre.',
+  more: ['Suse, capitale perse. Entrer chez le roi sans être appelée, c’est risquer la mort. Esther jeûne trois jours puis se présente dans la cour intérieure. Le sceptre d’or s’abaisse vers elle : elle a la vie sauve, et par elle tout son peuple menacé par le décret d’Aman.',
+    'Correspondance : <b>Pourim</b> (14 Adar). On lit la Méguila d’Esther, on couvre de bruit le nom d’Aman, on s’offre des mets et l’on donne aux pauvres. La veille, le jeûne d’Esther (Taanit Esther) rappelle les trois jours qui ont précédé cette audience.'],
+  back(P) {
+    const L = P.L;
+    Lib.platform(P, 'y2r1', 'y4r3k1', { h: 50, strata: [[0, .5, 'y4r3k1'], [.5, 1, 'y4r3k3']], pebbles: false });
+    for (let i = 0; i < 9; i++) for (let j = 0; j < 9; j++) { const x = i * 60, y = j * 60; P.fill([P.I(x, y, 0), P.I(x + 60, y, 0), P.I(x + 60, y + 60, 0), P.I(x, y + 60, 0)], (i + j) % 2 ? 'b4y1' : 'y2r1', {}); }
+    P.outline([P.I(0, 0, 0), P.I(L, 0, 0), P.I(L, L, 0), P.I(0, L, 0)], 1.2);
+    Lib.walls(P, { l: 'y2r1', r: 'y2r1k1', cut: 'y4r3k2' }, { h: 300 });
+    for (let i = 0; i < 3; i++) { Lib.archR(P, 90 + i * 150, 70, 80, 170, 'b7k3'); Lib.archL(P, 120 + i * 140, 70, 70, 160, 'b7k3'); }
+    for (let i = 0; i < 14; i++) { const p = P.I(100 + (i * 53) % 400, 0.5, 150 + (i * 37) % 80); if ((i * 53) % 400 % 150 < 70) Lib.star(P, p[0], p[1], 3, 'y7'); }
+    for (let x = 0; x < L; x += 30) Lib.wallR(P, x, 262, 26, 16, (x / 30) % 2 ? 'r6y4' : 'b6y2', 0.6);
+    for (let y = 0; y < L; y += 30) Lib.wallL(P, y, 262, 26, 16, (y / 30) % 2 ? 'r6y4' : 'b6y2', 0.6);
+    for (const x of [45, 480]) P.shape([P.I(x - 20, 1, 300), P.I(x + 20, 1, 300), P.I(x + 26, 1, 40), P.I(x + 8, 1, 0), P.I(x - 12, 1, 60)], 'r7b3', 1);
+    P.box(40, 150, 0, 150, 200, 20, 'r4y4');
+    P.box(60, 170, 20, 130, 160, 14, 'r6b2');
+    P.box(80, 210, 34, 40, 90, 55, 'y7r3');
+    P.box(64, 205, 34, 20, 100, 150, { t: 'y8r3', l: 'y7r4k1', r: 'y7r4k2' });
+    for (const y of [205, 295]) P.cyl(84, y + 5, 34, 7, 175, 'y8r2');
+    for (const [x, y] of [[300, 40], [460, 40]]) { P.cyl(x, y, 0, 18, 280, 'y2r1'); P.box(x - 26, y - 26, 280, 52, 52, 20, 'y4r3'); }
+    P.shape([P.I(210, 250, 0.5), P.I(520, 250, 0.5), P.I(520, 330, 0.5), P.I(210, 330, 0.5)], 'r7y3', 1);
+    for (let i = 0; i < 6; i++) P.line([P.I(230 + i * 50, 262, 1), P.I(230 + i * 50, 318, 1)], 0.8, { ink: 2 });
+    Lib.lamp(P, 250, 60, 150); Lib.lamp(P, 60, 470, 140);
+    P.box(40, 440, 0, 30, 30, 140, 'y6r3');
+  },
+  chars: [
+    ch(LK.king, { x: 100, y: 255, z: 34, face: 1, clip: 'throne', hold: { n: 'scepter' }, h: 150 }),
+    ch(LK.guard, { x: 70, y: 110, face: 1, clip: 'guard', hold: { n: 'spear' }, h: 140 }),
+    ch(LK.guard, { x: 90, y: 400, face: 1, clip: 'guard', hold: { n: 'spear' }, h: 140, t0: 1.3 }),
+    ch(LK.esther, { h: 136, speed: 22, path: [W(470, 420, 3, 'idle'), W(235, 275, 5, 'kneel', { f: -1 }), W(300, 300, 2, 'idle', { f: -1 })] }),
+    ch(LK.maid, { h: 126, speed: 22, t0: -1.2, path: [W(500, 470, 3, 'idle'), W(330, 360, 6, 'idle', { f: -1 }), W(360, 380, 2, 'idle')] })
+  ]
+}
+];
+
+/* ============================================================
+   APPLICATION : feuille, caches par niveau de détail, impression,
+   visite guidée, caméra, carte de chapitre
+   ============================================================ */
+const CELL = 1000, GUT = 90, MARG = 300, COLS = 4, ROWS = Math.ceil(SCENES.length / 4);
+const SW = MARG * 2 + COLS * CELL + (COLS - 1) * GUT, SH = MARG * 2 + ROWS * CELL + (ROWS - 1) * GUT;
+const cellPos = i => [MARG + (i % COLS) * (CELL + GUT), MARG + Math.floor(i / COLS) * (CELL + GUT)];
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+let VW = 0, VH = 0, DPR = 1, S0 = 0.25, SMAX = 2.6;
+const cam = { x: SW / 2, y: SH / 2, z: 0.2, vx: 0, vy: 0 };
+let fly = null, lastMove = 0, userT = -1e9, cardPinned = false, cardHidden = false, cardScene = -1, needDraw = true;
+const SC = SCENES.map((d, i) => { d.id = i; (d.chars || []).forEach(c => c.draw || prepChar(c)); return { d, id: i, lays: new Map(), cur: 0, frame: document.createElement('canvas'), fs: 0, lastTick: -1, stage: [], rev: { t0: 0, done: false }, used: 0 }; });
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2.5); VW = innerWidth; VH = innerHeight;
+  let w = Math.round(VW * DPR), h = Math.round(VH * DPR); const mx = 3840 * 2400; if (w * h > mx) { const k = Math.sqrt(mx / (w * h)); w = Math.round(w * k); h = Math.round(h * k); DPR *= k; }
+  cv.width = w; cv.height = h;
+  SMAX = Math.min(VW, VH) < 700 ? 1.8 : 2.8;
+  const fz = fitZ(); S0 = clamp(bucket(fz * DPR * 1.15), 0.18, 1);
+  needDraw = true;
+}
+const fitZ = () => Math.min(VW / (SW * 1.03), VH / (SH * 1.03));
+function sceneView(i) {
+  const [x, y] = cellPos(i), cw = Math.min(390, VW - 32) + 30;
+  let C, sx, sy;
+  if (VW >= VH) { C = Math.min(VH * 0.96, Math.max(VW - cw, VW * 0.6)); sx = C <= VW - cw ? cw + (VW - cw) / 2 : VW - C / 2 - 6; sy = VH / 2; }
+  else { const chh = VW < 640 ? 250 : 330; C = Math.min(VW * 0.99, (VH - chh) * 0.99); sx = VW / 2; sy = (VH - chh) / 2 + 6; }
+  const z = C / CELL;
+  return { x: x + CELL / 2 - (sx - VW / 2) / z, y: y + CELL / 2 - (sy - VH / 2) / z, z };
+}
+function focusScene() {
+  const z = cam.z, x0 = cam.x - VW / 2 / z, x1 = cam.x + VW / 2 / z, y0 = cam.y - VH / 2 / z, y1 = cam.y + VH / 2 / z; let best = -1, ba = 0;
+  for (let i = 0; i < SCENES.length; i++) { const [x, y] = cellPos(i), w = Math.max(0, Math.min(x1, x + CELL) - Math.max(x0, x)), h = Math.max(0, Math.min(y1, y + CELL) - Math.max(y0, y)), a = w * h / (CELL * CELL); if (a > ba) { ba = a; best = i; } }
+  return ba > 0.6 && CELL * z > 0.5 * Math.min(VW, VH) ? best : -1;
+}
+/* ---------- rendu des calques ---------- */
+function drawSceneLayer(g, sc, s, layer, v, mask, withChars) {
+  const P = new Painter(g, s, v, sc.id, mask);
+  g.setTransform(s, 0, 0, s, 0, 0);
+  if (layer === 'back') { g.fillStyle = PAPER; g.fillRect(0, 0, CELL, CELL); P.r = rng(sc.id * 1009 + 1); sc.d.back(P); if (grainPat) { g.globalCompositeOperation = 'multiply'; g.fillStyle = grainPat; g.fillRect(0, 0, CELL, CELL); g.globalCompositeOperation = 'source-over'; } }
+  if (withChars) { P.r = rng(sc.id * 77 + 3); drawLive(P, sc, 0); }
+  if ((layer === 'front' || withChars) && sc.d.front) { P.r = rng(sc.id * 3001 + 7); sc.d.front(P); }
+}
+function drawLive(P, sc, t) {
+  const d = sc.d, items = [];
+  for (const c of d.chars || []) {
+    if (c.draw) { items.push({ dp: typeof c.depth === 'function' ? c.depth(t) : c.depth || 0, c }); continue; }
+    const st = charState(c, t); items.push({ dp: st.x + st.y + (c.dz || 0), c });
+  }
+  items.sort((a, b) => a.dp - b.dp);
+  if (d.live) d.live(P, t);
+  for (const it of items) { if (it.c.draw) it.c.draw(P, t); else renderChar(P, it.c, t); }
+  if (d.top) d.top(P, t);
+}
+function makeCanvas(s) { const c = document.createElement('canvas'); c.width = c.height = Math.ceil(CELL * s); return c; }
+const jobs = []; let jobKey = new Set();
+function enqueue(sc, s, pri) {
+  const key = sc.id + ':' + s; if (jobKey.has(key) || sc.lays.has(s)) return; jobKey.add(key);
+  const L = { s, back: [], front: sc.d.front ? [] : null, n: 0 };
+  for (let v = 0; v < 3; v++) jobs.push({ sc, s, v, L, pri: pri + v * 0.1, key });
+}
+function runJobs(budget) {
+  const t0 = performance.now();
+  while (jobs.length && performance.now() - t0 < budget) {
+    jobs.sort((a, b) => a.pri - b.pri); const j = jobs.shift();
+    if (j.stage !== undefined) { const c = makeCanvas(j.s), g = c.getContext('2d'); drawSceneLayer(g, j.sc, j.s, 'back', 0, j.mask, true); j.sc.stage[j.stage] = c; continue; }
+    const c = makeCanvas(j.s); drawSceneLayer(c.getContext('2d'), j.sc, j.s, 'back', j.v, 15, false); j.L.back[j.v] = c;
+    if (j.L.front) { const f = makeCanvas(j.s); drawSceneLayer(f.getContext('2d'), j.sc, j.s, 'front', j.v, 15, false); j.L.front[j.v] = f; }
+    if (++j.L.n === 3) { j.sc.lays.set(j.s, j.L); jobKey.delete(j.key); }
+    if (j.v === 0) j.sc.pending = j.L;
+  }
+}
+function evict() {
+  const hi = []; for (const sc of SC) for (const [s, L] of sc.lays) if (s > S0 && s !== sc.cur) hi.push({ sc, s, u: sc.used });
+  let bytes = 0; for (const sc of SC) for (const [s] of sc.lays) bytes += s * s * CELL * CELL * 4 * 7;
+  hi.sort((a, b) => a.u - b.u);
+  while (bytes > 700e6 && hi.length) { const e = hi.shift(); e.sc.lays.delete(e.s); bytes -= e.s * e.s * CELL * CELL * 4 * 7; }
+}
+function compose(sc, t, v) {
+  let L = sc.lays.get(sc.cur);
+  if (!L && sc.pending && sc.pending.s === sc.cur) L = sc.pending;
+  if (!L) return false;
+  const s = L.s, f = sc.frame, W = Math.ceil(CELL * s);
+  if (f.width !== W) { f.width = f.height = W; }
+  const g = f.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0);
+  g.drawImage(L.back[v] || L.back[0], 0, 0);
+  g.setTransform(s, 0, 0, s, 0, 0);
+  const P = new Painter(g, s, v, sc.id, 15); P.r = rng(sc.id * 77 + 3);
+  drawLive(P, sc, t);
+  if (L.front) { const fr = L.front[v] || L.front[0]; if (fr) { g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(fr, 0, 0); } }
+  sc.fs = s; return true;
+}
+
+/* ---------- impression : chaque encre passe l'une après l'autre ---------- */
+const MASKS = [1, 3, 7, 15], PASS = 0.42, START = 0.5, STAG = 0.26;
+let revealDone = false, T0 = null;
+function queueStages() { SC.forEach((sc, i) => MASKS.forEach((m, k) => jobs.push({ sc, s: S0, stage: k, mask: m, pri: -100 + i * 4 + k }))); }
+
+/* ---------- marques d'imprimeur, témoins d'encre ---------- */
+function drawSheet(g, z) {
+  // titre imprimé dans la marge haute, encre de galle tramée
+  const s = bucket(Math.max(0.05, z)), pt = pats(s);
+  g.save(); g.globalCompositeOperation = 'multiply';
+  g.font = 'normal 215px "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
+  g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+  g.fillStyle = pt[3][10]; g.fillText('L\u2019Ancien Testament', SW / 2, MARG * 0.8);
+  g.restore();
+}
+let grainPat = null;
+function makeGrain() {
+  const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d'); const r = rng(42);
+  g.fillStyle = '#fff'; g.fillRect(0, 0, 512, 512);
+  for (let i = 0; i < 9000; i++) { const a = r() * 0.07; g.fillStyle = `rgba(${90 + r() * 40 | 0},${70 + r() * 30 | 0},${50 + r() * 20 | 0},${a})`; g.fillRect(r() * 512, r() * 512, 1 + r() * 1.5, 1 + r() * 1.5); }
+  for (let i = 0; i < 160; i++) { g.strokeStyle = `rgba(110,90,60,${0.05 + r() * 0.06})`; g.lineWidth = 0.7; g.beginPath(); const x = r() * 512, y = r() * 512, a = r() * TAU; g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a) * 8 + r() * 6, y + Math.sin(a) * 8, x + Math.cos(a) * 16, y + Math.sin(a) * 16); g.stroke(); }
+  grainPat = ctx.createPattern(c, 'repeat'); grainPat.setTransform(new DOMMatrix().scaleSelf(0.45));
+  const k = 2048 / SW; paperC = document.createElement('canvas'); paperC.width = 2048; paperC.height = Math.round(SH * k);
+  const g2 = paperC.getContext('2d'); g2.fillStyle = PAPER; g2.fillRect(0, 0, paperC.width, paperC.height); g2.setTransform(k, 0, 0, k, 0, 0); g2.globalCompositeOperation = 'multiply'; g2.fillStyle = grainPat; g2.fillRect(0, 0, SW, SH);
+}
+let paperC = null;
+
+/* ---------- carte de chapitre ---------- */
+const card = document.getElementById('card'), cardIn = card.querySelector('.in'), cardBg = card.querySelector('canvas');
+const ROMAN = n => { const r = [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']]; let o = ''; for (const [v, s] of [[40, 'XL'], [30, 'XXX'], [20, 'XX'], ...r]) while (n >= v) { o += s; n -= v; } return o; };
+function fillCard(i) {
+  const d = SCENES[i], acc = INKS[d.accent].hex;
+  card.style.setProperty('--acc', acc);
+  const nb = x => x.replace(/ ([:;?!»])/g, '\u202F$1').replace(/« /g, '«\u202F'), q = nb(d.fr || d.quote), first = q[0], rest = q.slice(1);
+  cardIn.innerHTML = `<div class="kick">${d.book} · chapitre ${ROMAN(d.ch)}</div><h1>${d.title}</h1><div class="orn"><i></i><b></b><i></i></div>` +
+    `<p class="q"><span class="dc"><small>«\u202F</small>${first}</span>${rest}\u202F»</p><div class="src">${d.refFr || d.ref} · traduit de la Douay-Rheims</div>` +
+    `<a class="lk" tabindex="0">${d.feast ? 'Fête : ' + d.feast + ' ›' : 'Lire le commentaire ›'}</a><div class="more">${d.more.map(p => `<p>${p}</p>`).join('')}<p class="orig">Texte source, Douay-Rheims (Project Gutenberg n° 1609), ${d.ref} : <i>\u201C${d.quote}\u201D</i></p></div>`;
+  const lk = cardIn.querySelector('.lk'), more = cardIn.querySelector('.more');
+  lk.onclick = e => { e.stopPropagation(); const o = more.classList.toggle('open'); setTimeout(paintCardBg, 750); cardPinned = o; lk.textContent = o ? 'Refermer ‹' : (d.feast ? 'Fête : ' + d.feast + ' ›' : 'Lire le commentaire ›'); userT = performance.now() / 1000; };
+  requestAnimationFrame(paintCardBg);
+}
+function paintCardBg() {
+  const r = card.getBoundingClientRect(), dp = Math.min(2, window.devicePixelRatio || 1); cardBg.width = Math.max(1, r.width * dp); cardBg.height = Math.max(1, r.height * dp);
+  const g = cardBg.getContext('2d'); g.fillStyle = PAPER; g.fillRect(0, 0, cardBg.width, cardBg.height);
+  g.globalCompositeOperation = 'multiply'; g.fillStyle = grainPat || '#fff'; g.setTransform(dp * 2, 0, 0, dp * 2, 0, 0); g.fillRect(0, 0, cardBg.width, cardBg.height); g.setTransform(1, 0, 0, 1, 0, 0);
+  const acc = getComputedStyle(card).getPropertyValue('--acc').trim() || INKS[1].hex, st = 5 * dp;
+  g.fillStyle = acc;
+  for (let y = 0; y < cardBg.height; y += st) for (let x = 0; x < cardBg.width; x += st) { const e = Math.min(x, y, cardBg.width - x, cardBg.height - y); if (e > 9 * dp) continue; const rr = st * 0.42 * (1 - e / (9 * dp)); if (rr > 0.2) { g.beginPath(); g.arc(x + st / 2, y + st / 2, rr, 0, TAU); g.fill(); } }
+  g.globalCompositeOperation = 'source-over';
+}
+function showCard(i) {
+  if (cardHidden) { card.classList.remove('on'); return; }
+  if (i !== cardScene) { cardScene = i; if (i >= 0) { card.classList.remove('on'); fillCard(i); } }
+  card.classList.toggle('on', i >= 0);
+}
+
+/* ---------- caméra, visite ---------- */
+function flyTo(v, dur) {
+  const z0 = cam.z, d = Math.hypot(v.x - cam.x, v.y - cam.y), zm = Math.min(z0, v.z);
+  const bump = Math.max(0, Math.log(d * zm / Math.min(VW, VH) * 0.9 + 1e-9)) * 0.9;
+  fly = { a: { x: cam.x, y: cam.y, z: z0 }, b: v, t0: performance.now() / 1000, dur: dur || clamp(1.6 + Math.log2(1 + d * zm / VW) * 0.7, 1.6, 3.4), bump };
+  cam.vx = cam.vy = 0;
+}
+const tour = { mode: 'reveal', idx: -1, until: 0 };
+function tourStep(now) {
+  if (tour.mode === 'reveal') { if (revealDone && now > tour.until) { tour.mode = 'tour'; goScene(0, now); } return; }
+  if (tour.mode === 'user') { if (!cardPinned && now - userT > 9) { tour.mode = 'tour'; const n = nearestScene(); goScene(n.d < CELL * 0.3 ? (n.i + 1) % SCENES.length : n.i, now); } return; }
+  if (fly) return;
+  if (now > tour.until) {
+    if (tour.idx === SCENES.length - 1) { tour.idx = -2; flyTo({ x: SW / 2, y: SH / 2, z: fitZ() }, 3.2); tour.until = now + 3.2 + 5; return; }
+    goScene(tour.idx === -2 ? 0 : tour.idx + 1, now);
+  }
+}
+function goScene(i, now) { tour.idx = i; const v = sceneView(i); flyTo(v); tour.until = now + fly.dur + 9; prefetch(i, v.z); }
+function prefetch(i, z) { const sc = SC[i]; const s = clamp(bucket(z * DPR), S0, SMAX); enqueue(sc, s, -10); }
+function nearestScene() { let b = { i: 0, d: 1e9 }; for (let i = 0; i < SCENES.length; i++) { const [x, y] = cellPos(i), d = Math.hypot(x + CELL / 2 - cam.x, y + CELL / 2 - cam.y); if (d < b.d) b = { i, d }; } return b; }
+function interact() { userT = performance.now() / 1000; if (tour.mode !== 'reveal' || revealDone) tour.mode = 'user'; fly = null; }
+const zLim = () => [fitZ() * 0.55, Math.min(VW, VH) / CELL * 5];
+function zoomAt(f, sx, sy) { const [a, b] = zLim(), nz = clamp(cam.z * f, a, b); const wx = cam.x + (sx - VW / 2) / cam.z, wy = cam.y + (sy - VH / 2) / cam.z; cam.z = nz; cam.x = wx - (sx - VW / 2) / nz; cam.y = wy - (sy - VH / 2) / nz; needDraw = true; }
+
+/* ---------- entrées ---------- */
+const ptrs = new Map(); let pinch = null, lastTap = 0;
+cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, t: performance.now() }); interact(); cam.vx = cam.vy = 0; if (ptrs.size === 2) { const [p, q] = [...ptrs.values()]; pinch = { d: Math.hypot(p.x - q.x, p.y - q.y), mx: (p.x + q.x) / 2, my: (p.y + q.y) / 2 }; } cv.style.cursor = 'grabbing'; });
+cv.addEventListener('pointermove', e => {
+  const p = ptrs.get(e.pointerId); if (!p) return;
+  const dx = e.clientX - p.x, dy = e.clientY - p.y, now = performance.now(), dt = Math.max(1, now - p.t);
+  p.x = e.clientX; p.y = e.clientY; p.t = now; interact();
+  if (ptrs.size === 1) { cam.x -= dx / cam.z; cam.y -= dy / cam.z; cam.vx = lerp(cam.vx, -dx / cam.z / dt * 1000, 0.5); cam.vy = lerp(cam.vy, -dy / cam.z / dt * 1000, 0.5); }
+  else if (ptrs.size === 2 && pinch) { const [a, b] = [...ptrs.values()], d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2; cam.x -= (mx - pinch.mx) / cam.z; cam.y -= (my - pinch.my) / cam.z; zoomAt(d / pinch.d, mx, my); pinch = { d, mx, my }; }
+  needDraw = true;
+});
+const up = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; if (!ptrs.size) cv.style.cursor = 'grab'; if (performance.now() - (lastTap || 0) < 300 && e.pointerType === 'touch') dbl(e.clientX, e.clientY); if (e.pointerType === 'touch') lastTap = performance.now(); };
+cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+cv.addEventListener('wheel', e => { e.preventDefault(); interact(); const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1; zoomAt(Math.exp(-e.deltaY * k * 0.0016), e.clientX, e.clientY); }, { passive: false });
+function dbl(sx, sy) { const wx = cam.x + (sx - VW / 2) / cam.z, wy = cam.y + (sy - VH / 2) / cam.z; for (let i = 0; i < SCENES.length; i++) { const [x, y] = cellPos(i); if (wx >= x && wx <= x + CELL && wy >= y && wy <= y + CELL) { interact(); const v = sceneView(i); flyTo(v); prefetch(i, v.z); return; } } }
+cv.addEventListener('dblclick', e => dbl(e.clientX, e.clientY));
+addEventListener('keydown', e => {
+  const k = e.key, step = 0.3 * Math.min(VW, VH) / cam.z;
+  if (k === 'c' || k === 'C') { cardHidden = !cardHidden; showCard(cardHidden ? -1 : cardScene); if (!cardHidden) cardScene = -1; return; }
+  if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') { interact(); e.preventDefault(); const dx = k === 'ArrowLeft' ? -1 : k === 'ArrowRight' ? 1 : 0, dy = k === 'ArrowUp' ? -1 : k === 'ArrowDown' ? 1 : 0; flyTo({ x: cam.x + dx * step, y: cam.y + dy * step, z: cam.z }, 0.45); }
+  if (k === '+' || k === '=') { interact(); flyTo({ x: cam.x, y: cam.y, z: clamp(cam.z * 1.45, ...zLim()) }, 0.45); }
+  if (k === '-' || k === '_') { interact(); flyTo({ x: cam.x, y: cam.y, z: clamp(cam.z / 1.45, ...zLim()) }, 0.45); }
+  if (k === '0') { interact(); flyTo({ x: SW / 2, y: SH / 2, z: fitZ() }, 1.6); }
+});
+addEventListener('resize', resize);
+
+/* ---------- boucle ---------- */
+let settleT = 0, lastCam = '';
+function loop(ms) {
+  const now = ms / 1000; if (T0 === null) T0 = now; const t = now - T0;
+  const dt = Math.min(0.05, now - (loop.p || now)); loop.p = now;
+  // caméra
+  if (fly) {
+    const u = clamp((now - fly.t0) / fly.dur, 0, 1), e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+    const lz = lerp(Math.log(fly.a.z), Math.log(fly.b.z), e) - fly.bump * Math.sin(Math.PI * u);
+    cam.z = Math.exp(lz); cam.x = lerp(fly.a.x, fly.b.x, e); cam.y = lerp(fly.a.y, fly.b.y, e);
+    if (u >= 1) fly = null;
+  } else if (!ptrs.size && (Math.abs(cam.vx) + Math.abs(cam.vy)) * cam.z > 2) { cam.x += cam.vx * dt; cam.y += cam.vy * dt; const f = Math.exp(-dt * 4.5); cam.vx *= f; cam.vy *= f; }
+  else { cam.vx = cam.vy = 0; }
+  const [za, zb] = zLim(); cam.z = clamp(cam.z, za * 0.99, zb * 1.01);
+  cam.x = clamp(cam.x, -SW * 0.1, SW * 1.1); cam.y = clamp(cam.y, -SH * 0.1, SH * 1.1);
+  const ck = cam.x.toFixed(2) + cam.y.toFixed(2) + cam.z.toFixed(5); if (ck !== lastCam) { lastCam = ck; needDraw = true; settleT = now; }
+  tourStep(now);
+  // révélation d'impression
+  if (!revealDone) { let all = true; for (const sc of SC) { if (!sc.rev.done) { const st = START + sc.id * STAG; if (t > st + PASS * 4 && sc.stage[3]) sc.rev.done = true; else all = false; } } if (all) { revealDone = true; tour.until = now + 1.2; } needDraw = true; }
+  // visibilité et niveau de détail
+  const z = cam.z, hw = VW / 2 / z, hh = VH / 2 / z, sReq = clamp(bucket(z * DPR), S0, SMAX), v = Math.floor(t * 3) % 3, tick = Math.floor(t * 12);
+  const vis = [];
+  for (const sc of SC) {
+    const [x, y] = cellPos(sc.id);
+    if (x + CELL < cam.x - hw || x > cam.x + hw || y + CELL < cam.y - hh || y > cam.y + hh) continue;
+    vis.push(sc); sc.used = now;
+    if (!sc.lays.has(S0)) enqueue(sc, S0, 0);
+    if (sReq > S0) enqueue(sc, sReq, 1 + Math.hypot(x + CELL / 2 - cam.x, y + CELL / 2 - cam.y) / CELL);
+    const best = sc.lays.has(sReq) ? sReq : [...sc.lays.keys()].filter(s => s <= sReq).sort((a, b) => b - a)[0] || [...sc.lays.keys()].sort((a, b) => a - b)[0];
+    const pend = sc.pending && sc.pending.s === sReq && sc.pending.back[0] ? sReq : null;
+    const want = pend && !sc.lays.has(sReq) ? pend : best;
+    if (want && want !== sc.cur) { sc.cur = want; sc.lastTick = -1; }
+  }
+  runJobs(revealDone ? 9 : 14);
+  if (Math.random() < 0.02) evict();
+  const rate = vis.length > 6 ? 8 : 12;
+  for (const sc of vis) { const tk = Math.floor(t * rate + sc.id / SCENES.length) + ':' + v; if (sc.rev.done && sc.lastTick !== tk) { if (compose(sc, Math.floor(t * rate + sc.id / SCENES.length) / rate, v)) { sc.lastTick = tk; needDraw = true; } } }
+  // carte de chapitre
+  const settled = !fly && !ptrs.size && now - settleT > 0.35 && revealDone;
+  let ci = settled ? focusScene() : -1;
+  if (cardPinned && cardScene >= 0) ci = cardScene;
+  if (ci !== (showCard.last ?? -2)) { showCard.last = ci; if (ci < 0) card.classList.remove('on'); else showCard(ci); }
+  if (needDraw) { draw(vis, t); needDraw = false; }
+  requestAnimationFrame(loop);
+}
+function draw(vis, t) {
+  const W = cv.width, H = cv.height, z = cam.z * DPR, ox = W / 2 - cam.x * z, oy = H / 2 - cam.y * z;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#26211d'; ctx.fillRect(0, 0, W, H);
+  ctx.setTransform(z, 0, 0, z, ox, oy); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.fillRect(22, 30, SW, SH); ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fillRect(10, 14, SW, SH);
+  if (paperC) ctx.drawImage(paperC, 0, 0, SW, SH); else { ctx.fillStyle = PAPER; ctx.fillRect(0, 0, SW, SH); }
+  drawSheet(ctx, z);
+  for (const sc of vis) {
+    const [x, y] = cellPos(sc.id);
+    if (sc.rev.done) { if (sc.fs) ctx.drawImage(sc.frame, x, y, CELL, CELL); continue; }
+    const st = START + sc.id * STAG, u = (t - st) / PASS; if (u <= 0) continue;
+    const k = Math.min(3, Math.floor(u)), f = u - k;
+    if (k > 0 && sc.stage[k - 1]) ctx.drawImage(sc.stage[k - 1], x, y, CELL, CELL);
+    const im = sc.stage[k]; if (!im) continue;
+    const ph = k === 3 && u >= 4 ? 1 : Math.min(1, f * 1.1), hgt = CELL * ph, W2 = im.width;
+    if (hgt > 1) ctx.drawImage(im, 0, 0, W2, W2 * ph, x, y, CELL, hgt);
+    if (ph < 1) { ctx.fillStyle = 'rgba(40,30,25,0.10)'; ctx.fillRect(x - 10, y + hgt, CELL + 20, 6); }
+  }
+}
+resize(); makeGrain(); cam.z = fitZ(); queueStages();
+requestAnimationFrame(loop);
+
+</script>
+</body>
+</html>
