@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Affiche des versets du Project Gutenberg n° 1609 (Douay-Rheims), à copier tels quels dans `quote`.
+"""Affiche des versets du Project Gutenberg n° 1609 et 1610 (Douay-Rheims), à copier tels quels dans `quote`.
 
   python3 tools/vv.py "Genesis 24:10-20"
   python3 tools/vv.py "Genesis 24"
+  python3 tools/vv.py "Proverbs 31:10-31" "Canticle of Canticles 8:6-7"
 """
 import os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TXT = os.path.join(ROOT, 'data', 'gutenberg-1609.txt')
+TXTS = [os.path.join(ROOT, 'data', f'gutenberg-{n}.txt') for n in (1609, 1610)]  # AT partie 1 (Genèse à Job), partie 2 (Psaumes à Machabées)
 verses, book, cur = {}, None, None
-for ln in open(TXT, encoding='utf-8').read().replace('\r', '').split('\n'):
+for ln in ''.join(open(t, encoding='utf-8').read() for t in TXTS).replace('\r', '').split('\n'):
     m = re.match(r'^(.+?) Chapter (\d+)$', ln)
     if m: book, cur = m.group(1), None; continue
     m = re.match(r'^(\d+):(\d+)\. (.*)$', ln)
