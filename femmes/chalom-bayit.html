@@ -54,6 +54,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:#26211d;touch-action:n
 #printbtn{position:fixed;right:20px;bottom:20px;z-index:40;padding:9px 14px;border:0;background:rgba(244,233,211,.92);color:#2F2729;font:italic 14px/1.2 "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
 #printbtn b{font-style:normal;font-weight:normal;font-variant:small-caps;letter-spacing:.08em;color:#E0453A}
 #card .lkp{margin-left:16px}
+#card .x{position:absolute;top:8px;right:8px;width:34px;height:34px;padding:4px;border:0;background:none;color:var(--acc);cursor:pointer;transition:transform .35s ease}
+#card .x svg{display:block;width:100%;height:100%}
+#card .x:hover,#card .x:focus-visible{transform:rotate(30deg) scale(1.12)}
+#card .x:focus-visible{outline:1px dashed currentColor}
 #print{display:none}
 @media (max-width:640px){#printbtn{right:12px;bottom:auto;top:72px;font-size:13px}}
 @page{size:A4;margin:14mm 16mm}
@@ -91,7 +95,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#26211d;touch-action:n
 <body>
 <canvas id="c"></canvas>
 <div id="help"><b>Double-clic</b> sur une scène pour y entrer · <b>glisser</b> pour se déplacer · <b>molette</b> pour zoomer · <b>0</b> vue d’ensemble · <b>C</b> carte · <b>P</b> imprimer</div>
-<div id="card"><canvas></canvas><div class="in"></div></div>
+<div id="card"><canvas></canvas><div class="in"></div><button class="x" type="button" title="Fermer et revenir à la vue d’ensemble (Échap)" aria-label="Fermer et revenir à la vue d’ensemble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 20.2 16.7H3.8Z M12 21.5 3.8 7.3H20.2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></button></div>
 <button id="printbtn" type="button" title="Imprimer ou enregistrer en PDF (touche P)"><b>Imprimer</b> · PDF</button>
 <div id="print"></div>
 <script>
@@ -2058,6 +2062,10 @@ function fillCard(i) {
   lk.onclick = e => { e.stopPropagation(); const o = more.classList.toggle('open'); setTimeout(paintCardBg, 750); cardPinned = o; lk.textContent = o ? 'Refermer ‹' : cardLink(d); userT = performance.now() / 1000; };
   requestAnimationFrame(paintCardBg);
 }
+/* l'étoile de David ferme la carte et ramène à la vue d'ensemble */
+function closeCard() { cardPinned = false; card.classList.remove('on'); interact(); flyTo({ x: SW / 2, y: SH / 2, z: fitZ() }, 1.6); }
+card.querySelector('.x').addEventListener('click', e => { e.stopPropagation(); closeCard(); });
+addEventListener('keydown', e => { if (e.key === 'Escape' && card.classList.contains('on')) closeCard(); });
 function paintCardBg() {
   const r = card.getBoundingClientRect(), dp = Math.min(2, window.devicePixelRatio || 1); cardBg.width = Math.max(1, r.width * dp); cardBg.height = Math.max(1, r.height * dp);
   const g = cardBg.getContext('2d'); g.fillStyle = PAPER; g.fillRect(0, 0, cardBg.width, cardBg.height);
@@ -2252,6 +2260,7 @@ fillCard = i => {
    ============================================================ */
 (function (BASE, ITEMS, CUR) {
   'use strict';
+  const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 20.2 16.7H3.8Z M12 21.5 3.8 7.3H20.2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>';
   const INK = ['#F0B21F', '#E0453A', '#2D5BA6', '#2F2729'];
   const css = `
 #nav{position:fixed;left:14px;top:50%;transform:translateY(-50%);z-index:50;font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;color:#2F2729;-webkit-user-select:none;user-select:none}
@@ -2271,7 +2280,7 @@ fillCard = i => {
 @media (min-width:641px){#card{left:84px;width:min(390px,calc(100vw - 108px))}.sheet{padding-left:84px}}
 @media (max-width:640px){
   #nav{top:12px;left:12px;transform:none}
-  #navbtn{display:grid;place-items:center;width:42px;height:42px;padding:0;border:0;background:rgba(244,233,211,.94);color:#2F2729;box-shadow:0 6px 18px rgba(0,0,0,.3);font:22px/1 Georgia,serif;cursor:pointer}
+  #navbtn{display:grid;place-items:center;width:42px;height:42px;padding:0;}#navbtn svg{width:26px;height:26px;color:#E0453A}#navbtn{border:0;background:rgba(244,233,211,.94);color:#2F2729;box-shadow:0 6px 18px rgba(0,0,0,.3);font:22px/1 Georgia,serif;cursor:pointer}
   #nav ol{display:none;margin-top:8px;max-height:calc(100vh - 80px)}
   #nav.open ol{display:flex}
   #help{left:66px}
@@ -2290,7 +2299,7 @@ fillCard = i => {
     li.appendChild(el); ol.appendChild(li);
   }
   nav.append(btn, ol); document.body.appendChild(nav);
-  const setOpen = o => { nav.classList.toggle('open', o); btn.setAttribute('aria-expanded', String(o)); btn.textContent = o ? '×' : '☰'; };
+  const setOpen = o => { nav.classList.toggle('open', o); btn.setAttribute('aria-expanded', String(o)); btn.innerHTML = o ? STAR : '☰'; };
   btn.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
   addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
   addEventListener('pointerdown', e => { if (!nav.contains(e.target)) setOpen(false); });
