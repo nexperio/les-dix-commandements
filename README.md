@@ -1,6 +1,6 @@
 # Parachiot 5787 · feuilles riso animées
 
-Pages HTML autonomes qui impriment en riso simulée des dioramas isométriques animés de l'Ancien Testament : une grande feuille « L'Ancien Testament » (16 scènes, Genèse à Esther), une feuille par paracha de l'année 5787, un index avec les Dix Paroles et une section « Les femmes et le foyer » (trois feuilles : les femmes de la Torah, le chalom bayit, les mitsvot des femmes avec leurs berakhot) et une section « Les hommes » (une feuille : les mitsvot des hommes et leurs berakhot).
+Pages HTML autonomes qui impriment en riso simulée des dioramas isométriques animés de l'Ancien Testament : une grande feuille « L'Ancien Testament » (16 scènes, Genèse à Esther), une feuille par paracha de l'année 5787, un index avec les Dix Paroles et une section « Les femmes et le foyer » (trois feuilles : les femmes de la Torah, le chalom bayit, les mitsvot des femmes avec leurs berakhot) une section « Les hommes » (une feuille : les mitsvot des hommes et leurs berakhot) et une section « Le Talmud » (dix feuilles, un index des six ordres avec le Daf Yomi, et une page des textes originaux).
 
 Chaque page construite (`index.html`, `ancien-testament.html`, `parachiot/*.html`, `femmes/*.html` et `hommes/*.html`, à la racine du dépôt) est **un seul fichier** : Canvas 2D, zéro image, zéro police téléchargée, zéro bibliothèque, une seule requête réseau (elle-même). Tout est dessiné en code.
 
@@ -9,7 +9,9 @@ Chaque page construite (`index.html`, `ancien-testament.html`, `parachiot/*.html
 ```bash
 python3 tools/build.py          # reconstruit index.html, ancien-testament.html, parachiot/, femmes/ et hommes/
 python3 tools/build.py noach    # une seule paracha
-python3 tools/check_quotes.py   # vérifie les citations contre les Gutenberg 1609 et 1610
+python3 tools/check_quotes.py   # vérifie les citations contre les Gutenberg 1609 et 1610 (et le Talmud contre Sefaria)
+python3 tools/talmud.py 'Shabbat 31a'   # affiche le texte original d'un passage, pour y choisir une citation
+python3 tools/build.py talmud-index     # seulement talmud/index.html et talmud/texte.html
 npm i && npm run shot           # capture Playwright (optionnel)
 ```
 
@@ -35,11 +37,15 @@ src/
   parachiot/<id>.js           une feuille = const SHEET + const SCENES
   femmes/<id>.js              section « Les femmes et le foyer », même format (+ champ brakha)
   hommes/<id>.js              section « Les hommes », même format (+ champ brakha)
+  talmud/<id>.js              section « Le Talmud », même format, références de Sefaria
+  talmud/index.html           index du Talmud : six ordres, Daf Yomi, accès direct (/*DATA*/)
+  talmud/texte.html           textes originaux hébreux et araméens (/*TEXTS*/)
   index/index.html            index : Dix Paroles + tableau PARA des feuilles
   accueil/index.html          accueil du site (/*CORE*/ et /*ITEMS*/ remplacés au build)
 tools/
   build.py          assemble les pages (ordre des fichiers = ordre d'exécution)
   check_quotes.py   contrôle des citations
+  talmud.py         table des traités, textes du Talmud (Sefaria, cache data/talmud/), vérification
   vv.py             affiche des versets Douay-Rheims à recopier dans quote
   shot.js           captures Playwright (F=chemin W= H= DPR=)
 index.html          page construite : accueil (menu + accès aux feuilles)
@@ -47,6 +53,7 @@ ancien-testament.html  page construite : L'Ancien Testament
 parachiot/          pages construites : index des parachiot et une feuille par paracha
 femmes/             pages construites : les trois feuilles de la section Femmes
 hommes/             pages construites : la feuille de la section Hommes
+talmud/             pages construites : les dix feuilles, index.html (Daf Yomi) et texte.html
 data/               Douay-Rheims, Gutenberg n° 1609 (Genèse à Job) et n° 1610 (Psaumes à Machabées)
 favicon.svg
 ```
@@ -70,6 +77,17 @@ Trois feuilles déclarées dans `FEMMES` de `tools/build.py` (marque du menu, id
 ## Section « Les hommes »
 
 Même mécanique, déclarée dans `HOMMES` de `tools/build.py` : une feuille, `src/hommes/hommes.js` → `hommes/mitsvot-des-hommes.html` (talit, tefillin, minyan, Torah, kiddouch, havdala, brit mila, choffar, souccah). Brief et berakhot de référence : `docs/BRIEF-hommes.md`.
+
+## Section « Le Talmud »
+
+Dix feuilles déclarées dans `TALMUD` de `tools/build.py` : une introduction, les six ordres (Zeraïm, Moed, Nachim, Nezikin, Kodachim, Taharot), Pirké Avot, les maîtres, le Talmud de Jérusalem. Brief complet : `docs/BRIEF-talmud.md`.
+
+- **Référence** au format de Sefaria : `'Shabbat 31a'`, `'Mishnah Peah 1:1'`, `'Pirkei Avot 1:14'`, `'Jerusalem Talmud Nedarim 9:4'` ; `book` = nom français du traité, `ch` = daf ou chapitre.
+- **`quote`** = extrait hébreu ou araméen copié depuis `python3 tools/talmud.py '<ref>'`, vérifié par `check_quotes.py` sans voyelles ni ponctuation ; `fr` = traduction propre au site. La carte affiche « Talmud de Babylone · traité … » et le lien « Le texte original › ».
+- **Sources** (cache `data/talmud/`) : Talmud de Babylone éd. de Vilna (Wikisource, CC-BY-SA), Michna éd. Romm 1913 (domaine public), Talmud de Jérusalem éd. Guggenheimer (CC-BY).
+- **`talmud/index.html`** : Daf Yomi du jour calculé dans la page (cycle de 2 711 pages depuis le 5 janvier 2020 ; Kinnim 23-25, Tamid 26-33, Middot 34-37), champ « Aller à un passage » (« Chabbat 31a », « Avot 1, 14 », « שבת לא »), les 63 traités avec leurs scènes et, à défaut, un lien Sefaria.
+- **`talmud/texte.html#Shabbat_31a`** : le passage original, la citation surlignée, la traduction, le retour à la scène.
+- **Recherche** : les scènes se trouvent aussi par leur référence Sefaria ou hébraïque (champ `a` de l'index).
 
 ## Le moteur en bref
 

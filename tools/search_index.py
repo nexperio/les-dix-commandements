@@ -27,7 +27,7 @@ def fields(chunk):
     """Champs d'en-tête d'une scène (ou d'un objet de surcharge)."""
     head = re.split(r"\bmore: \[|\bbrakha: \[|\bback\(|\bchars:", chunk, 1)[0]
     d = {}
-    for k in ('title', 'book', 'ref', 'refFr', 'fr'):
+    for k in ('title', 'book', 'ref', 'refFr', 'quote', 'fr'):
         m = re.search(r"\b" + k + r": (" + STR + ")", head)
         if m: d[k] = unq(m.group(1))
     m = re.search(r"\bch: (\d+)", head)
