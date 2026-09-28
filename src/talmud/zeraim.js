@@ -406,7 +406,7 @@ const SCENES = [
 {
   title: 'Hanna, maîtresse de la prière', book: 'Berakhot', ch: 31, ref: 'Berakhot 31a', refFr: 'Berakhot 31a', accent: 1, feast: 'Rosh Hashana',
   quote: 'וחנה היא מדברת על לבה מכאן למתפלל צריך שיכוין לבו רק שפתיה נעות מכאן למתפלל שיחתוך בשפתיו וקולה לא ישמע מכאן שאסור להגביה קולו בתפלתו',
-  fr: '« Hanna parlait sur son cœur » : de là, celui qui prie doit diriger son cœur. « Seules ses lèvres remuaient » : de là, celui qui prie doit articuler les mots de ses lèvres. « Sa voix ne s’entendait pas » : de là, il est interdit d’élever la voix dans sa prière.',
+  fr: '“Hanna parlait sur son cœur” : de là, celui qui prie doit diriger son cœur. “Seules ses lèvres remuaient” : de là, celui qui prie doit articuler les mots de ses lèvres. “Sa voix ne s’entendait pas” : de là, il est interdit d’élever la voix dans sa prière.',
   more: ['Rav Hamnouna s’écrie : « Combien de grandes lois peut-on apprendre de ces versets sur Hanna ! » Hanna n’a pas d’enfant. Chaque année elle monte avec Elkana au sanctuaire de Chilo, et un jour, après le repas, elle se tient devant l’Éternel et prie en pleurant, pendant que le prêtre Éli est assis près du montant de la porte (1 Samuel 1, 9 à 13). Éli la voit remuer les lèvres sans rien entendre et la croit ivre ; le Talmud en tire encore qu’un homme ivre ne doit pas prier.',
     'Correspondance : <b>Rosh Hashana</b>. L’histoire de Hanna est lue en haftara le premier jour de la fête, et le Talmud (Berakhot 29a) rattache les neuf bénédictions du Moussaf de Rosh Hashana aux neuf fois où Hanna nomme Dieu dans son chant. Ces trois règles ont donné sa forme à la Amida, la prière debout : chacun la dit pour soi, le cœur tendu, en articulant les mots, d’une voix que lui seul entend.'],
   back(P) {

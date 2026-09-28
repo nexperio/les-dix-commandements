@@ -22,22 +22,25 @@ header{text-align:center;margin-bottom:10px}
 h1{font-weight:normal;font-size:clamp(40px,7vw,78px);line-height:1;margin:10px 0 12px}
 .sub{font-style:italic;color:var(--r);font-size:18px;max-width:640px;margin:0 auto;line-height:1.45}
 .orn{display:flex;align-items:center;gap:12px;margin:30px auto;max-width:520px;color:var(--r)}.orn i{flex:1;height:1px;background:currentColor}.orn b{width:7px;height:7px;transform:rotate(45deg);background:currentColor}
-h2{font-weight:normal;font-size:32px;text-align:center;margin:0 0 6px}
-.h2s{text-align:center;font-style:italic;opacity:.75;margin:0 0 22px;font-size:15px}
-.doors{display:grid;grid-template-columns:1fr 1fr;gap:26px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
-.card{position:relative;display:block;text-decoration:none;color:inherit;padding:22px 24px 20px;background:rgba(255,255,255,.18);border:1px solid rgba(47,39,41,.25);box-shadow:0 1px 0 rgba(47,39,41,.1);transition:transform .25s,box-shadow .25s}
-.card:hover,.card:focus-visible{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
+.doors{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+.card{position:relative;display:block;text-decoration:none;color:inherit;padding:30px 32px 26px;background:rgba(255,255,255,.18);border:1px solid rgba(47,39,41,.25);box-shadow:0 1px 0 rgba(47,39,41,.1);transition:transform .25s,box-shadow .25s}
+.card:hover,.card:focus-within{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
 .card canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .card .n{font-variant:small-caps;letter-spacing:.14em;font-size:13px}
-.card h3{font-weight:normal;font-size:28px;margin:6px 0 4px}
-.doors .card{padding:30px 32px 26px}.doors .card h3{font-size:36px}
+.card h3{font-weight:normal;font-size:36px;margin:6px 0 4px}
+.card h3 a{color:inherit;text-decoration:none}.card h3 a::after{content:"";position:absolute;inset:0;z-index:1}
 .card .fr{font-style:italic;font-size:16px;line-height:1.45}
 .card .go{display:inline-block;margin-top:14px;font-style:italic;border-bottom:1px solid currentColor}
-.card.soon{opacity:.55;pointer-events:none}
-#now{max-width:640px;margin:0 auto 34px}#now .card{text-align:center;padding:26px 30px 24px}#now h3{font-size:40px}
-#now .card.wait{pointer-events:none}#now .card.wait .go{border:0;opacity:.7}
-.grid .card.cur{outline:2px solid var(--o);outline-offset:3px}
+.card.wait{pointer-events:none}.card.wait .go{border:0;opacity:.7}
+.card details,.card .list{position:relative;z-index:2}
+.card details{margin-top:16px}.card summary{cursor:pointer;font-style:italic;font-size:15px;opacity:.8}
+.lab{font-variant:small-caps;letter-spacing:.12em;font-size:13px;opacity:.7;margin:16px 0 0}
+.list{list-style:none;padding:0;margin:14px 0 0;columns:2;column-gap:22px;font-size:15px;line-height:1.35}
+.list.one{columns:1;margin-top:6px}
+.list li{break-inside:avoid;display:flex;gap:8px;margin:0 0 7px}
+.list b{font-weight:normal;min-width:1.5em;text-align:right}
+.list a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}.list a:hover,.list a:focus-visible{border-color:currentColor}
+#now{max-width:640px;margin:34px auto 0}#now .card{text-align:center;padding:26px 30px 24px}#now h3{font-size:40px}
 .find{display:flex;gap:10px;max-width:620px;margin:26px auto 0}
 .find input{flex:1;min-width:0;font:inherit;font-size:18px;color:var(--ink);background:rgba(255,255,255,.35);border:1px solid rgba(47,39,41,.45);padding:11px 14px;border-radius:0}
 .find input:focus{outline:2px solid var(--r);outline-offset:1px}
@@ -45,7 +48,7 @@ h2{font-weight:normal;font-size:32px;text-align:center;margin:0 0 6px}
 .findq{text-align:center;margin:10px 0 0;font-style:italic;font-size:15px}.findq a{color:var(--r);text-decoration:none;border-bottom:1px solid currentColor}
 footer{margin-top:44px;text-align:center;font-size:13px;opacity:.7;line-height:1.6}
 footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-decoration:none;border-bottom:1px solid currentColor}
-@media (max-width:760px){.doors{grid-template-columns:1fr}.sheet{padding:72px 16px 60px}}
+@media (max-width:760px){.doors{grid-template-columns:1fr}.card{padding:24px 22px 20px}.card h3{font-size:30px}.sheet{padding:72px 16px 60px}}
 </style>
 </head>
 <body>
@@ -54,58 +57,39 @@ footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-
 <header>
   <div class="kick">Feuilles riso animées</div>
   <h1>La Torah</h1>
-  <div class="sub">Des dioramas imprimés encre par encre, une grande feuille de seize scènes et une feuille par paracha de l’année 5787</div>
+  <div class="sub">Des dioramas imprimés encre par encre : la Torah scène par scène, les parachiot de l’année 5787, le Talmud, les mitsvot</div>
 </header>
 <form class="find" action="recherche.html" role="search"><input type="search" name="q" placeholder="Chercher une scène, un verset, une bénédiction…" aria-label="Chercher dans les feuilles"><button type="submit">Chercher</button></form>
 <p class="findq"><a href="recherche.html#question">ou poser une question ›</a></p>
+<div id="now"></div>
 <div class="orn"><i></i><b></b><i></i></div>
 <div class="doors">
-  <a class="card" data-ink="1" href="ancien-testament.html"><canvas></canvas><div class="n" style="color:#E0453A">La grande feuille</div><h3>Scène par scène</h3><div class="fr">Seize scènes, de la Genèse à Esther : Éden, le déluge, Moïse, le Sinaï, David, Élie, Esther.</div><span class="go" style="color:#E0453A">Ouvrir la feuille ›</span></a>
-  <a class="card" data-ink="2" href="parachiot/index.html"><canvas></canvas><div class="n" style="color:#2D5BA6">Année 5787 · 2026-2027</div><h3>Parachiot</h3><div class="fr">Les Dix Paroles et l’index des lectures de la semaine, dates de la diaspora.</div><span class="go" style="color:#2D5BA6">Voir l’index ›</span></a>
+  <div class="card" data-ink="1"><canvas></canvas><div class="n" style="color:#E0453A">La grande feuille</div><h3><a href="ancien-testament.html">Scène par scène</a></h3><div class="fr">Seize scènes, de la Genèse à Esther : Éden, le déluge, Moïse, le Sinaï, David, Élie, Esther.</div><span class="go" style="color:#E0453A">Ouvrir la feuille ›</span></div>
+  <div class="card" data-ink="2"><canvas></canvas><div class="n" style="color:#2D5BA6">Année 5787 · 2026-2027</div><h3><a href="parachiot/index.html">Parachiot</a></h3><div class="fr">Une feuille par paracha, de Haazinou à Nitsavim-Vayélekh, et les Dix Paroles.</div><span class="go" style="color:#2D5BA6">Voir l’index ›</span><details><summary id="s-para"></summary><ul class="list" id="l-para"></ul></details></div>
+  <div class="card" data-ink="3"><canvas></canvas><div class="n">Index · Daf Yomi</div><h3><a href="talmud/index.html">Le Talmud</a></h3><div class="fr">La Michna et la Guemara : les six ordres, Pirké Avot, les maîtres, la page du jour.</div><ul class="list" id="l-talmud"></ul></div>
+  <div class="card" data-ink="0"><canvas></canvas><div class="n" style="color:#B8830F">Mitsvot et berakhot</div><h3><a href="femmes/femmes-de-la-torah.html">Femmes et hommes</a></h3><div class="fr">Les femmes de la Torah, le foyer, les gestes de chacun et leurs bénédictions.</div><div class="lab">Les femmes et le foyer</div><ul class="list one" id="l-femmes"></ul><div class="lab">Les hommes</div><ul class="list one" id="l-hommes"></ul></div>
 </div>
-<div class="orn"><i></i><b></b><i></i></div>
-<h2>Les femmes et le foyer</h2>
-<p class="h2s">Les femmes de la Torah, le chalom bayit et les mitsvot des femmes avec leurs berakhot</p>
-<div class="grid" id="femmes"></div>
-<div class="orn"><i></i><b></b><i></i></div>
-<h2>Les hommes</h2>
-<p class="h2s">Les mitsvot des hommes avec leurs berakhot : talit, tefillin, Torah, kiddouch, havdala, fêtes</p>
-<div class="grid" id="hommes"></div>
-<div class="orn"><i></i><b></b><i></i></div>
-<h2>Le Talmud</h2>
-<p class="h2s">La Michna et la Guemara en dix feuilles : les six ordres, Pirké Avot, les maîtres, le Talmud de Jérusalem ; le Daf Yomi et l’accès direct à un passage</p>
-<div class="grid" id="talmud"><a class="card" data-ink="2" href="talmud/index.html"><canvas></canvas><div class="n" style="color:#2D5BA6">Index · Daf Yomi</div><h3>Le Talmud</h3><div class="fr">Les six ordres traité par traité, la page du jour, aller à « Chabbat 31a ».</div><span class="go" style="color:#2D5BA6">Ouvrir l’index ›</span></a></div>
-<div class="orn"><i></i><b></b><i></i></div>
-<div id="now"></div>
-<h2>Les parachiot de l’année</h2>
-<p class="h2s">Une feuille par paracha, de Haazinou à Nitsavim-Vayélekh</p>
-<div class="grid" id="grid"></div>
 <footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610) ; passages du Talmud traduits de l’hébreu et de l’araméen (textes de Sefaria).<br>Glisser, molette, pincer, double-clic : chaque feuille se parcourt comme une carte.<br><span class="credit">Une réalisation <a href="https://nexperio.tech">nexperio.tech</a></span></footer>
 </div>
 <script>
 /*CORE*/
 const ITEMS = /*ITEMS*/;
-const grid = document.getElementById('grid'), SHEETS = ITEMS.filter(i => /^\d+$/.test(i.mark));
+const SHEETS = ITEMS.filter(i => /^\d+$/.test(i.mark));
 /* paracha de la semaine : le premier Chabbat (ou jour de lecture) qui n'est pas encore passé */
 const today = new Date(); today.setHours(0, 0, 0, 0);
 const cur = SHEETS.find(i => new Date(i.day + 'T00:00:00') >= today);
 if (cur) {
-  const hex = INKS[cur.ink].hex, a = document.createElement(cur.href ? 'a' : 'div');
-  a.className = 'card' + (cur.href ? '' : ' wait'); if (cur.href) a.href = cur.href; a.dataset.ink = cur.ink;
-  a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Cette semaine · ${cur.date}</div><h3>${cur.he}</h3><div class="fr">${cur.sens}</div><span class="go" style="color:${hex}">${cur.href ? 'Ouvrir la feuille ›' : 'Feuille à paraître'}</span>`;
+  const hex = INKS[cur.ink].hex, a = document.createElement('div');
+  a.className = 'card' + (cur.href ? '' : ' wait'); a.dataset.ink = cur.ink;
+  a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Cette semaine · ${cur.date}</div><h3>${cur.href ? `<a href="${cur.href}">${cur.he}</a>` : cur.he}</h3><div class="fr">${cur.sens}</div><span class="go" style="color:${hex}">${cur.href ? 'Ouvrir la feuille ›' : 'Feuille à paraître'}</span>`;
   document.getElementById('now').appendChild(a);
 }
-for (const it of ITEMS.filter(i => i.sec === 'femmes' || i.sec === 'hommes' || i.sec === 'talmud')) {
-  const a = document.createElement('a'), hex = INKS[it.ink].hex; a.className = 'card'; a.href = it.href; a.dataset.ink = it.ink;
-  a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Feuille ${it.mark}</div><h3>${it.he}</h3><div class="fr">${it.fr}</div><span class="go" style="color:${hex}">Ouvrir ›</span>`;
-  document.getElementById(it.sec).appendChild(a);
-}
-for (const it of SHEETS) {
-  const a = document.createElement('a'); a.className = 'card' + (it.href ? '' : ' soon') + (it === cur ? ' cur' : ''); if (it.href) a.href = it.href; a.style.setProperty('--o', INKS[it.ink].hex);
-  const hex = INKS[it.ink].hex;
-  a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Feuille ${it.mark}</div><h3>${it.he}</h3><div class="fr">${it.fr}</div>${it.href ? `<span class="go" style="color:${hex}">Ouvrir ›</span>` : ''}`;
-  a.dataset.ink = it.ink; grid.appendChild(a);
-}
+/* les feuilles de chaque porte, en liste compacte */
+const li = it => `<li><b style="color:${INKS[it.ink].hex}">${it.mark}</b><a href="${it.href}">${it.he.split(' · ')[0].replace(' ?', '\u00a0?')}</a></li>`;
+for (const sec of ['femmes', 'hommes', 'talmud']) document.getElementById('l-' + sec).innerHTML = ITEMS.filter(i => i.sec === sec).map(li).join('');
+const paru = SHEETS.filter(i => i.href);
+document.getElementById('l-para').innerHTML = paru.map(li).join('');
+document.getElementById('s-para').textContent = `Les ${paru.length} feuilles parues`;
 function paintBg() {
   const c = document.getElementById('bg'), dp = Math.min(2, devicePixelRatio || 1); c.width = innerWidth * dp; c.height = innerHeight * dp;
   const g = c.getContext('2d'); g.fillStyle = PAPER; g.fillRect(0, 0, c.width, c.height);
@@ -121,6 +105,7 @@ function paintCards() {
 }
 function paint() { paintBg(); paintCards(); }
 addEventListener('resize', () => { clearTimeout(paint.t); paint.t = setTimeout(paint, 150); });
+for (const d of document.querySelectorAll('details')) d.addEventListener('toggle', paintCards);
 paint();
 </script>
 </body>

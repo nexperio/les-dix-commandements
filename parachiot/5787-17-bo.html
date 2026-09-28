@@ -1812,7 +1812,10 @@ function resize() {
   const fz = fitZ(); S0 = clamp(bucket(fz * DPR * 1.15), 0.18, 1);
   needDraw = true;
 }
-const fitZ = () => Math.min(VW / (SW * 1.03), VH / (SH * 1.03));
+/* vue d'ensemble : la feuille entière, sous le bandeau d'aide (fixé en haut) pour qu'il ne masque jamais le titre */
+const helpTop = () => { const h = document.getElementById('help'); return h ? Math.min(VH * 0.2, Math.max(0, h.getBoundingClientRect().bottom + 6)) : 0; };
+const fitZ = () => Math.min(VW / (SW * 1.03), (VH - helpTop()) / (SH * 1.03));
+const overView = () => { const z = fitZ(); return { x: SW / 2, y: SH / 2 - helpTop() / 2 / z, z }; };
 function sceneView(i) {
   const [x, y] = cellPos(i), cw = Math.min(390, VW - 32) + 30;
   let C, sx, sy;
@@ -1931,7 +1934,7 @@ const cardLink = d => d.brakha ? 'La bénédiction et le commentaire ›' : d.fe
 function fillCard(i) {
   const d = SCENES[i], acc = INKS[d.accent].hex;
   card.style.setProperty('--acc', acc);
-  const nb = x => x.replace(/ ([:;?!»])/g, '\u202F$1').replace(/« /g, '«\u202F'), q = nb(d.fr || d.quote), first = q[0], rest = q.slice(1);
+  const nb = x => x.replace(/ ([:;?!»])/g, '\u202F$1').replace(/« /g, '«\u202F'), q = nb(d.fr || d.quote), first = (q.match(/^[^\p{L}\d]*./u) || [q[0]])[0], rest = q.slice(first.length);
   const so = srcOf(d);
   cardIn.innerHTML = `<div class="kick">${so.kick}</div><h1>${d.title}</h1><div class="orn"><i></i><b></b><i></i></div>` +
     `<p class="q"><span class="dc"><small>«\u202F</small>${first}</span>${rest}\u202F»</p><div class="src">${d.refFr || d.ref} · ${so.tr}</div>` +
@@ -1941,7 +1944,7 @@ function fillCard(i) {
   requestAnimationFrame(paintCardBg);
 }
 /* l'étoile de David ferme la carte et ramène à la vue d'ensemble */
-function closeCard() { cardPinned = false; card.classList.remove('on'); interact(); flyTo({ x: SW / 2, y: SH / 2, z: fitZ() }, 1.6); }
+function closeCard() { cardPinned = false; card.classList.remove('on'); interact(); flyTo(overView(), 1.6); }
 card.querySelector('.x').addEventListener('click', e => { e.stopPropagation(); closeCard(); });
 addEventListener('keydown', e => { if (e.key === 'Escape' && card.classList.contains('on')) closeCard(); });
 function paintCardBg() {
@@ -1974,7 +1977,7 @@ function tourStep(now) {
   if (tour.mode === 'user') { if (!cardPinned && now - userT > 9) { tour.mode = 'tour'; const n = nearestScene(); goScene(n.d < CELL * 0.3 ? (n.i + 1) % SCENES.length : n.i, now); } return; }
   if (fly) return;
   if (now > tour.until) {
-    if (tour.idx === SCENES.length - 1) { tour.idx = -2; flyTo({ x: SW / 2, y: SH / 2, z: fitZ() }, 3.2); tour.until = now + 3.2 + 5; return; }
+    if (tour.idx === SCENES.length - 1) { tour.idx = -2; flyTo(overView(), 3.2); tour.until = now + 3.2 + 5; return; }
     goScene(tour.idx === -2 ? 0 : tour.idx + 1, now);
   }
 }
@@ -2009,7 +2012,7 @@ addEventListener('keydown', e => {
   if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') { interact(); e.preventDefault(); const dx = k === 'ArrowLeft' ? -1 : k === 'ArrowRight' ? 1 : 0, dy = k === 'ArrowUp' ? -1 : k === 'ArrowDown' ? 1 : 0; flyTo({ x: cam.x + dx * step, y: cam.y + dy * step, z: cam.z }, 0.45); }
   if (k === '+' || k === '=') { interact(); flyTo({ x: cam.x, y: cam.y, z: clamp(cam.z * 1.45, ...zLim()) }, 0.45); }
   if (k === '-' || k === '_') { interact(); flyTo({ x: cam.x, y: cam.y, z: clamp(cam.z / 1.45, ...zLim()) }, 0.45); }
-  if (k === '0') { interact(); flyTo({ x: SW / 2, y: SH / 2, z: fitZ() }, 1.6); }
+  if (k === '0') { interact(); flyTo(overView(), 1.6); }
 });
 addEventListener('resize', resize);
 
@@ -2077,7 +2080,7 @@ function draw(vis, t) {
     if (ph < 1) { ctx.fillStyle = 'rgba(40,30,25,0.10)'; ctx.fillRect(x - 10, y + hgt, CELL + 20, 6); }
   }
 }
-resize(); makeGrain(); cam.z = fitZ(); queueStages();
+resize(); makeGrain(); Object.assign(cam, overView()); queueStages();
 requestAnimationFrame(loop);
 
 
