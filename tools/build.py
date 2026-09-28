@@ -30,6 +30,8 @@ PARACHIOT = [
 ENGINE = ['core.js', 'figures.js', 'lib2.js']
 read = lambda p: open(p, encoding='utf-8').read()
 
+MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
+
 def nav_items():
     """Entrées du menu vertical, tirées du tableau PARA de l'index (source unique)."""
     items = [{'mark': '⌂', 'he': 'Accueil', 'fr': 'Toutes les feuilles', 'href': 'index.html', 'ink': 3},
@@ -39,8 +41,11 @@ def nav_items():
         n, he, fr, date, rest, ink = m.groups()
         f = re.search(r"file: '([^']*)'", rest)
         soon = 'soon: 1' in rest
-        items.append({'mark': n, 'he': he, 'fr': ('À paraître' if soon else fr) + ' · ' + date.split('·')[-1].replace('Chabbat', '').strip(),
-                      'href': None if soon or not f else 'parachiot/' + f.group(1), 'ink': int(ink)})
+        day = date.split('·')[-1].replace('Chabbat', '').strip()
+        d, mo, y = re.match(r'(\d+)\w* (\S+) (\d{4})', day).groups()
+        items.append({'mark': n, 'he': he, 'fr': ('À paraître' if soon else fr) + ' · ' + day,
+                      'href': None if soon or not f else 'parachiot/' + f.group(1), 'ink': int(ink),
+                      'day': f'{y}-{MOIS.index(mo) + 1:02d}-{int(d):02d}', 'date': date, 'sens': fr})
     return items
 
 def nav_script(cur):
