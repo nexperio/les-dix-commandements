@@ -10,7 +10,7 @@ Projet de pages HTML autonomes : dioramas isométriques animés, imprimés en ri
 
 # Contraintes non négociables
 
-- Chaque page construite (`index.html`, `parachiot/*.html`) reste un fichier unique : aucune image, aucun data-URI, aucune police téléchargée, aucune bibliothèque, aucune requête réseau. Canvas 2D uniquement (pas de WebGL).
+- Chaque page construite (`index.html`, `ancien-testament.html`, `parachiot/*.html`) reste un fichier unique : aucune image, aucun data-URI, aucune police téléchargée, aucune bibliothèque, aucune requête réseau. Canvas 2D uniquement (pas de WebGL).
 - Les sources sont des scripts classiques concaténés par `tools/build.py` dans une seule portée globale. Ne pas introduire de modules ES, d'imports ou de bundler.
 - Tout l'aléatoire est seedé (`rng`, `h2`, `vn`) : jamais `Math.random()` dans le dessin.
 - Les couleurs s'écrivent en teintes d'encre (`'y5r2b1k3'`), jamais en RVB.

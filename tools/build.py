@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Construit toutes les pages autonomes (un fichier HTML chacune) à la racine du dépôt :
-index.html (L'Ancien Testament) et parachiot/*.html.
+index.html (accueil), ancien-testament.html et parachiot/*.html.
 
   python3 tools/build.py            # tout
   python3 tools/build.py noach      # une seule paracha
@@ -24,7 +24,8 @@ read = lambda p: open(p, encoding='utf-8').read()
 
 def nav_items():
     """Entrées du menu vertical, tirées du tableau PARA de l'index (source unique)."""
-    items = [{'mark': 'AT', 'he': 'L’Ancien Testament', 'fr': 'Seize scènes, une seule feuille', 'href': 'index.html', 'ink': 3},
+    items = [{'mark': '⌂', 'he': 'Accueil', 'fr': 'Toutes les feuilles', 'href': 'index.html', 'ink': 3},
+             {'mark': 'AT', 'he': 'L’Ancien Testament', 'fr': 'Seize scènes, une seule feuille', 'href': 'ancien-testament.html', 'ink': 3, 'sep': 1},
              {'mark': '✦', 'he': 'Parachiot 5787', 'fr': 'Les Dix Paroles et l’index', 'href': 'parachiot/index.html', 'ink': 1, 'sep': 1}]
     for m in re.finditer(r"\{ n: (\d+), he: '([^']*)', fr: '([^']*)', date: '([^']*)'(.*?)ink: (\d) \}", read(S('index', 'index.html'))):
         n, he, fr, date, rest, ink = m.groups()
@@ -60,7 +61,11 @@ def write(path, html):
 
 def build_at():
     parts = [S('engine', p) for p in ENGINE] + [S('scenes', 'ancien-testament.js'), S('scenes', 'main-ancien-testament.js'), S('engine', 'app.js')]
-    write(os.path.join(DIST, 'index.html'), page("L'Ancien Testament, scène par scène", read(S('scenes', 'ancien-testament.liste.txt')), parts, 'index.html'))
+    write(os.path.join(DIST, 'ancien-testament.html'), page("L'Ancien Testament, scène par scène", read(S('scenes', 'ancien-testament.liste.txt')), parts, 'ancien-testament.html'))
+
+def build_home():
+    html = read(S('accueil', 'index.html')).replace('/*CORE*/', read(S('engine', 'core.js'))).replace('/*ITEMS*/', json.dumps(nav_items(), ensure_ascii=False))
+    write(os.path.join(DIST, 'index.html'), html.replace('</body>', nav_script('index.html') + '</body>'))
 
 def build_paracha(pid, out):
     src = read(S('parachiot', pid + '.js'))
@@ -74,6 +79,6 @@ def build_index():
 
 if __name__ == '__main__':
     only = sys.argv[1:]
-    if not only: build_at(); build_index()
+    if not only: build_home(); build_at(); build_index()
     for n, pid, out in PARACHIOT:
         if not only or pid in only: build_paracha(pid, out)
