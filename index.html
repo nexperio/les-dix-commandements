@@ -22,7 +22,7 @@ header{text-align:center;margin-bottom:10px}
 h1{font-weight:normal;font-size:clamp(40px,7vw,78px);line-height:1;margin:10px 0 12px}
 .sub{font-style:italic;color:var(--r);font-size:18px;max-width:640px;margin:0 auto;line-height:1.45}
 .orn{display:flex;align-items:center;gap:12px;margin:30px auto;max-width:520px;color:var(--r)}.orn i{flex:1;height:1px;background:currentColor}.orn b{width:7px;height:7px;transform:rotate(45deg);background:currentColor}
-.doors{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+.doors{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:26px}
 .card{position:relative;display:block;text-decoration:none;color:inherit;padding:30px 32px 26px;background:rgba(255,255,255,.18);border:1px solid rgba(47,39,41,.25);box-shadow:0 1px 0 rgba(47,39,41,.1);transition:transform .25s,box-shadow .25s}
 .card:hover,.card:focus-within{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
 .card canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -32,8 +32,8 @@ h1{font-weight:normal;font-size:clamp(40px,7vw,78px);line-height:1;margin:10px 0
 .card .fr{font-style:italic;font-size:16px;line-height:1.45}
 .card .go{display:inline-block;margin-top:14px;font-style:italic;border-bottom:1px solid currentColor}
 .card.wait{pointer-events:none}.card.wait .go{border:0;opacity:.7}
-.card details,.card .list{position:relative;z-index:2}
-.card details{margin-top:16px}.card summary{cursor:pointer;font-style:italic;font-size:15px;opacity:.8}
+.card .list{position:relative;z-index:2}
+.list.scroll{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:column;column-gap:22px;max-height:226px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(47,39,41,.3) transparent}
 .lab{font-variant:small-caps;letter-spacing:.12em;font-size:13px;opacity:.7;margin:16px 0 0}
 .list{list-style:none;padding:0;margin:14px 0 0;columns:2;column-gap:22px;font-size:15px;line-height:1.35}
 .list.one{columns:1;margin-top:6px}
@@ -48,7 +48,7 @@ h1{font-weight:normal;font-size:clamp(40px,7vw,78px);line-height:1;margin:10px 0
 .findq{text-align:center;margin:10px 0 0;font-style:italic;font-size:15px}.findq a{color:var(--r);text-decoration:none;border-bottom:1px solid currentColor}
 footer{margin-top:44px;text-align:center;font-size:13px;opacity:.7;line-height:1.6}
 footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-decoration:none;border-bottom:1px solid currentColor}
-@media (max-width:760px){.doors{grid-template-columns:1fr}.card{padding:24px 22px 20px}.card h3{font-size:30px}.sheet{padding:72px 16px 60px}}
+@media (max-width:760px){.doors{grid-template-columns:1fr;grid-auto-rows:auto}.card{padding:24px 22px 20px}.card h3{font-size:30px}.sheet{padding:72px 16px 60px}}
 </style>
 </head>
 <body>
@@ -64,9 +64,9 @@ footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-
 <div id="now"></div>
 <div class="orn"><i></i><b></b><i></i></div>
 <div class="doors">
-  <div class="card" data-ink="1"><canvas></canvas><div class="n" style="color:#E0453A">La grande feuille</div><h3><a href="ancien-testament.html">Scène par scène</a></h3><div class="fr">Seize scènes, de la Genèse à Esther : Éden, le déluge, Moïse, le Sinaï, David, Élie, Esther.</div><span class="go" style="color:#E0453A">Ouvrir la feuille ›</span></div>
-  <div class="card" data-ink="2"><canvas></canvas><div class="n" style="color:#2D5BA6">Année 5787 · 2026-2027</div><h3><a href="parachiot/index.html">Parachiot</a></h3><div class="fr">Une feuille par paracha, de Haazinou à Nitsavim-Vayélekh, et les Dix Paroles.</div><span class="go" style="color:#2D5BA6">Voir l’index ›</span><details><summary id="s-para"></summary><ul class="list" id="l-para"></ul></details></div>
-  <div class="card" data-ink="3"><canvas></canvas><div class="n">Index · Daf Yomi</div><h3><a href="talmud/index.html">Le Talmud</a></h3><div class="fr">La Michna et la Guemara : les six ordres, Pirké Avot, les maîtres, la page du jour.</div><ul class="list" id="l-talmud"></ul></div>
+  <div class="card" data-ink="1"><canvas></canvas><div class="n" style="color:#E0453A">La grande feuille</div><h3><a href="ancien-testament.html">Scène par scène</a></h3><div class="fr">Seize scènes, de la Genèse à Esther : Éden, le déluge, Moïse, le Sinaï, David, Élie, Esther.</div><span class="go" style="color:#E0453A">Ouvrir la feuille ›</span><ul class="list" id="l-at"></ul></div>
+  <div class="card" data-ink="2"><canvas></canvas><div class="n" style="color:#2D5BA6">Année 5787 · 2026-2027</div><h3><a href="parachiot/index.html">Parachiot</a></h3><div class="fr">Une feuille par paracha, de Haazinou à Nitsavim-Vayélekh, et les Dix Paroles.</div><span class="go" style="color:#2D5BA6">Voir l’index ›</span><ul class="list scroll" id="l-para"></ul></div>
+  <div class="card" data-ink="3"><canvas></canvas><div class="n">Index · Daf Yomi</div><h3><a href="talmud/index.html">Le Talmud</a></h3><div class="fr">La Michna et la Guemara : les six ordres, Pirké Avot, les maîtres, la page du jour.</div><span class="go">Ouvrir l’index ›</span><ul class="list" id="l-talmud"></ul></div>
   <div class="card" data-ink="0"><canvas></canvas><div class="n" style="color:#B8830F">Mitsvot et berakhot</div><h3><a href="femmes/femmes-de-la-torah.html">Femmes et hommes</a></h3><div class="fr">Les femmes de la Torah, le foyer, les gestes de chacun et leurs bénédictions.</div><div class="lab">Les femmes et le foyer</div><ul class="list one" id="l-femmes"></ul><div class="lab">Les hommes</div><ul class="list one" id="l-hommes"></ul></div>
 </div>
 <footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610) ; passages du Talmud traduits de l’hébreu et de l’araméen (textes de Sefaria).<br>Glisser, molette, pincer, double-clic : chaque feuille se parcourt comme une carte.<br><span class="credit">Une réalisation <a href="https://nexperio.tech">nexperio.tech</a></span></footer>
@@ -425,8 +425,9 @@ if (cur) {
 const li = it => `<li><b style="color:${INKS[it.ink].hex}">${it.mark}</b><a href="${it.href}">${it.he.split(' · ')[0].replace(' ?', '\u00a0?')}</a></li>`;
 for (const sec of ['femmes', 'hommes', 'talmud']) document.getElementById('l-' + sec).innerHTML = ITEMS.filter(i => i.sec === sec).map(li).join('');
 const paru = SHEETS.filter(i => i.href);
-document.getElementById('l-para').innerHTML = paru.map(li).join('');
-document.getElementById('s-para').textContent = `Les ${paru.length} feuilles parues`;
+const lp = document.getElementById('l-para'); lp.innerHTML = paru.map(li).join(''); lp.style.gridTemplateRows = `repeat(${Math.ceil(paru.length / 2)}, auto)`;
+const AT = ['Le jardin d’Éden', 'Noé et la colombe', 'Le bélier d’Isaac', 'L’échelle de Jacob', 'Joseph et la citerne', 'Le buisson ardent', 'Le passage de la mer', 'Le Sinaï', 'Le veau d’or', 'Les cabanes', 'Moïse au mont Nebo', 'Jéricho', 'Ruth et Booz', 'David et Goliath', 'Le feu du Carmel', 'Esther devant le roi'];
+document.getElementById('l-at').innerHTML = AT.map((he, i) => li({ mark: i + 1, he, href: 'ancien-testament.html#scene=' + (i + 1), ink: [1, 2, 0][i % 3] })).join('');
 function paintBg() {
   const c = document.getElementById('bg'), dp = Math.min(2, devicePixelRatio || 1); c.width = innerWidth * dp; c.height = innerHeight * dp;
   const g = c.getContext('2d'); g.fillStyle = PAPER; g.fillRect(0, 0, c.width, c.height);
@@ -442,7 +443,6 @@ function paintCards() {
 }
 function paint() { paintBg(); paintCards(); }
 addEventListener('resize', () => { clearTimeout(paint.t); paint.t = setTimeout(paint, 150); });
-for (const d of document.querySelectorAll('details')) d.addEventListener('toggle', paintCards);
 paint();
 </script>
 <script>
