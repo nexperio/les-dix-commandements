@@ -2,12 +2,12 @@
 
 Pages HTML autonomes qui impriment en riso simulée des dioramas isométriques animés de l'Ancien Testament : une grande feuille « L'Ancien Testament » (16 scènes, Genèse à Esther), une feuille par paracha de l'année 5787 et un index avec les Dix Paroles.
 
-Chaque page construite (`index.html` et `parachiot/*.html`, à la racine du dépôt) est **un seul fichier** : Canvas 2D, zéro image, zéro police téléchargée, zéro bibliothèque, une seule requête réseau (elle-même). Tout est dessiné en code.
+Chaque page construite (`index.html`, `ancien-testament.html` et `parachiot/*.html`, à la racine du dépôt) est **un seul fichier** : Canvas 2D, zéro image, zéro police téléchargée, zéro bibliothèque, une seule requête réseau (elle-même). Tout est dessiné en code.
 
 ## Démarrage
 
 ```bash
-python3 tools/build.py          # reconstruit index.html et parachiot/
+python3 tools/build.py          # reconstruit index.html, ancien-testament.html et parachiot/
 python3 tools/build.py noach    # une seule paracha
 python3 tools/check_quotes.py   # vérifie les citations contre le Gutenberg 1609
 npm i && npm run shot           # capture Playwright (optionnel)
@@ -33,11 +33,13 @@ src/
     ancien-testament.liste.txt  commentaire d'en-tête de la grande feuille
   parachiot/<id>.js           une feuille = const SHEET + const SCENES
   index/index.html            index : Dix Paroles + tableau PARA des feuilles
+  accueil/index.html          accueil du site (/*CORE*/ et /*ITEMS*/ remplacés au build)
 tools/
   build.py          assemble les pages (ordre des fichiers = ordre d'exécution)
   check_quotes.py   contrôle des citations
   shot.js           captures Playwright (F=chemin W= H= DPR=)
-index.html          page construite : L'Ancien Testament
+index.html          page construite : accueil (menu + accès aux feuilles)
+ancien-testament.html  page construite : L'Ancien Testament
 parachiot/          pages construites : index des parachiot et une feuille par paracha
 favicon.svg
 ```

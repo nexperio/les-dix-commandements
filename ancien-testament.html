@@ -3,22 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Noa’h · Noé</title>
-<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<title>L'Ancien Testament, scène par scène</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <!--
-  Noa’h · Noé
-  Paracha de la semaine · Chabbat 17 octobre 2026 · Genèse 6, 9 à 11, 32
+  L'ANCIEN TESTAMENT, SCÈNE PAR SCÈNE
   Un seul fichier. Canvas 2D. Aucune image, aucune police, aucune bibliothèque.
-  Versets traduits en français depuis la Douay-Rheims (Project Gutenberg n° 1609).
+  Chaque scène, personnage, vague et point d'encre est dessiné en code.
+  Citations : traduites en français de la Douay-Rheims, Old Testament Part 1,
+  Project Gutenberg n° 1609 (texte anglais d'origine affiché dans le commentaire).
 
-  1. L’arche en chantier  (Genèse 6, 14)
-  2. Deux à deux  (Genèse 7, 9)
-  3. Les eaux montent  (Genèse 7, 18)
-  4. L’arc dans la nuée  (Genèse 9, 13)
-  5. La tour de Babel  (Genèse 11, 4)
-  (+ scènes reprises de L'Ancien Testament)
+  Scènes (ordre du livre)                       Chapitre                    Fête juive
+   1  Le jardin d'Éden                          Genèse 3      (Gn 3:6)      Rosh Hashana
+   2  La colombe et le rameau (Noé)             Genèse 8      (Gn 8:11)     -
+   3  Le bélier dans le buisson (Isaac)         Genèse 22     (Gn 22:13)    Rosh Hashana
+   4  L'échelle de Jacob                        Genèse 28     (Gn 28:12)    -
+   5  Joseph tiré de la citerne                 Genèse 37     (Gn 37:28)    -
+   6  Le buisson ardent (Moïse)                 Exode 3       (Ex 3:5)      -
+   7  Le passage de la mer                      Exode 14      (Ex 14:22)    Pessah
+   8  Le Sinaï dans la fumée                    Exode 19      (Ex 19:18)    Chavouot
+   9  Le veau d'or                              Exode 32      (Ex 32:19)    Yom Kippour
+  10  Les cabanes du désert                     Lévitique 23  (Lv 23:42)    Souccot
+  11  Moïse au mont Nebo                        Deutéronome 34 (Dt 34:4)    Simhat Torah
+  12  Les murailles de Jéricho                  Josué 6       (Josue 6:20)  -
+  13  Ruth dans le champ de Booz                Ruth 2        (Ruth 2:3)    Chavouot
+  14  David et Goliath                          1 Samuel 17   (1 Kings 17:49, Douay) -
+  15  Le feu du Carmel (Élie)                   1 Rois 18     (3 Kings 18:38, Douay) -
+  16  Esther devant le roi                      Esther 5      (Esther 5:2)  Pourim
 
-  Commandes : glisser, molette, pincer, double-clic, flèches, + / -, 0, C.
+  Commandes : glisser (inertie), molette (zoom sous le curseur), pincer, double-clic
+  sur une scène, flèches, + / -, 0 (toute la feuille), C (carte de chapitre).
+
 -->
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#26211d;touch-action:none;-webkit-user-select:none;user-select:none}
@@ -1418,158 +1432,7 @@ const AT = [
 }
 ];
 
-/* ---- personnages supplémentaires des parachiot ---- */
-Object.assign(LK, {
-  adamSkin: Object.assign({}, LK.adam, { robe: 'r4y5k3', skirt: 0, len: 'knee', leafy: 0, sleeves: 'short' }),
-  eveSkin: Object.assign({}, LK.eve, { robe: 'r4y5k2', len: 'ankle', leafy: 0, sleeves: 'short' }),
-  cain: { skin: 'y6r5k1', hs: 'curly', hair: 'k8', beard: 'short', robe: 'r5y4k2', len: 'knee', sleeves: 'short', sash: 'k5', feet: 'bare' },
-  abel: { skin: 'y5r4', hs: 'curly', hair: 'r5y4k2', robe: 'y2k1', len: 'knee', sleeves: 'short', sash: 'b5', feet: 'bare' },
-  enoch: { old: 1, skin: 'y5r4', hs: 'fringe', hair: 'k1', beard: 'full', bt: 'k1b1', robe: 'y1b1', cloak: 'y3b2', sash: 'y6' },
-  son1: { skin: 'y6r4k1', hs: 'curly', hair: 'k8', beard: 'short', robe: 'b4y3', len: 'knee', sleeves: 'short', sash: 'r6', head: 'cap', ht: 'y2' },
-  son2: { skin: 'y5r4k1', hs: 'short', hair: 'k7r2', beard: 'short', robe: 'r5y3k1', len: 'knee', sleeves: 'short', sash: 'b5' },
-  sarai: { fem: 1, skin: 'y5r4', hs: 'long', hair: 'k7', robe: 'b5r3', len: 'floor', head: 'veil', ht: 'y3r3', sash: 'y7r2' },
-  saraiOld: { fem: 1, old: 1, skin: 'y5r4', hs: 'long', hair: 'k2', robe: 'b5r3', len: 'floor', head: 'veil', ht: 'y2', sash: 'y7r2' },
-  lot: { skin: 'y5r4k1', hs: 'short', hair: 'k7r2', beard: 'long', robe: 'r6y3k1', cloak: 'y4b3', sash: 'b6', head: 'cloth', ht: 'b3y1', band: 'k6' },
-  abram: { skin: 'y5r4k1', hs: 'short', hair: 'k5', beard: 'long', bt: 'k4', robe: 'y2k1', cloak: 'r5b3k1', sash: 'b5', head: 'cloth', ht: 'y2r1', band: 'k6' },
-  melchi: { skin: 'y5r4', hs: 'short', hair: 'k3', beard: 'long', bt: 'k2', robe: 'y1b1', trim: 1, cloak: 'r7b4', sash: 'y8', head: 'crown', ht: 'y8r2', sleeves: 'long', wide: 1 },
-  hagar: { fem: 1, skin: 'y6r5k2', hs: 'long', hair: 'k8', robe: 'r5y5', len: 'floor', head: 'veil', ht: 'b4y2', sash: 'r7' },
-  ishmael: { child: 1, skin: 'y6r5k1', hs: 'curly', hair: 'k8', robe: 'y3r2', len: 'knee', sleeves: 'short', sash: 'r5', feet: 'bare' },
-  isaacChild: { child: 1, skin: 'y5r4', hs: 'curly', hair: 'k7r2', robe: 'y1b1', len: 'knee', sleeves: 'short', sash: 'b5', feet: 'bare' },
-  visitor: { skin: 'y4r3', hs: 'curly', hair: 'y6r2k2', beard: 'short', bt: 'y6r2k2', robe: 'y1b1', cloak: 'b3k1', sash: 'y6', head: 'cloth', ht: 'y1', band: 'y7' },
-  saltWife: { fem: 1, skin: 'y1b1k1', hs: 'long', hair: 'y1b2k1', robe: 'y1b1k1', len: 'floor', head: 'veil', ht: 'b1k1', sash: 'b1k2' },
-  lotDau: { fem: 1, skin: 'y5r4', hs: 'long', hair: 'k7r2', robe: 'r5b2', len: 'floor', head: 'veil', ht: 'y3', sash: 'b5' },
-  joshua: { skin: 'y6r4k1', hs: 'short', hair: 'k7', beard: 'short', robe: 'r5y3k1', cloak: 'b6k1', sash: 'y7', head: 'helmet', ht: 'y5r3k3', greaves: 'y5r3k3', feet: 'boot' },
-  shepherd: { skin: 'y6r4k1', hs: 'curly', hair: 'k8', beard: 'short', robe: 'y4r3k1', len: 'knee', sleeves: 'short', sash: 'b4', head: 'cloth', ht: 'y2', band: 'k6', cloak: 'k3y2' }
-});
-CLIPS.sulk = { d: 4, k: [{ nU: 30, nL: 112, fU: 24, fL: 116, head: 22, lean: 4, nT: 6, fT: -6 }, { nU: 32, nL: 110, fU: 26, fL: 114, head: 26, lean: 6, nT: 6, fT: -6 }] };
-const reuse = (s, o) => Object.assign(Object.create(s), o || {});
-
-/* PARACHA NOA'H · Genèse 6, 9 à 11, 32 · Chabbat 17 octobre 2026 */
-const SHEET = { title: 'Noa’h · Noé', sub: 'Paracha de la semaine · Chabbat 17 octobre 2026 · Genèse 6, 9 à 11, 32' };
-const SCENES = [
-{
-  title: 'L’arche en chantier', book: 'Genèse', ch: 6, ref: 'Genesis 6:14', refFr: 'Genèse 6, 14', accent: 1, feast: null,
-  quote: 'Make thee an ark of timber planks:  thou shalt make little rooms in the ark, and thou shalt pitch it within and without.',
-  fr: 'Fais-toi une arche de planches de bois : tu feras de petites chambres dans l’arche, et tu l’enduiras de poix dedans et dehors.',
-  more: ['Noé, « homme juste et intègre dans sa génération », reçoit un plan précis : trois cents coudées de long, cinquante de large, trente de haut, trois étages, une porte sur le côté et une ouverture en haut. L’arche est une caisse, pas un navire : elle ne se dirige pas, elle se laisse porter.',
-    'Pas de fête juive attachée à ce passage. Selon un midrach, Noé mit cent vingt ans à bâtir l’arche, pour laisser à ses contemporains le temps de l’interroger et de changer.'],
-  back(P) {
-    Lib.sun(P, 170, 140, 28); Lib.cloud(P, 820, 150, 150, 30, 'b1');
-    Lib.platform(P, 'y4r2k1', 'y4r3k2');
-    Lib.stones(P, 20, 'y3r2k3', [20, 20, 500, 500]);
-    for (let i = 0; i < 6; i++) { const x = 30 + P.r() * 90, y = 40 + i * 70; P.cyl(x, y, 0, 9 + P.r() * 4, 10, 'r5y5k3', 0.8); }
-    for (let i = 0; i < 5; i++) P.box(440, 380 + i * 12, 0 + (i % 2) * 8, 90, 10, 8, 'r4y6k2', 0.8);
-    P.box(440, 440, 0, 90, 40, 24, 'r4y6k2'); for (let i = 0; i < 4; i++) P.box(445, 445 + i * 8, 24, 80, 7, 6, 'r4y6k1', 0.6);
-    Lib.ark(P, -30, -40, 0, { frame: 1, progress: 0.7 });
-    for (const x of [90, 200, 310, 410]) { P.box(x, 115, 0, 6, 6, 100, 'r4y5k3', 0.7); P.box(x, 275, 0, 6, 6, 100, 'r4y5k3', 0.7); P.line([P.I(x, 118, 60), P.I(x, 278, 60)], 1); }
-    const c = P.I(200, 380, 0); Lib.jar(P, 200, 380, 0, 1.6, 'k8r1');
-  },
-  live(P, t) { const c = P.I(200, 380, 0); Lib.flame(P, c[0], c[1] + 2, 18, 18, t); Lib.smoke(P, c[0], c[1] - 40, t, { n: 4, h: 120, r: 14, tn: 'k4' }); },
-  chars: [
-    ch(LK.noah, { x: 330, y: 300, face: -1, clip: 'hammer', hold: { n: 'hammer' }, h: 142 }),
-    ch(LK.son1, { h: 138, speed: 20, over: 'carry', hold: { nTop: 'plank' }, path: [W(470, 420, 1.5), W(360, 330, 1.5), W(470, 420, 0)] }),
-    ch(LK.son2, { h: 136, speed: 20, t0: 4, over: 'carry', hold: { nTop: 'plank' }, path: [W(480, 470, 1.5), W(250, 320, 1.5), W(480, 470, 0)] }),
-    ch(LK.son1, { x: 170, y: 320, face: 1, clip: 'hammer', hold: { n: 'hammer' }, h: 134, t0: 0.3, look: Object.assign({}, LK.son1, { robe: 'y6b4k1' }) }),
-    ch(LK.noahWife, { x: 120, y: 440, face: 1, clip: 'offer', h: 126, hold: { n: 'bread' } })
-  ]
-},
-{
-  title: 'Deux à deux', book: 'Genèse', ch: 7, ref: 'Genesis 7:9', refFr: 'Genèse 7, 9', accent: 2, feast: null,
-  quote: 'Two and two went in to Noe into the ark, male and female, as the Lord had commanded Noe.',
-  fr: 'Deux à deux ils entrèrent auprès de Noé dans l’arche, mâle et femelle, comme le Seigneur l’avait ordonné à Noé.',
-  more: ['Sept jours avant la pluie, les animaux viennent à Noé, un couple de chaque espèce, et sept couples des animaux purs. Noé, sa femme, ses trois fils Sem, Cham et Japhet et leurs épouses entrent à leur tour. « Et le Seigneur ferma la porte sur lui. »',
-    'Pas de fête juive attachée à ce passage. La paracha Noa’h est lue au mois de ‘Hechvan, celui-là même où, selon le texte, le déluge commença (le deuxième mois, le dix-septième jour).'],
-  back(P) {
-    Lib.cloud(P, 250, 130, 220, 46, 'k3b2'); Lib.cloud(P, 700, 110, 260, 50, 'k3b2'); Lib.cloud(P, 480, 170, 180, 36, 'k2b2');
-    Lib.platform(P, 'y4b2r1', 'y4r3k2');
-    Lib.grass(P, 40);
-    Lib.ark(P, -40, -60, 0, { door: 1 });
-    const I = (x, y, z) => P.I(x, y, z);
-    P.shape([I(390, 140, 0), I(390, 190, 0), I(505, 190, 0), I(505, 140, 0)].map((p, i) => i < 2 ? [p[0], p[1] - 50] : p), 'r4y5k2', 1);
-    for (let i = 1; i < 8; i++) { const a = P.I(390 + i * 14, 140, 50 - i * 7), b = P.I(390 + i * 14, 190, 50 - i * 7); P.line([a, b], 0.6); }
-  },
-  chars: (() => {
-    const L = [ch(LK.noah, { x: 480, y: 290, face: -1, clip: 'point', h: 142 }), ch(LK.noahWife, { x: 500, y: 250, face: -1, clip: 'idle', h: 126 })];
-    const path = [W(260, 530, 0), W(505, 330, 0), W(505, 165, 0), W(395, 165, 0, null, { z: 50 }), W(260, 530, 0, null, { jump: 1 })];
-    [['lion', 90], ['lion', 86], ['sheep', 66], ['sheep', 62], ['camel', 108], ['camel', 104], ['giraffe', 100], ['giraffe', 96], ['deer', 86], ['deer', 82]].forEach(([b, h], i) => L.push({ beast: b, h, speed: 24, t0: Math.floor(i / 2) * 7 + (i % 2) * 1.2, path }));
-    return L;
-  })()
-},
-{
-  title: 'Les eaux montent', book: 'Genèse', ch: 7, ref: 'Genesis 7:18', refFr: 'Genèse 7, 18', accent: 2, feast: null,
-  quote: 'For they overflowed exceedingly:  and filled all on the face of the earth:  and the ark was carried upon the waters.',
-  fr: 'Car elles débordèrent à l’extrême et couvrirent toute la face de la terre : et l’arche était portée sur les eaux.',
-  more: ['Les sources du grand abîme jaillissent, les écluses du ciel s’ouvrent : quarante jours de pluie. Les eaux dépassent les plus hautes montagnes de quinze coudées. Tout ce qui respirait sur la terre sèche périt ; seule l’arche flotte, portée sur les eaux.',
-    'Pas de fête juive attachée à ce passage. Le texte hébreu emploie pour l’arche le mot teva, le même que pour la corbeille où sera déposé Moïse enfant.'],
-  back(P) {
-    Lib.cloud(P, 200, 110, 300, 60, 'k4b3'); Lib.cloud(P, 700, 90, 320, 64, 'k4b3'); Lib.cloud(P, 480, 150, 240, 50, 'k3b3');
-    Lib.platform(P, 'b5k1', 'b6', { h: 90, pebbles: false, strata: [[0, .3, 'b6'], [.3, .65, 'b7k1'], [.65, 1, 'b7k3']] });
-    for (const [x, y] of [[60, 460], [480, 60]]) { const c = P.I(x, y, 0); P.shape([[c[0] - 30, c[1] + 4], [c[0], c[1] - 26], [c[0] + 30, c[1] + 4]], 'y3r3k3', 1); }
-    const r = P.I(90, 120, 0); P.shape([[r[0] - 24, r[1]], [r[0], r[1] - 16], [r[0] + 24, r[1]]], 'r5y3k3', 1);
-    Lib.tree(P, 420, 440, -110, { h: 140, r: 32, can: 'y5b6k2' });
-    for (let i = 0; i < 7; i++) { const c = P.I(540, 60 + i * 70, -30 - (i % 3) * 20); drawFish(P, c[0], c[1], 14, i % 2 ? 1 : -1, 'y5b3'); }
-    Lib.waves(P, [0, 0, 540, 540], 70, 1, 3);
-    Lib.ark(P, 0, 10, -20);
-  },
-  live(P, t) { Lib.rain(P, t, { n: 120 }); if (Math.floor(t * 3) % 5 === 0) { P.line([[780, 120], [750, 190], [770, 196], [735, 270]], 4, { ink: 0, taper: 0.6 }); } for (let i = 0; i < 6; i++) { const u = (t * 0.2 + i / 6) % 1, c = P.I(40 + u * 480, 330 + Math.sin(i * 3) * 150, 2); P.line([[c[0] - 14, c[1]], [c[0] - 5, c[1] - 6], [c[0] + 5, c[1]], [c[0] + 14, c[1] - 6]], 1.1, { ink: 2 }); } },
-  chars: [ch(LK.noah, { x: 150, y: 290, z: 55, face: -1, clip: 'lookup', h: 120, noShadow: 1 })]
-},
-reuse(AT[1]),
-{
-  title: 'L’arc dans la nuée', book: 'Genèse', ch: 9, ref: 'Genesis 9:13', refFr: 'Genèse 9, 13', accent: 0, feast: null,
-  quote: 'I will set my bow in the clouds, and it shall be the sign of a covenant between me and between the earth.',
-  fr: 'Je placerai mon arc dans les nuées, et il sera le signe d’une alliance entre moi et la terre.',
-  more: ['Sortis de l’arche, Noé et les siens bâtissent un autel. Dieu promet de ne plus maudire la terre et scelle une alliance avec toute chair : l’arc dans la nuée en sera le signe. Noé, « homme de la terre », plante ensuite la première vigne.',
-    'Pas de fête juive attachée à ce passage. La tradition prescrit une bénédiction à la vue d’un arc-en-ciel : « Béni sois-Tu… qui Te souviens de l’alliance ». Les sept lois noa’hides, adressées à toute l’humanité, trouvent aussi leur source ici.'],
-  back(P) {
-    Lib.rainbow(P, 520, 420, 380, 13); Lib.cloud(P, 180, 170, 170, 36, 'b2'); Lib.cloud(P, 830, 150, 150, 32, 'b2');
-    Lib.platform(P, 'y4b3', 'y4r3k2');
-    Lib.ark(P, -125, -145, 0);
-    Lib.grass(P, 50);
-    Lib.altar(P, 220, 260, 60, 44, 36);
-    Lib.vines(P, 350, 360, 170, 160, 4);
-  },
-  live(P, t) { const a = P.I(250, 282, 42); Lib.flame(P, a[0], a[1], 20, 30, t); Lib.smoke(P, a[0], a[1] - 12, t, { h: 200, tn: 'k2' }); },
-  chars: [
-    ch(LK.noah, { x: 290, y: 330, face: -1, clip: 'pray', h: 142 }),
-    ch(LK.noahWife, { x: 260, y: 360, face: -1, clip: 'kneel', h: 126 }),
-    ch(LK.son1, { x: 180, y: 360, face: 1, clip: 'bow', h: 136 }),
-    ch(LK.son2, { x: 330, y: 480, face: 1, clip: 'hammer', hold: { n: 'hammer' }, h: 134 }),
-    { beast: 'deer', h: 90, speed: 20, path: [W(140, 200, 0), W(40, 500, 0), W(140, 200, 0, null, { jump: 1 })] },
-    { beast: 'sheep', h: 66, speed: 10, path: [W(120, 260, 2), W(90, 420, 3), W(120, 260, 0)] },
-    { beast: 'lion', h: 90, speed: 16, path: [W(200, 150, 0), W(500, 200, 0), W(200, 150, 0, null, { jump: 1 })] }
-  ]
-},
-{
-  title: 'La tour de Babel', book: 'Genèse', ch: 11, ref: 'Genesis 11:4', refFr: 'Genèse 11, 4', accent: 1, feast: null,
-  quote: 'And they said:  Come, let us make a city and a tower, the top whereof may reach to heaven; and let us make our name famous before we be scattered abroad into all lands.',
-  fr: 'Et ils dirent : Venez, faisons-nous une ville et une tour dont le sommet atteigne le ciel ; et rendons notre nom célèbre, avant que nous soyons dispersés par toute la terre.',
-  more: ['Dans la plaine de Shinéar, les hommes, qui parlent tous une même langue, cuisent des briques au feu et se servent de bitume comme mortier. Ils veulent une tour qui touche le ciel et un nom. Dieu confond leur langage : ils ne se comprennent plus, le chantier s’arrête, et ils se dispersent.',
-    'Pas de fête juive attachée à ce récit. Les sages opposent souvent Babel, où l’on bâtit pour « se faire un nom », à la génération suivante, celle d’Abraham, à qui Dieu promet : « je rendrai ton nom grand ».'],
-  back(P) {
-    Lib.sun(P, 830, 150, 26);
-    Lib.platform(P, 'y5r2', 'y5r3k1');
-    Lib.tower(P, 250, 230, 5, 330, 66, 'y4r3k1');
-    Lib.cloud(P, 470, 90, 180, 36, 'b1'); Lib.cloud(P, 330, 60, 130, 28, 'b1');
-    const top = P.I(250, 230, 330); for (let i = 0; i < 5; i++) P.line([[top[0] - 60 + i * 30, top[1] + 10], [top[0] - 60 + i * 30, top[1] - 50]], 1.4);
-    P.line([[top[0] - 64, top[1] - 40], [top[0] + 64, top[1] - 40]], 1.2);
-    P.box(440, 420, 0, 70, 60, 50, 'r4y4k2'); const k = P.I(475, 480, 20); P.shape([[k[0] - 12, k[1]], [k[0] + 12, k[1]], [k[0] + 12, k[1] - 22], [k[0], k[1] - 30], [k[0] - 12, k[1] - 22]], 'k8r2', 0.8);
-    for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) P.box(360 + i * 18, 470 + j * 14, 0, 16, 12, 8 + (i + j) % 2 * 8, 'r5y5k1', 0.6);
-    for (let i = 0; i < 3; i++) P.box(70 + i * 22, 470, 0, 20, 14, 10, 'r5y5k1', 0.6);
-    P.cyl(150, 470, 0, 18, 16, 'k8r1');
-  },
-  live(P, t) { const k = P.I(475, 480, 20); Lib.flame(P, k[0], k[1] - 4, 16, 22, t); Lib.smoke(P, P.I(475, 450, 50)[0], P.I(475, 450, 50)[1], t, { n: 4, h: 150, r: 16 }); },
-  chars: (() => {
-    const L = [];
-    const path = [W(420, 500, 1.5, 'bow'), W(300, 420, 0), W(260, 420, 1, 'idle'), W(420, 500, 0)];
-    for (let i = 0; i < 4; i++) L.push(ch([LK.son1, LK.son2, LK.bro1, LK.reaper][i], { h: 132, speed: 22, t0: i * 3.5, over: 'carry', hold: { nTop: 'bricks' }, path }));
-    L.push(ch(LK.bro2, { x: 250, y: 230, z: 330, face: 1, clip: 'hammer', hold: { n: 'hammer' }, h: 100, noShadow: 1 }));
-    L.push(ch(LK.son1, { x: 200, y: 400, face: 1, clip: 'hammer', hold: { n: 'hammer' }, h: 130 }));
-    L.push(ch(LK.ismaelite, { x: 110, y: 430, face: 1, clip: 'talk', h: 140 }), ch(LK.isrM, { x: 160, y: 500, face: -1, clip: 'talk', h: 136, t0: 1.2 }));
-    return L;
-  })()
-}
-];
+const SCENES = AT, SHEET = { title: 'L\u2019Ancien Testament' };
 
 /* ============================================================
    APPLICATION : feuille, caches par niveau de détail, impression,
@@ -1891,7 +1754,7 @@ requestAnimationFrame(loop);
   btn.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
   addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
   addEventListener('pointerdown', e => { if (!nav.contains(e.target)) setOpen(false); });
-})("../", [{"mark": "⌂", "he": "Accueil", "fr": "Toutes les feuilles", "href": "index.html", "ink": 3}, {"mark": "AT", "he": "L’Ancien Testament", "fr": "Seize scènes, une seule feuille", "href": "ancien-testament.html", "ink": 3, "sep": 1}, {"mark": "✦", "he": "Parachiot 5787", "fr": "Les Dix Paroles et l’index", "href": "parachiot/index.html", "ink": 1, "sep": 1}, {"mark": "1", "he": "Haazinou", "fr": "Prêtez l’oreille · 19 septembre 2026", "href": "parachiot/5787-01-haazinou.html", "ink": 1}, {"mark": "2", "he": "Vezot haBerakha", "fr": "Voici la bénédiction · 4 octobre 2026", "href": "parachiot/5787-02-vezot-haberakha.html", "ink": 2}, {"mark": "3", "he": "Bereshit", "fr": "Au commencement · 10 octobre 2026", "href": "parachiot/5787-03-bereshit.html", "ink": 0}, {"mark": "4", "he": "Noa’h", "fr": "Noé · 17 octobre 2026", "href": "parachiot/5787-04-noach.html", "ink": 2}, {"mark": "5", "he": "Lekh Lekha", "fr": "Va pour toi · 24 octobre 2026", "href": "parachiot/5787-05-lekh-lekha.html", "ink": 1}, {"mark": "6", "he": "Vayera", "fr": "Il apparut · 31 octobre 2026", "href": "parachiot/5787-06-vayera.html", "ink": 0}, {"mark": "7", "he": "Hayé Sarah", "fr": "À paraître · 7 novembre 2026", "href": null, "ink": 2}, {"mark": "8", "he": "Toledot", "fr": "À paraître · 14 novembre 2026", "href": null, "ink": 1}], "parachiot/5787-04-noach.html");
+})("", [{"mark": "⌂", "he": "Accueil", "fr": "Toutes les feuilles", "href": "index.html", "ink": 3}, {"mark": "AT", "he": "L’Ancien Testament", "fr": "Seize scènes, une seule feuille", "href": "ancien-testament.html", "ink": 3, "sep": 1}, {"mark": "✦", "he": "Parachiot 5787", "fr": "Les Dix Paroles et l’index", "href": "parachiot/index.html", "ink": 1, "sep": 1}, {"mark": "1", "he": "Haazinou", "fr": "Prêtez l’oreille · 19 septembre 2026", "href": "parachiot/5787-01-haazinou.html", "ink": 1}, {"mark": "2", "he": "Vezot haBerakha", "fr": "Voici la bénédiction · 4 octobre 2026", "href": "parachiot/5787-02-vezot-haberakha.html", "ink": 2}, {"mark": "3", "he": "Bereshit", "fr": "Au commencement · 10 octobre 2026", "href": "parachiot/5787-03-bereshit.html", "ink": 0}, {"mark": "4", "he": "Noa’h", "fr": "Noé · 17 octobre 2026", "href": "parachiot/5787-04-noach.html", "ink": 2}, {"mark": "5", "he": "Lekh Lekha", "fr": "Va pour toi · 24 octobre 2026", "href": "parachiot/5787-05-lekh-lekha.html", "ink": 1}, {"mark": "6", "he": "Vayera", "fr": "Il apparut · 31 octobre 2026", "href": "parachiot/5787-06-vayera.html", "ink": 0}, {"mark": "7", "he": "Hayé Sarah", "fr": "À paraître · 7 novembre 2026", "href": null, "ink": 2}, {"mark": "8", "he": "Toledot", "fr": "À paraître · 14 novembre 2026", "href": null, "ink": 1}], "ancien-testament.html");
 </script>
 </body>
 </html>

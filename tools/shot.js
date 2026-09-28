@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
   const p = await b.newPage({ viewport: { width: +(process.env.W||1600), height: +(process.env.H||1000) }, deviceScaleFactor: +(process.env.DPR||1) });
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type()==='error'||m.type()==='warning') errs.push(m.text()); });
   const reqs = []; p.on('request', r => reqs.push(r.url()));
-  await p.goto('file://' + require('path').resolve(process.env.F || 'index.html'));
+  await p.goto('file://' + require('path').resolve(process.env.F || 'ancien-testament.html'));
   for (const a of args) {
     if (a.startsWith('wait:')) await p.waitForTimeout(+a.slice(5));
     else if (a.startsWith('js:')) console.log(await p.evaluate(a.slice(3)));
