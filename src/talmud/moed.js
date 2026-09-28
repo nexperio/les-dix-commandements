@@ -125,7 +125,7 @@ const tmStatic = (P, lk, o) => renderChar(P, prepChar(ch(lk, o)), o.tt || 1.3);
 /* un objet qui suit un trajet comme un personnage (agneaux, anges) */
 const tmTrack = (o) => prepChar(Object.assign({ h: 60 }, o));
 /* ciel de nuit, ciel de crépuscule */
-const tmDusk = (P, tones) => { const t = tones || ['b3r2', 'b2r2y1', 'r2y3', 'r1y4']; for (let i = 0; i < t.length; i++) P.fill(P.disc(500, 470, 450 - i * 55, 64).map(p => [p[0], Math.min(p[1], 640)]), t[i], { noKnock: i > 0 }); };
+const tmDusk = (P, tones, ys) => { const t = tones || ['b4r2k1', 'b3r2', 'r3y3', 'r2y5'], Y = ys || [0, 190, 270, 330], d = P.disc(500, 470, 450, 72); for (let i = 0; i < t.length; i++) P.fill(d.map(p => [p[0], Math.max(p[1], Y[i])]), t[i], {}); };
 /* maison de pierre à toit plat : porte en arc sur la face avant gauche (dx) ou droite (dy), fenêtres */
 const tmHouse = (P, x, y, w, d, h, tn, o = {}) => {
   P.box(x, y, 0, w, d, h, tn);
@@ -154,7 +154,7 @@ const tmPave = (P, step, lw = 0.35) => { for (let v = step; v < P.L; v += step) 
 /* un olivier noueux */
 const tmOlive = (P, x, y, s = 1) => Lib.tree(P, x, y, 0, { h: 120 * s, r: 38 * s, blobs: 8, can: 'y3b4k2', trunk: 'r4y4k5' });
 /* un cyprès */
-const tmCypress = (P, x, y, h = 150) => { const b = P.I(x, y, 0); P.line([b, [b[0], b[1] - 16]], 3); const pts = []; for (let i = 0; i <= 16; i++) { const a = Math.PI * i / 16, rr = 14 * Math.sin(a) ** 0.7 * (1 + 0.08 * Math.sin(i * 3)); pts.push([b[0] + Math.cos(a) * rr, b[1] - 12 - (1 - Math.cos(a)) / 2 * h]); } P.shape(pts.concat([[b[0], b[1] - 10]]), 'y4b7k2', 1); P.line([[b[0] - 3, b[1] - 30], [b[0] + 2, b[1] - h * 0.8]], 0.5); };
+const tmCypress = (P, x, y, h = 150) => { const b = P.I(x, y, 0); P.line([b, [b[0], b[1] - 16]], 3); const w = u => 15 * Math.pow(Math.sin(Math.PI * Math.min(1, 0.22 + u * 0.78)), 0.75) * (1 + 0.06 * Math.sin(u * 23)), R = [], Lf = []; for (let i = 0; i <= 16; i++) { const u = i / 16, yy = b[1] - 12 - u * h; R.push([b[0] + w(u), yy]); Lf.push([b[0] - w(u) * 0.9, yy]); } P.shape(R.concat(Lf.reverse()), 'y4b7k2', 1); P.fill(R.map((p, i) => [b[0] + (p[0] - b[0]) * 0.35, p[1]]).concat(R.slice().reverse()), 'y4b7k3', { noKnock: true }); for (let i = 2; i < 15; i += 2) { const yy = b[1] - 12 - i / 16 * h; P.line([[b[0] - 6, yy + 4], [b[0] + 2, yy], [b[0] + 8, yy + 5]], 0.5); } };
 /* silhouette lumineuse d'ange, sans visage */
 const tmAngel = (P, b, h, t, o = {}) => {
   const bob = Math.sin(t * 1.5 + (o.ph || 0)) * 3, x = b[0], y = b[1] - bob - (o.lift || 6), s = h, good = !o.bad;
@@ -212,7 +212,7 @@ const tmLadder = (P, x0, y0, x1, y1, z1, w = 12) => {
 };
 /* un agneau qui porte un couteau piqué dans sa laine */
 const tmLamb = (path, t0, o = {}) => {
-  const c = tmTrack({ path, speed: o.speed || 20, t0, h: o.h || 66 });
+  const c = tmTrack({ path, speed: o.speed || 20, t0, h: o.h || 86 });
   return { depth: t => { const s = charState(c, t); return s.x + s.y - 2; }, draw(P, t) {
     const st = charState(c, t), b = P.I(st.x, st.y, 0), h = c.h, f = st.face;
     P.fill(P.disc(b[0], b[1], h * 0.3, 14).map(p => [p[0], b[1] + (p[1] - b[1]) * 0.3]), 'k2b1', { noKnock: true });
@@ -234,7 +234,7 @@ const SCENES = [
 {
   title: 'Sur un seul pied', book: 'Chabbat', ch: 31, ref: 'Shabbat 31a', refFr: 'Chabbat 31a', accent: 0, feast: null,
   quote: 'א"ל גיירני ע"מ שתלמדני כל התורה כולה כשאני עומד על רגל אחת דחפו באמת הבנין שבידו בא לפני הלל גייריה אמר לו דעלך סני לחברך לא תעביד זו היא כל התורה כולה ואידך פירושה הוא זיל גמור',
-  fr: 'Il lui dit : « Convertis-moi, à condition de m’enseigner toute la Torah pendant que je me tiens sur un seul pied. » Chammaï le repoussa avec la règle de bâtisseur qu’il avait en main. L’homme vint devant Hillel, qui le convertit et lui dit : « Ce qui t’est haïssable, ne le fais pas à ton prochain. C’est là toute la Torah ; le reste en est le commentaire. Va, étudie. »',
+  fr: 'Il lui dit : convertis-moi, à condition de m’enseigner toute la Torah pendant que je me tiens sur un seul pied. Chammaï le repoussa avec la règle de bâtisseur qu’il avait en main. L’homme vint devant Hillel, qui le convertit et lui dit : ce qui t’est haïssable, ne le fais pas à ton prochain. C’est là toute la Torah ; le reste en est le commentaire. Va, étudie.',
   more: ['Le Talmud rapporte trois récits de païens venus demander la conversion à des conditions étranges. Chammaï, bâtisseur de métier, chasse celui-ci avec la règle graduée qu’il tient à la main. Hillel l’accueille et lui répond en une phrase, puis ajoute « va, étudie » : la phrase ne dispense pas du commentaire, elle y conduit. Rachi propose deux lectures de « ton prochain » : ton semblable, ou Dieu lui-même, « l’ami de ton père » (Proverbes 27, 10), dont il ne faut pas transgresser la parole.',
     'Pas de fête juive attachée à ce passage. Ces récits suivent une règle posée juste avant : que l’homme soit toujours humble comme Hillel et non emporté comme Chammaï. Plus tard, les trois convertis se retrouvèrent et dirent : « la rigueur de Chammaï a voulu nous chasser du monde ; l’humilité de Hillel nous a fait entrer sous les ailes de la Présence divine ». Le traité Chabbat ouvre l’ordre Moed, celui des temps fixés.'],
   back(P) {
@@ -246,9 +246,15 @@ const SCENES = [
     P.box(208, 12, 0, 70, 40, 60, 'y3r2k2'); P.box(206, 10, 60, 74, 44, 4, 'y3r2k3', 0.6);
     /* le chantier de Chammaï : pierres taillées, fil à plomb, échafaudage */
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3 - i; j++) P.box(200 + j * 26 + i * 13, 70, i * 14, 24, 22, 14, (i + j) % 2 ? 'y3r2k1' : 'y3r2k2', 0.7);
-    for (const x of [30, 180]) P.box(x, 116, 0, 5, 5, 150, 'r4y5k3', 0.6);
-    P.box(26, 112, 96, 162, 12, 4, 'r4y5k2', 0.7); P.box(26, 112, 148, 162, 12, 4, 'r4y5k2', 0.7);
-    { const a = P.I(150, 118, 148), b = P.I(150, 118, 104); P.line([a, b], 0.5); P.shape(P.disc(b[0], b[1] + 3, 3, 8), 'k6', 0.5); }
+    for (const x of [24, 60]) P.box(x, 116, 0, 5, 5, 150, 'r4y5k3', 0.6);
+    P.box(20, 112, 96, 48, 12, 4, 'r4y5k2', 0.7); P.box(20, 112, 148, 48, 12, 4, 'r4y5k2', 0.7);
+    for (let i = 0; i < 2; i++) P.box(22 + i * 22, 114, 100, 18, 9, 10, 'y3r2k1', 0.5);
+    { const a = P.I(250, 88, 60), b = P.I(250, 88, 26); P.line([P.I(236, 88, 60), P.I(262, 88, 60)], 1.2); P.line([a, b], 0.5); P.shape(P.disc(b[0], b[1] + 3, 3, 8), 'k6', 0.5); }
+    /* étal de potier et âne à l'attache, côté gauche */
+    P.box(110, 250, 0, 60, 40, 30, 'r4y5k2', 0.8); for (let i = 0; i < 4; i++) Lib.jar(P, 120 + i * 13, 262 + (i % 2) * 12, 30, 0.7, ['r5y6k1', 'b5y3', 'y6r3k1', 'r6y4k2'][i]);
+    for (const [x, y] of [[106, 246], [174, 246], [106, 294], [174, 294]]) P.box(x, y, 0, 4, 4, 70, 'r4y5k3', 0.5);
+    P.shape([P.I(100, 240, 70), P.I(182, 240, 70), P.I(182, 300, 62), P.I(100, 300, 62)], 'r6y2', 0.9);
+    for (let i = 1; i < 6; i++) P.line([P.I(100 + i * 14, 240, 70), P.I(100 + i * 14, 300, 62)], 1.6, { ink: 0, lvl: 7 });
     /* treille sur la porte de Hillel */
     for (const x of [364, 404]) P.box(x, 104, 0, 4, 4, 74, 'r4y5k3', 0.6);
     P.line([P.I(364, 104, 74), P.I(408, 104, 74)], 1.4);
@@ -257,18 +263,19 @@ const SCENES = [
     tmHouse(P, 8, 190, 78, 120, 104, 'y3r3k1', { dy: 46, win: [[1, 12, 60], [1, 86, 60]] });
     tmHouse(P, 8, 336, 70, 150, 86, 'y4r2k2', { dy: 60, win: [[1, 16, 50], [0, 30, 50]] });
     /* banc des élèves, puits, olivier, jarres */
-    P.box(430, 150, 0, 70, 24, 22, 'y3r2k2', 0.8);
+    P.box(440, 236, 0, 80, 24, 22, 'y3r2k2', 0.8);
     Lib.well(P, 250, 430, 22);
-    tmOlive(P, 470, 320, 1.1);
+    tmOlive(P, 500, 420, 1.1);
     for (let i = 0; i < 3; i++) Lib.jar(P, 110 + i * 14, 470 + i * 6, 0, 0.9, ['r5y6k1', 'b5y3', 'y6r3k1'][i]);
     Lib.stones(P, 12, 'y3r2k3', [120, 480, 380, 50]);
   },
   chars: [
     ch(LK.tmShammai, { x: 100, y: 150, face: 1, clip: 'tmPush', h: 144, hold: { n: 'tmCubit' } }),
-    ch(LK.tmHillel, { x: 400, y: 152, face: -1, clip: 'offer', h: 138 }),
-    ch(LK.tmGer, { h: 136, speed: 28, path: [W(186, 170, 3.2, 'tmOneFoot', { f: -1 }), W(300, 186, 5, 'tmOneFoot', { f: 1 }), W(300, 186, 3, 'bow', { f: 1 }), W(186, 170, 0, null, { jump: 1 })] }),
-    ch(LK.tmTalmid, { x: 446, y: 162, z: 22, face: -1, clip: 'tmSitRead', h: 130, hold: { nTop: 'tmBook' } }),
-    ch(LK.tmTalmid2, { x: 482, y: 164, z: 22, face: -1, clip: 'tmSitTalk', h: 132, t0: 1 }),
+    ch(LK.tmHillel, { x: 384, y: 150, face: -1, clip: 'offer', h: 138 }),
+    ch(LK.tmGer, { h: 136, speed: 28, path: [W(180, 176, 3.2, 'tmOneFoot', { f: -1 }), W(290, 196, 5, 'tmOneFoot', { f: 1 }), W(290, 196, 3, 'bow', { f: 1 }), W(180, 176, 0, null, { jump: 1 })] }),
+    ch(LK.tmTalmid, { x: 456, y: 248, z: 22, face: -1, clip: 'tmSitRead', h: 130, hold: { nTop: 'tmBook' } }),
+    ch(LK.tmTalmid2, { x: 500, y: 248, z: 22, face: -1, clip: 'tmSitTalk', h: 132, t0: 1 }),
+    { beast: 'donkey', x: 136, y: 410, face: 1, h: 100 },
     ch(LK.tmWoman, { h: 132, speed: 16, hold: { n: 'jarhead' }, over: 'carry', path: [W(220, 520, 2), W(250, 460, 3, 'idle'), W(430, 470, 1.5), W(220, 520, 0)] }),
     ch(LK.tmBoy, { x: 330, y: 300, face: -1, clip: 'lookup', h: 88 })
   ]
@@ -280,57 +287,63 @@ const SCENES = [
   more: ['Rabbi Chimon bar Yohaï avait critiqué les travaux des Romains ; ses paroles rapportées, il fut condamné à mort. Il se cacha avec son fils, Rabbi Éléazar, d’abord dans la maison d’étude, puis dans une grotte. Le caroubier les nourrit, la source les abreuva ; pour ne pas user leurs habits, ils ne les remettaient qu’à l’heure de la prière. Au bout de douze ans, le prophète Élie vint se tenir à l’entrée : l’empereur était mort, et le décret annulé.',
     'Pas de fête juive attachée à ce passage. En sortant, voyant des hommes labourer, ils s’indignèrent qu’on délaisse la vie éternelle ; une voix céleste les renvoya dans la grotte douze mois encore. À leur seconde sortie, la veille du Chabbat au crépuscule, ils virent un vieillard courir avec deux bouquets de myrte « en l’honneur du Chabbat », l’un pour « Souviens-toi » (Exode 20, 8), l’autre pour « Garde » (Deutéronome 5, 12). Leur esprit s’apaisa. La tradition célèbre Rabbi Chimon à Lag Baomer, à Méron.'],
   back(P) {
-    tmDusk(P, ['b3r2', 'b2r3y1', 'r3y4', 'r2y5']);
-    Lib.sun(P, 900, 420, 20);
-    Lib.platform(P, 'y5r3k1', 'y4r3k3', { h: 56 });
+    tmDusk(P, ['b4r2k1', 'b3r3', 'r3y4', 'r2y6'], [0, 200, 290, 350]);
+    Lib.sun(P, 905, 420, 18);
+    P.shape([[640, 560], [700, 470], [760, 440], [820, 462], [880, 430], [950, 470], [990, 560]], 'b3r3k2', 1);
+    Lib.platform(P, 'y4r3k3', 'y3r3k4', { h: 56 });
     const L = P.L, I = (a, b, c) => P.I(a, b, c), r = rng(21);
-    /* dehors : l'herbe au soleil couchant */
-    P.fill([I(330, 0, 0.3), I(540, 0, 0.3), I(540, 540, 0.3), I(250, 540, 0.3), I(260, 330, 0.3)], 'y5b4k1', {});
-    Lib.mound(P, 470, 20, 60, 60, 'y4b3k3'); Lib.mound(P, 530, 110, 40, 36, 'y4b4k2');
+    /* dehors : l'herbe au soleil couchant ; dedans : le sol sombre de la grotte */
+    P.fill([I(310, 0, 0.3), I(540, 0, 0.3), I(540, 540, 0.3), I(250, 540, 0.3), I(270, 300, 0.3)], 'y5b4k1', {});
+    P.fill([I(310, 0, 0.35), I(360, 0, 0.35), I(330, 300, 0.35), I(290, 540, 0.35), I(250, 540, 0.35), I(270, 300, 0.35)], 'y4r3k2', { noKnock: true });
     /* les parois de la grotte, à gauche et au fond */
     const topL = [], topR = [];
-    for (let i = 0; i <= 18; i++) { const v = i / 18 * L; topL.push(I(0, v, 190 + Math.sin(i * 1.7) * 22 + r() * 26)); }
-    for (let i = 0; i <= 10; i++) { const v = i / 10 * 300; topR.push(I(v, 0, 190 + Math.sin(i * 1.3) * 20 + r() * 26 - (i > 7 ? (i - 7) * 50 : 0))); }
-    P.shape([I(0, 0, 0), I(0, L, 0)].concat(topL.slice().reverse()), 'y3r3k4', 1.2);
-    P.shape([I(0, 0, 0), I(300, 0, 0), I(300, 0, 40)].concat(topR.slice().reverse()), 'y3r3k3', 1.2);
-    for (let k = 0; k < 16; k++) { const v = 20 + r() * 480, z = 20 + r() * 150; P.line([I(0.5, v, z), I(0.5, v + 10 + r() * 20, z - 10 - r() * 20), I(0.5, v + 20 + r() * 20, z - 26)], 0.6); }
-    for (let k = 0; k < 9; k++) { const v = 20 + r() * 250, z = 20 + r() * 140; P.line([I(v, 0.5, z), I(v + 10 + r() * 16, 0.5, z - 12 - r() * 16)], 0.6); }
-    for (let z = 36; z < 160; z += 42) { P.line([I(0.5, 0, z + r() * 6), I(0.5, L * 0.5, z + 8), I(0.5, L, z - 4)], 0.45); P.line([I(0, 0.5, z), I(260, 0.5, z + 6)], 0.45); }
-    /* voûte : le rebord de rocher qui surplombe */
-    const lip = topL.map((p, i) => [p[0] + 6, p[1] + 26 + (i % 3) * 8]); P.shape(topL.concat(lip.reverse()), 'y2r3k5', 1);
-    const lip2 = topR.map((p, i) => [p[0] - 4, p[1] + 22 + (i % 2) * 10]); P.shape(topR.concat(lip2.reverse()), 'y2r3k5', 1);
+    for (let i = 0; i <= 18; i++) { const v = i / 18 * L; topL.push([0, v, 200 + Math.sin(i * 1.7) * 18 + r() * 22]); }
+    for (let i = 0; i <= 10; i++) { const v = i / 10 * 310; topR.push([v, 0, 200 + Math.sin(i * 1.3) * 16 + r() * 22 - (i > 7 ? (i - 7) * 60 : 0)]); }
+    const S = a => a.map(q => I(q[0], q[1], q[2]));
+    P.shape([I(0, 0, 0), I(0, L, 0)].concat(S(topL).reverse()), 'y2r3k5', 1.2);
+    P.shape([I(0, 0, 0), I(310, 0, 0)].concat(S(topR).reverse()), 'y2r3k4', 1.2);
+    for (let k = 0; k < 18; k++) { const v = 20 + r() * 500, z = 20 + r() * 150; P.line([I(0.5, v, z), I(0.5, v + 10 + r() * 20, z - 10 - r() * 20), I(0.5, v + 20 + r() * 20, z - 26)], 0.6); }
+    for (let k = 0; k < 10; k++) { const v = 20 + r() * 250, z = 20 + r() * 140; P.line([I(v, 0.5, z), I(v + 10 + r() * 16, 0.5, z - 12 - r() * 16)], 0.6); }
+    for (let z = 36; z < 170; z += 40) { P.line([I(0.5, 0, z + r() * 6), I(0.5, L * 0.5, z + 8), I(0.5, L, z - 4)], 0.45); P.line([I(0, 0.5, z), I(260, 0.5, z + 6)], 0.45); }
+    /* la voûte : un rebord de rocher qui avance, et ses concrétions */
+    const lipL = topL.map((q, i) => [q[0] + 70 + Math.sin(i * 2.3) * 16, q[1], q[2] + 6]), lipR = topR.map((q, i) => [q[0], q[1] + 60 + Math.sin(i * 1.9) * 14, q[2] + 6]);
+    P.shape(S(topL).concat(S(lipL).reverse()), 'y2r3k6', 1.1);
+    P.shape(S(topR).concat(S(lipR).reverse()), 'y2r3k6', 1.1);
+    for (const lip of [lipL, lipR]) for (let i = 1; i < lip.length - 1; i++) { const q = lip[i], a = I(q[0], q[1], q[2]), len = 14 + (i * 37 % 23); P.shape([[a[0] - 5, a[1] - 2], [a[0] + 5, a[1] - 2], [a[0] + 1, a[1] + len]], 'y2r3k5', 0.7); }
     /* la source jaillit de la paroi et forme un bassin */
     { const a = I(0.5, 120, 70); P.shape([[a[0] - 8, a[1] + 6], [a[0] + 6, a[1] - 4], [a[0] + 10, a[1] + 8], [a[0] - 4, a[1] + 14]], 'k7r2', 0.7); }
     P.shape(P.ell(62, 150, 0.4, 52, 34, 26), 'b6y2', 1); P.shape(P.ell(62, 150, 0.6, 38, 24, 20), 'b5y2', 0);
-    P.line([I(100, 170, 0.5), I(160, 190, 0.5), I(230, 210, 0.5), I(300, 190, 0.5), I(380, 240, 0.5)], 3.2, { ink: 2, lvl: 6, taper: 0.4 });
+    Lib.waves(P, [30, 130, 60, 40], 5, 0.8, 0);
     Lib.stones(P, 9, 'y3r2k4', [20, 100, 110, 110]);
-    /* le caroubier, près de l'ouverture */
-    Lib.tree(P, 270, 60, 0, { h: 190, r: 56, blobs: 9, can: 'y4b6k2', trunk: 'r4y4k5', fruit: 0 });
-    { const q = P.I(270, 60, 150); for (let i = 0; i < 12; i++) { const x = q[0] - 50 + r() * 100, y = q[1] - 10 + r() * 50; P.shape([[x, y], [x + 3, y + 1], [x + 5, y + 14], [x + 2, y + 15]], 'r5y4k4', 0.5); } }
+    /* le caroubier, près de l'ouverture, chargé de gousses */
+    Lib.tree(P, 280, 70, 0, { h: 190, r: 56, blobs: 9, can: 'y4b6k2', trunk: 'r4y4k5', fruit: 0 });
+    { const q = P.I(280, 70, 150); for (let i = 0; i < 14; i++) { const x = q[0] - 55 + r() * 110, y = q[1] - 10 + r() * 50; P.shape([[x, y], [x + 3, y + 1], [x + 5, y + 15], [x + 2, y + 16]], 'r5y4k4', 0.5); } }
     /* la fosse de sable où ils sont enfouis */
-    P.shape(P.ell(190, 280, 0.5, 96, 72, 30), 'y6r3', 1.1);
-    for (let i = 0; i < 5; i++) P.line(P.ell(190, 280, 0.8, 30 + i * 13, 22 + i * 10, 20, 0.3, 2.9), 0.4, { ink: 0 });
+    P.shape(P.ell(190, 280, 0.5, 100, 76, 30), 'y6r3', 1.1);
+    { const q = P.I(190, 280, 0); P.shape(Lib.bumpy(P, q[0], q[1] - 2, 118, 42, 12).map(p => [p[0], Math.min(p[1], q[1] + 20)]), 'y6r3k1', 0.9); P.shape(Lib.bumpy(P, q[0], q[1] - 6, 92, 30, 10), 'y6r3', 0.6); }
+    for (let i = 0; i < 4; i++) P.line(P.ell(190, 280, 6, 36 + i * 14, 26 + i * 10, 20, 0.3, 2.9), 0.4, { ink: 0 });
     /* leurs vêtements pliés sur un rocher, pour l'heure de la prière */
-    Lib.rock(P, 100, 360, 0, 34, 20, 'y3r2k4');
-    { const q = P.I(100, 360, 16); P.shape([[q[0] - 20, q[1] - 2], [q[0] + 16, q[1] - 6], [q[0] + 18, q[1] + 2], [q[0] - 18, q[1] + 6]], 'y2b1', 0.6); P.shape([[q[0] - 14, q[1] - 7], [q[0] + 12, q[1] - 10], [q[0] + 14, q[1] - 4], [q[0] - 12, q[1] - 1]], 'y3r2k1', 0.6); }
+    Lib.rock(P, 90, 380, 0, 34, 20, 'y3r2k4');
+    { const q = P.I(90, 380, 16); P.shape([[q[0] - 20, q[1] - 2], [q[0] + 16, q[1] - 6], [q[0] + 18, q[1] + 2], [q[0] - 18, q[1] + 6]], 'y2b1', 0.6); P.shape([[q[0] - 14, q[1] - 7], [q[0] + 12, q[1] - 10], [q[0] + 14, q[1] - 4], [q[0] - 12, q[1] - 1]], 'y3r2k1', 0.6); }
     /* dehors : chemin, buissons de myrte, fleurs */
     P.line([I(540, 250, 0.4), I(430, 330, 0.4), I(380, 450, 0.4), I(300, 540, 0.4)], 22, { ink: 0, lvl: 3, taper: 0 });
-    for (const [x, y] of [[500, 380], [460, 480], [520, 510]]) Lib.bush(P, x, y, 0, 18, 'y4b6k2');
+    for (const [x, y] of [[505, 390], [470, 490], [525, 505]]) Lib.bush(P, x, y, 0, 18, 'y5b6k1');
+    for (let i = 0; i < 12; i++) { const q = P.I(330 + r() * 200, 300 + r() * 220, 0); P.fill(P.disc(q[0], q[1] - 2, 2.6, 6), ['r6y4', 'y8', 'y1'][i % 3], {}); }
     Lib.grass(P, 26, 'y5b4', [300, 300, 230, 230]);
   },
   live(P, t) { const r = rng(4); for (let i = 0; i < 6; i++) { const k = (t * 0.7 + i / 6) % 1, a = P.I(0.5, 120, 70); P.fill(P.disc(a[0] + 8 + k * 26 + r() * 4, a[1] + 10 + k * k * 60, 1.8, 6), 'b7', { noKnock: true }); } },
-  top(P, t) { for (const [x, y] of [[165, 262], [218, 300]]) { const b = P.I(x, y, 0); P.shape([[b[0] - 18, b[1] - 1], [b[0] - 8, b[1] - 7], [b[0] + 8, b[1] - 7], [b[0] + 18, b[1] - 1], [b[0] + 8, b[1] + 3], [b[0] - 8, b[1] + 3]], 'y6r3', 0.8); } },
+  top(P, t) { for (const [x, y] of [[165, 262], [220, 300]]) { const b = P.I(x, y, 6); P.shape([[b[0] - 24, b[1] + 2], [b[0] - 12, b[1] - 8], [b[0] + 12, b[1] - 8], [b[0] + 24, b[1] + 2], [b[0] + 10, b[1] + 6], [b[0] - 10, b[1] + 6]], 'y6r3', 0.8); P.line([[b[0] - 14, b[1] - 1], [b[0] + 12, b[1] - 2]], 0.4, { ink: 0 }); } },
   chars: [
-    ch(LK.tmRashbi, { x: 165, y: 262, z: -98, face: 1, clip: 'talk', h: 132, noShadow: 1, clipFn(P) { const b = P.I(165, 262, 0); return [[b[0] - 200, b[1] - 400], [b[0] + 200, b[1] - 400], [b[0] + 200, b[1] - 4], [b[0] - 200, b[1] - 4]]; } }),
-    ch(LK.tmEleazar, { x: 218, y: 300, z: -94, face: -1, clip: 'idle', h: 126, t0: 1.2, noShadow: 1, clipFn(P) { const b = P.I(218, 300, 0); return [[b[0] - 200, b[1] - 400], [b[0] + 200, b[1] - 400], [b[0] + 200, b[1] - 4], [b[0] - 200, b[1] - 4]]; } }),
-    ch(LK.elijah, { x: 330, y: 70, face: -1, clip: 'point', h: 138 }),
+    ch(LK.tmRashbi, { x: 165, y: 262, z: -112, face: 1, clip: 'talk', h: 168, noShadow: 1, clipFn(P) { const b = P.I(165, 262, 4); return [[b[0] - 200, b[1] - 400], [b[0] + 200, b[1] - 400], [b[0] + 200, b[1]], [b[0] - 200, b[1]]]; } }),
+    ch(LK.tmEleazar, { x: 220, y: 300, z: -108, face: -1, clip: 'idle', h: 160, t0: 1.2, noShadow: 1, clipFn(P) { const b = P.I(220, 300, 4); return [[b[0] - 200, b[1] - 400], [b[0] + 200, b[1] - 400], [b[0] + 200, b[1]], [b[0] - 200, b[1]]]; } }),
+    ch(LK.elijah, { x: 345, y: 110, face: -1, clip: 'point', h: 138 }),
     ch(LK.tmElder, { h: 132, speed: 46, hold: { n: 'tmMyrtle', f: 'tmMyrtle' }, path: [W(530, 260, 0.6), W(440, 330, 0), W(390, 440, 0), W(320, 530, 0.8), W(530, 260, 0, null, { jump: 1 })] })
   ]
 },
 {
   title: 'Les deux anges du vendredi soir', book: 'Chabbat', ch: 119, ref: 'Shabbat 119b', refFr: 'Chabbat 119b', accent: 1, feast: null,
   quote: 'ר\' יוסי בר יהודה אומר שני מלאכי השרת מלוין לו לאדם בע"ש מבית הכנסת לביתו אחד טוב ואחד רע וכשבא לביתו ומצא נר דלוק ושלחן ערוך ומטתו מוצעת מלאך טוב אומר יהי רצון שתהא לשבת אחרת כך ומלאך רע עונה אמן בעל כרחו',
-  fr: 'Rabbi Yossé bar Yehouda dit : deux anges du service accompagnent l’homme, la veille du Chabbat, de la synagogue jusqu’à sa maison, l’un bon et l’autre mauvais. Quand il arrive chez lui et trouve la lampe allumée, la table dressée et son lit fait, le bon ange dit : « Qu’il en soit ainsi un autre Chabbat », et le mauvais ange répond amen malgré lui.',
+  fr: 'Rabbi Yossé bar Yehouda dit : deux anges du service accompagnent l’homme, la veille du Chabbat, de la synagogue jusqu’à sa maison, l’un bon et l’autre mauvais. Quand il arrive chez lui et trouve la lampe allumée, la table dressée et son lit fait, le bon ange dit : qu’il en soit ainsi un autre Chabbat ; et le mauvais ange répond amen malgré lui.',
   more: ['Le récit continue : si la maison n’est pas prête, c’est le mauvais ange qui dit « qu’il en soit ainsi un autre Chabbat », et le bon ange doit répondre amen malgré lui. Juste avant, sur la même page, Rav Hisda enseigne au nom de Mar Oukva que celui qui dit « Vayékhoulou » le vendredi soir est raccompagné par deux anges qui posent les mains sur sa tête et lui disent : « ta faute est effacée » (Isaïe 6, 7).',
     'Pas de fête juive attachée à ce passage. De ce texte est né le chant « Chalom alékhem », que l’on chante le vendredi soir en rentrant de la synagogue pour accueillir les anges de paix, avant « Échet ‘haïl » et le kiddouch. La lampe allumée, la table dressée et le lit fait disent la paix de la maison : le Chabbat se prépare avant d’arriver.'],
   back(P) {
@@ -379,11 +392,17 @@ const SCENES = [
 {
   title: 'Hillel et les Bnei Beteira', book: 'Pessahim', ch: 66, ref: 'Pesachim 66a', refFr: 'Pessahim 66a', accent: 1, feast: 'Pessah',
   quote: 'אמרו לו ר\' שכח ולא הביא סכין מע"ש מהו אמר להן הלכה זו שמעתי ושכחתי אלא הנח להן לישראל אם אין נביאים הן בני נביאים הן',
-  fr: 'Ils lui dirent : « Maître, si quelqu’un a oublié et n’a pas apporté de couteau dès la veille du Chabbat, qu’en est-il ? » Il leur dit : « Cette loi, je l’ai entendue et je l’ai oubliée. Mais laissez faire Israël : s’ils ne sont pas prophètes, ils sont fils de prophètes. »',
+  fr: 'Ils lui dirent : Maître, si quelqu’un a oublié et n’a pas apporté de couteau dès la veille du Chabbat, qu’en est-il ? Il leur dit : cette loi, je l’ai entendue et je l’ai oubliée. Mais laissez faire Israël : s’ils ne sont pas prophètes, ils sont fils de prophètes.',
   more: ['Une année, le 14 Nissan tomba un Chabbat. Les Bnei Beteira, qui dirigeaient alors, ne savaient plus si l’agneau pascal repousse le Chabbat. On fit venir Hillel, monté de Babylonie, élève de Chemaya et d’Avtalion ; il le prouva par les mots « en son temps », dits du sacrifice de Pessah et du sacrifice perpétuel (Nombres 9, 2 et 28, 2), et on le nomma prince. Restait le couteau, qu’on ne porte pas le Chabbat.',
     'Correspondance : <b>Pessah</b>. Le lendemain, celui dont l’offrande était un agneau piqua le couteau dans sa laine ; celui dont c’était un chevreau, entre ses cornes. Hillel vit et se souvint : « c’est ainsi que je l’ai reçu de Chemaya et d’Avtalion ». Le Talmud (Pessahim 66b) remarque que Hillel, pour avoir blâmé les Bnei Beteira, oublia la loi. « Laissez faire Israël » est devenu la formule de la confiance dans l’usage du peuple.'],
   back(P) {
-    Lib.sun(P, 170, 150, 26); Lib.cloud(P, 700, 120, 140, 24, 'b1');
+    Lib.sun(P, 170, 150, 26); Lib.cloud(P, 880, 150, 140, 24, 'b1');
+    /* le sanctuaire, qui dépasse du mur : façade blanche et or */
+    P.box(200, -330, 0, 150, 150, 330, { t: 'y2r1', l: 'y1b1', r: 'y2b1k1' });
+    P.box(214, -214, 0, 122, 44, 360, { t: 'y2r1', l: 'y1b1', r: 'y2b1k1' });
+    { const F = (a, z) => P.I(a, -169.5, z); P.shape([F(250, 230), F(300, 230), F(300, 330), F(250, 330)], 'y7r3k1', 0.9); P.shape([F(258, 230), F(292, 230), F(292, 318), F(258, 318)], 'r6b4k1', 0.8); for (let i = 1; i < 4; i++) P.line([F(258 + i * 8.5, 232), F(258 + i * 8.5, 316)], 0.5); }
+    for (let a = 218; a < 336; a += 9) { const q = P.I(a, -169.5, 360); P.line([q, [q[0], q[1] - 12]], 1.6, { ink: 0, lvl: 9, taper: 0 }); }
+    P.line([P.I(214, -169.5, 356), P.I(336, -169.5, 356)], 2, { ink: 0, lvl: 9, taper: 0 });
     Lib.platform(P, 'y4r3', 'y4r3k2', { h: 50 });
     tmStoneWalls(P, 'y3r2', 210, { seed: 44 });
     /* la porte du mont du Temple, dans le mur du fond */
@@ -391,21 +410,23 @@ const SCENES = [
     for (let i = 0; i < 4; i++) P.box(214, 2 + i * 12, 0, 102, 12, 16 - i * 4, 'y3r2k1', 0.7);
     /* portique au sommet du mur */
     P.box(0, 0, 210, 540, 14, 8, 'y3r2k2', 0.7); P.box(0, 0, 210, 14, 540, 8, 'y3r2k2', 0.7);
+    for (let y = 30; y < 540; y += 46) tmCol(P, 8, y, 218, 70, 5, 'y2r1');
     for (let x = 30; x < 540; x += 46) tmCol(P, x, 8, 218, 70, 5, 'y2r1');
-    P.box(0, 0, 288, 540, 16, 10, 'y3r2k1', 0.8);
+    P.box(0, 0, 288, 16, 540, 10, 'y3r2k1', 0.8); P.box(0, 0, 288, 540, 16, 10, 'y3r2k1', 0.8);
     /* rangées d'oliviers et le chemin des pèlerins */
     P.line([P.I(60, 540, 0.4), P.I(140, 380, 0.4), P.I(230, 200, 0.4), P.I(265, 50, 0.4)], 46, { ink: 0, lvl: 3, taper: 0 });
     for (const [x, y, s] of [[60, 200, 0.9], [40, 330, 1], [450, 360, 1.1], [500, 230, 0.8]]) tmOlive(P, x, y, s);
     /* banc des anciens, auge, jarres */
-    P.box(360, 90, 0, 90, 26, 22, 'y3r2k2', 0.8);
+    P.box(470, 130, 0, 26, 110, 22, 'y3r2k2', 0.8);
     P.box(470, 470, 0, 56, 30, 20, 'y3r2k2', 0.8); P.shape([P.I(474, 474, 20.4), P.I(522, 474, 20.4), P.I(522, 496, 20.4), P.I(474, 496, 20.4)], 'b6y1', 0.6);
     Lib.stones(P, 16, 'y3r2k3', [300, 300, 220, 220]);
     Lib.grass(P, 30, 'y5b4', [300, 260, 230, 270]);
   },
+  live(P, t) { const q = P.I(150, -120, 330); Lib.smoke(P, q[0], q[1], t, { n: 5, h: 150, r: 20, sp: 0.12, tn: 'k2b1' }); },
   chars: [
-    ch(LK.tmHillel, { x: 330, y: 130, face: -1, clip: 'point', h: 138 }),
-    ch(LK.tmBeteira, { x: 380, y: 108, z: 22, face: -1, clip: 'tmSitTalk', h: 132 }),
-    ch(LK.tmBeteira2, { x: 420, y: 108, z: 22, face: -1, clip: 'tmSitRead', h: 132, t0: 1, hold: { nTop: 'tmBook' } }),
+    ch(LK.tmHillel, { x: 330, y: 150, face: -1, clip: 'point', h: 138 }),
+    ch(LK.tmBeteira, { x: 484, y: 150, z: 22, face: -1, clip: 'tmSitTalk', h: 132 }),
+    ch(LK.tmBeteira2, { x: 484, y: 218, z: 22, face: -1, clip: 'tmSitRead', h: 132, t0: 1, hold: { nTop: 'tmBook' } }),
     ch(LK.tmPilgrim, { h: 138, speed: 20, t0: 0, path: [W(70, 520, 1), W(150, 370, 0), W(236, 190, 0), W(262, 80, 1, null), W(70, 520, 0, null, { jump: 1 })] }),
     tmLamb([W(96, 500, 1), W(170, 360, 0), W(254, 180, 0), W(276, 70, 1), W(96, 500, 0, null, { jump: 1 })], 0),
     ch(LK.tmPilgrim2, { h: 140, speed: 20, t0: 9, path: [W(70, 520, 1), W(150, 370, 0), W(236, 190, 0), W(262, 80, 1, null), W(70, 520, 0, null, { jump: 1 })] }),
@@ -471,7 +492,7 @@ const SCENES = [
   more: ['La Michna décrit la fin du jour de Kippour au Temple. Le grand prêtre s’est immergé cinq fois et a changé d’habits : les vêtements de lin blanc pour entrer dans le Saint des saints, les vêtements d’or pour le reste du service. Au soir, après l’encens et l’allumage des lampes, il remet ses propres habits ; le peuple le raccompagne chez lui aux flambeaux. Entrer dans le Saint des saints était redoutable : il n’y prolongeait pas sa prière, pour ne pas effrayer Israël (Yoma 5, 1).',
     'Correspondance : <b>Kippour</b>. À l’office de Moussaf, on lit le « Seder ha‘Avoda », le récit de ce service, et l’on chante « Maré Kohen » : « qu’il était glorieux, le visage du grand prêtre sortant du sanctuaire ». Sa joie de sortir en paix devient celle de tout le peuple, rassuré sur le pardon de l’année.'],
   back(P) {
-    tmDusk(P, ['b5r2k1', 'b4r2', 'b3r3y1', 'r3y4']);
+    tmDusk(P, ['b7k3', 'b6r1k2', 'b5r2k1', 'r3b2y2', 'r2y4'], [0, 150, 230, 300, 345]);
     Lib.moon(P, 830, 190, 18);
     { const r = rng(6); for (let i = 0; i < 22; i++) { const x = 120 + r() * 760, y = 60 + r() * 200; Lib.star(P, x, y, 1.5 + r() * 2.5, r() > 0.6 ? 'y7' : 'y4'); } }
     Lib.platform(P, 'y3r2k2', 'y3r3k3', { h: 50 });
@@ -493,14 +514,14 @@ const SCENES = [
   },
   live(P, t) { for (const x of [216, 304]) tmTorchFlame(P, t, x, 64, 64); },
   chars: [
-    tmTable(150, 380, 110, 60, 40, [tmOilLamp(170, 400), tmCup(200, 395), tmBottle(230, 392), tmPlate(190, 425, 'r5y5'), tmPlate(230, 425, 'y6r3')], { cloth: 'y1b1', hem: 2 }),
-    ch(LK.tmKohen, { h: 142, speed: 16, path: [W(262, 110, 2, 'bless'), W(220, 250, 0), W(150, 320, 4, 'bless', { f: -1 }), W(262, 110, 0, null, { jump: 1 })] }),
-    ch(LK.tmPilgrim, { h: 138, speed: 16, hold: { n: 'torch' }, over: 'tmTorchUp', path: [W(300, 120, 2, 'raise'), W(270, 260, 0), W(210, 330, 4, 'raise', { f: -1 }), W(300, 120, 0, null, { jump: 1 })] }),
-    ch(LK.tmPilgrim3, { h: 136, speed: 16, hold: { n: 'torch' }, over: 'tmTorchUp', path: [W(230, 140, 2, 'raise'), W(190, 270, 0), W(150, 390, 4, 'raise', { f: 1 }), W(230, 140, 0, null, { jump: 1 })] }),
-    ch(LK.tmTalmid2, { h: 138, speed: 16, hold: { n: 'torch' }, over: 'tmTorchUp', path: [W(310, 170, 2, 'raise'), W(290, 310, 0), W(260, 350, 4, 'raise', { f: -1 }), W(310, 170, 0, null, { jump: 1 })] }),
-    ch(LK.tmWoman2, { h: 130, speed: 16, path: [W(250, 190, 2, 'sing'), W(310, 330, 0), W(320, 420, 4, 'sing', { f: -1 }), W(250, 190, 0, null, { jump: 1 })] }),
-    ch(LK.tmHassid2, { x: 124, y: 370, face: 1, clip: 'wave', h: 134 }),
-    ch(LK.tmBoy, { h: 88, speed: 20, path: [W(360, 200, 2, 'wave'), W(370, 330, 0), W(360, 430, 3, 'dance', { f: -1 }), W(360, 200, 0, null, { jump: 1 })] })
+    tmTable(30, 450, 110, 60, 40, [tmOilLamp(50, 470), tmCup(80, 465), tmBottle(110, 462), tmPlate(70, 495, 'r5y5'), tmPlate(110, 495, 'y6r3')], { cloth: 'y1b1', hem: 2 }),
+    ch(LK.tmKohen, { h: 142, speed: 16, path: [W(262, 110, 2, 'bless'), W(220, 250, 0), W(150, 322, 4, 'bless', { f: -1 }), W(262, 110, 0, null, { jump: 1 })] }),
+    ch(LK.tmPilgrim, { h: 138, speed: 16, hold: { n: 'torch' }, over: 'tmTorchUp', path: [W(310, 110, 2, 'raise'), W(280, 230, 0), W(220, 280, 4, 'raise', { f: -1 }), W(310, 110, 0, null, { jump: 1 })] }),
+    ch(LK.tmPilgrim3, { h: 136, speed: 16, hold: { n: 'torch' }, over: 'tmTorchUp', path: [W(220, 150, 2, 'raise'), W(190, 290, 0), W(170, 410, 4, 'raise', { f: 1 }), W(220, 150, 0, null, { jump: 1 })] }),
+    ch(LK.tmTalmid2, { h: 138, speed: 16, hold: { n: 'torch' }, over: 'tmTorchUp', path: [W(320, 160, 2, 'raise'), W(300, 300, 0), W(250, 360, 4, 'raise', { f: -1 }), W(320, 160, 0, null, { jump: 1 })] }),
+    ch(LK.tmWoman2, { h: 130, speed: 16, path: [W(270, 190, 2, 'sing'), W(330, 330, 0), W(330, 420, 4, 'sing', { f: -1 }), W(270, 190, 0, null, { jump: 1 })] }),
+    ch(LK.tmHassid2, { x: 128, y: 250, face: 1, clip: 'wave', h: 134 }),
+    ch(LK.tmBoy, { h: 88, speed: 20, path: [W(370, 200, 2, 'wave'), W(390, 330, 0), W(260, 460, 3, 'dance', { f: -1 }), W(370, 200, 0, null, { jump: 1 })] })
   ]
 },
 {
@@ -511,9 +532,11 @@ const SCENES = [
     'Correspondance : <b>Souccot</b>. Le « grand aménagement » était une galerie d’où les femmes regardaient la fête (Souccah 51b). Le Talmud raconte que Rabban Chimon ben Gamliel jonglait avec huit torches, et que Hillel disait : « si je suis ici, tout est ici » (Souccah 53a). Aujourd’hui encore, pendant les jours de la fête, on célèbre Sim’hat Beit Hachoéva avec musique et danses : « vous puiserez de l’eau avec joie aux sources du salut » (Isaïe 12, 3).'],
   back(P) {
     nightSky(P, 'b7k3', 60);
-    Lib.platform(P, 'y4r3k2', 'y3r3k3', { h: 50 });
+    Lib.platform(P, 'y3r3b2k2', 'y3r3k3', { h: 50 });
     tmPave(P, 45, 0.4);
-    tmStoneWalls(P, 'y3r2k1', 220, { seed: 71 });
+    tmStoneWalls(P, 'y3r2b2k2', 220, { seed: 71 });
+    for (const [a, b] of [[120, 250], [440, 330]]) { const q = P.I(a, b, 0); P.fill(P.disc(q[0], q[1], 150, 40).map(p => [p[0], q[1] + (p[1] - q[1]) * 0.55]), 'y3r1', { noKnock: true }); P.fill(P.disc(q[0], q[1], 90, 40).map(p => [p[0], q[1] + (p[1] - q[1]) * 0.55]), 'y2', { noKnock: true }); }
+    for (const [x, y, side] of [[0.6, 150, 1], [0.6, 330, 1], [140, 0.6, 0], [460, 0.6, 0]]) { const q = side ? P.I(x, y, 150) : P.I(x, y, 150); P.fill(P.disc(q[0], q[1] - 10, 60, 30).map(p => [p[0], q[1] - 10 + (p[1] - q[1] + 10) * 1.1]), 'y3r1', { noKnock: true }); }
     /* la galerie des femmes le long du mur gauche */
     P.box(0, 40, 118, 40, 470, 6, 'r4y5k2', 0.8);
     for (let y = 60; y < 510; y += 64) P.box(34, y, 0, 6, 6, 118, 'r4y5k3', 0.6);
@@ -525,32 +548,33 @@ const SCENES = [
     for (let i = 0; i < 6; i++) P.box(170, 0, 0, 250, 84 - i * 14, 10 * (i + 1), i % 2 ? 'y3r2' : 'y3r2k1', 0.8);
     { const I = (a, z) => P.I(a, 0.6, z), pts = [I(260, 60), I(330, 60), I(330, 150)]; for (let i = 0; i <= 10; i++) { const a = Math.PI * i / 10; pts.push(I(295 + Math.cos(a) * 35, 150 + Math.sin(a) * 35)); } pts.push(I(260, 150)); P.shape(pts, 'y6r3k2', 1.1); P.fill([I(266, 60), I(324, 60), I(324, 140), I(266, 140)], 'y7r3', { noKnock: true }); }
     /* deux grands chandeliers d'or, avec leurs échelles */
-    tmMenorah(P, 110, 200, 250);
-    tmLadder(P, 170, 260, 124, 214, 236);
-    tmMenorah(P, 470, 140, 250);
-    tmLadder(P, 500, 220, 480, 162, 236);
+    tmMenorah(P, 120, 250, 250);
+    tmLadder(P, 170, 360, 124, 290, 232);
+    tmMenorah(P, 440, 330, 250);
+    tmLadder(P, 490, 440, 444, 370, 232);
   },
   live(P, t) {
-    for (const [x, y] of [[110, 200], [470, 140]]) for (const [bx, by, bz] of tmMenorahPts(x, y, 250)) { const q = P.I(bx, by, bz); P.halo(q[0], q[1] - 16, 48, ['y1', 'y2', 'y3r1']); Lib.flame(P, q[0], q[1], 16, 34, t * 1.6 + bx * 0.1 + by * 0.07, { noKnock: true }); }
-    for (const [x, y] of [[110, 200], [470, 140]]) { const q = P.I(x, y, 250); P.halo(q[0], q[1] - 30, 150, ['y1', 'y1', 'y2'], { sq: 0.9 }); }
+    for (const [x, y] of [[120, 250], [440, 330]]) { const q = P.I(x, y, 262); P.halo(q[0], q[1] - 20, 130, ['y1', 'y2', 'y3', 'y4r1'], { sq: 0.85 }); }
+    for (const [x, y] of [[120, 250], [440, 330]]) for (const [bx, by, bz] of tmMenorahPts(x, y, 250).sort((a, b) => a[0] + a[1] - b[0] - b[1])) { const q = P.I(bx, by, bz); Lib.flame(P, q[0], q[1], 13, 30, t * 1.6 + bx * 0.1 + by * 0.07, { noKnock: true }); }
   },
   chars: [
-    ch(LK.tmYoungPriest, { x: 136, y: 226, z: 176, face: -1, clip: 'tmPourUp', h: 96, noShadow: 1, hold: { nTop: 'tmOilJar' } }),
-    ch(LK.tmYoungPriest, { x: 484, y: 176, z: 176, face: -1, clip: 'tmPourUp', h: 96, t0: 1.4, noShadow: 1, hold: { nTop: 'tmOilJar' } }),
+    ch(LK.tmYoungPriest, { x: 139, y: 316, z: 160, face: 1, clip: 'tmPourUp', h: 96, noShadow: 1, dz: 60, hold: { nTop: 'tmOilJar' } }),
+    ch(LK.tmYoungPriest, { x: 459, y: 396, z: 160, face: 1, clip: 'tmPourUp', h: 96, t0: 1.4, noShadow: 1, dz: 60, hold: { nTop: 'tmOilJar' } }),
     ch(LK.tmLevite, { x: 210, y: 36, z: 50, face: 1, clip: 'tmHarpPlay', h: 128, hold: { nTop: 'tmLyre' } }),
     ch(LK.tmLevite2, { x: 360, y: 36, z: 50, face: -1, clip: 'blow', h: 130, hold: { nTop: 'tmTrumpet' } }),
     ch(LK.tmLevite2, { x: 240, y: 64, z: 30, face: 1, clip: 'tmCymbal', h: 128, t0: 0.4, hold: { n: 'tmCymbals', f: 'tmCymbals' } }),
     ch(LK.tmLevite, { x: 390, y: 70, z: 20, face: -1, clip: 'tmHarpPlay', h: 128, t0: 0.6, hold: { nTop: 'tmLyre' } }),
-    ch(LK.tmHassid2, { h: 138, walk: 'dance', speed: 22, hold: { n: 'torch' }, path: [W(250, 250, 0), W(340, 280, 0), W(350, 380, 0), W(250, 400, 0), W(210, 320, 0)] }),
-    ch(LK.tmHassid, { h: 140, walk: 'dance', speed: 22, t0: 6, hold: { n: 'torch' }, path: [W(250, 250, 0), W(340, 280, 0), W(350, 380, 0), W(250, 400, 0), W(210, 320, 0)] }),
-    ch(LK.tmTalmid, { x: 290, y: 330, face: 1, clip: 'dance', h: 136, t0: 0.3, hold: { n: 'torch', f: 'torch' } }),
-    ch(LK.tmBoy, { x: 440, y: 440, face: -1, clip: 'lookup', h: 86 })
+    ch(LK.tmHassid2, { h: 138, walk: 'dance', speed: 22, hold: { n: 'torch' }, path: [W(250, 200, 0), W(350, 220, 0), W(360, 300, 0), W(290, 420, 0), W(220, 330, 0)] }),
+    ch(LK.tmHassid, { h: 140, walk: 'dance', speed: 22, t0: 6, hold: { n: 'torch' }, path: [W(250, 200, 0), W(350, 220, 0), W(360, 300, 0), W(290, 420, 0), W(220, 330, 0)] }),
+    ch(LK.tmTalmid, { x: 290, y: 300, face: 1, clip: 'dance', h: 136, t0: 0.3, hold: { n: 'torch', f: 'torch' } }),
+    ch(LK.tmPilgrim3, { x: 230, y: 470, face: 1, clip: 'sing', h: 136, t0: 0.9 }),
+    ch(LK.tmBoy, { x: 380, y: 480, face: -1, clip: 'lookup', h: 86 })
   ]
 },
 {
   title: 'Honi le traceur de cercles', book: 'Taanit', ch: 23, ref: 'Taanit 23a', refFr: 'Taanit 23a', accent: 2, feast: null,
   quote: 'אמר לפניו רבונו של עולם בניך שמו פניהם עלי שאני כבן בית לפניך נשבע אני בשמך הגדול שאיני זז מכאן עד שתרחם על בניך התחילו גשמים מנטפין',
-  fr: 'Il dit devant Lui : « Maître du monde, Tes enfants ont tourné leur visage vers moi, car je suis devant Toi comme un fils de la maison. Je jure par Ton grand Nom que je ne bougerai pas d’ici avant que Tu aies pitié de Tes enfants. » La pluie se mit à tomber goutte à goutte.',
+  fr: 'Il dit devant Lui : Maître du monde, Tes enfants ont tourné leur visage vers moi, car je suis devant Toi comme un fils de la maison. Je jure par Ton grand Nom que je ne bougerai pas d’ici avant que Tu aies pitié de Tes enfants. Et la pluie se mit à tomber goutte à goutte.',
   more: ['Le mois d’Adar touchait à sa fin, et la pluie n’était pas tombée. On fit appel à Honi ; il pria, en vain. Alors il traça un cercle et se tint au milieu, comme le prophète Habacuc : « je me tiendrai à mon poste » (Habacuc 2, 1). La pluie goutte à goutte ne suffit pas ; vint un déluge, puis, à sa demande, une pluie de bienveillance, jusqu’à ce que le peuple dût monter au mont du Temple. Chimon ben Chéta’h lui écrivit : tu es comme un fils qui fait des caprices devant son père, et son père lui fait sa volonté.',
     'Pas de fête juive attachée à ce passage. Le traité Taanit traite des jeûnes décrétés quand la pluie tarde. Sur la même page, Honi voit un homme planter un caroubier, qui ne donne ses fruits qu’au bout de soixante-dix ans. « J’ai trouvé le monde avec des caroubiers ; comme mes pères ont planté pour moi, je plante pour mes enfants. » Honi s’endort alors soixante-dix ans, et trouve à son réveil le petit-fils cueillant les fruits.'],
   back(P) {
@@ -560,19 +584,25 @@ const SCENES = [
     const r = rng(12), I = (a, b) => P.I(a, b, 0.3);
     /* la terre crevassée par la sécheresse */
     for (let i = 0; i < 46; i++) { const x = 20 + r() * 500, y = 20 + r() * 500, pts = [I(x, y)]; let a = r() * TAU; for (let k = 0; k < 4; k++) { a += (r() - 0.5) * 1.4; const L = 10 + r() * 18; pts.push(I(x + Math.cos(a) * L * (k + 1), y + Math.sin(a) * L * (k + 1))); } P.line(pts, 0.8, { ink: 3, lvl: 7 }); }
-    /* le village au loin, les champs brûlés, l'arbre desséché */
-    Lib.city(P, 380, 12, 150, 100, 5, 'y3r3k1', 17);
-    Lib.field(P, 30, 30, 200, 90, 3, 'y5r4k2');
+    /* le village, les terrasses de pierre sèche, les champs brûlés */
+    tmHouse(P, 400, 10, 120, 80, 92, 'y3r3k1', { dx: 40, win: [[0, 90, 56], [1, 24, 60]] });
+    tmHouse(P, 300, 10, 80, 66, 72, 'y4r3k2', { dx: 26 });
+    tmHouse(P, 460, 110, 64, 70, 64, 'y3r2k2', { dy: 20 });
+    stoneStack(P, 20, 20, 250, 12, 32, 'y3r2k3'); stoneStack(P, 20, 200, 12, 12, 16, 'y3r2k3');
+    for (let i = 0; i < 26; i++) { const q = P.I(40 + (i % 13) * 18, 44 + Math.floor(i / 13) * 40, 0); P.line([[q[0], q[1]], [q[0] + 2, q[1] - 9]], 0.9, { ink: 0 }); P.line([[q[0] + 3, q[1]], [q[0] + 6, q[1] - 7]], 0.8, { ink: 3, lvl: 6 }); }
+    for (const [x, y] of [[40, 250], [30, 400]]) Lib.tree(P, x, y, 0, { h: 110, r: 32, blobs: 6, can: 'y5r3k2', trunk: 'r4y4k5' });
+    /* l'aire de battage vide et les jarres vides */
+    P.shape(P.ell(140, 450, 0.4, 50, 50, 30), 'y4r2k2', 0.9); P.line(P.ell(140, 450, 0.6, 42, 42, 30), 0.4, { ink: 3, lvl: 6, closed: true });
+    for (let i = 0; i < 3; i++) Lib.jar(P, 60 + i * 14, 500 - i * 8, 0, 0.9, ['r5y6k1', 'y6r3k1', 'r5y5k2'][i]);
     { const b = P.I(460, 250, 0); P.shape([[b[0] - 6, b[1]], [b[0] - 3, b[1] - 80], [b[0] + 3, b[1] - 80], [b[0] + 6, b[1]]], 'r4y4k5', 0.9); for (const [dx, dy, ex, ey] of [[0, -60, -34, -110], [0, -70, 30, -118], [0, -80, 4, -130], [-18, -92, -40, -104], [16, -100, 34, -112]]) P.line([[b[0] + dx, b[1] + dy], [b[0] + ex, b[1] + ey]], 2, { ink: 3, taper: 0.8 }); }
-    Lib.well(P, 470, 450, 22);
+    Lib.well(P, 500, 300, 22);
     Lib.stones(P, 14, 'y4r3k3', [20, 300, 200, 220]);
     for (const [x, y] of [[120, 470], [180, 500], [420, 500]]) { const q = P.I(x, y, 0); for (let k = -2; k <= 2; k++) P.line([[q[0] + k * 3, q[1]], [q[0] + k * 5, q[1] - 10 + Math.abs(k) * 2]], 0.8, { ink: 0 }); }
     /* le cercle tracé dans la poussière */
     P.line(P.ell(270, 290, 0.5, 80, 80, 48), 2.6, { ink: 3, taper: 0 });
     P.line(P.ell(270, 290, 0.5, 86, 86, 48), 0.6, { ink: 3, lvl: 6, taper: 0 });
-    /* le caroubier qu'un homme plante pour ses petits-enfants */
-    P.shape(P.ell(90, 150, 0.4, 16, 16, 14), 'r4y4k4', 0.6);
-    Lib.tree(P, 60, 140, 0, { h: 70, r: 20, blobs: 5, can: 'y4b6k2', trunk: 'r4y4k5' });
+    /* le trou où un homme plante un caroubier pour ses petits-enfants */
+    P.shape(P.ell(150, 140, 0.4, 16, 12, 14), 'r4y4k5', 0.6); { const q = P.I(165, 128, 0); P.shape(Lib.bumpy(P, q[0], q[1] - 3, 10, 5, 6), 'r4y4k3', 0.6); P.line([P.I(176, 120, 0), P.I(190, 106, 40)], 1.8); P.shape([P.I(170, 124, 0), P.I(182, 116, 0), P.I(178, 118, 8), P.I(168, 126, 8)], 'b1k4', 0.6); }
   },
   live(P, t) {
     const k = Math.min(1, (t % 14) / 4);
@@ -585,13 +615,13 @@ const SCENES = [
     ch(LK.tmTalmid2, { x: 170, y: 390, face: 1, clip: 'lookup', h: 138, t0: 1 }),
     ch(LK.tmWoman2, { x: 400, y: 380, face: -1, clip: 'tmRain', h: 130, t0: 1.5 }),
     ch(LK.tmGirl, { x: 440, y: 420, face: -1, clip: 'dance', h: 84 }),
-    ch(LK.tmFarmer, { x: 110, y: 160, face: -1, clip: 'kneel', h: 132 })
+    ch(LK.tmFarmer, { x: 132, y: 172, face: -1, clip: 'kneel', h: 132, hold: { nTop: 'tmSapling' } })
   ]
 },
 {
   title: '« Cela aussi est pour le bien »', book: 'Taanit', ch: 21, ref: 'Taanit 21a', refFr: 'Taanit 21a', accent: 3, feast: null,
   quote: 'ואמאי קרו ליה נחום איש גם זו דכל מילתא דהוה סלקא ליה אמר גם זו לטובה זימנא חדא בעו לשדורי ישראל דורון לבי קיסר',
-  fr: 'Pourquoi l’appelait-on Nahoum Ich Gamzou ? Parce que de tout ce qui lui arrivait, il disait : « Cela aussi est pour le bien. » Une fois, Israël voulut envoyer un présent à la maison de César.',
+  fr: 'Pourquoi l’appelait-on Nahoum Ich Gamzou ? Parce que de tout ce qui lui arrivait, il disait : cela aussi est pour le bien. Une fois, Israël voulut envoyer un présent à la maison de César.',
   more: ['On confia à Nahoum, habitué aux miracles, un coffret rempli de pierres précieuses et de perles. En chemin, il passa la nuit dans une auberge ; les aubergistes prirent les pierres et remplirent le coffret de terre. Au matin, il dit : « cela aussi est pour le bien ». À la cour, l’empereur crut qu’on se moquait de lui. Élie vint alors, sous l’apparence d’un courtisan : c’est peut-être la terre d’Abraham, qui devenait épées et flèches (Isaïe 41, 2). On l’essaya contre une ville qu’on ne pouvait prendre, et elle fut prise ; on remplit le coffret de joyaux et l’on renvoya Nahoum avec honneur.',
     'Pas de fête juive attachée à ce passage. Nahoum de Gamzou fut le maître de Rabbi Akiva (Haguiga 12a), qui reprit sa manière d’interpréter chaque petit mot de la Torah. De Rabbi Akiva on tient la même confiance : « tout ce que fait le Miséricordieux, Il le fait pour le bien » (Berakhot 60b).'],
   back(P) {
@@ -611,15 +641,17 @@ const SCENES = [
     P.box(0, 200, 16, 14, 340, 190, 'r4y3k1');
     for (let y = 240; y < 540; y += 60) { P.shape([P.I(14.5, y, 50), P.I(14.5, y + 30, 50), P.I(14.5, y + 30, 150), P.I(14.5, y, 150)], 'r6b4k1', 0.8); }
     for (let y = 210; y < 540; y += 52) tmCol(P, 150, y, 16, 150, 8, 'y1b1');
-    P.box(0, 196, 166, 164, 344, 16, 'y1b1k1', 0.9); P.box(0, 196, 182, 164, 344, 8, 'y2b1', 0.7);
-    { const q = P.I(82, 196, 190); P.shape([[q[0] - 80, q[1] + 2], [q[0] + 90, q[1] + 2], [q[0] + 5, q[1] - 44]], 'y1b1k1', 1); }
+    P.box(138, 196, 166, 24, 344, 14, 'y1b1k1', 0.9);
+    for (let y = 204; y < 540; y += 16) P.line([P.I(162.4, y, 168), P.I(162.4, y, 178)], 0.5);
+    P.shape([P.I(162.5, 200, 180), P.I(162.5, 536, 180), P.I(162.5, 368, 236)], 'y1b1k1', 1); P.shape([P.I(162.8, 230, 184), P.I(162.8, 506, 184), P.I(162.8, 368, 226)], 'y2b1', 0.6);
+    { const q = P.I(162.8, 368, 200); P.shape(P.disc(q[0], q[1], 9, 14), 'y7r2', 0.6); }
     P.box(30, 360, 16, 50, 60, 16, 'r6b4k1', 0.8);
     P.box(40, 370, 32, 30, 40, 22, 'y7r2k1', 0.8); P.box(36, 370, 54, 8, 40, 46, 'y7r2', 0.8);
     { const q = P.I(40, 390, 100); P.shape(P.disc(q[0], q[1] - 6, 9, 12), 'y8r3', 0.7); }
     /* le coffret ouvert : de la terre au lieu des perles */
     P.box(110, 380, 16, 26, 20, 16, 'r5y5k3', 0.8); P.box(108, 378, 32, 30, 4, 18, 'r5y5k2', 0.7);
     { const q = P.I(123, 390, 32); P.shape(Lib.bumpy(P, q[0], q[1] - 3, 12, 5, 6), 'r4y4k4', 0.6); }
-    tmCypress(P, 230, 120, 150); tmCypress(P, 250, 30, 130); Lib.palm(P, 470, 470, 0, 160, { dates: 1 });
+    tmCypress(P, 230, 120, 150); tmCypress(P, 250, 30, 130); tmOlive(P, 470, 470, 1.1); tmCypress(P, 420, 520, 120);
     Lib.bush(P, 400, 330, 0, 18, 'y5b5k1');
   },
   chars: [
@@ -636,7 +668,7 @@ const SCENES = [
 {
   title: 'Les quatre qui entrèrent au Pardès', book: 'Haguiga', ch: 14, ref: 'Chagigah 14b', refFr: 'Haguiga 14b', accent: 2, feast: null,
   quote: 'ת"ר ארבעה נכנסו בפרדס ואלו הן בן עזאי ובן זומא אחר ורבי עקיבא אמר להם ר"ע כשאתם מגיעין אצל אבני שיש טהור אל תאמרו מים מים',
-  fr: 'Nos maîtres ont enseigné : quatre entrèrent au Pardès, et les voici : Ben Azzaï, Ben Zoma, Aher et Rabbi Akiva. Rabbi Akiva leur dit : « Quand vous arriverez près des pierres de marbre pur, ne dites pas : de l’eau, de l’eau ! »',
+  fr: 'Nos maîtres ont enseigné : quatre entrèrent au Pardès, et les voici : Ben Azzaï, Ben Zoma, Aher et Rabbi Akiva. Rabbi Akiva leur dit : quand vous arriverez près des pierres de marbre pur, ne dites pas : de l’eau, de l’eau !',
   more: ['Le Pardès, le verger, désigne ici l’étude des secrets les plus hauts de la Torah. Le Talmud dit seulement : Ben Azzaï regarda et mourut ; Ben Zoma regarda et fut atteint ; Aher, Élicha ben Abouya, « coupa les plants » et quitta la voie ; Rabbi Akiva sortit en paix. Juste avant, le Talmud raconte comment Rabban Yohanan ben Zakkaï descendit de son âne pour écouter son élève exposer le récit du Char divin.',
     'Pas de fête juive attachée à ce passage. La Michna (Haguiga 2, 1) enseigne qu’on n’expose pas le récit du Char devant un seul élève, à moins qu’il ne soit sage et ne comprenne par lui-même. Plus tard, le mot PaRDeS est devenu le nom des quatre niveaux de lecture de la Torah : pchat, remez, drach et sod. Haguiga, qui traite du sacrifice des trois fêtes de pèlerinage, clôt l’ordre Moed.'],
   back(P) {
@@ -666,13 +698,13 @@ const SCENES = [
   },
   live(P, t) {
     const c = P.I(350, 180, 90), k = 1 + Math.sin(t * 0.8) * 0.06;
-    P.halo(c[0], c[1], 210 * k, ['y1', 'y1', 'y2', 'y2'], { sq: 0.7 });
+    P.halo(c[0], c[1], 200 * k, ['y1', 'y2', 'y2', 'y3', 'y3r1'], { sq: 0.7 });
     for (let i = 0; i < 6; i++) { const u = (t * 0.12 + i / 6) % 1, a = -Math.PI / 2 + (i - 2.5) * 0.35; P.line([[c[0], c[1] - 20], [c[0] + Math.cos(a) * (140 + u * 60), c[1] - 20 + Math.sin(a) * (140 + u * 60)]], 3 * (1 - u) + 0.5, { ink: 0, lvl: 5 }); }
   },
   chars: [
-    ch(LK.tmBenAzzai, { x: 300, y: 380, face: 1, clip: 'lookup', h: 138 }),
-    ch(LK.tmBenZoma, { x: 390, y: 372, face: -1, clip: 'lookup', h: 136, t0: 1 }),
-    ch(LK.tmAher, { x: 440, y: 400, face: -1, clip: 'idle', h: 140, t0: 2 }),
+    ch(LK.tmBenAzzai, { x: 250, y: 386, face: 1, clip: 'lookup', h: 138 }),
+    ch(LK.tmBenZoma, { x: 372, y: 366, face: -1, clip: 'lookup', h: 136, t0: 1 }),
+    ch(LK.tmAher, { x: 440, y: 364, face: -1, clip: 'idle', h: 140, t0: 2 }),
     ch(LK.tmAkiva, { h: 138, speed: 14, path: [W(330, 352, 2, 'bless', { f: -1 }), W(260, 420, 0), W(150, 480, 5, 'bless', { f: -1 }), W(330, 352, 0, null, { jump: 1 })] })
   ]
 }

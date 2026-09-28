@@ -46,7 +46,7 @@ Object.assign(CLIPS, {
   tnPush: { d: 1.6, k: [{ lean: 12, head: 4, nU: 80, nL: 8, fU: 72, fL: 14, nT: 22, nK: -6, fT: -16, fK: -8 }, { lean: 17, head: 6, nU: 88, nL: 2, fU: 80, fL: 8, nT: 22, nK: -6, fT: -16, fK: -8 }] },
   tnHush: { d: 3, k: [{ nU: 30, nL: 145, fU: 56, fL: 20, lean: 6, head: 8, nT: 4, fT: -4 }, { nU: 32, nL: 143, fU: 60, fL: 16, lean: 8, head: 12, nT: 4, fT: -4 }] },
   tnThrow: { d: 1.6, k: [{ lean: 14, head: 24, nU: 72, nL: 12, fU: 66, fL: 18, nT: 4, fT: -4 }, { lean: 18, head: 28, nU: 64, nL: 20, fU: 58, fL: 26, nT: 4, fT: -4 }] },
-  tnEmbrace: { d: 3.2, k: [{ lean: 16, head: 26, nU: 74, nL: 56, fU: 66, fL: 62, nT: 4, fT: -4 }, { lean: 20, head: 30, nU: 78, nL: 50, fU: 70, fL: 58, nT: 4, fT: -4 }] },
+  tnEmbrace: { d: 3.2, k: [{ lean: 14, head: 24, nU: 76, nL: 14, fU: 70, fL: 20, nT: 4, fT: -4 }, { lean: 17, head: 28, nU: 80, nL: 10, fU: 74, fL: 16, nT: 4, fT: -4 }] },
   tnGaze: { d: 3.6, k: [{ nT: 4, nK: -95, fT: 0, fK: -95, lean: 34, head: 28, nU: 30, nL: 40, fU: 24, fL: 50 }, { nT: 4, nK: -95, fT: 0, fK: -95, lean: 38, head: 32, nU: 34, nL: 36, fU: 26, fL: 48 }] },
   tnMourn: { d: 4, k: [{ nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.24, lean: 16, head: 26, nU: 34, nL: 118, fU: 20, fL: 40 }, { nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.24, lean: 20, head: 30, nU: 36, nL: 116, fU: 22, fL: 42 }] },
   tnConsole: { d: 3, k: [{ lean: 12, head: 14, nU: 58, nL: 20, fU: 10, fL: 30, nT: 4, fT: -4 }, { lean: 15, head: 18, nU: 62, nL: 16, fU: 12, fL: 28, nT: 4, fT: -4 }] },
@@ -158,7 +158,7 @@ const tnJerusalem = (P, cx, by, s, o = {}) => {
 };
 /* flammes et fumée sur la ville lointaine (animé) */
 const tnFire = (P, t, cx, by, s) => {
-  for (let i = 0; i < 4; i++) Lib.smoke(P, cx + (-70 + i * 46) * s, by - 70 * s, t + i * 1.7, { n: 4, sp: 0.12, r: 26 * s, h: 150 * s });
+  for (let i = 0; i < 3; i++) Lib.smoke(P, cx + (-50 + i * 50) * s, by - 80 * s, t + i * 1.7, { n: 4, sp: 0.1, r: 16 * s, h: 170 * s, tn: i % 2 ? 'k2r1' : 'k1r1y1' });
   const pts = [[-84, 56], [-62, 60], [-40, 72], [-18, 76], [4, 108], [26, 74], [48, 62], [70, 66], [86, 58]];
   for (const [a, b] of pts) Lib.flame(P, cx + a * s, by - b * s, 12 * s, 26 * s, t * 1.5 + a, { noKnock: true });
 };
@@ -179,29 +179,31 @@ const tnStall = (P, x, y, w, d, awn, goods) => {
 };
 const tnFruitPile = (P, x, y, z, tn, n = 7) => { const q = P.I(x, y, z); P.shape([[q[0] - 14, q[1] - 2], [q[0] + 14, q[1] - 2], [q[0] + 10, q[1] + 5], [q[0] - 10, q[1] + 5]], 'r5y5k3', 0.6); for (let i = 0; i < n; i++) P.shape(P.disc(q[0] - 9 + (i % 4) * 6, q[1] - 5 - Math.floor(i / 4) * 5, 3.6, 8), tn, 0.4); };
 /* balance de la halakha (scène 5) : fléau qui penche vers le mérite quand l'aumône est donnée */
-const tnMan = ch(LK.tnRich, { h: 140, speed: 22, hold: { nTop: 'tnCoin' }, path: [W(410, 300, 3, 'idle', { f: -1 }), W(200, 395, 4, 'offer', { f: -1 }), W(410, 300, 0)] });
-const tnBalance = { depth: 510, draw(P, t) {
+const tnMan = ch(LK.tnRich, { h: 140, speed: 22, hold: { nTop: 'tnCoin' }, path: [W(450, 340, 3, 'idle', { f: -1 }), W(205, 405, 4, 'offer', { f: -1 }), W(450, 340, 0)] });
+const tnBalance = { depth: 590, draw(P, t) {
   const c = tnMan; let tilt = 0;
   if (c.segs) { const tt = ((t + c.t0) % c.cycle + c.cycle) % c.cycle, s = c.segs.find(q => q.wait && q.wait.c === 'offer'); const e = u => u * u * (3 - 2 * u); tilt = tt < s.t0 ? 1 - e(clamp(tt / 2, 0, 1)) : e(clamp((tt - s.t0 - 0.6) / 1.2, 0, 1)); }
-  const x = 270, y = 240, a = 0.2 * tilt + Math.sin(t * 1.3) * 0.015;
-  P.box(x - 20, y - 20, 0, 40, 40, 12, 'y3r2k3', 0.8); P.box(x - 12, y - 12, 12, 24, 24, 8, 'y3r2k2', 0.7);
-  P.box(x - 4, y - 4, 20, 8, 8, 150, 'r4y5k3', 0.8);
-  const pv = P.I(x, y, 176), L = 88, ca = Math.cos(a), sa = Math.sin(a), eL = [pv[0] - L * ca, pv[1] - L * sa], eR = [pv[0] + L * ca, pv[1] + L * sa];
-  P.shape([[pv[0] - 7, pv[1] - 4], [pv[0] + 7, pv[1] - 4], [pv[0], pv[1] - 20]], 'y7r3k1', 0.6);
-  P.line([eL, eR], 3.6, { ink: 3, lvl: 8, taper: 0 }); P.line([[eL[0], eL[1] - 1], [eR[0], eR[1] - 1]], 1.2, { ink: 0, lvl: 8, taper: 0 });
-  P.fill(P.disc(pv[0], pv[1], 3.4, 8), 'y8r3', {});
-  P.line([[pv[0], pv[1]], [pv[0] - 26 * sa, pv[1] + 26 * ca]], 1.6, { ink: 3, taper: 0 });
+  const x = 290, y = 300, a = 0.24 * tilt + Math.sin(t * 1.3) * 0.015;
+  P.box(x - 26, y - 26, 0, 52, 52, 14, 'y3r2k3', 0.9); P.box(x - 16, y - 16, 14, 32, 32, 10, 'y3r2k2', 0.8);
+  P.box(x - 5, y - 5, 24, 10, 10, 180, 'r4y5k3', 0.9);
+  const pv = P.I(x, y, 208), L = 118, ca = Math.cos(a), sa = Math.sin(a), eL = [pv[0] - L * ca, pv[1] - L * sa], eR = [pv[0] + L * ca, pv[1] + L * sa];
+  P.shape([[pv[0] - 9, pv[1] - 4], [pv[0] + 9, pv[1] - 4], [pv[0], pv[1] - 26]], 'y7r3k1', 0.8); P.fill(P.disc(pv[0], pv[1] - 28, 4, 8), 'y8r3', {});
+  P.line([eL, eR], 5, { ink: 3, lvl: 8, taper: 0 }); P.line([[eL[0], eL[1] - 1.5], [eR[0], eR[1] - 1.5]], 1.6, { ink: 0, lvl: 9, taper: 0 });
+  for (const e of [eL, eR]) P.shape(P.disc(e[0], e[1], 4.5, 8), 'y7r4k2', 0.6);
+  P.fill(P.disc(pv[0], pv[1], 4.5, 8), 'y8r3', {});
+  P.line([[pv[0], pv[1]], [pv[0] - 34 * sa, pv[1] + 34 * ca]], 2, { ink: 3, taper: 0 });
   const pan = (e, which) => {
-    const b = [e[0], e[1] + 62];
-    for (const dx of [-15, 0, 15]) P.line([e, [b[0] + dx, b[1]]], 0.6);
-    if (which) { P.halo(b[0], b[1] - 8, 20 + 26 * tilt, ['y1', 'y2', 'y3r1']); for (let i = 0; i < 5; i++) P.shape(P.disc(b[0] - 8 + (i % 3) * 8, b[1] - 3 - Math.floor(i / 3) * 4, 3.6, 8), 'y8r3', 0.4); }
-    else for (let i = 0; i < 5; i++) P.shape(P.disc(b[0] - 8 + (i % 3) * 8, b[1] - 3 - Math.floor(i / 3) * 4, 3.8, 7), 'k5b2', 0.4);
-    P.shape([[b[0] - 20, b[1]], [b[0] + 20, b[1]], [b[0] + 13, b[1] + 7], [b[0] - 13, b[1] + 7]], 'y6r3k2', 0.8);
+    const b = [e[0], e[1] + 78];
+    for (const dx of [-24, 0, 24]) P.line([e, [b[0] + dx, b[1] - 2]], 0.8);
+    if (which) { P.halo(b[0], b[1] - 10, 22 + 34 * tilt, ['y1', 'y2', 'y3r1']); for (let i = 0; i < 7; i++) P.shape(P.disc(b[0] - 12 + (i % 4) * 8, b[1] - 3 - Math.floor(i / 4) * 5, 4.2, 8), 'y8r3', 0.5); }
+    else for (let i = 0; i < 7; i++) P.shape(P.disc(b[0] - 12 + (i % 4) * 8, b[1] - 3 - Math.floor(i / 4) * 5, 4.4, 7), 'k5b2', 0.5);
+    P.shape([[b[0] - 30, b[1]], [b[0] + 30, b[1]], [b[0] + 21, b[1] + 10], [b[0] - 21, b[1] + 10]], 'y7r4k2', 0.9);
+    P.line([[b[0] - 30, b[1]], [b[0] + 30, b[1]]], 1.2, { ink: 0, lvl: 7 });
   };
   pan(eL, 0); pan(eR, 1);
 } };
 /* convoi funèbre (scène 6) : quatre porteurs, la civière suit le premier */
-const tnBearers = [[0, 0, 0], [0, 56, 0.3], [34, 0, 0.6], [34, 56, 0.9]].map(([dx, dy, t0], i) => ch([LK.tnBearer, LK.tnMourner, LK.tnTalm2, LK.tnBearer][i], Object.assign({ h: 136, speed: 11, t0: 0, over: 'tnShoulder', path: [W(392 + dx, 150 + dy, 0), W(392 + dx, 440 + dy, 0), W(392 + dx, 150 + dy, 0, null, { jump: 1 })] }, i === 3 ? { look: Object.assign({}, LK.tnBearer, { robe: 'k5r2', beard: 'full', bt: 'k6', ht: 'b5k3' }) } : {})));
+const tnBearers = [[0, 0, 0], [0, 56, 0.3], [34, 0, 0.6], [34, 56, 0.9]].map(([dx, dy, t0], i) => ch([LK.tnBearer, LK.tnMourner, LK.tnTalm2, LK.tnBearer][i], Object.assign({ h: 136, speed: 11, t0: 0, over: 'tnShoulder', path: [W(392 + dx, 200 + dy, 0), W(392 + dx, 468 + dy, 0), W(392 + dx, 200 + dy, 0, null, { jump: 1 })] }, i === 3 ? { look: Object.assign({}, LK.tnBearer, { robe: 'k5r2', beard: 'full', bt: 'k6', ht: 'b5k3' }) } : {})));
 const tnBier = { depth: t => { const st = charState(tnBearers[0], t); return st.x + st.y + 45; }, draw(P, t) {
   const st = charState(tnBearers[0], t), x = st.x - 8, y = st.y - 16, z = 124, w = 50, d = 90;
   P.box(x, y, z, w, d, 5, 'r4y5k3', 0.8);
@@ -209,7 +211,7 @@ const tnBier = { depth: t => { const st = charState(tnBearers[0], t); return st.
   P.shape([I(2, 4, 5), I(w - 2, 4, 5), I(w - 2, d - 4, 5), I(w - 2, d - 4, 16), I(w - 2, 4, 16)], 'y1b1k1', 0.7);
   P.shape([I(2, d - 4, 5), I(w - 2, d - 4, 5), I(w - 2, d - 4, 16), I(2, d - 4, 16)], 'y1b2k1', 0.7);
   P.shape([I(2, 4, 16), I(w - 2, 4, 16), I(w - 2, d - 4, 16), I(2, d - 4, 16)], 'y1', 0.8);
-  P.line([I(w / 2, 6, 16.5), I(w / 2, d - 6, 16.5)], 1.6, { ink: 2, lvl: 8, taper: 0 }); P.line([I(6, d * 0.3, 16.5), I(w - 6, d * 0.3, 16.5)], 1.6, { ink: 2, lvl: 8, taper: 0 });
+  for (const b of [10, 15, d - 15, d - 10]) P.line([I(4, b, 16.5), I(w - 4, b, 16.5)], 1.3, { ink: 2, lvl: 8, taper: 0 });
   for (const b of [-8, d + 8]) { P.line([I(0, b, 2), I(0, b - Math.sign(b) * 12, 2)], 2, { taper: 0 }); P.line([I(w, b, 2), I(w, b - Math.sign(b) * 12, 2)], 2, { taper: 0 }); }
 } };
 /* table basse de festin, le long de x ou de y, avec plats et coupes */
@@ -226,7 +228,7 @@ const SCENES = [
     'Pas de fête juive attachée à ce passage. La suite, sur la même page : Kalba Savoua vient demander au grand maître de délier son vœu, découvre en lui son gendre et lui donne la moitié de ses biens. Le Talmud ajoute que la fille de Rabbi Akiva fit de même pour Ben Azzaï : « la brebis suit la brebis ». Selon les Avot de Rabbi Nathan (chapitre 6), Akiva commença d’étudier à quarante ans, devant une pierre creusée goutte à goutte par l’eau.'],
   back(P) {
     tnSky(P, { sun: [820, 200, 26], clouds: [[250, 180, 170, 30], [660, 130, 120, 24]] });
-    Lib.mound(P, 170, -80, 130, 160, 'y4b4k2'); Lib.mound(P, 430, -60, 120, 120, 'y5b3k2'); Lib.mound(P, -70, 250, 110, 120, 'y4b4k2');
+    Lib.mound(P, 170, -80, 140, 100, 'y5b3', { shade: 'b1k1' }); Lib.mound(P, 430, -60, 120, 80, 'y4b3', { shade: 'b1k1' }); Lib.mound(P, -70, 250, 110, 80, 'y5b3', { shade: 'b1k1' });
     Lib.platform(P, 'y5b3', 'y4r3k2');
     Lib.grass(P, 60, 'y5b4');
     tnPath(P, [[400, 0], [350, 110], [290, 220], [230, 330], [170, 440], [130, 540]], 30, 'y4r3');
@@ -235,18 +237,19 @@ const SCENES = [
     tnHouse(P, 22, 350, 84, 118, 70, 'y4r2k2', { door: 26, win: 1 });
     P.box(106, 470, 0, 70, 6, 30, 'y3r2k2', 0.7); P.box(106, 470, 30, 70, 8, 3, 'y3r2k3', 0.5);
     tnOlive(P, 120, 80, 0.9, 5); tnOlive(P, 470, 330, 1.1, 6); tnOlive(P, 480, 470, 0.85);
-    Lib.well(P, 420, 210, 20);
+    Lib.well(P, 440, 230, 20); for (let i = 0; i < 3; i++) Lib.jar(P, 112 + i * 16, 480, 0, 0.9, ['r5y6k1', 'y6r3k1', 'b5y3'][i]);
+    for (let i = 0; i < 7; i++) P.box(270 + i * 12, 440 - i * 24, 0, 16, 18, 12 + (i % 2) * 4, 'y3r2k3', 0.6);
     const crowd = [[420, 18, LK.tnTalm3], [372, 30, LK.tnTalm1], [455, 60, LK.tnTalm2], [395, 72, LK.tnTalm4], [345, 90, LK.tnTalm5], [430, 110, LK.tnTalm2], [370, 135, LK.tnTalm1], [320, 150, LK.tnTalm3]];
     crowd.forEach(([x, y, lk], i) => tnStatic(P, lk, { x, y, face: -1, clip: 'walk', h: 132, tt: i * 0.37, hold: i % 3 === 0 ? { nTop: 'scroll' } : null }));
   },
   chars: [
-    ch(LK.tnAkiva, { x: 290, y: 225, face: -1, clip: 'tnStop', h: 142, hold: { f: 'staff' } }),
-    ch(LK.tnRachel, { x: 205, y: 320, face: 1, clip: 'prostrate', h: 124 }),
-    ch(LK.tnTalm2, { x: 300, y: 310, face: -1, clip: 'tnPush', h: 136, t0: 0.4 }),
-    ch(LK.tnTalm4, { x: 205, y: 232, face: -1, clip: 'tnPush', h: 138, t0: 0.9 }),
-    ch(LK.tnTalm1, { x: 345, y: 205, face: -1, clip: 'talk', h: 136, hold: { nTop: 'scroll' } }),
-    ch(LK.tnNeighbor, { x: 120, y: 505, face: 1, clip: 'talk', h: 126 }),
-    ch(LK.tnNeighbor2, { x: 170, y: 520, face: 1, clip: 'point', h: 122, t0: 1 }),
+    ch(LK.tnAkiva, { x: 325, y: 240, face: -1, clip: 'tnStop', h: 142, hold: { f: 'staff' } }),
+    ch(LK.tnRachel, { x: 250, y: 300, face: 1, clip: 'prostrate', h: 124 }),
+    ch(LK.tnTalm2, { x: 188, y: 318, face: 1, clip: 'tnPush', h: 136, t0: 0.4 }),
+    ch(LK.tnTalm4, { x: 222, y: 392, face: 1, clip: 'tnPush', h: 138, t0: 0.9 }),
+    ch(LK.tnTalm1, { x: 372, y: 205, face: -1, clip: 'talk', h: 136, hold: { nTop: 'scroll' } }),
+    ch(LK.tnNeighbor, { x: 105, y: 505, face: 1, clip: 'talk', h: 126 }),
+    ch(LK.tnNeighbor2, { x: 150, y: 520, face: 1, clip: 'point', h: 122, t0: 1 }),
     { beast: 'donkey', h: 72, x: 150, y: 140, face: 1 }
   ]
 },
@@ -268,7 +271,8 @@ const SCENES = [
     tnPath(P, [[0, 330], [110, 220], [220, 110], [330, 0]], 14, 'y4r3');
     for (let k = 1; k < 4; k++) { const x = k * 82 + 6, y = 330 - k * 82 + 6; P.cyl(x + 18, y + 18, 0, 5, 22, 'y2r1k1', 0.6, 10); }
     for (const [x, y] of [[80, 200], [180, 120], [260, 30]]) { P.box(x, y, 0, 46, 14, 16, 'y3r2k2', 0.7); }
-    Lib.field(P, 340, 40, 180, 110, 5, 'y7r2');
+    Lib.field(P, 330, 30, 200, 170, 9, 'y7r2'); tnOlive(P, 40, 170, 0.8, 4); tnOlive(P, 170, 40, 0.75, 3); tnCypress(P, 20, 60, 110);
+    { const r = rng(52); for (let i = 0; i < 46; i++) { const q = P.I(20 + r() * 300, 360 + r() * 170, 0); if (r() > 0.4) { P.line([[q[0], q[1]], [q[0], q[1] - 7]], 0.6, { ink: 2 }); P.fill(P.disc(q[0], q[1] - 8, 2.4, 6), r() > 0.3 ? 'r8y2' : 'y8', {}); } } }
     for (const [x, y] of [[360, 190], [420, 200], [480, 180]]) { const q = P.I(x, y, 0); for (let i = -3; i <= 3; i++) P.line([[q[0] + i * 2, q[1]], [q[0] + i * 3.2, q[1] - 26]], 1, { ink: 0, lvl: 8 }); P.line([[q[0] - 6, q[1] - 12], [q[0] + 6, q[1] - 12]], 1.4, { ink: 3, lvl: 6 }); }
     Lib.grass(P, 70, 'y5b4');
     Lib.stones(P, 14, 'y3r2k3', [30, 260, 160, 120]);
@@ -296,7 +300,7 @@ const SCENES = [
     'Pas de fête juive attachée à ce passage. La servante de Rabbi est connue ailleurs pour sa sagesse : les sages venaient apprendre d’elle le sens de mots hébreux rares (Roch Hachana 26b, Meguila 18a). Le Ran, sur Nedarim 40a, en tire qu’on peut prier pour la délivrance d’un malade qui souffre sans espoir. La même page raconte que Rabbi, à l’heure de sa mort, leva ses dix doigts : il avait peiné dans la Torah et n’en avait tiré aucun profit pour lui-même.'],
   back(P) {
     tnSky(P, { sun: [860, 210, 24], clouds: [[210, 160, 180, 32], [620, 120, 140, 26]] });
-    Lib.mound(P, 470, -70, 110, 110, 'y4b4k2');
+    Lib.mound(P, 470, -70, 110, 80, 'y5b3', { shade: 'b1k1' });
     Lib.platform(P, 'y4r3k1', 'y4r3k2', { pebbles: false });
     tnPaving(P, 0, 200, 540, 540, 36, 'y3r2k2');
     P.box(330, 0, 0, 210, 14, 64, 'y3r2k1'); for (let i = 0; i < 10; i++) P.box(334 + i * 21, 0, 64, 12, 14, 8, 'y3r2k2', 0.5);
@@ -324,6 +328,7 @@ const SCENES = [
     tnStair(P, X1 + 2, 90, 196, 90, 'y3r2k2');
     Lib.well(P, 440, 230, 20);
     P.box(470, 300, 0, 50, 90, 20, 'y3r2k2', 0.8); P.box(26, 250, 0, 20, 160, 18, 'y3r2k2', 0.8);
+    for (const [x, y] of [[36, 230], [496, 280], [496, 410]]) { P.cyl(x, y, 0, 11, 16, 'r5y5k2', 0.7, 12); const q = P.I(x, y, 16); P.shape(Lib.bumpy(P, q[0], q[1] - 9, 13, 10, 7), 'y4b6k1', 0.7); }
   },
   front(P) { P.box(206, 194, 167, 118, 6, 10, 'y3r2k2', 0.6); },
   top(P, t) {
@@ -351,12 +356,12 @@ const SCENES = [
     'Pas de fête juive attachée à ce passage. L’année suivante, dit le Talmud, il reçut sa récompense : une vache rousse naquit dans son troupeau, celle qu’exige la purification décrite au livre des Nombres (chapitre 19). Quand les sages vinrent l’acheter, il ne leur demanda que la somme perdue pour l’honneur de son père. Rabbi Hanina en tire que celui qui accomplit un commandement parce qu’il lui est ordonné est plus grand que celui qui le fait sans y être tenu.'],
   back(P) {
     tnSky(P, { sun: [190, 190, 24], clouds: [[560, 150, 150, 26], [850, 220, 100, 20]] });
-    P.shape([[40, 470], [960, 470], [960, 640], [40, 640]], 'b4y1', 0);
+    P.shape([[140, 468], [860, 468], [967, 560], [967, 640], [32, 640], [32, 560]], 'b4y1', 0); P.line([[140, 468], [860, 468]], 0.8, { ink: 2 });
     for (let i = 0; i < 14; i++) { const x = 90 + (i * 67) % 820, y = 480 + (i * 29) % 40; P.line([[x - 9, y], [x - 4, y - 2.5], [x, y], [x + 5, y - 2.5], [x + 9, y]], 0.8, { ink: 2 }); }
     { const x = 760, y = 486; P.shape([[x - 22, y], [x + 22, y], [x + 16, y + 7], [x - 16, y + 7]], 'r4y5k3', 0.7); P.line([[x, y], [x, y - 38]], 1); P.shape([[x + 1, y - 36], [x + 22, y - 10], [x + 1, y - 8]], 'y1b1', 0.7); }
     Lib.platform(P, 'y5r3k1', 'y4r3k2');
     const I = (a, b, c) => P.I(a, b, c), RX = 300, RY = 250, H = 150;
-    for (let i = 0; i < 10; i++) for (let j = 0; j < 8; j++) P.fill([I(14 + i * 28.6, 14 + j * 29.5, 0.4), I(14 + (i + 1) * 28.6, 14 + j * 29.5, 0.4), I(14 + (i + 1) * 28.6, 14 + (j + 1) * 29.5, 0.4), I(14 + i * 28.6, 14 + (j + 1) * 29.5, 0.4)], (i + j) % 2 ? 'y2r1' : 'y1', {});
+    for (let i = 0; i < 10; i++) for (let j = 0; j < 8; j++) P.fill([I(14 + i * 28.6, 14 + j * 29.5, 0.4), I(14 + (i + 1) * 28.6, 14 + j * 29.5, 0.4), I(14 + (i + 1) * 28.6, 14 + (j + 1) * 29.5, 0.4), I(14 + i * 28.6, 14 + (j + 1) * 29.5, 0.4)], (i + j) % 2 ? 'y4r3' : 'y2r1', {});
     P.shape([I(40, 40, 0.6), I(RX - 26, 40, 0.6), I(RX - 26, RY - 26, 0.6), I(40, RY - 26, 0.6)], null, 1.8);
     P.line([I(40, 40, 0.6), I(RX - 26, 40, 0.6), I(RX - 26, RY - 26, 0.6), I(40, RY - 26, 0.6), I(40, 40, 0.6)], 2.6, { ink: 1, lvl: 6, taper: 0 });
     P.box(0, 0, 0, 14, RY, H, 'y2r2'); P.box(14, 0, 0, RX - 14, 14, H, 'y2r1k1');
@@ -378,11 +383,11 @@ const SCENES = [
   chars: [
     ch(LK.tnDamaAba, { x: 150, y: 70, z: 34, face: 1, clip: 'sleep', h: 122, noShadow: 1 }),
     ch(LK.tnDama, { x: 205, y: 160, face: 1, clip: 'tnHush', h: 138 }),
-    ch(LK.tnSage1, { x: 360, y: 140, face: -1, clip: 'idle', h: 136, hold: { nTop: 'tnPurse' } }),
-    ch(LK.tnSage2, { x: 385, y: 205, face: -1, clip: 'offer', h: 138, t0: 0.7, hold: { nTop: 'tnCasket' } }),
-    ch(LK.tnTalm3, { x: 350, y: 250, face: -1, clip: 'talk', h: 134, t0: 1.3 }),
-    { beast: 'tnHeifer', h: 92, x: 420, y: 420, face: -1 },
-    { beast: 'tnCow', h: 86, x: 470, y: 470, face: 1 }
+    ch(LK.tnSage1, { x: 390, y: 140, face: -1, clip: 'idle', h: 136, hold: { nTop: 'tnPurse' } }),
+    ch(LK.tnSage2, { x: 420, y: 205, face: -1, clip: 'offer', h: 138, t0: 0.7, hold: { nTop: 'tnCasket' } }),
+    ch(LK.tnTalm3, { x: 385, y: 272, face: -1, clip: 'talk', h: 134, t0: 1.3 }),
+    { beast: 'tnHeifer', h: 108, x: 400, y: 415, face: -1 },
+    { beast: 'tnCow', h: 94, x: 462, y: 468, face: 1 }
   ]
 },
 {
@@ -412,9 +417,9 @@ const SCENES = [
   chars: [
     tnBalance, tnMan,
     ch(LK.tnPoor, { x: 141, y: 399, face: 1, clip: 'sit', h: 124, hold: { nTop: 'tnBowl' } }),
-    ch(LK.tnSeller2, { x: 312, y: 262, face: -1, clip: 'tnWeigh', h: 134, look: Object.assign({}, LK.tnSeller2, { robe: 'y6r3k1', ht: 'b5k2', beard: 'long' }) }),
+    ch(LK.tnSeller2, { x: 350, y: 262, face: -1, clip: 'tnWeigh', h: 134, look: Object.assign({}, LK.tnSeller2, { robe: 'y6r3k1', ht: 'b5k2', beard: 'long' }) }),
     ch(LK.tnNeighbor, { h: 124, speed: 16, t0: 2, path: [W(250, 470, 3, 'idle', { f: 1 }), W(380, 420, 3, 'talk', { f: 1 }), W(250, 470, 0)], hold: { n: 'jarhead' } }),
-    ch(LK.tnBoy, { x: 220, y: 330, face: 1, clip: 'lookup', h: 86 }),
+    ch(LK.tnBoy, { x: 230, y: 340, face: 1, clip: 'lookup', h: 86 }),
     { beast: 'donkey', h: 74, x: 440, y: 520, face: -1 }
   ]
 },
@@ -426,7 +431,7 @@ const SCENES = [
     'Pas de fête juive attachée à ce passage. Rabbi Simlaï en tire, sur la même page, que la Torah commence et finit par un acte de bonté : les vêtements donnés à Adam et Ève au début de la Genèse, l’ensevelissement de Moïse à la fin du Deutéronome. Ces gestes forment la guemilout hassadim, les œuvres de bonté, l’un des trois piliers sur lesquels le monde repose selon Chimon le Juste (Avot 1, 2).'],
   back(P) {
     tnSky(P, { sun: [180, 190, 22], clouds: [[480, 150, 170, 28], [800, 200, 110, 22]] });
-    { const pts = [[560, 520], [640, 470], [720, 450], [820, 462], [900, 500], [960, 560]]; P.shape(pts.concat([[960, 600], [560, 600]]), 'y4r3k2', 0.9); for (const [x, y] of [[680, 490], [740, 478], [800, 486], [860, 510]]) { P.shape(P.disc(x, y, 7, 12).map(p => [p[0], Math.min(p[1], y + 3)]), 'k7r2', 0.6); P.shape([[x + 9, y - 4], [x + 15, y - 4], [x + 15, y + 5], [x + 9, y + 5]], 'y3r2k3', 0.5); } }
+    { const pts = [[40, 560], [110, 500], [190, 470], [280, 478], [360, 505], [420, 540]]; P.shape(pts.concat([[420, 600], [40, 600]]), 'y4r3k1', 0.9); for (const [x, y] of [[140, 505], [200, 490], [260, 494], [320, 510]]) { P.shape(P.disc(x, y, 7, 12).map(p => [p[0], Math.min(p[1], y + 3)]), 'k7r2', 0.6); P.shape([[x + 9, y - 4], [x + 15, y - 4], [x + 15, y + 5], [x + 9, y + 5]], 'y3r2k3', 0.5); } }
     Lib.platform(P, 'y4r3k1', 'y4r3k2', { pebbles: false });
     tnPaving(P, 0, 0, 540, 540, 45, 'y3r2k2');
     tnHouse(P, 0, 0, 100, 150, 120, 'y3r2k1', { door: null, win: 2 });
@@ -440,15 +445,14 @@ const SCENES = [
     { const q = P.I(300, 82, 26); P.shape(Lib.bumpy(P, q[0], q[1] - 5, 14, 7, 6), 'y1', 0.6); }
     tnStatic(P, LK.tnSick, { x: 390, y: 82, z: 26, face: 1, clip: 'sleep', h: 118, noShadow: 1, tt: 2 });
     P.shape([I(310, 106, 26.5), I(398, 106, 26.5), I(398, 106, 14), I(310, 106, 14)], 'b5r3', 0.7);
-    P.shape([I(310, 58, 26.5), I(398, 58, 26.5), I(398, 106, 26.5), I(310, 106, 26.5)], null, 0);
-    P.box(300, 118, 0, 20, 20, 30, 'r4y5k3', 0.6); Lib.jar(P, 420, 90, 0, 0.9, 'b5y3'); P.box(412, 110, 0, 16, 16, 12, 'r5y5k2', 0.5);
+    P.box(310, 133, 0, 24, 24, 38, 'r4y5k3', 0.6); Lib.jar(P, 420, 90, 0, 0.9, 'b5y3'); P.box(412, 110, 0, 16, 16, 12, 'r5y5k2', 0.5);
     tnCypress(P, 110, 200, 130); Lib.bush(P, 220, 100, 0, 18);
     P.box(96, 360, 0, 70, 70, 3, 'k5b2', 0.6); P.box(100, 380, 3, 20, 20, 14, 'r4y5k3', 0.6);
     tnStatic(P, LK.tnMournerW, { x: 108, y: 420, z: 3, face: 1, clip: 'tnMourn', h: 118, tt: 1.7 });
   },
   front(P) {
     const I = (a, b, c) => P.I(a, b, c);
-    P.box(417, 13, 0, 6, 6, 104, 'r4y5k3', 0.6);
+    P.box(417, 13, 0, 6, 6, 104, 'r4y5k3', 0.6); for (const x of [250, 420]) P.box(x - 3, 127, 0, 6, 6, 104, 'r4y5k3', 0.6);
     for (let i = 0; i <= 6; i++) P.line([I(250 + i * 28, 16, 104), I(250 + i * 28, 130, 104)], 1.4, { ink: 3 });
     P.line([I(250, 130, 104), I(420, 130, 104)], 1.8); P.line([I(250, 16, 104), I(420, 16, 104)], 1.8);
     for (let i = 0; i < 16; i++) { const c = I(250 + (i * 53) % 170, 20 + (i * 37) % 108, 106); P.shape(Lib.bumpy(P, c[0], c[1] - 3, 10, 5, 5), i % 3 ? 'y5b6' : 'y4b5k2', 0.5); if (i % 4 === 1) P.fill(P.disc(c[0] + 4, c[1] + 6, 3.2, 8), 'r6b6', {}); }
@@ -470,7 +474,7 @@ const SCENES = [
     'Pas de fête juive attachée à ce passage. « Aussitôt, dit Chimon le Juste, je me suis levé et je l’ai embrassé sur la tête : mon fils, que les nazirs comme toi se multiplient en Israël. » Il lui appliqua le verset « un homme qui fait un vœu de nazir pour se consacrer à l’Éternel » (Nombres 6, 2). Le nazir s’abstient de vin et ne se coupe pas les cheveux ; au terme de son vœu, il les rase à l’entrée du Tabernacle et les jette au feu sous le sacrifice (Nombres 6, 18).'],
   back(P) {
     tnSky(P, { sun: [200, 180, 24], clouds: [[560, 140, 170, 28], [840, 220, 100, 20]] });
-    Lib.mound(P, 60, -40, 120, 150, 'y4b4k2'); Lib.mound(P, -40, 160, 100, 110, 'y5b3k2');
+    Lib.mound(P, 60, -40, 130, 110, 'y5b3', { shade: 'b1k1' }); Lib.mound(P, -40, 160, 100, 80, 'y4b3', { shade: 'b1k1' });
     Lib.platform(P, 'y5b3', 'y4r3k2');
     const I = (a, b, c) => P.I(a, b, c);
     P.shape([I(300, 0, 0.3), I(540, 0, 0.3), I(540, 200, 0.3), I(300, 200, 0.3)], 'y2r1', 0.7);
@@ -499,11 +503,11 @@ const SCENES = [
     const sp = P.I(96, 118, 30); for (let i = 0; i < 5; i++) { const u = (t * 0.8 + i / 5) % 1; P.fill(P.disc(sp[0] + u * 26 + i * 2, sp[1] + u * u * 50, 2.6, 6), 'b3', { noKnock: true }); }
   },
   chars: [
-    ch(LK.tnShepherd, { x: 208, y: 214, face: -1, clip: 'tnGaze', h: 126, hold: { n: 'tnCurls' } }),
+    ch(LK.tnShepherd, { x: 212, y: 216, face: -1, clip: 'tnGaze', h: 132, hold: { n: 'tnCurls' } }),
     ch(LK.tnKohen, { x: 420, y: 280, face: -1, clip: 'tnEmbrace', h: 146, hold: { n: 'tnChoshen' } }),
-    ch(LK.tnNazir, { x: 368, y: 290, face: 1, clip: 'bow', h: 128, t0: 0.4 }),
+    ch(LK.tnNazir, { x: 332, y: 300, face: 1, clip: 'bow', h: 128, t0: 0.4 }),
     ch(LK.tnLevite, { x: 500, y: 250, face: -1, clip: 'idle', h: 138, hold: { f: 'staffV' } }),
-    { beast: 'ram', h: 62, x: 330, y: 360, face: 1 },
+    { beast: 'ram', h: 62, x: 290, y: 380, face: 1 },
     { beast: 'sheep', h: 64, x: 140, y: 330, face: 1 },
     { beast: 'sheep', h: 58, speed: 8, path: [W(60, 330, 4), W(120, 410, 5), W(60, 330, 0)] }
   ]
@@ -516,13 +520,13 @@ const SCENES = [
     'Correspondance : <b>Ticha Beav</b>, jour de deuil et de jeûne pour la destruction des deux Temples, où l’on n’étudie que des textes de deuil ; beaucoup lisent alors ces pages de Guittin. Le Talmud (Yoma 9b) enseigne que le second Temple fut détruit à cause de la haine gratuite, qui pèse autant que l’idolâtrie, la débauche et le meurtre réunis. Le Rav Kook répondait qu’on le rebâtira par l’amour gratuit.'],
   back(P) {
     tnSky(P, { dusk: 'r2y3' });
-    tnJerusalem(P, 790, 516, 0.95, { fire: 1, hill: 'y4r3k3' });
+    tnJerusalem(P, 790, 470, 1.15, { fire: 1, hill: 'y4r3k3' });
     Lib.platform(P, 'y3r2k1', 'y4r3k2', { pebbles: false });
     const I = (a, b, c) => P.I(a, b, c);
     for (let i = 0; i < 12; i++) for (let j = 0; j < 12; j++) if ((i + j) % 2) P.fill([I(i * 45, j * 45, 0.3), I(i * 45 + 45, j * 45, 0.3), I(i * 45 + 45, j * 45 + 45, 0.3), I(i * 45, j * 45 + 45, 0.3)], 'y2r1', {});
     P.shape([I(110, 190, 0.5), I(420, 190, 0.5), I(420, 440, 0.5), I(110, 440, 0.5)], 'r6b3k1', 0.9); P.shape([I(125, 205, 0.7), I(405, 205, 0.7), I(405, 425, 0.7), I(125, 425, 0.7)], 'y6r3', 0.5); P.shape([I(140, 220, 0.9), I(390, 220, 0.9), I(390, 410, 0.9), I(140, 410, 0.9)], 'r6b3k1', 0.5);
-    P.box(0, 0, 0, 16, 540, 180, 'y3r2k1'); P.box(16, 0, 0, 524, 14, 70, 'y3r2k2');
-    for (let i = 0; i < 13; i++) P.box(20 + i * 40, 0, 70, 10, 14, 26, 'y3r2k1', 0.6); P.box(16, 0, 96, 524, 14, 6, 'y3r2k2', 0.6);
+    P.box(0, 0, 0, 16, 540, 180, 'y3r2k1'); P.box(16, 0, 0, 524, 14, 30, 'y3r2k2');
+    for (let i = 0; i < 26; i++) P.box(22 + i * 20, 3, 30, 6, 8, 16, 'y3r2k1', 0.5); P.box(16, 0, 46, 524, 14, 5, 'y3r2k2', 0.6);
     for (const [b, w] of [[40, 90], [180, 90], [320, 90]]) { P.shape([I(16.5, b, 30), I(16.5, b + w, 30), I(16.5, b + w, 150), I(16.5, b, 150)], 'r6b4k1', 0.8); for (let k = 1; k < 5; k++) P.line([I(16.7, b + k * w / 5, 36), I(16.7, b + k * w / 5, 146)], 0.5); P.line([I(16.7, b + 6, 138), I(16.7, b + w - 6, 138)], 1.6, { ink: 0, lvl: 8, taper: 0 }); }
     { const y = 440, w = 50, pts = [I(16.5, y, 0)]; for (let i = 0; i <= 8; i++) { const a = Math.PI - Math.PI * i / 8; pts.push(I(16.5, y + w / 2 + Math.cos(a) * w / 2, 80 + Math.sin(a) * w / 2)); } pts.push(I(16.5, y + w, 0)); P.shape(pts, 'k7r3', 1); }
     for (const [x, y] of [[180, 110], [360, 110]]) { const q = P.I(x, y, 200); P.line([P.I(x, y, 260), q], 0.5); P.halo(q[0], q[1], 30, ['y1r1', 'y2r1']); P.shape([[q[0] - 12, q[1]], [q[0] + 12, q[1]], [q[0] + 7, q[1] + 6], [q[0] - 7, q[1] + 6]], 'y6r3k2', 0.6); for (const dx of [-8, 0, 8]) Lib.flame(P, q[0] + dx, q[1], 4, 9, dx, { noKnock: true }); }
@@ -531,7 +535,7 @@ const SCENES = [
     for (let i = 0; i < 5; i++) { const q = P.I(46, 140 + i * 55, 24); P.shape(Lib.bumpy(P, q[0], q[1] - 4, 12, 5, 6), 'y2r2', 0.5); }
     P.box(120, 40, 0, 270, 38, 24, 'r5b3k1', 0.8); P.box(120, 40, 24, 270, 12, 22, 'r5b3k2', 0.7);
   },
-  live(P, t) { tnFire(P, t, 790, 516, 0.95); },
+  live(P, t) { tnFire(P, t, 790, 470, 1.15); },
   chars: [
     { depth: 490, draw(P, t) { tnLowTable(P, 130, 104, 250, 36, [[160, 'r7y4'], [220, 'y8'], [280, 'r6b5'], [340, 'y6b5']], t); } },
     { depth: 380, draw(P, t) { tnLowTableY(P, 84, 140, 34, 230, [[170, 'y8'], [240, 'r7y4'], [310, 'y6b5']], t); } },

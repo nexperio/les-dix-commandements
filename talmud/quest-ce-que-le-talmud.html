@@ -1590,7 +1590,6 @@ const tlRoom = (P, o) => {
   Lib.wallL(P, 0, 0, L, 28, tadd(o.wl, 'r1k2'), 0.7); Lib.wallR(P, 0, 0, L, 28, tadd(o.wl, 'r1k3'), 0.7);
   Lib.wallL(P, 0, H - 28, L, 9, o.band || 'b5y2', 0.5); Lib.wallR(P, 0, H - 28, L, 9, o.band || 'b5y2', 0.5);
   for (let v = 0; v < L; v += 18) { Lib.wallL(P, v + 4, H - 26, 8, 5, o.band2 || 'y7r2', 0); Lib.wallR(P, v + 4, H - 26, 8, 5, o.band2 || 'y7r2', 0); }
-  for (let v = 60; v < L; v += 90) { P.box(-2, v, H - 14, 540, 10, 10, 'r4y5k3', 0.5); }
 };
 const tlSkyIn = (P, pts, o) => {
   if (o.stars) { const r = rng(o.stars); for (let i = 0; i < 7; i++) { const q = pts(0.1 + r() * 0.8, 0.15 + r() * 0.75); Lib.star(P, q[0], q[1], 2 + r() * 2.5, r() > 0.5 ? 'y7' : 'y4'); } }
@@ -1614,7 +1613,7 @@ const tlLight = (P, pts, tn = 'y2r1') => P.fill(pts.map(([a, b]) => P.I(a, b, 0.
 /* armoire à rouleaux : niches carrées, bouts de rouleaux ronds (mur droit, face +y) */
 const tlScrollCaseR = (P, x, w, H, seed) => {
   const d = 26, r = rng(seed); P.box(x, 1, 0, w, d, H, 'r4y5k2');
-  const cols = Math.max(2, Math.round(w / 30)), rows = Math.max(2, Math.round((H - 16) / 30)), cw = (w - 8) / cols, rh = (H - 16) / rows;
+  const cols = Math.max(2, Math.round(w / 42)), rows = Math.max(2, Math.round((H - 16) / 38)), cw = (w - 8) / cols, rh = (H - 16) / rows;
   for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
     const x0 = x + 4 + i * cw + 2, z0 = 8 + j * rh + 2, F = (a, b) => P.I(x0 + a, d + 1.4, z0 + b);
     P.fill([F(0, 0), F(cw - 4, 0), F(cw - 4, rh - 4), F(0, rh - 4)], 'k6r2', {});
@@ -1624,7 +1623,7 @@ const tlScrollCaseR = (P, x, w, H, seed) => {
 };
 const tlScrollCaseL = (P, y, w, H, seed) => {
   const d = 26, r = rng(seed); P.box(1, y, 0, d, w, H, 'r4y5k2');
-  const cols = Math.max(2, Math.round(w / 30)), rows = Math.max(2, Math.round((H - 16) / 30)), cw = (w - 8) / cols, rh = (H - 16) / rows;
+  const cols = Math.max(2, Math.round(w / 42)), rows = Math.max(2, Math.round((H - 16) / 38)), cw = (w - 8) / cols, rh = (H - 16) / rows;
   for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
     const y0 = y + 4 + i * cw + 2, z0 = 8 + j * rh + 2, F = (a, b) => P.I(d + 1.4, y0 + a, z0 + b);
     P.fill([F(0, 0), F(cw - 4, 0), F(cw - 4, rh - 4), F(0, rh - 4)], 'k6r2', {});
@@ -1697,6 +1696,13 @@ const tlFarWall = (P, x0, x1, yb, h, tn = 'y5r3k1') => {
   for (let x = x0 + 20; x < x1 - 10; x += 46) { P.shape([[x, yb], [x, yb - h - 12], [x + 14, yb - h - 12], [x + 14, yb]], tadd(tn, 'k1'), 0.7); P.fill([[x + 5, yb - h - 4], [x + 9, yb - h - 4], [x + 9, yb - h + 3], [x + 5, yb - h + 3]], 'k6', { noKnock: true }); }
   for (let i = 0; i < 3; i++) P.line([[x0, yb - h * (0.3 + i * 0.22)], [x1, yb - h * (0.3 + i * 0.22)]], 0.35);
 };
+/* bande de pays lointain le long des bords arrière du plateau (coordonnées écran) */
+const tlHorizon = (P, side, hgt, tn, seed, o = {}) => {
+  const r = rng(seed), a = side === 'L' ? [33, 630] : [500, 360], b = side === 'L' ? [500, 360] : [967, 630], pts = [], n = 16;
+  for (let i = 0; i <= n; i++) { const k = i / n, x = lerp(a[0], b[0], k), y = lerp(a[1], b[1], k); const tp = Math.min(1, 6 * k * (1 - k)); pts.push([x, y - tp * (hgt * (0.55 + 0.45 * Math.sin(k * Math.PI * (o.waves || 2) + seed)) * (0.85 + r() * 0.3) + (o.rise || 0) * Math.sin(k * Math.PI))]); }
+  P.shape(pts.concat([[b[0], b[1] + 8], [a[0], a[1] + 8]]), tn, 0.9);
+  return pts;
+};
 const tlPalmFar = (P, x, y, s) => { P.line([[x, y], [x + 3 * s, y - 30 * s]], 1.6 * s, { taper: 0.2 }); for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + (i - 2.5) * 0.55; P.line([[x + 3 * s, y - 30 * s], [x + 3 * s + Math.cos(a) * 16 * s, y - 30 * s + Math.sin(a) * 8 * s + 6 * s]], 1.3 * s, { ink: 3, lvl: 7 }); } };
 /* la page de Vilna : Mp(u, v) → point écran, u = 0 bord extérieur, u = 1 côté reliure ; v = 0 haut */
 const tlVilna = (P, Mp, o = {}) => {
@@ -1738,11 +1744,13 @@ const SCENES = [
   more: ['Le traité des Pères s’ouvre sur une chaîne. Avec la Torah écrite, Moïse reçut au Sinaï son explication, transmise de bouche à oreille : la Torah orale. Josué la reçut de lui, puis les Anciens qui lui survécurent, puis les prophètes, jusqu’aux hommes de la Grande Assemblée, les sages réunis autour d’Esdras au retour de l’exil de Babylone. La même michna rapporte leurs trois paroles : « Soyez mesurés dans le jugement, formez beaucoup de disciples, et faites une haie autour de la Torah. »',
     'Le premier chapitre d’Avot poursuit la chaîne : Chimon le Juste, Antigone de Sokho, puis les couples de maîtres jusqu’à Hillel et Chammaï, et Rabban Yohanan ben Zakkaï. C’est cette parole transmise qui fut mise par écrit dans la Michna, puis commentée dans la Guemara ; les deux ensemble forment le Talmud. Dans l’introduction de son Michné Torah, Maïmonide compte quarante générations de maîtres, de Moïse à Rav Achi.'],
   back(P) {
-    P.halo(330, 110, 170, ['y1', 'y2', 'y2r1', 'y3r1']);
-    Lib.mound(P, -80, 150, 170, 310, 'y4r3k3', { px: 10 });
-    Lib.cloud(P, 330, 120, 190, 40, 'b1'); Lib.cloud(P, 250, 150, 110, 26, 'b1');
-    Lib.mound(P, 140, -90, 90, 130, 'y4r3k2'); Lib.mound(P, 300, -70, 80, 90, 'y5r3k2');
-    Lib.cloud(P, 820, 140, 150, 30, 'b1');
+    P.halo(320, 70, 190, ['y1', 'y2', 'y2r1', 'y3r1']);
+    tlHorizon(P, 'L', 60, 'y4r3k2', 3); tlHorizon(P, 'R', 40, 'y5r3k1', 5);
+    Lib.mound(P, -130, 100, 200, 290, 'y4r3k3', { px: 10 });
+    Lib.mound(P, -40, 250, 110, 150, 'y4r2k3');
+    Lib.cloud(P, 330, 80, 200, 40, 'b1'); Lib.cloud(P, 240, 110, 110, 26, 'b1');
+    Lib.mound(P, 150, -80, 90, 130, 'y4r3k2'); Lib.mound(P, 320, -60, 80, 90, 'y5r3k2');
+    Lib.cloud(P, 820, 160, 150, 30, 'b1'); Lib.bird(P, 700, 230, 1.4, 0.3); Lib.bird(P, 735, 250, 1.1, 0.6);
     Lib.platform(P, 'y5r3k1', 'y4r3k2', { h: 50 });
     /* le chemin de la chaîne */
     for (let i = 0; i < TL_CHAIN.length - 1; i++) { const a = TL_CHAIN[i], b = TL_CHAIN[i + 1]; P.fill([P.I(a[0] - 4, a[1] - 26, 0.4), P.I(b[0] - 4, b[1] - 26, 0.4), P.I(b[0] + 4, b[1] + 26, 0.4), P.I(a[0] + 4, a[1] + 26, 0.4)], 'y3r2', {}); }
@@ -1757,15 +1765,14 @@ const SCENES = [
     tlColumns(P, 'L', 40, 120, 372, 3, 150, 'y2r1k1');
     tlColumns(P, 'R', 380, 505, 118, 3, 150, 'y2r1k1');
     P.box(356, 14, 166, 170, 122, 10, 'y3r2k2', 0.9);
-    tlStatic(P, LK.tlStu4, { x: 430, y: 60, z: 12, face: -1, clip: 'tlWrite', h: 118, hold: { nTop: 'tlTablet' } });
-    tlStatic(P, LK.tlStu2, { x: 470, y: 70, z: 12, face: -1, clip: 'tlSitRead', h: 118, hold: { nTop: 'scroll' } });
-    Lib.palm(P, 250, 60, 0, 150, { lean: 14, dates: 1 }); Lib.palm(P, 520, 250, 0, 140, { lean: -10 });
+    P.box(420, 70, 12, 60, 36, 26, 'r4y5k3', 0.8); { const q = P.I(450, 88, 38); tlRolled(P, q[0], q[1] - 5, 0.9); }
+    Lib.palm(P, 250, 60, 0, 150, { lean: 14, dates: 1 }); Lib.palm(P, 505, 430, 0, 140, { lean: -10, dates: 1 });
     Lib.stones(P, 30, 'y3r2k3', [20, 380, 500, 150]);
     Lib.grass(P, 26, 'y5b4', [120, 400, 300, 120]);
     Lib.jar(P, 90, 440, 0, 1.2); Lib.jar(P, 112, 452, 0, 1, 'b5y3');
     Lib.bush(P, 300, 470, 0, 16); Lib.bush(P, 490, 330, 0, 14);
   },
-  live(P, t) { const q = [330, 104]; for (let i = 0; i < 3; i++) { const a = t * 0.4 + i * 2.1; P.line([[q[0] + Math.cos(a) * 60, q[1] + 20 + Math.sin(a) * 10], [q[0] + Math.cos(a + 0.6) * 90, q[1] + 26 + Math.sin(a + 0.6) * 14]], 1.2, { ink: 0, lvl: 6 }); } },
+  live(P, t) { const q = [320, 64]; for (let i = 0; i < 3; i++) { const a = t * 0.4 + i * 2.1; P.line([[q[0] + Math.cos(a) * 60, q[1] + 20 + Math.sin(a) * 10], [q[0] + Math.cos(a + 0.6) * 90, q[1] + 26 + Math.sin(a + 0.6) * 14]], 1.2, { ink: 0, lvl: 6 }); } },
   top(P, t) {
     const C = TL_C, u = ((t % C) + C) % C;
     if (u > C - 0.5) return;
@@ -1792,7 +1799,7 @@ const SCENES = [
   more: ['Rav Yehouda rapporte au nom de Rav : quand Moïse monta vers le ciel, il trouva Dieu occupé à nouer des couronnes aux lettres de la Torah. Il demanda pourquoi. Il viendra, lui fut-il répondu, dans bien des générations, un homme nommé Akiva ben Yossef, qui tirera de chaque trait des monceaux de lois. « Montre-le-moi. » « Retourne-toi. » Moïse se retrouve au dernier rang de la maison d’étude de Rabbi Akiva, et il ne comprend pas l’enseignement donné en son nom.',
     'Les maîtres lisent dans ce récit la nature de la Torah orale : elle grandit de génération en génération, au point que Moïse lui-même ne la reconnaît plus, et pourtant tout remonte au Sinaï, et c’est ce qui apaise Moïse. Le récit se poursuit : Moïse demande pourquoi la Torah est donnée par lui plutôt que par un tel homme, et s’entend répondre : « Tais-toi, ainsi en ai-je décidé. » La même page du Talmud énumère les sept lettres qui portent ces petites couronnes, les taguin.'],
   back(P) {
-    tlRoom(P, { wl: 'y3r2k1', band: 'b5r3', band2: 'y7r2', h: 250, floor: 'y4r3k2' });
+    tlRoom(P, { wl: 'y2b1k1', band: 'r5y3', band2: 'b6', h: 250, floor: 'y4r2k1' });
     tlWinR(P, 110, 90, 70, 110, 'b2y1', { sun: 7, hills: 'y4b3k1' });
     tlLight(P, [[110, 2], [180, 2], [240, 120], [170, 120]], 'y3r2k1');
     tlScrollCaseR(P, 200, 90, 180, 21);
@@ -1804,16 +1811,16 @@ const SCENES = [
     /* huit rangées d'élèves, de la plus proche du maître à la plus lointaine */
     const L = [LK.tlStu1, LK.tlStu2, LK.tlStu3, LK.tlStu4, LK.tlStu5, LK.tlStu6], cl = ['tlSitRead', 'tlCalm', 'tlSitRead', 'tlNod'];
     let n = 0; const seats = [];
-    for (let r = 0; r < 8; r++) { const y = 140 + r * 45, xs = r % 2 ? [255, 345] : [215, 300, 385]; tlBench(P, (r % 2 ? 230 : 190), y + 10, r % 2 ? 150 : 225, 26); if (r === 7) continue; for (const x of xs) seats.push([x, y]); }
+    for (let r = 0; r < 8; r++) { const y = 140 + r * 45, xs = r % 2 ? [255, 345] : [215, 300, 385]; tlBench(P, (r % 2 ? 230 : 190), y + 10, r === 7 ? 250 : r % 2 ? 150 : 225, 26); if (r === 7) continue; for (const x of xs) seats.push([x, y]); }
     seats.sort((a, b) => a[0] + a[1] - b[0] - b[1]);
     for (const [x, y] of seats) { n++; tlStatic(P, L[n % 6], { x, y, face: 1, clip: cl[n % 4], h: 104, tt: n * 0.37, hold: n % 3 === 0 ? { nTop: 'scroll' } : undefined, noShadow: 1 }); }
     for (const [x, y] of [[255, 455], [345, 455]]) tlStatic(P, L[(x / 5) % 6 | 0], { x, y, face: 1, clip: 'tlSitRead', h: 104, tt: x * 0.01, noShadow: 1 });
   },
-  live(P, t) { tlOilLamp(P, t, 250, 250, 180, 250); tlOilLamp(P, t, 330, 420, 175, 250); },
+  live(P, t) { tlOilLamp(P, t, 250, 250, 180, 250); tlOilLamp(P, t, 330, 420, 175, 250); const q = P.I(450, 455, 66), p = 0.5 + 0.5 * Math.sin(t * 0.9); P.halo(q[0], q[1], 70 + p * 8, ['y1', 'y2', 'y3r1', 'y4r1'], {}); },
   chars: [
     ch(LK.tlAkiva, { x: 366, y: 60, z: 20, face: -1, clip: 'tlTeach', h: 136 }),
-    ch(LK.tlStu5, { x: 250, y: 90, face: 1, clip: 'point', h: 128, t0: 0.6 }),
-    ch(LK.tlMoses, { x: 440, y: 455, h: 116, noShadow: 1, path: [W(440, 455, 5, 'tlPuzzle', { f: 1 }), W(440, 455, 5, 'tlCalm', { f: 1 })] })
+    ch(LK.tlStu5, { x: 160, y: 110, face: 1, clip: 'point', h: 128, t0: 0.6 }),
+    ch(LK.tlMoses, { x: 450, y: 455, h: 124, noShadow: 1, path: [W(450, 455, 5, 'tlPuzzle', { f: 1 }), W(450, 455, 5, 'tlCalm', { f: 1 })] })
   ]
 },
 {
@@ -1824,12 +1831,14 @@ const SCENES = [
     'Le Talmud rapporte une critique : il aurait dû demander le salut de Jérusalem. Il répond que Rabban Yohanan craignait de ne rien obtenir du tout s’il demandait trop. Le Temple brûla, mais à Yavné, dans les vignes de la plaine côtière, la maison d’étude reprit son travail : on y prit les premières décisions pour une vie juive sans Temple (voir Michna Roch Hachana 4, 1 à 4), et c’est de cette école que sortit la Michna.'],
   back(P) {
     /* Jérusalem assiégée, au loin, sur ses collines */
-    tlFarHills(P, 40, 470, 560, 150, 'y4r3k2', 5);
-    tlFarWall(P, 130, 380, 455, 28, 'y5r3k1');
-    { const q = [255, 405]; P.shape([[q[0] - 34, q[1]], [q[0] - 34, q[1] - 30], [q[0] + 34, q[1] - 30], [q[0] + 34, q[1]]], 'y6r2k1', 0.8); P.shape([[q[0] - 16, q[1] - 30], [q[0] - 16, q[1] - 56], [q[0] + 16, q[1] - 56], [q[0] + 16, q[1] - 30]], 'y7r2k1', 0.8); }
-    tlFarHills(P, 520, 990, 590, 60, 'y4b3k1', 9);
+    P.halo(250, 330, 150, ['r1', 'r1y1', 'r2y1'], {});
+    tlFarHills(P, 60, 450, 560, 200, 'y4r3k2', 5);
+    tlFarWall(P, 140, 370, 392, 30, 'y5r3k1');
+    { const q = [255, 364]; P.shape([[q[0] - 34, q[1]], [q[0] - 34, q[1] - 30], [q[0] + 34, q[1] - 30], [q[0] + 34, q[1]]], 'y6r2k1', 0.8); P.shape([[q[0] - 16, q[1] - 30], [q[0] - 16, q[1] - 56], [q[0] + 16, q[1] - 56], [q[0] + 16, q[1] - 30]], 'y7r2k1', 0.8); P.fill([[q[0] - 6, q[1] - 30], [q[0] + 6, q[1] - 30], [q[0] + 6, q[1] - 46], [q[0] - 6, q[1] - 46]], 'k6', { noKnock: true }); }
+    for (const [x, y] of [[110, 470], [170, 440], [390, 420], [420, 440]]) { const c = [x, y]; P.shape([[c[0] - 12, c[1]], [c[0] - 8, c[1] - 14], [c[0] + 8, c[1] - 14], [c[0] + 12, c[1]]], 'k3y2', 0.6); }
+    tlHorizon(P, 'R', 34, 'y4b3k1', 9, { waves: 3 });
     Lib.sun(P, 800, 150, 26); Lib.cloud(P, 690, 90, 150, 30, 'b1');
-    for (const x of [640, 700, 880]) tlPalmFar(P, x, 560, 1.2);
+    for (const x of [620, 700, 860]) tlPalmFar(P, x, 360 + (x - 500) * 0.577 - 20, 1.2);
     Lib.platform(P, 'y5r3k1', 'y4r3k2', { h: 50 });
     /* Yavné : les vignes et la maison d'étude basse */
     P.fill([P.I(250, 0, 0.3), P.I(540, 0, 0.3), P.I(540, 330, 0.3), P.I(250, 330, 0.3)], 'y5b3k1', {});
@@ -1845,28 +1854,28 @@ const SCENES = [
     const road = [[230, 340], [260, 260], [320, 200], [400, 150]]; for (let i = 0; i < road.length - 1; i++) { const a = road[i], b = road[i + 1]; P.fill([P.I(a[0] - 16, a[1] - 16, 0.5), P.I(b[0] - 16, b[1] - 16, 0.5), P.I(b[0] + 16, b[1] + 16, 0.5), P.I(a[0] + 16, a[1] + 16, 0.5)], 'y3r2', {}); }
     /* le camp romain : la tente du général, ouverte */
     P.fill([P.I(20, 230, 0.4), P.I(230, 230, 0.4), P.I(230, 530, 0.4), P.I(20, 530, 0.4)], 'y4r3k2', {});
-    P.shape([P.I(40, 250, 0), P.I(40, 430, 0), P.I(40, 430, 150), P.I(40, 250, 150)], 'r6y4k2', 1);
-    P.shape([P.I(40, 250, 0), P.I(190, 250, 0), P.I(190, 250, 150), P.I(40, 250, 150)], 'r6y4k3', 1);
-    for (let i = 1; i < 6; i++) { P.line([P.I(40.5, 250 + i * 30, 0), P.I(40.5, 250 + i * 30, 150)], 0.5); P.line([P.I(40 + i * 25, 250.5, 0), P.I(40 + i * 25, 250.5, 150)], 0.5); }
+    P.shape([P.I(40, 250, 0), P.I(40, 430, 0), P.I(40, 430, 200), P.I(40, 250, 200)], 'r6y4k2', 1);
+    P.shape([P.I(40, 250, 0), P.I(190, 250, 0), P.I(190, 250, 200), P.I(40, 250, 200)], 'r6y4k3', 1);
+    for (let i = 1; i < 6; i++) { P.line([P.I(40.5, 250 + i * 30, 0), P.I(40.5, 250 + i * 30, 200)], 0.5); P.line([P.I(40 + i * 25, 250.5, 0), P.I(40 + i * 25, 250.5, 200)], 0.5); }
     P.fill([P.I(40.6, 300, 60), P.I(40.6, 380, 60), P.I(40.6, 380, 120), P.I(40.6, 300, 120)], 'y7r3', {});
     { const c = P.I(40.8, 340, 90); P.shape([[c[0] - 10, c[1] - 12], [c[0] + 10, c[1] - 12], [c[0] + 14, c[1] + 2], [c[0], c[1] + 14], [c[0] - 14, c[1] + 2]], 'r7y3', 0.6); }
     tlMat(P, 60, 280, 120, 130, 'r6y3k2');
     P.box(94, 300, 0, 34, 40, 24, 'y6r3k2', 0.8);
-    for (const [x, y] of [[215, 238], [215, 440]]) { P.box(x - 3, y - 3, 0, 6, 6, 150, 'r4y5k3', 0.8); }
+    for (const [x, y] of [[215, 238], [215, 440]]) { P.box(x - 3, y - 3, 0, 6, 6, 200, 'r4y5k3', 0.8); }
     for (const [x, y] of [[250, 250], [250, 430]]) { const b = P.I(x, y, 0), a = P.I(x, y, 150); P.line([b, a], 1.6); P.shape([[a[0] - 10, a[1] + 6], [a[0] + 10, a[1] + 6], [a[0] + 10, a[1] + 34], [a[0], a[1] + 28], [a[0] - 10, a[1] + 34]], 'r8y3', 0.7); P.shape([[a[0] - 9, a[1] + 2], [a[0], a[1] - 10], [a[0] + 9, a[1] + 2], [a[0], a[1] - 2]], 'y8r2', 0.6); P.line([[a[0] - 12, a[1] + 4], [a[0] + 12, a[1] + 4]], 1.2); }
     Lib.stones(P, 22, 'y3r2k3', [20, 440, 250, 90]);
   },
   live(P, t) {
-    for (const [x, y, s] of [[180, 420, 1], [300, 420, 0.8], [230, 360, 0.7]]) { Lib.flame(P, x, y, 12 * s, 22 * s, t * 1.3 + x, { noKnock: true }); }
-    Lib.smoke(P, 180, 400, t, { n: 4, h: 200, r: 18, tn: 'k2b1', sp: 0.12 }); Lib.smoke(P, 300, 405, t + 3, { n: 4, h: 170, r: 14, tn: 'k2b1', sp: 0.12 });
+    for (const [x, y, s] of [[175, 362, 1], [320, 362, 0.9], [240, 334, 0.7], [290, 362, 0.6]]) { Lib.flame(P, x, y, 12 * s, 24 * s, t * 1.3 + x, { noKnock: true }); }
+    Lib.smoke(P, 175, 340, t, { n: 4, h: 200, r: 16, tn: 'k2b1', sp: 0.12 }); Lib.smoke(P, 320, 342, t + 3, { n: 4, h: 180, r: 13, tn: 'k2b1', sp: 0.12 });
   },
   front(P) {
     const I = (a, b, c) => P.I(a, b, c);
-    P.shape([I(40, 250, 150), I(215, 238, 150), I(215, 440, 150), I(40, 430, 150)], 'r6y4k1', 1);
-    P.shape([I(40, 430, 150), I(215, 440, 150), I(215, 440, 135), I(40, 430, 135)], 'r7y3k1', 0.9);
-    P.shape([I(215, 238, 150), I(215, 440, 150), I(215, 440, 135), I(215, 238, 135)], 'r7y3k2', 0.9);
-    for (let i = 0; i < 8; i++) { const q = I(215, 250 + i * 25, 135); P.fill(P.disc(q[0], q[1] + 3, 3, 6), 'y8r2', {}); }
-    P.shape([I(40, 250, 150), I(128, 339, 185), I(215, 238, 150)], 'r6y4k2', 1); P.shape([I(215, 238, 150), I(128, 339, 185), I(215, 440, 150)], 'r6y4', 1); P.shape([I(215, 440, 150), I(128, 339, 185), I(40, 430, 150)], 'r6y4k1', 1);
+    P.shape([I(40, 430, 200), I(215, 440, 200), I(215, 440, 184), I(40, 430, 184)], 'r7y3k1', 0.9);
+    P.shape([I(215, 238, 200), I(215, 440, 200), I(215, 440, 184), I(215, 238, 184)], 'r7y3k2', 0.9);
+    for (let i = 0; i < 8; i++) { const q = I(215, 250 + i * 25, 184); P.fill(P.disc(q[0], q[1] + 3, 3, 6), 'y8r2', {}); }
+    P.shape([I(40, 250, 200), I(128, 339, 236), I(215, 238, 200)], 'r6y4k2', 1); P.shape([I(215, 238, 200), I(128, 339, 236), I(215, 440, 200)], 'r6y4', 1); P.shape([I(215, 440, 200), I(128, 339, 236), I(40, 430, 200)], 'r6y4k1', 1);
+    for (const k of [0.33, 0.66]) { P.line([I(128, 339, 236), I(lerp(215, 215, k), lerp(238, 440, k), 200)], 0.5); P.line([I(128, 339, 236), I(lerp(40, 215, k), lerp(430, 440, k), 200)], 0.5); }
   },
   chars: [
     ch(LK.tlVespasian, { x: 112, y: 330, face: 1, clip: 'throne', h: 138 }),
@@ -1887,42 +1896,56 @@ const SCENES = [
     'À droite, trois siècles plus tard, dans l’académie de Soura en Babylonie, entre les palmiers et les canaux, Rav Achi et Ravina rassemblent et ordonnent les discussions des Amoraïm : la Guemara. Rachi explique « la fin de l’enseignement » comme la fin de l’époque des Amoraïm. Le Talmud parle de la « première » et de la « dernière » édition de Rav Achi (Bava Batra 157b) : il reprit tout l’enseignement deux fois. Michna et Guemara forment le Talmud de Babylone, trente-sept traités.'],
   back(P) {
     /* à gauche, les collines de Galilée ; à droite, la plaine de Babylonie */
-    tlFarHills(P, 20, 500, 600, 190, 'y4b4k1', 3); tlFarHills(P, 120, 420, 590, 120, 'y4b3k2', 4);
-    for (const [x, y] of [[150, 470], [210, 440], [330, 430], [380, 460]]) { P.shape(Lib.bumpy(P, x, y, 11, 8, 6), 'y4b5k2', 0.6); P.line([[x, y + 6], [x, y + 14]], 0.8); }
-    P.fill([[500, 470], [990, 470], [990, 600], [500, 600]], 'y5r2k1', {}); P.line([[500, 470], [990, 470]], 0.9);
-    for (const x of [560, 620, 700, 840, 900, 950]) tlPalmFar(P, x, 472, 1.1 + (x % 3) * 0.15);
-    P.shape([[740, 470], [760, 430], [800, 430], [820, 470]], 'y5r3k2', 0.7); P.shape([[765, 430], [772, 408], [790, 408], [796, 430]], 'y5r3k2', 0.6);
-    Lib.sun(P, 860, 130, 24); Lib.cloud(P, 250, 150, 170, 32, 'b1'); Lib.cloud(P, 700, 240, 110, 22, 'b1');
+    Lib.sun(P, 860, 150, 24); Lib.cloud(P, 250, 170, 170, 32, 'b1'); Lib.cloud(P, 720, 250, 110, 22, 'b1');
+    tlHorizon(P, 'L', 150, 'y4b4k1', 3, { waves: 2 }); tlHorizon(P, 'L', 80, 'y4b3k2', 7, { waves: 3 });
+    for (const [x, y] of [[150, 520], [210, 490], [300, 440], [360, 410], [250, 470]]) { P.shape(Lib.bumpy(P, x, y, 11, 8, 6), 'y4b5k2', 0.6); P.line([[x, y + 6], [x, y + 14]], 0.8); }
+    const hz = tlHorizon(P, 'R', 22, 'y5r2k1', 11, { waves: 1 });
+    for (const k of [2, 4, 7, 9, 12, 14]) tlPalmFar(P, hz[k][0], hz[k][1] + 6, 1.1 + (k % 3) * 0.15);
+    { const q = hz[10]; P.shape([[q[0] - 26, q[1] + 8], [q[0] - 16, q[1] - 22], [q[0] + 16, q[1] - 22], [q[0] + 26, q[1] + 8]], 'y5r3k2', 0.7); P.shape([[q[0] - 12, q[1] - 22], [q[0] - 8, q[1] - 40], [q[0] + 8, q[1] - 40], [q[0] + 12, q[1] - 22]], 'y5r3k2', 0.6); }
     Lib.platform(P, 'y5r3k1', 'y4r3k2', { h: 50 });
     P.fill([P.I(0, 0, 0.3), P.I(540, 540, 0.3), P.I(0, 540, 0.3)], 'y4b4k1', {});
-    Lib.grass(P, 30, 'y5b4', [20, 300, 200, 220]);
-    Lib.stones(P, 30, 'y3r2k3', [40, 40, 480, 480]);
+    Lib.grass(P, 34, 'y5b4', [20, 250, 220, 280]);
     for (let i = 0; i < 14; i++) { const u = 30 + i * 36, c = P.I(u, u, 0); P.shape(Lib.bumpy(P, c[0], c[1] - 3, 7, 4, 5), 'y3r2k3', 0.6); }
-    /* la maison de Rabbi : pierre, portique */
-    P.box(20, 200, 0, 90, 150, 110, { t: 'y3r2k1', l: 'y3r2', r: 'y3r2k2' });
-    P.shape([P.I(110.4, 240, 0), P.I(110.4, 290, 0), P.I(110.4, 290, 70), P.I(110.4, 240, 70)], 'k5r2', 0.7);
-    tlColumns(P, 'L', 250, 470, 140, 4, 120, 'y2r1k1');
-    P.shape([P.I(20, 350, 120), P.I(154, 350, 120), P.I(154, 486, 120), P.I(20, 486, 120)], 'y3r2k2', 0.6);
-    tlMat(P, 40, 360, 90, 110, 'r6b3k1');
-    Lib.tree(P, 60, 150, 0, { h: 120, r: 30, can: 'y3b4k2', trunk: 'r4y4k4' });
+    /* Galilée : la maison de pierre de Rabbi, un olivier */
+    P.box(16, 150, 0, 100, 160, 110, { t: 'y3r2k1', l: 'y3r2', r: 'y3r2k2' });
+    for (let z = 18; z < 110; z += 18) P.line([P.I(116, 150, z), P.I(116, 310, z)], 0.35);
+    P.shape([P.I(116.4, 200, 0), P.I(116.4, 244, 0), P.I(116.4, 244, 72), P.I(116.4, 200, 72)], 'k5r2', 0.8);
+    P.shape([P.I(116.4, 270, 50), P.I(116.4, 292, 50), P.I(116.4, 292, 74), P.I(116.4, 270, 74)], 'k5r2', 0.6);
+    Lib.tree(P, 70, 90, 0, { h: 130, r: 34, can: 'y3b4k2', trunk: 'r4y4k4', fruit: 7, fruitTone: 'k5b3' });
+    tlMat(P, 40, 340, 200, 150, 'r6b3k1');
+    P.box(52, 388, 0, 34, 34, 22, 'y6r3k2', 0.8);
+    for (const [x, y] of [[175, 370], [190, 450]]) P.box(x - 4, y - 16, 0, 18, 18, 30, 'r4y5k2', 0.7);
+    for (const [x, y] of [[36, 340], [36, 510], [240, 340], [240, 510]]) P.box(x - 4, y - 4, 0, 8, 8, 190, 'r4y5k3', 0.8);
+    Lib.jar(P, 30, 330, 0, 1.3); Lib.jar(P, 250, 520, 0, 1.1, 'b5y3');
     /* Soura : maison de briques crues, voûte, palmiers, canal */
-    P.box(390, 10, 0, 130, 80, 90, { t: 'y6r3k1', l: 'y5r3k1', r: 'y5r3k2' });
-    for (let z = 10; z < 90; z += 10) { P.line([P.I(390, 90, z), P.I(520, 90, z)], 0.35); P.line([P.I(520, 10, z), P.I(520, 90, z)], 0.35); }
-    { const I = (a, b, c) => P.I(a, b, c), pts = [I(430, 90.5, 0)]; for (let i = 0; i <= 10; i++) { const a = Math.PI - Math.PI * i / 10; pts.push(I(452 + Math.cos(a) * 22, 90.5, 44 + Math.sin(a) * 22)); } pts.push(I(474, 90.5, 0)); P.shape(pts, 'k6r2', 0.8); }
-    P.fill([P.I(505, 150, 0.4), P.I(540, 150, 0.4), P.I(540, 540, 0.4), P.I(505, 540, 0.4)], 'b5y1', {}); Lib.waves(P, [508, 160, 28, 370], 12, 0.5);
-    tlMat(P, 300, 110, 160, 110, 'r5y4k2');
-    Lib.palm(P, 330, 40, 0, 170, { lean: 16, dates: 1 }); Lib.palm(P, 480, 250, 0, 160, { lean: -12, dates: 1 }); Lib.palm(P, 470, 380, 0, 150, { lean: 10 });
-    P.box(430, 120, 0, 34, 28, 22, 'y5r3k2', 0.8);
+    P.box(380, 10, 0, 140, 90, 96, { t: 'y6r3k1', l: 'y5r3k1', r: 'y5r3k2' });
+    for (let z = 10; z < 96; z += 10) { P.line([P.I(380, 100, z), P.I(520, 100, z)], 0.35); P.line([P.I(520, 10, z), P.I(520, 100, z)], 0.35); }
+    { const I = (a, b, c) => P.I(a, b, c), pts = [I(426, 100.5, 0)]; for (let i = 0; i <= 10; i++) { const a = Math.PI - Math.PI * i / 10; pts.push(I(450 + Math.cos(a) * 24, 100.5, 46 + Math.sin(a) * 24)); } pts.push(I(474, 100.5, 0)); P.shape(pts, 'k6r2', 0.8); }
+    P.box(376, 6, 96, 148, 98, 6, 'y5r3k2', 0.7);
+    P.fill([P.I(500, 130, 0.4), P.I(540, 130, 0.4), P.I(540, 540, 0.4), P.I(500, 540, 0.4)], 'b5y1', {}); Lib.waves(P, [504, 140, 32, 390], 14, 0.5);
+    for (let i = 0; i < 9; i++) { const c = P.I(496, 150 + i * 44, 0); P.line([[c[0], c[1]], [c[0] - 2, c[1] - 16]], 0.8, { ink: 2 }); P.line([[c[0] + 3, c[1]], [c[0] + 5, c[1] - 12]], 0.8, { ink: 3 }); }
+    tlMat(P, 300, 110, 180, 110, 'r5y4k2');
+    P.box(400, 100, 0, 44, 36, 14, 'b5r3k2', 0.8);
+    for (const [x, y] of [[330, 105], [345, 180]]) P.box(x - 14, y - 2, 0, 18, 18, 30, 'r4y5k2', 0.7);
+    Lib.palm(P, 300, 30, 0, 170, { lean: 16, dates: 1 }); Lib.palm(P, 470, 300, 0, 160, { lean: -12, dates: 1 }); Lib.palm(P, 420, 420, 0, 150, { lean: 10 });
+    Lib.stones(P, 16, 'y3r2k3', [280, 280, 200, 200]);
+  },
+  front(P) {
+    /* la treille de Rabbi */
+    const I = (a, b, c) => P.I(a, b, c), z = 190;
+    for (const [a, b] of [[[36, 340], [240, 340]], [[36, 510], [240, 510]], [[36, 340], [36, 510]], [[240, 340], [240, 510]]]) P.line([I(a[0], a[1], z), I(b[0], b[1], z)], 2.2, { ink: 3, lvl: 8, taper: 0 });
+    for (let i = 1; i < 6; i++) P.line([I(36 + i * 34, 340, z), I(36 + i * 34, 510, z)], 1, { ink: 3, lvl: 7, taper: 0 });
+    for (let i = 0; i < 26; i++) { const x = 40 + P.r() * 196, y = 344 + P.r() * 162, c = I(x, y, z + 2); P.shape([[c[0], c[1]], [c[0] + 9, c[1] - 6], [c[0] + 14, c[1] - 1], [c[0] + 5, c[1] + 4]], i % 3 ? 'y5b6' : 'y4b5k2', 0.5); if (i % 5 === 0) P.fill(P.disc(c[0] + 4, c[1] + 7, 3.2, 8), 'r6b6', {}); }
   },
   chars: [
-    ch(LK.tlRabbi, { x: 62, y: 400, z: 0, face: 1, clip: 'tlTeach', h: 138 }),
-    ch(LK.tlNathan, { x: 110, y: 470, face: 1, clip: 'tlRead', h: 136, t0: 0.6, hold: { nTop: 'scroll' } }),
-    ch(LK.tlStu1, { x: 150, y: 330, face: -1, clip: 'tlWrite', h: 118, hold: { nTop: 'tlTablet' }, noShadow: 1 }),
-    ch(LK.tlStu3, { x: 175, y: 405, face: -1, clip: 'tlWrite', h: 110, t0: 0.4, hold: { nTop: 'tlTablet' }, noShadow: 1 }),
-    ch(LK.tlAshi, { x: 430, y: 130, z: 22, face: -1, clip: 'tlTeach', h: 136, t0: 1 }),
-    ch(LK.tlRavina, { x: 390, y: 210, face: -1, clip: 'tlArgue', h: 136, t0: 0.3 }),
-    ch(LK.tlStu4, { x: 320, y: 140, face: 1, clip: 'tlWrite', h: 118, t0: 0.2, hold: { nTop: 'tlTablet' }, noShadow: 1 }),
-    ch(LK.tlStu5, { x: 330, y: 205, face: 1, clip: 'tlWrite', h: 116, t0: 0.7, hold: { nTop: 'tlTablet' }, noShadow: 1 })
+    ch(LK.tlRabbi, { x: 70, y: 405, z: 0, face: 1, clip: 'tlTeach', h: 138 }),
+    ch(LK.tlNathan, { x: 90, y: 480, face: 1, clip: 'tlRead', h: 136, t0: 0.6, hold: { nTop: 'scroll' } }),
+    ch(LK.tlStu1, { x: 175, y: 370, face: -1, clip: 'tlWrite', h: 118, hold: { nTop: 'tlTablet' }, noShadow: 1 }),
+    ch(LK.tlStu3, { x: 190, y: 450, face: -1, clip: 'tlWrite', h: 110, t0: 0.4, hold: { nTop: 'tlTablet' }, noShadow: 1 }),
+    ch(LK.tlAshi, { x: 425, y: 118, z: 14, face: -1, clip: 'tlTeach', h: 136, t0: 1 }),
+    ch(LK.tlRavina, { x: 450, y: 200, face: -1, clip: 'tlArgue', h: 136, t0: 0.3 }),
+    ch(LK.tlStu4, { x: 330, y: 105, face: 1, clip: 'tlWrite', h: 118, t0: 0.2, hold: { nTop: 'tlTablet' }, noShadow: 1 }),
+    ch(LK.tlStu5, { x: 345, y: 180, face: 1, clip: 'tlWrite', h: 116, t0: 0.7, hold: { nTop: 'tlTablet' }, noShadow: 1 })
   ]
 },
 {
@@ -1932,25 +1955,27 @@ const SCENES = [
   more: ['Chmouel rapporte : pendant trois ans, l’école de Chammaï et l’école de Hillel furent en désaccord ; les uns disaient « la loi suit notre avis », les autres de même. Une voix céleste sortit et dit : « Celles-ci et celles-là sont paroles du Dieu vivant, et la loi suit l’école de Hillel. » Le passage cité répond à la question qui suit : si les deux avis sont vrais, pourquoi trancher selon Hillel ? À cause de l’humilité de ses élèves.',
     'Le Talmud en tire aussitôt une leçon : « Celui qui s’abaisse, le Saint, béni soit-Il, l’élève ; celui qui court après la grandeur, la grandeur le fuit. » Les avis de l’école de Chammaï restent pourtant étudiés, car la Michna garde aussi les opinions qu’on ne suit pas (Edouyot 1, 5 et 6). C’est la marque de tout le Talmud : on y conserve la discussion entière, avec ses objections et ses réponses, et pas seulement la décision.'],
   back(P) {
-    Lib.sun(P, 250, 120, 22); Lib.cloud(P, 780, 150, 170, 34, 'b1'); Lib.cloud(P, 360, 210, 110, 22, 'b1');
-    tlFarWall(P, 560, 960, 520, 40, 'y5r3k1');
+    Lib.sun(P, 250, 120, 22); Lib.cloud(P, 780, 150, 170, 34, 'b1');
+    P.halo(500, 40, 110, ['y1', 'y2', 'y2r1'], {}); Lib.cloud(P, 500, 50, 200, 34, 'y2');
+    tlHorizon(P, 'R', 60, 'y5r3k1', 4, { rise: 30 }); tlHorizon(P, 'L', 50, 'y4r3k2', 8);
     Lib.platform(P, 'y4r3k1', 'y4r3k2', { h: 48 });
     for (let v = 30; v < 540; v += 30) { P.line([P.I(v, 0, 0), P.I(v, 540, 0)], 0.35); P.line([P.I(0, v, 0), P.I(540, v, 0)], 0.35); }
     P.box(0, 0, 0, 12, 540, 110, 'y3r2k1'); P.box(12, 0, 0, 528, 12, 110, 'y3r2k2');
     tlColumns(P, 'R', 60, 500, 40, 6, 150, 'y2r1k1');
     tlColumns(P, 'L', 90, 500, 40, 6, 150, 'y2r1k1');
-    P.cyl(270, 150, 0, 34, 20, 'y3r2k2', 0.9, 20); P.shape(P.ell(270, 150, 20.5, 26, 26, 20), 'b5y1', 0.6);
-    for (const [x, y] of [[80, 120], [120, 80]]) P.box(x - 20, y - 20, 0, 40, 40, 18, 'y3r2k2', 0.8);
-    P.box(80, 180, 0, 26, 120, 20, 'y3r2k2', 0.8); P.box(180, 80, 0, 120, 26, 20, 'y3r2k2', 0.8);
+    P.cyl(110, 110, 0, 36, 20, 'y3r2k2', 0.9, 20); P.shape(P.ell(110, 110, 20.5, 28, 28, 20), 'b5y1', 0.6); Lib.waves(P, [95, 95, 30, 30], 3, 21);
+    P.box(70, 210, 0, 22, 110, 20, 'y3r2k2', 0.8); P.box(210, 70, 0, 110, 22, 20, 'y3r2k2', 0.8);
+    tlMat(P, 60, 380, 190, 120, 'y5b3k1'); tlMat(P, 300, 60, 190, 170, 'r5y2k2');
     Lib.tree(P, 500, 470, 0, { h: 140, r: 36, can: 'y3b4k2', trunk: 'r4y4k4', fruit: 6, fruitTone: 'k5b3' });
     Lib.jar(P, 60, 480, 0, 1.3); Lib.jar(P, 84, 492, 0, 1.1, 'b5y3');
   },
   top(P, t) {
-    const g = P.I(270, 270, 0), p = 0.5 + 0.5 * Math.sin(t * 1.2), w0 = 8, w1 = 34 + p * 8;
-    P.fill([[g[0] - w0, -10], [g[0] + w0, -10], [g[0] + w1, g[1]], [g[0] - w1, g[1]]], 'y2', { noKnock: true });
-    P.fill([[g[0] - w0 * 0.4, -10], [g[0] + w0 * 0.4, -10], [g[0] + w1 * 0.45, g[1]], [g[0] - w1 * 0.45, g[1]]], 'y3r1', { noKnock: true });
+    const g = P.I(270, 270, 0), p = 0.5 + 0.5 * Math.sin(t * 1.2), w0 = 30, w1 = 40 + p * 10, y0 = 56;
+    P.fill([[g[0] - w0, y0], [g[0] + w0, y0], [g[0] + w1, g[1]], [g[0] - w1, g[1]]], 'y1', { noKnock: true });
+    P.fill([[g[0] - w0 * 0.55, y0], [g[0] + w0 * 0.55, y0], [g[0] + w1 * 0.55, g[1]], [g[0] - w1 * 0.55, g[1]]], 'y2', { noKnock: true });
+    P.fill([[g[0] - w0 * 0.2, y0], [g[0] + w0 * 0.2, y0], [g[0] + w1 * 0.2, g[1]], [g[0] - w1 * 0.2, g[1]]], 'y3r1', { noKnock: true });
     P.halo(g[0], g[1], 60 + p * 10, ['y1', 'y2', 'y3r1'], { sq: 0.4 });
-    for (let i = 0; i < 5; i++) { const u = (t * 0.35 + i / 5) % 1, y = lerp(40, g[1] - 10, u); P.fill(P.disc(g[0] + Math.sin(u * 9 + i) * 12, y, 2.2, 6), 'y6r1', { noKnock: true }); }
+    for (let i = 0; i < 7; i++) { const u = (t * 0.35 + i / 7) % 1, y = lerp(60, g[1] - 10, u); P.fill(P.disc(g[0] + Math.sin(u * 9 + i) * 12, y, 2.2, 6), 'y6r1', { noKnock: true }); }
   },
   chars: [
     ch(LK.tlHillel, { x: 150, y: 330, face: 1, clip: 'talk', h: 136 }),
@@ -1969,7 +1994,7 @@ const SCENES = [
   more: ['Rav Nahman bar Yitshak demande pourquoi les paroles de la Torah sont comparées à un arbre, comme il est dit : « Elle est un arbre de vie pour ceux qui la saisissent » (Proverbes 3, 18). C’est, répond-il, que le petit bois allume le grand : les questions des jeunes élèves obligent les maîtres à aller plus loin. Au fond de la salle, le brasero le montre ; au centre, un maître écoute l’objection d’un tout jeune élève et lui donne raison.',
     'Sur la même page, Rabbi Hama bar Hanina lit : « Le fer aiguise le fer » (Proverbes 27, 17) ; ainsi deux savants s’aiguisent l’un l’autre dans l’étude de la loi. De là vient l’étude en ‘havrouta, à deux, face à face, à voix haute, chacun cherchant la faille dans le raisonnement de l’autre. Pirké Avot le dit aussi : « Fais-toi un maître, acquiers-toi un compagnon » (1, 6), et le Talmud va jusqu’à dire « la ‘havrouta ou la mort » (Taanit 23a).'],
   back(P) {
-    tlRoom(P, { wl: 'y3r2k2', band: 'b6r2', band2: 'y6r3', h: 240, floor: 'y4r3k3' });
+    tlRoom(P, { wl: 'b3y2k1', band: 'r5y4', band2: 'y7r2', h: 240, floor: 'y4r2k2' });
     tlWinR(P, 300, 90, 70, 100, 'b7k3', { stars: 4, moon: 6 });
     tlScrollCaseR(P, 70, 200, 190, 31); tlScrollCaseR(P, 400, 120, 190, 32);
     tlScrollCaseL(P, 330, 190, 190, 33);
@@ -1978,14 +2003,15 @@ const SCENES = [
     tlStatic(P, LK.tlStu6, { x: 64, y: 170, face: 1, clip: 'tlSitRead', h: 116, hold: { nTop: 'scroll' }, noShadow: 1 });
     tlStatic(P, LK.tlStu2, { x: 64, y: 250, face: 1, clip: 'tlNod', h: 116, noShadow: 1, tt: 0.8 });
     /* le brasero : les brindilles allument la grosse bûche */
-    P.cyl(440, 420, 0, 26, 18, 'r5y4k3', 0.9, 18); P.shape(P.ell(440, 420, 18.5, 21, 21, 18), 'k6r3', 0.6);
-    P.box(420, 405, 18, 44, 14, 12, 'r4y4k4', 0.8); for (let i = 0; i < 5; i++) { const a = P.I(422 + i * 6, 426, 19), b = P.I(428 + i * 6, 434, 32); P.line([a, b], 1, { ink: 3 }); }
+    P.cyl(440, 420, 0, 36, 10, 'y3r2k2', 0.9, 18); P.cyl(440, 420, 10, 30, 22, 'r5y4k3', 0.9, 18); P.shape(P.ell(440, 420, 32.5, 25, 25, 18), 'k6r3', 0.6);
+    P.box(418, 404, 32, 48, 16, 13, 'r4y4k4', 0.8); for (let i = 0; i < 6; i++) { const a = P.I(420 + i * 7, 428, 33), b = P.I(426 + i * 7, 438, 46); P.line([a, b], 1.1, { ink: 3 }); }
+    for (let i = 0; i < 4; i++) P.box(470 + (i % 2) * 8, 470, i * 9, 50, 12, 8, 'r4y4k3', 0.6);
     Lib.jar(P, 490, 460, 0, 1.2); Lib.jar(P, 380, 490, 0, 1, 'b5y3');
   },
   live(P, t) {
     tlOilLamp(P, t, 190, 290, 170, 240); tlOilLamp(P, t, 360, 180, 180, 240);
-    const q = P.I(440, 420, 30); P.halo(q[0], q[1] - 16, 56, ['y1', 'y2', 'y3r1']);
-    Lib.flame(P, q[0] + 10, q[1] - 2, 10, 18, t * 1.5, { noKnock: true }); Lib.flame(P, q[0] - 10, q[1] + 2, 20, 38, t * 1.2 + 1, { noKnock: true });
+    const q = P.I(440, 420, 46); P.halo(q[0], q[1] - 20, 80, ['y1', 'y2', 'y3r1']);
+    Lib.flame(P, q[0] + 14, q[1] + 2, 10, 20, t * 1.5, { noKnock: true }); Lib.flame(P, q[0] - 6, q[1] + 4, 28, 52, t * 1.2 + 1, { noKnock: true });
     for (let i = 0; i < 3; i++) { const u = (t * 0.6 + i / 3) % 1; P.fill(P.disc(q[0] - 6 + Math.sin(u * 7 + i) * 8, q[1] - 30 - u * 70, 1.6, 6), 'r6y8', { noKnock: true }); }
   },
   chars: [
@@ -2042,6 +2068,8 @@ const SCENES = [
     Lib.wallL(P, y0 - 10, z0 - 10, y1 - y0 + 20, z1 - z0 + 20, 'r4y5k3', 1.1);
     tlVilna(P, (u, v) => P.I(0.8, y1 - u * (y1 - y0), z1 - v * (z1 - z0)), { color: 1, k: 1, sc: 1 });
     P.box(20, 470, 0, 40, 50, 60, 'r4y5k2'); { const q = P.I(40, 495, 60); P.shape(Lib.bumpy(P, q[0], q[1] - 6, 14, 7, 5), 'y4b5k1', 0.6); }
+    tlMat(P, 190, 270, 280, 180, 'r5b3k1'); tlMat(P, 214, 294, 232, 132, 'y5r3k1');
+    P.box(200, 334, 0, 26, 32, 28, 'r4y5k2', 0.8); P.box(200, 334, 28, 5, 32, 44, 'r4y5k2', 0.8);
     P.box(470, 420, 0, 50, 90, 26, 'r4y5k2'); for (let i = 0; i < 3; i++) P.box(474, 426 + i * 26, 26, 40, 22, 6 + i * 2, ['r7b3k3', 'b6k2', 'r6b3k2'][i], 0.5);
   },
   chars: [
@@ -2057,12 +2085,13 @@ const SCENES = [
       const cyc = 7, u = (t % cyc) / 1.8;
       if (u < 1) { const th = Math.PI * (u * u * (3 - 2 * u)), ye = ys - W2 * Math.cos(th), ze = zt + 4.5 + W2 * Math.sin(th) * 0.8; P.shape([P.I(xa, ys, zt + 4.5), P.I(xb, ys, zt + 4.5), P.I(xb, ye, ze), P.I(xa, ye, ze)], th < Math.PI / 2 ? 'y1' : 'y1b1', 0.5); for (let i = 1; i < 6; i++) P.line([P.I(xa + i * (xb - xa) / 6, ys, zt + 4.5), P.I(xa + i * (xb - xa) / 6, lerp(ys, ye, 0.8), lerp(zt + 4.5, ze, 0.8))], 0.25); }
       /* la lampe de bureau */
-      const L = P.I(372, 322, zt); P.shape([[L[0] - 9, L[1]], [L[0] + 9, L[1]], [L[0] + 6, L[1] - 4], [L[0] - 6, L[1] - 4]], 'y7r3k2', 0.7); P.line([[L[0], L[1] - 4], [L[0] - 2, L[1] - 40], [L[0] - 14, L[1] - 46]], 1.6, { ink: 3, lvl: 8, taper: 0 });
-      const S = [L[0] - 16, L[1] - 46]; P.halo(S[0], S[1] + 18, 70, ['y1', 'y2', 'y2r1'], {}); P.shape([[S[0] - 16, S[1] + 6], [S[0] + 12, S[1] + 6], [S[0] + 6, S[1] - 4], [S[0] - 10, S[1] - 4]], 'y5b6k1', 0.8); P.fill([[S[0] - 14, S[1] + 6], [S[0] + 10, S[1] + 6], [S[0] + 8, S[1] + 8], [S[0] - 12, S[1] + 8]], 'y1', { noKnock: true });
+      const L = P.I(376, 318, zt), k = 1.7; P.shape([[L[0] - 9 * k, L[1]], [L[0] + 9 * k, L[1]], [L[0] + 6 * k, L[1] - 4 * k], [L[0] - 6 * k, L[1] - 4 * k]], 'y7r3k2', 0.7); P.line([[L[0], L[1] - 4 * k], [L[0] - 2 * k, L[1] - 40 * k], [L[0] - 14 * k, L[1] - 46 * k]], 1.6 * k, { ink: 3, lvl: 8, taper: 0 });
+      const S = [L[0] - 16 * k, L[1] - 46 * k]; P.halo(S[0], S[1] + 30, 110, ['y1', 'y2', 'y2r1'], {}); P.shape([[S[0] - 16 * k, S[1] + 6 * k], [S[0] + 12 * k, S[1] + 6 * k], [S[0] + 6 * k, S[1] - 4 * k], [S[0] - 10 * k, S[1] - 4 * k]], 'y5b6k1', 0.8); P.fill([[S[0] - 14 * k, S[1] + 6 * k], [S[0] + 10 * k, S[1] + 6 * k], [S[0] + 8 * k, S[1] + 8 * k], [S[0] - 12 * k, S[1] + 8 * k]], 'y1', { noKnock: true });
       P.box(282, 312, zt, 30, 20, 8, 'b6k2', 0.5); P.box(284, 312, zt + 8, 26, 18, 7, 'r6b3k2', 0.5);
     } },
     { depth: 810, draw(P) { P.box(418, 370, 0, 34, 34, 34, 'r4y5k2', 0.8); P.box(446, 370, 34, 6, 34, 42, 'r4y5k2', 0.8); } },
     ch(LK.tlMod3, { x: 428, y: 386, z: 0, face: -1, clip: 'tlSitRead', h: 136, look: Object.assign({}, LK.tlMod3, { robe: 'b5k4', sash: 'y1' }) }),
+    ch(LK.tlMod4, { x: 228, y: 350, face: 1, clip: 'tlSitArgue', h: 132, t0: 0.5 }),
     ch(LK.tlMod1, { h: 138, speed: 14, hold: { nTop: 'tlBook' }, path: [W(170, 70, 3.5, 'reach', { f: 1 }), W(200, 200, 5, 'tlRead', { f: -1 }), W(170, 70, 0)] })
   ]
 }

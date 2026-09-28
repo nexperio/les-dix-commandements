@@ -188,7 +188,9 @@ const SCENES = [
     P.box(292, 238, 36, 12, 70, 92, { t: 'y1b1', l: 'y2r1', r: 'y2r1k2' }, 1);
     P.shape([I(304.5, 262, 36), I(304.5, 284, 36), I(304.5, 284, 90), I(304.5, 262, 90)], 'y7r3', 0.9);
     P.line([I(304.8, 273, 36), I(304.8, 273, 90)], 0.8);
-    for (let i = 0; i < 6; i++) P.box(229 + i * 11, 244, 106, 5, 5, 6, 'y7r2', 0.4);
+    P.box(228, 244, 104, 64, 58, 3, 'y7r2', 0.5); P.box(292, 238, 126, 12, 70, 3, 'y7r2', 0.5);
+    for (let i = 0; i < 7; i++) { P.box(230 + i * 9, 300, 107, 3, 3, 7, 'y7r2', 0.3); P.box(294 + (i % 2) * 5, 240 + i * 10, 129, 3, 3, 7, 'y7r2', 0.3); }
+    for (const z of [58, 80]) P.line([I(228, 302.4, z), I(292, 302.4, z)], 1, { ink: 0, lvl: 7 });
     /* l'autel devant, avec sa rampe */
     P.box(312, 256, 36, 20, 24, 16, 'y3r2k2', 0.8); P.box(332, 262, 36, 20, 12, 8, 'y3r2k2', 0.6);
     for (const [x, y, w, d, h] of houses.filter(p => p[0] + p[1] >= 2 * C - 30)) ttHouse(P, x, y, w, d, h, 'y3r2', { door: 0.3 });
@@ -252,9 +254,9 @@ const SCENES = [
     ch(LK.ttSage, { x: 200, y: 230, face: 1, clip: 'point', h: 136, hold: { f: 'staffV' } }),
     ch(LK.ttSage2, { x: 170, y: 300, face: 1, clip: 'talk', h: 134, t0: 0.8 }),
     ch(LK.ttMan, { x: 478, y: 260, face: -1, clip: 'ttDip', h: 134, hold: { n: 'ttVessel' } }),
-    ch(LK.ttPotter, { h: 128, speed: 18, hold: { nTop: 'ttPots' }, over: 'carry', path: [W(530, 530, 1), W(500, 340, 3, 'idle', { f: -1 }), W(530, 530, 0)] }),
-    ch(LK.ttBoy2, { x: 330, y: 440, face: 1, clip: 'lookup', h: 86 }),
-    ch(LK.ttBoy, { x: 380, y: 470, face: -1, clip: 'talk', h: 90, t0: 1 })
+    ch(LK.ttPotter, { h: 128, speed: 18, hold: { nTop: 'ttPots' }, over: 'carry', path: [W(530, 530, 1), W(440, 430, 3, 'idle', { f: -1 }), W(530, 530, 0)] }),
+    ch(LK.ttBoy2, { x: 120, y: 420, face: 1, clip: 'lookup', h: 86 }),
+    ch(LK.ttBoy, { x: 170, y: 470, face: -1, clip: 'talk', h: 90, t0: 1 })
   ]
 },
 {
@@ -298,13 +300,13 @@ const SCENES = [
     const rider = (ox, kid, o = {}) => { prepChar(ox); prepChar(kid); return { depth: t => { const s = charState(ox, t); return s.x + s.y; }, draw(P, t) { const s = renderChar(P, ox, t), b = P.I(s.x, s.y, s.z), sc = ox.h / 100; door(P, b, s.face, sc); kid.x = s.x; kid.y = s.y; kid.z = 76 * sc; kid.face = s.face; renderChar(P, kid, t); } }; };
     return [
       rider({ beast: 'ttOx', h: 116, speed: 14, path: [W(170, 200, 2), W(330, 320, 5), W(170, 200, 0)] }, ch(LK.ttPure, { clip: 'sit', h: 82, noShadow: 1, hold: { nTop: 'ttStoneCup' } })),
-      rider({ beast: 'ttOx', h: 112, x: 290, y: 430, face: 1 }, ch(LK.ttPure2, { clip: 'sit', h: 80, noShadow: 1, t0: 1, hold: { n: 'ttStoneCup' } })),
+      rider({ beast: 'ttOx', h: 112, x: 250, y: 490, face: 1 }, ch(LK.ttPure2, { clip: 'sit', h: 80, noShadow: 1, t0: 1, hold: { n: 'ttStoneCup' } })),
       ch(LK.ttPure2, { x: 360, y: 350, face: 1, clip: 'ttDip', h: 80, hold: { n: 'ttStoneCup' }, look: Object.assign({}, LK.ttPure2, { hair: 'k7', hs: 'curly' }) }),
-      ch(LK.ttPriest2, { x: 120, y: 380, face: 1, clip: 'point', h: 136 }),
-      { beast: 'ttRedCow', h: 96, x: 170, y: 460, face: 1 },
+      ch(LK.ttPriest2, { x: 60, y: 400, face: 1, clip: 'point', h: 136 }),
+      { beast: 'ttRedCow', h: 96, x: 110, y: 340, face: 1 },
       ch(LK.ttWoman, { x: 230, y: 140, z: 34, face: 1, clip: 'wave', h: 122 }),
       ch(LK.ttWoman3, { x: 140, y: 125, z: 34, face: 1, clip: 'cradle', h: 118, hold: { n: 'baby' } }),
-      ch(LK.ttPriest, { x: 80, y: 470, face: 1, clip: 'idle', h: 134, hold: { f: 'staffV' } })
+      ch(LK.ttPriest, { x: 150, y: 280, face: 1, clip: 'idle', h: 134, hold: { f: 'staffV' } })
     ];
   })()
 },
@@ -335,19 +337,22 @@ const SCENES = [
     /* le banc du scribe, un puits, un figuier, des pots */
     P.box(190, 130, 0, 90, 16, 18, 'r4y5k2', 0.8);
     ttStatic(P, LK.ttSage4, { x: 222, y: 138, face: 1, clip: 'ttSitRead', h: 120, hold: { nTop: 'ttScroll' }, tt: 0.6 });
-    Lib.well(P, 470, 210, 24);
+    Lib.well(P, 450, 330, 24);
     Lib.tree(P, 60, 460, 0, { h: 130, r: 44, can: 'y5b5k2', trunk: 'r4y4k4', fruit: 6, fruitTone: 'r5b5k1' });
     for (const [x, y] of [[500, 470], [520, 420]]) { P.cyl(x, y, 0, 12, 22, 'r5y5k2', 0.8, 12); const q = I(x, y, 22); P.shape(Lib.bumpy(P, q[0], q[1] - 10, 14, 11, 7), 'y4b5k2', 0.7); }
     Lib.stones(P, 8, 'y3r2k3', [330, 380, 180, 120]);
+    Lib.tree(P, 480, 500, 0, { h: 110, r: 36, can: 'y5b5k2', trunk: 'r4y4k4', fruit: 5, fruitTone: 'r5b5k1' });
+    P.box(360, 440, 0, 8, 8, 50, 'r4y5k3', 0.7);
   },
   chars: [
-    ch(LK.ttPriest2, { x: 330, y: 210, face: 1, clip: 'ttExam', h: 138 }),
-    ch(LK.ttMan, { x: 386, y: 196, face: -1, clip: 'ttArm', h: 136, look: Object.assign({}, LK.ttMan, { cloak: null, robe: 'y5r3k1' }) }),
+    ch(LK.ttPriest2, { x: 300, y: 240, face: 1, clip: 'ttExam', h: 138 }),
+    ch(LK.ttMan, { x: 382, y: 212, face: -1, clip: 'ttArm', h: 136, look: Object.assign({}, LK.ttMan, { cloak: null, robe: 'y5r3k1' }) }),
     ch(LK.ttPriest, { x: 200, y: 250, face: -1, clip: 'point', h: 134 }),
     ch(LK.ttMan2, { x: 190, y: 420, face: 1, clip: 'point', h: 134 }),
     ch(LK.ttSage3, { x: 150, y: 470, face: 1, clip: 'talk', h: 136, t0: 0.7 }),
-    ch(LK.ttWoman3, { x: 470, y: 300, face: -1, clip: 'idle', h: 124, t0: 1.1 }),
-    ch(LK.ttGirl, { x: 500, y: 340, face: -1, clip: 'lookup', h: 82 })
+    ch(LK.ttWoman3, { x: 505, y: 262, face: -1, clip: 'idle', h: 124, t0: 1.1 }),
+    ch(LK.ttGirl, { x: 515, y: 305, face: -1, clip: 'lookup', h: 82 }),
+    { beast: 'donkey', h: 96, x: 400, y: 470, face: -1 }, { beast: 'sheep', h: 56, x: 330, y: 500, face: 1 }
   ]
 },
 {
@@ -451,7 +456,7 @@ const SCENES = [
     ttStatic(P, LK.ttSage2, { x: 170, y: 262, face: 1, clip: 'ttSitTalk', h: 120, tt: 1.2 });
     ttStatic(P, LK.ttSage4, { x: 250, y: 266, face: 1, clip: 'ttSitRead', h: 118, tt: 2.1 });
     ttStatic(P, LK.ttBenAzzai, { x: 90, y: 340, face: 1, clip: 'ttSitRead', h: 116, tt: 0.9, look: Object.assign({}, LK.ttBenAzzai, { robe: 'r5b3k2', ht: 'y2b1' }) });
-    ttOlive(P, 40, 180, 100, 32); ttCypress(P, 520, 250, 120); ttCypress(P, 510, 300, 100); ttCypress(P, 520, 470, 110);
+    ttOlive(P, 40, 180, 100, 32); ttCypress(P, 530, 140, 120); ttCypress(P, 530, 190, 100); ttOlive(P, 500, 510, 76, 26); ttCypress(P, 530, 420, 100);
     Lib.grass(P, 24, 'y5b5k1', [300, 380, 200, 150]);
   },
   chars: [
@@ -474,7 +479,7 @@ const SCENES = [
     'La même phrase termine le traité Meguila (28b), et on la récite chaque jour à la fin de la prière du matin, avant le Kaddich des rabbins. Au terme d’un cycle du Daf Yomi, un feuillet par jour pendant sept ans et demi, c’est cette page qu’on lit en dernier, avant de recommencer aussitôt au début du traité Berakhot.'],
   back(P) {
     ttDome(P, 'y2r1');
-    { const q = [500, 170]; P.halo(q[0], q[1], 250, ['y2r1', 'y1', 'y1', 'y1', 'y1'], { knock: true }); }
+    { const q = [500, 210]; P.halo(q[0], q[1], 190, ['y2r1', 'y1', 'y1', 'y1', 'y1'], { knock: true }); }
     ttHills(P, 'y4r2k2', { seed: 41 });
     Lib.platform(P, 'y5b4k1', 'y4r3k2', { h: 50 });
     const I = (a, b, c) => P.I(a, b, c);
@@ -502,8 +507,8 @@ const SCENES = [
   },
   live(P, t) {
     const q = P.I(220, 462, 22); P.halo(q[0], q[1] - 12, 40, ['y1', 'y2', 'y3r1']); P.shape([[q[0] - 9, q[1]], [q[0] + 11, q[1] - 2], [q[0] + 7, q[1] - 6], [q[0] - 7, q[1] - 6]], 'r5y6k2', 0.7); Lib.flame(P, q[0] + 9, q[1] - 5, 7, 14, t * 1.3, { noKnock: true });
-    const top = P.I(45, 45, 90); P.halo(top[0], top[1] - 50, 60, ['y1', 'y1', 'y2', 'y3r1'], { knock: true });
-    for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + (i - 4.5) * 0.3, r0 = 20 + ((t * 16 + i * 9) % 44); P.line([[top[0] + Math.cos(a) * r0, top[1] - 50 + Math.sin(a) * r0], [top[0] + Math.cos(a) * (r0 + 16), top[1] - 50 + Math.sin(a) * (r0 + 16)]], 1.4, { ink: 0, lvl: 6 }); }
+    const top = P.I(45, 45, 90); P.halo(top[0], top[1] - 60, 46, ['y1', 'y2', 'y3r1', 'y4r1'], {});
+    for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + (i - 4.5) * 0.3, r0 = 20 + ((t * 16 + i * 9) % 44); P.line([[top[0] + Math.cos(a) * r0, top[1] - 60 + Math.sin(a) * r0], [top[0] + Math.cos(a) * (r0 + 16), top[1] - 60 + Math.sin(a) * (r0 + 16)]], 1.4, { ink: 1, lvl: 5 }); }
   },
   chars: (() => {
     const path = [W(540, 280, 0), W(378, 262, 0), W(366, 262, 0, null, { z: 0 }), W(326, 262, 0, null, { z: 30 }), W(268, 182, 0, null, { z: 30 }), W(256, 182, 0, null, { z: 30 }), W(216, 182, 0, null, { z: 60 }), W(168, 72, 0, null, { z: 60 }), W(156, 72, 0, null, { z: 60 }), W(116, 72, 0, null, { z: 90 }), W(84, 64, 2.5, 'lookup', { z: 90 }), W(540, 280, 0, null, { jump: 1 })];
@@ -524,10 +529,9 @@ const SCENES = [
   more: ['C’est la toute dernière Michna, à la fin du traité Oktsin, « les tiges », qui clôt l’ordre Taharot et les six ordres. Rabbi Chimon ben Halafta appuie sa parole sur le dernier verset du psaume 29 : « l’Éternel donnera la force à Son peuple, l’Éternel bénira Son peuple par la paix ». La bénédiction est comme un liquide précieux : sans vase pour la recevoir, elle se répand et se perd.',
     'La Michna finit donc sur la paix, comme la prière des Dix-Huit, qui s’achève par « Sim chalom », et comme la bénédiction des prêtres (Nombres 6, 26). Juste avant, Rabbi Yehochoua ben Lévi enseigne que Dieu donnera en héritage à chaque juste trois cent dix mondes. Le Talmud (Chabbat 23b) fait passer la lampe de la maison avant le vin du kiddouch, « à cause de la paix du foyer ».'],
   back(P) {
-    P.shape([[0, 0], [1000, 0], [1000, 480], [0, 480]], 'b3r2k1', 0);
-    for (let i = 0; i < 14; i++) Lib.star(P, 40 + ((i * 137) % 920), 30 + ((i * 71) % 260), 2 + (i % 3), i % 2 ? 'y7' : 'y4');
+    nightSky(P, 'b4r2k2', 60);
     Lib.moon(P, 170, 110, 16);
-    ttHills(P, 'b4r2k3', { y: 470, seed: 51 });
+    ttHills(P, 'b4r2k3', { seed: 51 });
     Lib.platform(P, 'y4r3k1', 'y4r3k2', { h: 50 });
     const I = (a, b, c) => P.I(a, b, c);
     for (let v = 30; v < 540; v += 30) { P.line([I(v, 120, 0), I(v, 540, 0)], 0.3); P.line([I(120, v, 0), I(540, v, 0)], 0.3); }
@@ -537,7 +541,6 @@ const SCENES = [
     ttHouse(P, 280, 10, 100, 90, 120, 'y3r2k1', { door: 0.3, lit: 'y7r3' });
     ttHouse(P, 400, 10, 130, 80, 90, 'y4r3k2', { door: 0.6, lit: 'y7r3' });
     ttHouse(P, 10, 140, 80, 120, 80, 'y3r2k2', { door: 0.4, lit: 'y7r3' });
-    for (const [x, y] of [[180, 80], [340, 100]]) { const q = I(x, y, 0); P.halo(q[0], q[1], 30, ['y1', 'y2r1']); }
     ttOlive(P, 60, 330, 110, 34); ttCypress(P, 520, 150, 120, 'y3b5k4'); ttCypress(P, 510, 200, 100, 'y3b5k4');
     Lib.bush(P, 40, 480, 0, 22, 'y4b5k3'); Lib.bush(P, 500, 500, 0, 24, 'y4b5k3');
     /* le socle rond du vase */
@@ -546,14 +549,15 @@ const SCENES = [
   },
   live(P, t) {
     const b = P.I(270, 250, 18), top = [b[0], b[1] - 116 * 1.05];
-    P.halo(top[0], top[1] - 10, 150 + Math.sin(t * 0.9) * 10, ['y1', 'y1', 'y2', 'y2', 'y3r1']);
+    P.halo(top[0], top[1] - 10, 190 + Math.sin(t * 0.9) * 10, ['y2', 'y1', 'y1'], {});
+    P.halo(top[0], top[1] - 10, 120 + Math.sin(t * 0.9) * 8, ['y1', 'y1', 'y2', 'y2', 'y3r1'], { knock: true });
     for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + t * 0.05, r0 = 40, r1 = 100 + (i % 3) * 22; P.line([[top[0] + Math.cos(a) * r0, top[1] - 16 + Math.sin(a) * r0 * 0.8], [top[0] + Math.cos(a) * r1, top[1] - 16 + Math.sin(a) * r1 * 0.8]], 1.3, { ink: 0, lvl: 5 }); }
-    const g = P.I(270, 250, 0.5); P.fill(P.disc(g[0], g[1], 150, 40).map(p => [p[0], g[1] + (p[1] - g[1]) * 0.55]), 'y1', { noKnock: true });
+    const g = P.I(270, 250, 0.5); P.halo(g[0], g[1], 170, ['y2', 'y1', 'y1'], { sq: 0.55 });
   },
   top(P, t) {
     const b = P.I(270, 250, 18), s = 1.05, rim = [b[0], b[1] - 118 * s];
-    for (let i = 0; i < 10; i++) { const u = (t * 0.35 + i / 10) % 1, side = i % 2 ? 1 : -1, x = rim[0] + side * (20 + u * 22 + Math.sin(u * 3) * 8) * s, y = rim[1] + u * u * 120 * s - Math.sin(u * Math.PI) * 14; P.halo(x, y, 9 * (1 - u * 0.5), ['y1', 'y2'], { knock: false }); P.fill(P.disc(x, y, 3.2 * (1 - u * 0.4), 8), 'y4r1', { noKnock: true }); }
-    for (let i = 0; i < 5; i++) { const u = (t * 0.25 + i / 5) % 1; P.fill(P.disc(rim[0] + Math.sin(i * 2.3) * 12, rim[1] - 6 - u * 40, 2.6 * (1 - u), 8), 'y3', { noKnock: true }); }
+    for (let i = 0; i < 10; i++) { const u = (t * 0.35 + i / 10) % 1, side = i % 2 ? 1 : -1, x = rim[0] + side * (20 + u * 22 + Math.sin(u * 3) * 8) * s, y = rim[1] + u * u * 120 * s - Math.sin(u * Math.PI) * 14; P.halo(x, y, 10 * (1 - u * 0.5), ['y1', 'y2', 'y3r1'], { knock: true }); P.fill(P.disc(x, y, 3.2 * (1 - u * 0.4), 8), 'y5r2', { noKnock: true }); }
+    for (let i = 0; i < 5; i++) { const u = (t * 0.25 + i / 5) % 1; P.halo(rim[0] + Math.sin(i * 2.3) * 12, rim[1] - 6 - u * 40, 6 * (1 - u) + 1, ['y1', 'y3r1'], { knock: true }); }
   },
   chars: [
     { depth: 520, draw(P) { ttVase(P, 270, 250, 18, 1.05); } },
