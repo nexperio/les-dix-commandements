@@ -162,8 +162,10 @@ function flyTo(v, dur) {
   cam.vx = cam.vy = 0;
 }
 const tour = { mode: 'reveal', idx: -1, until: 0 };
+/* lien direct vers une scène (page de recherche) : feuille.html#scene=4 ouvre la 4e scène et y reste */
+const DEEP = (() => { const m = /scene=(\d+)/.exec(location.hash), i = m ? +m[1] - 1 : -1; return i >= 0 && i < SCENES.length ? i : -1; })();
 function tourStep(now) {
-  if (tour.mode === 'reveal') { if (revealDone && now > tour.until) { tour.mode = 'tour'; goScene(0, now); } return; }
+  if (tour.mode === 'reveal') { if (revealDone && now > tour.until) { tour.mode = 'tour'; goScene(Math.max(0, DEEP), now); if (DEEP >= 0) tour.until = Infinity; } return; }
   if (tour.mode === 'user') { if (!cardPinned && now - userT > 9) { tour.mode = 'tour'; const n = nearestScene(); goScene(n.d < CELL * 0.3 ? (n.i + 1) % SCENES.length : n.i, now); } return; }
   if (fly) return;
   if (now > tour.until) {

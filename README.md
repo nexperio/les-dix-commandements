@@ -1,13 +1,13 @@
 # Parachiot 5787 · feuilles riso animées
 
-Pages HTML autonomes qui impriment en riso simulée des dioramas isométriques animés de l'Ancien Testament : une grande feuille « L'Ancien Testament » (16 scènes, Genèse à Esther), une feuille par paracha de l'année 5787, un index avec les Dix Paroles et une section « Les femmes et le foyer » (trois feuilles : les femmes de la Torah, le chalom bayit, les mitsvot des femmes avec leurs berakhot).
+Pages HTML autonomes qui impriment en riso simulée des dioramas isométriques animés de l'Ancien Testament : une grande feuille « L'Ancien Testament » (16 scènes, Genèse à Esther), une feuille par paracha de l'année 5787, un index avec les Dix Paroles et une section « Les femmes et le foyer » (trois feuilles : les femmes de la Torah, le chalom bayit, les mitsvot des femmes avec leurs berakhot) et une section « Les hommes » (une feuille : les mitsvot des hommes et leurs berakhot).
 
-Chaque page construite (`index.html`, `ancien-testament.html`, `parachiot/*.html` et `femmes/*.html`, à la racine du dépôt) est **un seul fichier** : Canvas 2D, zéro image, zéro police téléchargée, zéro bibliothèque, une seule requête réseau (elle-même). Tout est dessiné en code.
+Chaque page construite (`index.html`, `ancien-testament.html`, `parachiot/*.html`, `femmes/*.html` et `hommes/*.html`, à la racine du dépôt) est **un seul fichier** : Canvas 2D, zéro image, zéro police téléchargée, zéro bibliothèque, une seule requête réseau (elle-même). Tout est dessiné en code.
 
 ## Démarrage
 
 ```bash
-python3 tools/build.py          # reconstruit index.html, ancien-testament.html, parachiot/ et femmes/
+python3 tools/build.py          # reconstruit index.html, ancien-testament.html, parachiot/, femmes/ et hommes/
 python3 tools/build.py noach    # une seule paracha
 python3 tools/check_quotes.py   # vérifie les citations contre les Gutenberg 1609 et 1610
 npm i && npm run shot           # capture Playwright (optionnel)
@@ -34,6 +34,7 @@ src/
     ancien-testament.liste.txt  commentaire d'en-tête de la grande feuille
   parachiot/<id>.js           une feuille = const SHEET + const SCENES
   femmes/<id>.js              section « Les femmes et le foyer », même format (+ champ brakha)
+  hommes/<id>.js              section « Les hommes », même format (+ champ brakha)
   index/index.html            index : Dix Paroles + tableau PARA des feuilles
   accueil/index.html          accueil du site (/*CORE*/ et /*ITEMS*/ remplacés au build)
 tools/
@@ -45,6 +46,7 @@ index.html          page construite : accueil (menu + accès aux feuilles)
 ancien-testament.html  page construite : L'Ancien Testament
 parachiot/          pages construites : index des parachiot et une feuille par paracha
 femmes/             pages construites : les trois feuilles de la section Femmes
+hommes/             pages construites : la feuille de la section Hommes
 data/               Douay-Rheims, Gutenberg n° 1609 (Genèse à Job) et n° 1610 (Psaumes à Machabées)
 favicon.svg
 ```
@@ -64,6 +66,10 @@ Ordre d'assemblage d'une feuille de paracha : `core.js → figures.js → lib2.j
 ## Section « Les femmes et le foyer »
 
 Trois feuilles déclarées dans `FEMMES` de `tools/build.py` (marque du menu, id, sortie, titre, sous-titre, encre) : elles apparaissent dans le menu vertical et en cartes sur l'accueil. Brief complet : `docs/BRIEF-femmes.md`. Une scène peut porter un champ `brakha: [{ label, he, ph, fr, note }]` (hébreu vocalisé, phonétique, traduction, remarque d'usage) : il s'affiche en tête du commentaire et dans l'impression. À l'écrit, le Nom est abrégé (`ה׳`, `אֱלֹקֵינוּ`).
+
+## Section « Les hommes »
+
+Même mécanique, déclarée dans `HOMMES` de `tools/build.py` : une feuille, `src/hommes/hommes.js` → `hommes/mitsvot-des-hommes.html` (talit, tefillin, minyan, Torah, kiddouch, havdala, brit mila, choffar, souccah). Brief et berakhot de référence : `docs/BRIEF-hommes.md`.
 
 ## Le moteur en bref
 

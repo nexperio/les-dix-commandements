@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Construit toutes les pages autonomes (un fichier HTML chacune) à la racine du dépôt :
-index.html (accueil), ancien-testament.html, parachiot/*.html et femmes/*.html.
+index.html (accueil), recherche.html, ancien-testament.html, parachiot/*.html, femmes/*.html et hommes/*.html.
 
   python3 tools/build.py            # tout
-  python3 tools/build.py noach      # une seule paracha (ou une feuille de la section Femmes : femmes, chalombayit, mitsvot)
+  python3 tools/build.py noach      # une seule paracha (ou une feuille de section : femmes, chalombayit, mitsvot, hommes)
 """
 import json, os, re, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import search_index
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 S = lambda *p: os.path.join(ROOT, 'src', *p)
 DIST = ROOT  # la racine est servie telle quelle
@@ -45,17 +47,25 @@ FEMMES = [
     ('ב', 'chalombayit', 'chalom-bayit.html',        'Chalom bayit',           'La paix du foyer', 2),
     ('ג', 'mitsvot',     'mitsvot-des-femmes.html',  'Les mitsvot des femmes', 'Bougies, hallah, mikvé : les berakhot', 0),
 ]
+# section « Les hommes » : même format, src/hommes/<id>.js
+HOMMES = [
+    ('א', 'hommes', 'mitsvot-des-hommes.html', 'Les mitsvot des hommes', 'Talit, tefillin, kiddouch : les berakhot', 2),
+]
+SECTIONS = [('femmes', FEMMES), ('hommes', HOMMES)]
 ENGINE = ['core.js', 'figures.js', 'lib2.js']
 read = lambda p: open(p, encoding='utf-8').read()
 
+LOUPE = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><circle cx="10" cy="10" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14.6 14.6 20.5 20.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>'
 MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
 
 def nav_items():
     """Entrées du menu vertical, tirées du tableau PARA de l'index (source unique)."""
     items = [{'mark': '⌂', 'he': 'Accueil', 'fr': 'Toutes les feuilles', 'href': 'index.html', 'ink': 3},
+             {'mark': LOUPE, 'he': 'Rechercher', 'fr': 'Chercher ou poser une question', 'href': 'recherche.html', 'ink': 1},
              {'mark': 'AT', 'he': 'L’Ancien Testament', 'fr': 'Seize scènes, une seule feuille', 'href': 'ancien-testament.html', 'ink': 3, 'sep': 1}]
-    for i, (mark, fid, out, he, fr, ink) in enumerate(FEMMES):
-        items.append({'mark': mark, 'he': he, 'fr': fr, 'href': 'femmes/' + out, 'ink': ink, 'sec': 'femmes', 'sep': int(i == 0)})
+    for sec, sheets in SECTIONS:
+        for i, (mark, fid, out, he, fr, ink) in enumerate(sheets):
+            items.append({'mark': mark, 'he': he, 'fr': fr, 'href': sec + '/' + out, 'ink': ink, 'sec': sec, 'sep': int(i == 0)})
     items.append({'mark': '✦', 'he': 'Parachiot 5787', 'fr': 'Les Dix Paroles et l’index', 'href': 'parachiot/index.html', 'ink': 1, 'sep': 1})
     for m in re.finditer(r"\{ n: (\d+), he: '([^']*)', fr: '([^']*)', date: '([^']*)'(.*?)ink: (\d) \}", read(S('index', 'index.html'))):
         n, he, fr, date, rest, ink = m.groups()
@@ -109,14 +119,29 @@ def build_paracha(pid, out, sec='parachiot'):
     parts = [S('engine', p) for p in ENGINE] + [S('scenes', 'ancien-testament.js'), S('scenes', 'personnages.js'), S(sec, pid + '.js'), S('engine', 'app.js'), S('engine', 'print.js')]
     write(os.path.join(DIST, sec, out), page(title, comment_for(src), parts, sec + '/' + out))
 
+def build_search():
+    """recherche.html : toutes les scènes du site, indexées dans la page (tools/search_index.py)."""
+    at = search_index.scenes(read(S('scenes', 'ancien-testament.js')))
+    recs = [search_index.record('L’Ancien Testament', 'ancien-testament.html', i, d) for i, d in enumerate(at)]
+    sheets = [('parachiot', pid, out) for n, pid, out in PARACHIOT] + [(sec, fid, out) for sec, lst in SECTIONS for _, fid, out, *_ in lst]
+    for sec, fid, out in sheets:
+        if not os.path.exists(S(sec, fid + '.js')): continue
+        src = read(S(sec, fid + '.js'))
+        title = re.search(r"title: '([^']*)'", src).group(1)
+        recs += [search_index.record(title, sec + '/' + out, i, d) for i, d in enumerate(search_index.scenes(src, at))]
+    data = json.dumps(recs, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+    html = read(S('recherche', 'index.html')).replace('/*CORE*/', read(S('engine', 'core.js'))).replace('/*INDEX*/', data)
+    write(os.path.join(DIST, 'recherche.html'), html.replace('</body>', nav_script('recherche.html') + '</body>'))
+
 def build_index():
     html = read(S('index', 'index.html')).replace('/*CORE*/', read(S('engine', 'core.js'))).replace('</body>', nav_script('parachiot/index.html') + '</body>')
     write(os.path.join(DIST, 'parachiot', 'index.html'), html)
 
 if __name__ == '__main__':
     only = sys.argv[1:]
-    if not only: build_home(); build_at(); build_index()
+    if not only: build_home(); build_at(); build_index(); build_search()
     for n, pid, out in PARACHIOT:
         if (not only or pid in only) and os.path.exists(S('parachiot', pid + '.js')): build_paracha(pid, out)
-    for mark, fid, out, *_ in FEMMES:
-        if (not only or fid in only) and os.path.exists(S('femmes', fid + '.js')): build_paracha(fid, out, 'femmes')
+    for sec, sheets in SECTIONS:
+        for mark, fid, out, *_ in sheets:
+            if (not only or fid in only) and os.path.exists(S(sec, fid + '.js')): build_paracha(fid, out, sec)
