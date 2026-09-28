@@ -129,7 +129,7 @@ function goto(q) {
   if (!n) { out.innerHTML = ''; return; }
   const hit = NAMES.find(([k]) => k && (n === k || n.startsWith(k + ' ')));
   if (!hit) { out.innerHTML = 'Traité introuvable. Essayez « Chabbat 31a », « Berakhot 2 » ou « Avot 1, 14 ».'; return; }
-  const t = hit[1], rest = n.slice(hit[0].length).trim(), m = /^(\d+)\s*([ab])?(?:\s+(\d+))?/.exec(rest) || (/^[א-ת]+/.test(rest) ? [0, HEB(rest.split(' ')[0]), rest.split(' ')[1] === 'ב' ? 'b' : rest.split(' ')[1] === 'א' ? 'a' : ''] : null);
+  const t = hit[1], rest = n.slice(hit[0].length).trim(), m = /^(\d+)(?:\s*([ab])\b)?(?:\s+(\d+))?/.exec(rest) || (/^[א-ת]+/.test(rest) ? [0, HEB(rest.split(' ')[0]), rest.split(' ')[1] === 'ב' ? 'b' : rest.split(' ')[1] === 'א' ? 'a' : ''] : null);
   const mine = passagesOf(t.s), num = m ? +m[1] : 0, side = m && m[2] || '';
   const exact = !num ? [] : mine.filter(p => t.m ? parseInt(p.loc) === num && (!m[3] || +p.loc.split(':')[1] === +m[3]) : isDaf(p) && (p.loc === num + side || (!side && parseInt(p.loc) === num)));
   if (exact.length === 1 && num) { location.href = link(exact[0]); return; }
@@ -145,7 +145,7 @@ const q0 = new URLSearchParams(location.search).get('q'); if (q0) { document.get
 for (const sh of DATA.sheets) {
   const hex = INKS[sh.ink].hex, a = document.createElement(sh.on ? 'a' : 'div'); a.className = 'card' + (sh.on ? '' : ' soon'); if (sh.on) a.href = sh.u; a.dataset.ink = sh.ink;
   const n = DATA.passages.filter(p => p.u === sh.u).length;
-  a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Feuille ${sh.mark}${n ? ' · ' + n + ' scènes' : ''}</div><h3>${esc(sh.he)}</h3><div class="fr">${esc(sh.fr)}</div>${sh.on ? `<span class="go" style="color:${hex}">Ouvrir ›</span>` : ''}`;
+  a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Feuille <bdi>${sh.mark}</bdi>${n ? ' · ' + n + ' scènes' : ''}</div><h3>${esc(sh.he)}</h3><div class="fr">${esc(sh.fr)}</div>${sh.on ? `<span class="go" style="color:${hex}">Ouvrir ›</span>` : ''}`;
   document.getElementById('sheets').appendChild(a);
 }
 
