@@ -123,7 +123,9 @@ def build_at():
     write(os.path.join(DIST, 'ancien-testament.html'), page("L'Ancien Testament, scène par scène", read(S('scenes', 'ancien-testament.liste.txt')), parts, 'ancien-testament.html'))
 
 def build_home():
-    html = read(S('accueil', 'index.html')).replace('/*CORE*/', read(S('engine', 'core.js'))).replace('/*ITEMS*/', json.dumps(nav_items(), ensure_ascii=False))
+    lk = re.search(r'const LK = \{.*?\n\};\n', read(S('scenes', 'ancien-testament.js')), re.S).group(0)  # la frise n'a besoin que des costumes
+    figs = read(S('engine', 'figures.js')) + read(S('engine', 'lib2.js')) + lk + read(S('scenes', 'personnages.js'))
+    html = read(S('accueil', 'index.html')).replace('/*CORE*/', read(S('engine', 'core.js'))).replace('/*FIGS*/', figs).replace('/*ITEMS*/', json.dumps(nav_items(), ensure_ascii=False))
     write(os.path.join(DIST, 'index.html'), html.replace('</body>', nav_script('index.html') + '</body>'))
 
 def build_paracha(pid, out, sec='parachiot'):
