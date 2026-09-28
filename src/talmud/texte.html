@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Le texte original · Le Talmud</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<!--
+  LE TALMUD · le texte original
+  Pour chaque référence citée par une scène : le passage en hébreu ou en araméen (la citation surlignée),
+  la traduction française de la scène, le retour à la scène et le lien vers le texte entier sur Sefaria.
+  texte.html#Shabbat_31a n'affiche que ce passage ; sans ancre, tous les passages, dans l'ordre des feuilles.
+  tools/build.py remplace CORE par core.js et TEXTS par les passages (tools/talmud.py, data/talmud/).
+-->
+<style>
+:root{--ink:#2F2729;--r:#E0453A;--b:#2D5BA6;--y:#F0B21F;--paper:#F4E9D3}
+*{box-sizing:border-box}
+html,body{margin:0;background:#26211d;color:var(--ink);font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+.sheet{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:64px 32px 80px}
+header{text-align:center;margin-bottom:10px}
+.kick{font-variant:small-caps;letter-spacing:.18em;color:var(--b);font-size:15px}
+h1{font-weight:normal;font-size:clamp(36px,6vw,60px);line-height:1.05;margin:10px 0 12px}
+.sub{font-style:italic;color:var(--b);font-size:17px;max-width:620px;margin:0 auto;line-height:1.45}
+.orn{display:flex;align-items:center;gap:12px;margin:30px auto;max-width:520px;color:var(--b)}.orn i{flex:1;height:1px;background:currentColor}.orn b{width:7px;height:7px;transform:rotate(45deg);background:currentColor}
+.he{font-family:"Taamey Frank CLM","SBL Hebrew","Times New Roman","Arial Hebrew","David",serif}
+article{margin:0 0 46px;scroll-margin-top:70px}
+article .ref{display:flex;justify-content:space-between;align-items:baseline;gap:16px;border-bottom:1px solid var(--b);padding-bottom:6px}
+article .ref .fr{font-variant:small-caps;letter-spacing:.12em;font-size:14px;color:var(--b)}
+article .ref .he{font-size:22px;color:var(--b)}
+.orig{font-size:25px;line-height:1.75;text-align:justify;margin:16px 0 6px}
+.orig p{margin:0 0 10px}
+.orig p.far{opacity:.45;font-size:21px}
+.orig mark{background:rgba(240,178,31,.45);color:inherit;padding:0 2px}
+.orig p.hit{border-right:3px solid var(--y);padding-right:12px;margin-right:-15px}
+.src{font-size:12.5px;font-variant:small-caps;letter-spacing:.08em;opacity:.7;margin:0 0 16px}
+.item{margin:18px 0 0;padding:14px 18px;background:rgba(255,255,255,.22);border-left:3px solid var(--b)}
+.item .t{font-variant:small-caps;letter-spacing:.1em;font-size:13px;color:var(--b)}
+.item h2{font-weight:normal;font-size:26px;margin:2px 0 6px}
+.item blockquote{margin:0;font-style:italic;font-size:17.5px;line-height:1.55}
+.links{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px 18px}
+.links a{color:var(--b);text-decoration:none;border-bottom:1px solid currentColor;font-style:italic;font-size:15px}
+#all{display:none;text-align:center;margin:0 0 20px}#all a{color:var(--b);font-style:italic;text-decoration:none;border-bottom:1px solid currentColor}
+body.one #all{display:block}body.one article:not(.on){display:none}
+.empty{text-align:center;font-style:italic;opacity:.7}
+footer{margin-top:44px;text-align:center;font-size:13px;opacity:.7;line-height:1.6}
+footer a{color:var(--b);text-decoration:none;border-bottom:1px solid currentColor}
+@media (max-width:640px){.sheet{padding:72px 16px 60px}.orig{font-size:22px}article .ref{flex-direction:column;gap:2px}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="sheet">
+<header>
+  <div class="kick">Le Talmud</div>
+  <h1>Le texte original</h1>
+  <div class="sub">Chaque passage cité par les feuilles, en hébreu ou en araméen, la citation surlignée, avec sa traduction</div>
+</header>
+<div class="orn"><i></i><b></b><i></i></div>
+<p id="all"><a href="#">Tous les textes originaux ›</a> · <a href="index.html">L’index du Talmud ›</a></p>
+<main id="texts"></main>
+<footer>Talmud de Babylone, éd. de Vilna (texte Wikisource, CC-BY-SA) ; Michna, éd. Romm, Vilna 1913 (domaine public) ; Talmud de Jérusalem, éd. H. W. Guggenheimer (CC-BY). Textes obtenus auprès de <a href="https://www.sefaria.org">Sefaria</a>. Traductions françaises propres à ces feuilles.</footer>
+</div>
+<script>
+/*CORE*/
+const TEXTS = /*TEXTS*/;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const nb = s => s.replace(/ ([:;?!»])/g, ' $1').replace(/« /g, '« ');
+/* surligne la citation dans le segment : correspondance exacte, sinon lettre à lettre en ignorant voyelles et ponctuation */
+function markQuote(seg, q) {
+  if (!q) return esc(seg);
+  const i = seg.indexOf(q);
+  if (i >= 0) return esc(seg.slice(0, i)) + '<mark>' + esc(q) + '</mark>' + esc(seg.slice(i + q.length));
+  const L = /[א-ת]/, ql = [...q].filter(c => L.test(c)).join(''), chars = [...seg], pos = [];
+  chars.forEach((c, k) => { if (L.test(c)) pos.push(k); });
+  const letters = pos.map(k => chars[k]).join(''), at = letters.indexOf(ql);
+  if (at < 0 || !ql) return esc(seg);
+  const a = pos[at], b = pos[at + ql.length - 1] + 1;
+  let e = b; while (e < chars.length && /[֑-ׇ]/.test(chars[e])) e++;
+  return esc(chars.slice(0, a).join('')) + '<mark>' + esc(chars.slice(a, e).join('')) + '</mark>' + esc(chars.slice(e).join(''));
+}
+const main = document.getElementById('texts');
+if (!TEXTS.length) main.innerHTML = '<p class="empty">Les feuilles du Talmud sont en préparation.</p>';
+main.innerHTML += TEXTS.map(x => {
+  const hits = new Set(x.items.map(it => it.hit)), far = k => hits.size && !hits.has(-1) && ![...hits].some(h => Math.abs(h - k) <= 1);
+  const segs = x.segs.map((s, k) => { const it = x.items.find(it => it.hit === k); return `<p class="${hits.has(k) ? 'hit' : far(k) ? 'far' : ''}">${it ? markQuote(s, it.q) : esc(s)}</p>`; }).join('');
+  return `<article id="${esc(x.id)}"><div class="ref"><span class="fr">${esc(x.f)}</span><span class="he" lang="he" dir="rtl">${esc(x.he)}</span></div>` +
+    `<div class="orig he" lang="he" dir="rtl">${segs}</div><div class="src">${esc(x.src)}</div>` +
+    x.items.map(it => `<div class="item"><div class="t">${esc(it.s)}</div><h2>${esc(it.t)}</h2><blockquote>« ${esc(nb(it.fr))} »</blockquote>` +
+      `<div class="links"><a href="${esc(it.u + '#scene=' + (it.i + 1))}">‹ Revenir à la scène</a><a href="${esc(x.sef)}" target="_blank" rel="noopener">Le texte entier sur Sefaria ›</a></div></div>`).join('') + `</article>`;
+}).join('');
+function focusHash() {
+  const id = decodeURIComponent(location.hash.slice(1)), el = id && document.getElementById(id);
+  document.querySelectorAll('article.on').forEach(a => a.classList.remove('on'));
+  document.body.classList.toggle('one', !!el);
+  if (el) { el.classList.add('on'); scrollTo(0, 0); }
+}
+addEventListener('hashchange', focusHash); focusHash();
+/* ---------- papier ---------- */
+function paintBg() {
+  const c = document.getElementById('bg'), dp = Math.min(2, devicePixelRatio || 1); c.width = innerWidth * dp; c.height = innerHeight * dp;
+  const g = c.getContext('2d'); g.fillStyle = PAPER; g.fillRect(0, 0, c.width, c.height);
+  const r = rng(42); g.globalCompositeOperation = 'multiply';
+  for (let i = 0; i < c.width * c.height / 260; i++) { g.fillStyle = `rgba(${90 + r() * 40 | 0},${70 + r() * 30 | 0},${50 + r() * 20 | 0},${r() * 0.07})`; g.fillRect(r() * c.width, r() * c.height, 1 + r() * 1.5 * dp, 1 + r() * 1.5 * dp); }
+}
+addEventListener('resize', () => { clearTimeout(paintBg.t); paintBg.t = setTimeout(paintBg, 150); });
+paintBg();
+</script>
+</body>
+</html>

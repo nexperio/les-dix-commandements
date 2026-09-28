@@ -152,7 +152,7 @@ Object.assign(PROPS2, {
   },
   /* le nouveau-né emmailloté sur un coussin, posé sur les genoux du sandak */
   mhLapBaby(P, A, J, M, h, t, lw, F) {
-    const L = J.lN, c = [(L.h[0] + L.k[0]) / 2 + 0.05, (L.h[1] + L.k[1]) / 2 - 0.05], q = M(c), fc = F.face || 1, s = h / 140;
+    const L = J.lN, c = [(L.h[0] + L.k[0]) / 2 + 0.06, (L.h[1] + L.k[1]) / 2 - 0.06], q = M(c), fc = F.face || 1, s = h / 110;
     P.shape(smooth([[q[0] - 21 * s, q[1] + 4 * s], [q[0] - 21 * s, q[1] - 4 * s], [q[0] + 21 * s, q[1] - 4 * s], [q[0] + 21 * s, q[1] + 4 * s]], 3), 'b6r3', lw * 0.9);
     P.line([[q[0] - 19 * s, q[1] + 3 * s], [q[0] + 19 * s, q[1] + 3 * s]], lw * 1.2, { ink: 0, taper: 0 });
     for (const e of [-21, 21]) P.fill(P.disc(q[0] + e * s, q[1] + 5 * s, 2.2 * s, 6), 'y7r3', {});
@@ -162,7 +162,7 @@ Object.assign(PROPS2, {
     P.shape([[hd[0] - 5 * s, hd[1] - 0.5 * s], [hd[0] - 3 * s, hd[1] - 5 * s], [hd[0] + 3 * s, hd[1] - 5 * s], [hd[0] + 5 * s, hd[1] - 1.5 * s]], 'y1b1', lw * 0.5);
     P.fill(P.disc(hd[0] + fc * 2 * s, hd[1] + 0.5 * s, 0.7 * s, 6), 'k8', { noKnock: true });
   },
-  mhTaper(P, A, J, M, h, t, lw, F, u, n, add) { const a = M(A.t), b = M(add(add(A.t, u, 0.1), [0, -1], 0.08)); P.line([a, b], h * 0.014, { ink: 0, lvl: 2, taper: 0 }); P.line([a, b], lw * 0.4); Lib.flame(P, b[0], b[1], h * 0.03, h * 0.07, t * 1.5, { noKnock: true }); },
+  mhTaper(P, A, J, M, h, t, lw, F, u, n, add) { const a = M(add(A.t, [0, 1], 0.03)), b = M(add(A.t, [0, -1], 0.13)); P.line([a, b], h * 0.022, { ink: 0, lvl: 2, taper: 0 }); P.line([a, b], lw * 0.5); P.halo(b[0], b[1] - h * 0.05, h * 0.16, ['y1', 'y2', 'y3r1']); Lib.flame(P, b[0], b[1], h * 0.05, h * 0.11, t * 1.5, { noKnock: true }); },
   mhTowel(P, A, J, M, h, t, lw) { const q = M(J.aN.w); P.shape([[q[0] - h * 0.045, q[1] - h * 0.012], [q[0] + h * 0.045, q[1] - h * 0.012], [q[0] + h * 0.04, q[1] + h * 0.13], [q[0] - h * 0.035, q[1] + h * 0.13]], 'y1b1', lw * 0.7); P.line([[q[0] - h * 0.038, q[1] + h * 0.1], [q[0] + h * 0.04, q[1] + h * 0.1]], lw * 0.9, { ink: 2 }); },
   mhBag(P, A, J, M, h, t, lw, F, u, n, add) { const q = M(add(A.t, u, 0.02)), s = h / 140; P.shape([[q[0] - 9 * s, q[1] - 2 * s], [q[0] + 9 * s, q[1] - 2 * s], [q[0] + 8 * s, q[1] + 12 * s], [q[0] - 8 * s, q[1] + 12 * s]], 'r6b4k2', lw * 0.6); P.shape(P.disc(q[0], q[1] + 5 * s, 3 * s, 6).map((p, i) => i % 2 ? [q[0] + (p[0] - q[0]) * 0.4, q[1] + 5 * s + (p[1] - q[1] - 5 * s) * 0.4] : p), 'y7r2', 0); },
   mhDish(P, A, J, M, h, t, lw, F, u, n, add) { const q = M(add(A.t, [0, -1], 0.02)), s = h / 140; P.shape([[q[0] - 14 * s, q[1]], [q[0] + 14 * s, q[1]], [q[0] + 10 * s, q[1] + 4 * s], [q[0] - 10 * s, q[1] + 4 * s]], 'b1k2', lw * 0.6); for (let i = 0; i < 5; i++) P.shape(P.disc(q[0] - 8 * s + i * 4 * s, q[1] - 3 * s - (i % 2) * 3 * s, 3.4 * s, 8), ['r7y3', 'y8', 'r6b5', 'y7b4', 'r7y5'][i], lw * 0.4); }
@@ -665,7 +665,7 @@ const SCENES = [
     mhArk(P, 360, 110, { cur: 'y1', gold: 'y6r2' });
     mhBima(P, 150, 160, 220, 170, 30, { rug: 'y1', rug2: 'y1b1' });
     mhBench(P, 210, 440, 190, { stand: 0 });
-    mhStatic(P, LK.mhKittel2, { x: 340, y: 446, face: 1, clip: 'lookup', h: 132, hold: { n: 'mhTalit' }, tt: 0.7 });
+    mhStatic(P, LK.mhKittel2, { x: 340, y: 446, face: 1, clip: 'sit', h: 132, hold: { n: 'mhTalit' }, tt: 0.7 });
     mhHangLamp(P, 280, 250, 190, 250);
   },
   live(P, t) { mhNerTamid(P, t, 415); },
@@ -680,7 +680,7 @@ const SCENES = [
     ch(LK.mhKittel, { x: 130, y: 380, face: 1, clip: 'idle', h: 140, hold: { n: 'mhTalit' }, look: Object.assign({}, LK.mhKittel, { beard: 'short', hair: 'k8', bt: 'k8' }) }),
     ch(LK.mhFather3, { x: 230, y: 380, face: 1, clip: 'lookup', h: 138, t0: 1.2, hold: { n: 'mhTalitS' } }),
     ch(LK.mhFather2, { x: 440, y: 410, face: 1, clip: 'carry', h: 142, hold: { n: 'mhTalitS' } }),
-    ch(LK.mhBoy2, { x: 438, y: 408, z: 98, face: 1, clip: 'sit', h: 80, noShadow: 1, dz: -2 }),
+    ch(LK.mhBoy2, { x: 434, y: 416, z: 104, face: 1, clip: 'sit', h: 80, noShadow: 1, dz: 2 }),
     ch(LK.mhSephardi, { x: 460, y: 250, face: -1, clip: 'mhDaven', h: 136, t0: 2, hold: { n: 'mhTalit', nTop: 'mhBook' } })
   ]
 },
@@ -713,8 +713,8 @@ const SCENES = [
     { const c = P.I(X0 + 0.8, 160, 88); P.shape([[c[0] - 6, c[1] - 12], [c[0] + 6, c[1] - 12], [c[0] + 9, c[1] + 4], [c[0] - 9, c[1] + 4]], 'y7r2', 0.5); }
     for (const [a, b] of [[P.I(X0, Y0, H - 12), P.I(X1, Y0, H - 12)], [P.I(X0, Y0, H - 12), P.I(X0, Y1, H - 12)]]) { const pts = []; for (let i = 0; i <= 20; i++) { const k = i / 20; pts.push([lerp(a[0], b[0], k), lerp(a[1], b[1], k) + Math.sin(k * Math.PI * 6) * 5 + 4]); } P.line(pts, 1.4, { ink: 1, lvl: 7 }); for (let i = 1; i < 20; i += 2) P.fill(P.disc(pts[i][0], pts[i][1] + 3, 3, 6), i % 4 === 1 ? 'y8' : 'b6', {}); }
     P.box(X1 - 4, Y0 - 4, 0, 8, 8, H, 'r5y5k3', 0.8);
-    Lib.tree(P, 515, 330, 0, { h: 150, r: 40, can: 'y5b5k1', trunk: 'r5y4k4', fruit: 8, fruitTone: 'y8' });
-    Lib.bush(P, 300, 510, 0, 22, 'y4b5k2'); Lib.bush(P, 520, 500, 0, 18, 'y5b5k1');
+    Lib.tree(P, 200, 480, 0, { h: 150, r: 40, can: 'y5b5k1', trunk: 'r5y4k4', fruit: 8, fruitTone: 'y8' });
+    Lib.bush(P, 520, 500, 0, 18, 'y5b5k1');
     for (const [x, y] of [[360, 60], [60, 460]]) { P.cyl(x, y, 0, 14, 20, 'r5y5k2', 0.8, 14); const q = P.I(x, y, 20); P.shape(Lib.bumpy(P, q[0], q[1] - 12, 18, 14, 8), 'y4b6k1', 0.8); }
     Lib.stones(P, 10, 'y3r2k3', [380, 440, 150, 90]);
   },

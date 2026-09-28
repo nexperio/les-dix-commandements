@@ -27,7 +27,7 @@ def fields(chunk):
     """Champs d'en-tête d'une scène (ou d'un objet de surcharge)."""
     head = re.split(r"\bmore: \[|\bbrakha: \[|\bback\(|\bchars:", chunk, 1)[0]
     d = {}
-    for k in ('title', 'book', 'refFr', 'fr'):
+    for k in ('title', 'book', 'ref', 'refFr', 'fr'):
         m = re.search(r"\b" + k + r": (" + STR + ")", head)
         if m: d[k] = unq(m.group(1))
     m = re.search(r"\bch: (\d+)", head)
@@ -59,4 +59,4 @@ def record(sheet, href, i, d):
     clean = lambda s: TAG.sub('', s or '')
     return {'s': sheet, 'u': href, 'i': i, 't': d.get('title', ''), 'r': d.get('refFr', ''), 'b': d.get('book', ''),
             'c': d.get('ch', 0), 'f': d.get('feast') or '', 'v': d.get('fr', ''),
-            'm': ' '.join(clean(p) for p in d.get('more', [])), 'k': ' · '.join(clean(p) for p in d.get('brakha', []))}
+            'm': ' '.join(clean(p) for p in d.get('more', [])), 'k': ' · '.join(clean(p) for p in d.get('brakha', [])), 'a': ''}

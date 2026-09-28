@@ -123,14 +123,25 @@ const card = document.getElementById('card'), cardIn = card.querySelector('.in')
 const ROMAN = n => { const r = [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']]; let o = ''; for (const [v, s] of [[100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [30, 'XXX'], [20, 'XX'], ...r]) while (n >= v) { o += s; n -= v; } return o; };
 /* bénédictions (champ facultatif `brakha` d'une scène) : hébreu vocalisé, phonétique, traduction, remarque */
 const brakhaHTML = b => b.map(x => `<div class="bk">${x.label ? `<div class="bl">${x.label}</div>` : ''}<p class="he" lang="he" dir="rtl">${x.he}</p><p class="ph">${x.ph}</p><p class="tr">${x.fr}</p>${x.note ? `<p class="bn">${x.note}</p>` : ''}</div>`).join('');
+/* d'où vient la citation : la Douay-Rheims, ou le Talmud (référence au format de Sefaria, voir tools/talmud.py).
+   Pour le Talmud, `texte.html` (dans talmud/) montre l'original hébreu ou araméen de chaque scène. */
+const TSRC = { bavli: ['Talmud de Babylone', 'traduit de l’araméen', 'éd. de Vilna'], mishna: ['Michna', 'traduit de l’hébreu', 'éd. Romm, Vilna 1913'], yeru: ['Talmud de Jérusalem', 'traduit de l’araméen', 'éd. Guggenheimer'] };
+const srcKind = r => /^Jerusalem Talmud /.test(r) ? 'yeru' : /^(Mishnah |Pirkei Avot )/.test(r) ? 'mishna' : /^\D.* \d+[ab]$/.test(r) ? 'bavli' : null;
+const srcOf = d => {
+  const k = srcKind(d.ref);
+  if (!k) return { kick: `${d.book} · chapitre ${ROMAN(d.ch)}`, tr: 'traduit de la Douay-Rheims' };
+  const [name, tr, ed] = TSRC[k];
+  return { k, kick: `${name} · traité ${d.book}` + (k === 'mishna' ? ` · chapitre ${ROMAN(d.ch)}` : ''), tr, ed, href: 'texte.html#' + d.ref.replace(/ /g, '_').replace(/:/g, '.') };
+};
 const cardLink = d => d.brakha ? 'La bénédiction et le commentaire ›' : d.feast ? 'Fête : ' + d.feast + ' ›' : 'Lire le commentaire ›';
 function fillCard(i) {
   const d = SCENES[i], acc = INKS[d.accent].hex;
   card.style.setProperty('--acc', acc);
   const nb = x => x.replace(/ ([:;?!»])/g, '\u202F$1').replace(/« /g, '«\u202F'), q = nb(d.fr || d.quote), first = q[0], rest = q.slice(1);
-  cardIn.innerHTML = `<div class="kick">${d.book} · chapitre ${ROMAN(d.ch)}</div><h1>${d.title}</h1><div class="orn"><i></i><b></b><i></i></div>` +
-    `<p class="q"><span class="dc"><small>«\u202F</small>${first}</span>${rest}\u202F»</p><div class="src">${d.refFr || d.ref} · traduit de la Douay-Rheims</div>` +
-    `<a class="lk" tabindex="0">${cardLink(d)}</a><div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
+  const so = srcOf(d);
+  cardIn.innerHTML = `<div class="kick">${so.kick}</div><h1>${d.title}</h1><div class="orn"><i></i><b></b><i></i></div>` +
+    `<p class="q"><span class="dc"><small>«\u202F</small>${first}</span>${rest}\u202F»</p><div class="src">${d.refFr || d.ref} · ${so.tr}</div>` +
+    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href}">Le texte original ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
   const lk = cardIn.querySelector('.lk'), more = cardIn.querySelector('.more');
   lk.onclick = e => { e.stopPropagation(); const o = more.classList.toggle('open'); setTimeout(paintCardBg, 750); cardPinned = o; lk.textContent = o ? 'Refermer ‹' : cardLink(d); userT = performance.now() / 1000; };
   requestAnimationFrame(paintCardBg);

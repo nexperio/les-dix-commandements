@@ -12,10 +12,11 @@ function printScene(i) {
   const sc = SC[i], d = sc.d, acc = INKS[d.accent].hex, c = makeCanvas(PRINT_S);
   drawSceneLayer(c.getContext('2d'), sc, PRINT_S, 'back', 0, 15, true);
   const sec = document.createElement('section'); sec.className = 'ps'; sec.style.setProperty('--acc', acc);
-  const nb = x => x.replace(/ ([:;?!»])/g, ' $1').replace(/« /g, '« ');
-  sec.innerHTML = `<header><div class="pk">${SHEET.title} · scène ${i + 1} sur ${SCENES.length}</div><h2>${d.title}</h2><div class="pr">${d.book} · chapitre ${ROMAN(d.ch)}${d.feast ? ' · fête : ' + d.feast : ''}</div></header>` +
-    `<div class="pi"></div><blockquote>« ${nb(d.fr || d.quote)} »<cite>${d.refFr || d.ref} · traduit de la Douay-Rheims</cite></blockquote>` +
-    `<p class="po">${d.quote.replace(/\s+/g, ' ')}<cite>${d.ref} · Douay-Rheims, Project Gutenberg n° ${GUT2.test(d.ref) ? 1610 : 1609}</cite></p>` +
+  const nb = x => x.replace(/ ([:;?!»])/g, ' $1').replace(/« /g, '« '), so = srcOf(d);
+  sec.innerHTML = `<header><div class="pk">${SHEET.title} · scène ${i + 1} sur ${SCENES.length}</div><h2>${d.title}</h2><div class="pr">${so.kick}${d.feast ? ' · fête : ' + d.feast : ''}</div></header>` +
+    `<div class="pi"></div><blockquote>« ${nb(d.fr || d.quote)} »<cite>${d.refFr || d.ref} · ${so.tr}</cite></blockquote>` +
+    (so.k ? `<p class="po pho" lang="he" dir="rtl">${d.quote.replace(/\s+/g, ' ')}<cite dir="ltr">${d.ref} · ${TSRC[so.k][0]}, ${so.ed}</cite></p>`
+      : `<p class="po">${d.quote.replace(/\s+/g, ' ')}<cite>${d.ref} · Douay-Rheims, Project Gutenberg n° ${GUT2.test(d.ref) ? 1610 : 1609}</cite></p>`) +
     (d.brakha ? `<div class="pm pb"><h3>${d.brakha.length > 1 ? 'Bénédictions' : 'Bénédiction'}</h3>${brakhaHTML(d.brakha)}</div>` : '') +
     `<div class="pm"><h3>Commentaire</h3>${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
   sec.querySelector('.pi').appendChild(c);
