@@ -1,0 +1,26 @@
+  L'ANCIEN TESTAMENT, SCÈNE PAR SCÈNE
+  Un seul fichier. Canvas 2D. Aucune image, aucune police, aucune bibliothèque.
+  Chaque scène, personnage, vague et point d'encre est dessiné en code.
+  Citations : traduites en français de la Douay-Rheims, Old Testament Part 1,
+  Project Gutenberg n° 1609 (texte anglais d'origine affiché dans le commentaire).
+
+  Scènes (ordre du livre)                       Chapitre                    Fête juive
+   1  Le jardin d'Éden                          Genèse 3      (Gn 3:6)      Rosh Hashana
+   2  La colombe et le rameau (Noé)             Genèse 8      (Gn 8:11)     -
+   3  Le bélier dans le buisson (Isaac)         Genèse 22     (Gn 22:13)    Rosh Hashana
+   4  L'échelle de Jacob                        Genèse 28     (Gn 28:12)    -
+   5  Joseph tiré de la citerne                 Genèse 37     (Gn 37:28)    -
+   6  Le buisson ardent (Moïse)                 Exode 3       (Ex 3:5)      -
+   7  Le passage de la mer                      Exode 14      (Ex 14:22)    Pessah
+   8  Le Sinaï dans la fumée                    Exode 19      (Ex 19:18)    Chavouot
+   9  Le veau d'or                              Exode 32      (Ex 32:19)    Yom Kippour
+  10  Les cabanes du désert                     Lévitique 23  (Lv 23:42)    Souccot
+  11  Moïse au mont Nebo                        Deutéronome 34 (Dt 34:4)    Simhat Torah
+  12  Les murailles de Jéricho                  Josué 6       (Josue 6:20)  -
+  13  Ruth dans le champ de Booz                Ruth 2        (Ruth 2:3)    Chavouot
+  14  David et Goliath                          1 Samuel 17   (1 Kings 17:49, Douay) -
+  15  Le feu du Carmel (Élie)                   1 Rois 18     (3 Kings 18:38, Douay) -
+  16  Esther devant le roi                      Esther 5      (Esther 5:2)  Pourim
+
+  Commandes : glisser (inertie), molette (zoom sous le curseur), pincer, double-clic
+  sur une scène, flèches, + / -, 0 (toute la feuille), C (carte de chapitre).

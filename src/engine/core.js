@@ -1,0 +1,337 @@
+'use strict';
+/* ============================================================
+   NOYAU : aléatoire seedé, bruit, encres, trames, peintre riso
+   ============================================================ */
+const TAU = Math.PI * 2, DEG = Math.PI / 180;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+function rng(seed) { let a = seed >>> 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function h2(x, y, s) { let h = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263) + Math.imul(s | 0, 1442695041)) | 0; h = Math.imul(h ^ h >>> 13, 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967296; }
+function vn(x, y, s) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); const a = h2(xi, yi, s), b = h2(xi + 1, yi, s), c = h2(xi, yi + 1, s), d = h2(xi + 1, yi + 1, s); return a + (b - a) * u + (c - a + (d - c - b + a) * u) * v; }
+function vnP(x, y, P, s) { const m = k => ((k % P) + P) % P; const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); const a = h2(m(xi), m(yi), s), b = h2(m(xi + 1), m(yi), s), c = h2(m(xi), m(yi + 1), s), d = h2(m(xi + 1), m(yi + 1), s); return a + (b - a) * u + (c - a + (d - c - b + a) * u) * v; }
+
+/* Les quatre encres d'accompagnement. Angles de trame et défauts de repérage (unités de feuille). */
+const INKS = [
+  { key: 'y', name: 'Safran', hex: '#F0B21F', ang: 0, reg: [0.9, -0.55] },
+  { key: 'r', name: 'Écarlate', hex: '#E0453A', ang: 75, reg: [-0.75, 0.6] },
+  { key: 'b', name: 'Tekhelet', hex: '#2D5BA6', ang: 15, reg: [0.45, 0.85] },
+  { key: 'k', name: 'Encre de galle', hex: '#2F2729', ang: 45, reg: [0, 0] }
+];
+const PAPER = '#F4E9D3';
+const PITCH = 2.5; // pas de trame, unités de feuille
+
+/* Teintes : 'y4r2b1k3' = pourcentages de chaque encre par dixièmes */
+const TC = new Map();
+function T(t) { if (Array.isArray(t)) return t; let r = TC.get(t); if (r) return r; r = [0, 0, 0, 0]; const re = /([yrbk])(\d+)/g; let m; while ((m = re.exec(t))) r['yrbk'.indexOf(m[1])] = Math.min(10, +m[2]); TC.set(t, r); return r; }
+function tadd(t, u) { t = T(t); u = T(u); return [0, 1, 2, 3].map(i => clamp(t[i] + u[i], 0, 10)); }
+
+/* ---------- Tuiles de demi-teinte : points tramés, jitter, manques d'encre ---------- */
+function makeTile(ink, lvl, p) {
+  const N = 24, S = Math.max(8, Math.round(N * p)), q = S / N;
+  const c = document.createElement('canvas'); c.width = c.height = S; c.N = N;
+  const g = c.getContext('2d'); g.fillStyle = INKS[ink].hex;
+  const sd = ink * 131 + 7, cov = lvl / 10;
+  const dot = (cx, cy, r) => {
+    for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) {
+      const x = cx + ox * S, y = cy + oy * S;
+      if (x < -r || y < -r || x > S + r || y > S + r) continue;
+      g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+    }
+  };
+  if (lvl >= 10) {
+    g.fillRect(0, 0, S, S);
+    g.globalCompositeOperation = 'destination-out'; g.fillStyle = '#000';
+    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+      const v = vnP(i / 4, j / 4, N / 4, sd + 9);
+      if (v > 0.73) dot((i + h2(i, j, sd)) * q, (j + h2(j, i, sd)) * q, q * (v - 0.73) * 2.6 * (0.5 + h2(i, j, sd + 3)));
+      else if (h2(i, j, sd + 17) > 0.985) dot((i + .5) * q, (j + .5) * q, q * 0.28);
+    }
+    return c;
+  }
+  const base = cov <= 0.72 ? Math.sqrt(cov / Math.PI) : lerp(0.4787, 0.74, (cov - 0.72) / 0.28);
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    const jx = (h2(i, j, sd + 1) - .5) * 0.24, jy = (h2(i, j, sd + 2) - .5) * 0.24;
+    let r = base * (1 + (h2(i, j, sd + 4) - .5) * 0.2);
+    const v = vnP(i / 4, j / 4, N / 4, sd + lvl);
+    if (v > 0.74) r *= clamp(1 - (v - 0.74) * 2.4, 0.3, 1);
+    r *= q; if (r < 0.06) continue;
+    dot((i + .5 + jx) * q, (j + .5 + jy) * q, r);
+  }
+  return c;
+}
+const patBank = new Map(); let _pctx = null;
+function bucket(s) { return Math.pow(2, Math.ceil(Math.log2(s) * 4 - 0.05) / 4); }
+function pats(s) {
+  const key = Math.round(s * 4096); let b = patBank.get(key); if (b) return b;
+  _pctx = _pctx || document.createElement('canvas').getContext('2d');
+  b = [];
+  for (let i = 0; i < 4; i++) {
+    b[i] = [null];
+    for (let l = 1; l <= 10; l++) {
+      const tile = makeTile(i, l, PITCH * s);
+      const p = _pctx.createPattern(tile, 'repeat');
+      const sc = tile.N * PITCH / tile.width;
+      p.setTransform(new DOMMatrix().rotateSelf(INKS[i].ang).scaleSelf(sc));
+      b[i][l] = p;
+    }
+  }
+  patBank.set(key, b); return b;
+}
+
+/* ---------- Le peintre : knockout papier + surimpression multiply, trait qui bout ---------- */
+class Painter {
+  constructor(ctx, s, variant, sid, mask = 15) {
+    this.ctx = ctx; this.s = s; this.v = variant; this.sid = sid; this.mask = mask;
+    this.pats = pats(s); this.amp = 1.15; this.seed = variant * 7919 + 11; this.vr = rng(variant * 104729 + sid * 17 + 5);
+    this.r = rng(sid * 1009 + 1); this.O = [500, 360]; this.L = 540; this.detail = s * 140 > 70;
+  }
+  I(x, y, z = 0) { return [this.O[0] + (x - y) * 0.8660254, this.O[1] + (x + y) * 0.5 - z]; }
+  wob(x, y) { const a = this.amp; if (!a) return [x, y]; const s = this.seed; return [x + (vn(x * .034, y * .034, s) - .5) * 2 * a, y + (vn(x * .034 + 31.7, y * .034 - 17.3, s + 1) - .5) * 2 * a]; }
+  prep(pts, closed, step = 6) {
+    const out = [], n = pts.length, m = closed ? n : n - 1;
+    for (let i = 0; i < m; i++) {
+      const a = pts[i], b = pts[(i + 1) % n], dx = b[0] - a[0], dy = b[1] - a[1];
+      const k = Math.max(1, Math.ceil(Math.hypot(dx, dy) / step));
+      for (let j = 0; j < k; j++) out.push(this.wob(a[0] + dx * j / k, a[1] + dy * j / k));
+    }
+    if (!closed) out.push(this.wob(pts[n - 1][0], pts[n - 1][1]));
+    return out;
+  }
+  path(pts, closed = true, step) { const q = this.prep(pts, closed, step), p = new Path2D(); p.moveTo(q[0][0], q[0][1]); for (let i = 1; i < q.length; i++) p.lineTo(q[i][0], q[i][1]); p.closePath(); return p; }
+  inkFill(path, tone, rule = 'nonzero') {
+    const c = this.ctx; tone = T(tone); c.globalCompositeOperation = 'multiply';
+    for (let i = 0; i < 4; i++) {
+      const l = tone[i]; if (!l || !(this.mask & (1 << i))) continue;
+      const r = INKS[i].reg; c.translate(r[0], r[1]); c.fillStyle = this.pats[i][l]; c.fill(path, rule); c.translate(-r[0], -r[1]);
+    }
+    c.globalCompositeOperation = 'source-over';
+  }
+  knock(path, rule = 'nonzero') { const c = this.ctx; c.globalCompositeOperation = 'source-over'; c.fillStyle = PAPER; c.fill(path, rule); }
+  fill(pts, tone, o = {}) {
+    let path;
+    if (o.rings) { path = new Path2D(); for (const ring of pts) { const q = this.prep(ring, true, o.step); path.moveTo(q[0][0], q[0][1]); for (let i = 1; i < q.length; i++) path.lineTo(q[i][0], q[i][1]); path.closePath(); } }
+    else path = this.path(pts, true, o.step);
+    const rule = o.rings ? 'evenodd' : 'nonzero';
+    if (!o.noKnock) this.knock(path, rule);
+    if (tone) this.inkFill(path, tone, rule);
+    return path;
+  }
+  /* trait effilé à la main : épaisseur modulée, pointes fines */
+  line(pts, w = 1.2, o = {}) {
+    if (w * this.s < 0.18) return;
+    const q = this.prep(pts, !!o.closed, o.step || 5); if (o.closed) { q.push(q[0], q[1] || q[0]); }
+    const n = q.length; if (n < 2) return;
+    const cum = [0]; for (let i = 1; i < n; i++) cum.push(cum[i - 1] + Math.hypot(q[i][0] - q[i - 1][0], q[i][1] - q[i - 1][1]));
+    const tot = cum[n - 1] || 1, sd = (this.vr() * 1000) | 0, Lp = [], Rp = [];
+    const tp = o.taper === undefined ? 1 : o.taper;
+    for (let i = 0; i < n; i++) {
+      const a = q[Math.max(0, i - 1)], b = q[Math.min(n - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1;
+      const t = cum[i] / tot, tw = (1 - tp) + tp * (0.18 + 0.82 * Math.pow(Math.sin(Math.PI * t), 0.45));
+      const hw = w * 0.5 * tw * (0.78 + 0.44 * vn(cum[i] * 0.045, 0.5, sd));
+      Lp.push([q[i][0] - dy / d * hw, q[i][1] + dx / d * hw]); Rp.push([q[i][0] + dy / d * hw, q[i][1] - dx / d * hw]);
+    }
+    const p = new Path2D(); p.moveTo(Lp[0][0], Lp[0][1]);
+    for (let i = 1; i < n; i++) p.lineTo(Lp[i][0], Lp[i][1]);
+    for (let i = n - 1; i >= 0; i--) p.lineTo(Rp[i][0], Rp[i][1]);
+    p.closePath();
+    const ink = o.ink === undefined ? 3 : o.ink;
+    if (!(this.mask & (1 << ink))) return;
+    const c = this.ctx, r = INKS[ink].reg; c.globalCompositeOperation = 'multiply'; c.translate(r[0], r[1]);
+    c.fillStyle = this.pats[ink][o.lvl || 10]; c.fill(p); c.translate(-r[0], -r[1]); c.globalCompositeOperation = 'source-over';
+  }
+  outline(pts, w = 1.2, o = {}) {
+    const n = pts.length; if (n < 2) return;
+    const st = (this.vr() * n) | 0, seq = [];
+    for (let i = 0; i <= n; i++) seq.push(pts[(st + i) % n]);
+    const a = seq[n], b = pts[(st + 1) % n]; seq.push([a[0] + (b[0] - a[0]) * 0.3, a[1] + (b[1] - a[1]) * 0.3]);
+    this.line(seq, w, o);
+  }
+  shape(pts, tone, w = 1.2, o = {}) { this.fill(pts, tone, o); if (w > 0) this.outline(pts, w, o); }
+  /* ---- primitives isométriques ---- */
+  box(x, y, z, w, d, h, tn, lw = 1.2) {
+    const I = (a, b, c) => this.I(a, b, c); tn = typeof tn === 'string' || Array.isArray(tn) ? { t: tn, l: tadd(tn, 'k1'), r: tadd(tn, 'k2b1') } : tn;
+    this.shape([I(x, y + d, z + h), I(x + w, y + d, z + h), I(x + w, y + d, z), I(x, y + d, z)], tn.l, lw);
+    this.shape([I(x + w, y, z + h), I(x + w, y + d, z + h), I(x + w, y + d, z), I(x + w, y, z)], tn.r, lw);
+    this.shape([I(x, y, z + h), I(x + w, y, z + h), I(x + w, y + d, z + h), I(x, y + d, z + h)], tn.t, lw);
+  }
+  ell(x, y, z, rx, ry, n = 22, a0 = 0, a1 = TAU) { const o = []; for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; o.push(this.I(x + Math.cos(a) * rx, y + Math.sin(a) * (ry || rx), z)); } return o; }
+  cyl(x, y, z, r, h, tn, lw = 1.1, n = 18) {
+    tn = typeof tn === 'string' || Array.isArray(tn) ? { t: tn, s: tadd(tn, 'k1'), d: tadd(tn, 'k2b1') } : tn;
+    const A = -Math.PI / 4, B = 3 * Math.PI / 4, M = Math.PI / 4;
+    const side = (a0, a1) => { const bot = this.ell(x, y, z, r, r, n / 2, a0, a1), top = this.ell(x, y, z + h, r, r, n / 2, a1, a0); return bot.concat(top); };
+    this.shape(side(M, B), tn.s, lw); this.shape(side(A, M), tn.d, lw);
+    this.shape(this.ell(x, y, z + h, r, r, n), tn.t, lw);
+  }
+  disc(cx, cy, r, n = 24) { const o = []; for (let i = 0; i < n; i++) { const a = i / n * TAU; o.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); } return o; }
+  /* lumière = encre : anneaux concentriques en paliers, jamais de dégradé */
+  halo(cx, cy, r, tones, o = {}) {
+    const n = tones.length, sq = o.sq || 1;
+    if (o.knock) this.fill(this.disc(cx, cy, r, 40).map(p => [p[0], cy + (p[1] - cy) * sq]), null);
+    for (let i = 0; i < n; i++) {
+      const r0 = r * (1 - i / n), r1 = r * (1 - (i + 1) / n);
+      const rings = [this.disc(cx, cy, r0, 40).map(p => [p[0], cy + (p[1] - cy) * sq])];
+      if (r1 > 0.5 && i < n - 1) rings.push(this.disc(cx, cy, r1, 40).map(p => [p[0], cy + (p[1] - cy) * sq]));
+      this.fill(rings, tones[i], { rings: true, noKnock: true });
+    }
+  }
+}
+
+/* ---------- Bibliothèque de décors ---------- */
+const Lib = {
+  platform(P, top, faces, o = {}) {
+    const L = P.L, h = o.h || 60, I = (a, b, c) => P.I(a, b, c);
+    const strata = o.strata || [[0, 0.35, faces], [0.35, 0.7, tadd(faces, 'k1')], [0.7, 1, tadd(faces, 'r1k2')]];
+    const faceBand = (side) => {
+      for (const [f0, f1, tn] of strata) {
+        const top = [], bot = [], N = 12;
+        for (let i = 0; i <= N; i++) {
+          const u = i / N * L, w0 = f0 === 0 ? 0 : Math.sin(u * 0.05 + f0 * 9) * 4, w1 = f1 === 1 ? 0 : Math.sin(u * 0.05 + f1 * 9) * 4;
+          top.push(side ? I(L, u, -h * f0 + w0) : I(u, L, -h * f0 + w0));
+          bot.push(side ? I(L, u, -h * f1 + w1) : I(u, L, -h * f1 + w1));
+        }
+        const tn2 = side ? tadd(tn, 'k1b1') : tn;
+        P.fill(top.concat(bot.reverse()), tn2);
+      }
+      const c = side ? [I(L, 0, 0), I(L, L, 0), I(L, L, -h), I(L, 0, -h)] : [I(0, L, 0), I(L, L, 0), I(L, L, -h), I(0, L, -h)];
+      P.outline(c, 1.3);
+      if (o.pebbles !== false) for (let i = 0; i < 16; i++) { const u = P.r() * L, zz = -h * (0.2 + P.r() * 0.7), rr = 1.5 + P.r() * 3; const c0 = side ? I(L, u, zz) : I(u, L, zz); P.shape(P.disc(c0[0], c0[1], rr, 8), tadd(faces, 'k3'), 0.6); }
+    };
+    faceBand(0); faceBand(1);
+    const tp = [I(0, 0, 0), I(L, 0, 0), I(L, L, 0), I(0, L, 0)];
+    P.shape(tp, top, 1.3);
+  },
+  walls(P, tn, o = {}) {
+    const L = P.L, H = o.h || 300, th = 16, I = (a, b, c) => P.I(a, b, c);
+    const wl = typeof tn === 'string' ? { l: tn, r: tadd(tn, 'k1'), cut: 'r3y4k2' } : tn;
+    P.shape([I(0, 0, 0), I(0, L, 0), I(0, L, H), I(0, 0, H)], wl.l, 1.3);
+    P.shape([I(0, 0, 0), I(L, 0, 0), I(L, 0, H), I(0, 0, H)], wl.r, 1.3);
+    P.shape([I(-th, -th, H), I(L, -th, H), I(L, 0, H), I(0, 0, H), I(0, L, H), I(-th, L, H)], wl.cut, 1.1);
+    P.shape([I(-th, L, 0), I(0, L, 0), I(0, L, H), I(-th, L, H)], tadd(wl.cut, 'k1'), 1.1);
+    P.shape([I(L, -th, 0), I(L, 0, 0), I(L, 0, H), I(L, -th, H)], tadd(wl.cut, 'k2'), 1.1);
+    // assises de pierre visibles dans la coupe
+    for (let z = 22; z < H; z += 22) { P.line([I(-th, L, z), I(0, L, z)], 0.6); P.line([I(L, -th, z), I(L, 0, z)], 0.6); }
+  },
+  wallL(P, y, z, w, h, tn, lw = 1) { const I = (a, b, c) => P.I(a, b, c); P.shape([I(0.5, y, z), I(0.5, y + w, z), I(0.5, y + w, z + h), I(0.5, y, z + h)], tn, lw); },
+  wallR(P, x, z, w, h, tn, lw = 1) { const I = (a, b, c) => P.I(a, b, c); P.shape([I(x, 0.5, z), I(x + w, 0.5, z), I(x + w, 0.5, z + h), I(x, 0.5, z + h)], tn, lw); },
+  archR(P, x, z, w, h, tn, lw = 1) { const I = (a, b, c) => P.I(a, b, c), pts = [I(x, 0.5, z)]; for (let i = 0; i <= 10; i++) { const a = Math.PI - Math.PI * i / 10; pts.push(I(x + w / 2 + Math.cos(a) * w / 2, 0.5, z + h - w / 2 + Math.sin(a) * w / 2)); } pts.push(I(x + w, 0.5, z)); P.shape(pts, tn, lw); },
+  archL(P, y, z, w, h, tn, lw = 1) { const I = (a, b, c) => P.I(a, b, c), pts = [I(0.5, y, z)]; for (let i = 0; i <= 10; i++) { const a = Math.PI - Math.PI * i / 10; pts.push(I(0.5, y + w / 2 + Math.cos(a) * w / 2, z + h - w / 2 + Math.sin(a) * w / 2)); } pts.push(I(0.5, y + w, z)); P.shape(pts, tn, lw); },
+  grass(P, n, tn = 'y5b4', area) {
+    const L = P.L;
+    for (let i = 0; i < n; i++) {
+      const x = area ? area[0] + P.r() * area[2] : 10 + P.r() * (L - 20), y = area ? area[1] + P.r() * area[3] : 10 + P.r() * (L - 20);
+      const b = P.I(x, y, 0), hh = 5 + P.r() * 7;
+      P.line([[b[0] - 3, b[1]], [b[0] - 4, b[1] - hh * 0.8]], 0.7, { ink: 2 });
+      P.line([[b[0], b[1]], [b[0] + 1, b[1] - hh]], 0.7, { ink: 2 });
+      P.line([[b[0] + 3, b[1]], [b[0] + 5, b[1] - hh * 0.7]], 0.7, { ink: 3 });
+    }
+  },
+  stones(P, n, tn, area) {
+    for (let i = 0; i < n; i++) {
+      const x = area[0] + P.r() * area[2], y = area[1] + P.r() * area[3], c = P.I(x, y, 0), r = 3 + P.r() * 6;
+      const pts = []; for (let k = 0; k < 7; k++) { const a = Math.PI + Math.PI * k / 6; pts.push([c[0] + Math.cos(a) * r * 1.3, c[1] + Math.sin(a) * r * (0.9 + P.r() * 0.3)]); }
+      pts.push([c[0] + r * 1.2, c[1] + r * 0.25], [c[0] - r * 1.2, c[1] + r * 0.25]);
+      P.shape(pts, tn, 0.8);
+    }
+  },
+  rock(P, x, y, z, w, h, tn, lw = 1.2) {
+    const c = P.I(x, y, z), pts = [], n = 9;
+    for (let i = 0; i <= n; i++) { const a = Math.PI + Math.PI * i / n; const rr = 0.8 + P.r() * 0.35; pts.push([c[0] + Math.cos(a) * w * rr, c[1] + Math.sin(a) * h * rr]); }
+    pts.push([c[0] + w * 0.9, c[1] + h * 0.22], [c[0] - w * 0.9, c[1] + h * 0.22]);
+    P.shape(pts, tn, lw);
+    P.fill([[c[0] + w * 0.1, c[1] - h * 0.8], [c[0] + w * 0.9, c[1] - h * 0.1], [c[0] + w * 0.9, c[1] + h * 0.2], [c[0] + w * 0.2, c[1] + h * 0.2]], tadd(tn, 'k2'), { noKnock: false });
+    P.line([[c[0] + w * 0.1, c[1] - h * 0.75], [c[0] + w * 0.25, c[1] + h * 0.15]], 0.7);
+  },
+  /* colline / montagne : silhouette en masse, deux flancs ombrés, strates */
+  mound(P, x, y, r, hgt, tn, o = {}) {
+    const b = P.I(x, y, 0), pk = [b[0] + (o.px || 0), b[1] - hgt], rx = r * 1.22, ry = r * 0.61, n = 14, conc = o.conc || 1.35;
+    const side = (s) => { const out = []; for (let i = 0; i <= n; i++) { const t = i / n, prof = Math.pow(1 - t, conc), jit = i === 0 || i === n ? 0 : (P.r() - .4) * hgt * 0.09 * Math.sin(t * Math.PI); out.push([lerp(pk[0], b[0] + s * rx, t) + Math.sin(t * 9 + s) * rx * 0.03, b[1] - hgt * prof + jit]); } return out; };
+    const L = side(-1), R = side(1);
+    for (const Q of [L, R]) for (let i = 1; i < n; i++) Q[i][1] = Math.min(Q[i][1], b[1] - 4);
+    const front = []; for (let i = 0; i <= 12; i++) { const a = Math.PI - Math.PI * i / 12; front.push([b[0] + Math.cos(a) * rx, b[1] + Math.sin(a) * ry]); }
+    const whole = L.concat(front.slice(1, -1), R.slice().reverse());
+    P.fill(whole, tn);
+    // flanc droit à l'ombre, arêtes et ravines
+    const ridge = [pk]; for (let i = 1; i <= 6; i++) { const t = i / 6; ridge.push([lerp(pk[0], b[0] + rx * 0.12, t) + (P.r() - .5) * 18, lerp(pk[1], b[1] + ry, t)]); }
+    P.fill(ridge.concat([[b[0] + rx * 0.7, b[1] + ry * 0.7]], R.slice(1).reverse()), tadd(tn, o.shade || 'k2b1'), { noKnock: true });
+    P.line(ridge, 1);
+    for (let k = 0; k < 7; k++) { const t0 = 0.15 + P.r() * 0.6, sgn = P.r() > .5 ? 1 : -1, sx = lerp(pk[0], b[0] + sgn * rx * 0.5, t0), sy = lerp(pk[1], b[1], t0); P.line([[sx, sy], [sx + sgn * 10 + (P.r() - .5) * 10, sy + 18 + P.r() * 16], [sx + sgn * 16, sy + 34 + P.r() * 20]], 0.7); }
+    for (let k = 0; k < 5; k++) { const t0 = 0.3 + P.r() * 0.6, sgn = P.r() > .5 ? 1 : -1, sx = lerp(pk[0], b[0] + sgn * rx * 0.75, t0), sy = lerp(pk[1], b[1], t0) + 4; P.line([[sx - 12, sy], [sx + 12, sy + 3]], 0.9); }
+    P.outline(whole, 1.4);
+    return { peak: pk, base: b };
+  },
+  tree(P, x, y, z, o = {}) {
+    const b = P.I(x, y, z), h = o.h || 150, tr = o.trunk || 'r4y5k4', can = o.can || 'y5b5';
+    P.shape([[b[0] - 7, b[1]], [b[0] - 4, b[1] - h * 0.45], [b[0] - 18, b[1] - h * 0.7], [b[0] - 14, b[1] - h * 0.72], [b[0] + 1, b[1] - h * 0.55], [b[0] + 14, b[1] - h * 0.75], [b[0] + 17, b[1] - h * 0.72], [b[0] + 5, b[1] - h * 0.45], [b[0] + 8, b[1]]], tr, 1.1);
+    const blobs = o.blobs || 7, R = o.r || 42;
+    for (let i = 0; i < blobs; i++) {
+      const a = i / blobs * TAU + P.r(), cx = b[0] + Math.cos(a) * R * 0.75, cy = b[1] - h * 0.78 + Math.sin(a) * R * 0.45, rr = R * (0.5 + P.r() * 0.25);
+      P.shape(Lib.bumpy(P, cx, cy, rr, rr * 0.8, 9), i % 2 ? can : tadd(can, 'k1b1'), 1);
+    }
+    P.shape(Lib.bumpy(P, b[0], b[1] - h * 0.86, R * 0.75, R * 0.55, 10), tadd(can, 'y1'), 1);
+    if (o.fruit) for (let i = 0; i < o.fruit; i++) { const cx = b[0] + (P.r() - .5) * R * 2.2, cy = b[1] - h * 0.8 + (P.r() - .5) * R * 1.1; P.shape(P.disc(cx, cy, 4.2, 10), o.fruitTone || 'r8y4', 0.7); }
+    return [b[0], b[1] - h * 0.8];
+  },
+  bumpy(P, cx, cy, rx, ry, n) { const o = []; for (let i = 0; i < n; i++) { const a0 = i / n * TAU, a1 = (i + 1) / n * TAU; for (let k = 0; k < 4; k++) { const a = lerp(a0, a1, k / 4), bump = 1 + Math.sin(k / 4 * Math.PI) * 0.18; o.push([cx + Math.cos(a) * rx * bump, cy + Math.sin(a) * ry * bump]); } } return o; },
+  palm(P, x, y, z, h = 170, o = {}) {
+    const b = P.I(x, y, z), lean = o.lean || 18, top = [b[0] + lean, b[1] - h];
+    const seg = 9, L = [], R = [];
+    for (let i = 0; i <= seg; i++) { const t = i / seg, cx = b[0] + lean * t * t, cy = b[1] - h * t, w = lerp(6, 3.5, t); L.push([cx - w, cy]); R.push([cx + w, cy]); }
+    P.shape(L.concat(R.reverse()), 'r4y5k4', 1);
+    for (let i = 1; i < seg; i++) { const t = i / seg, cx = b[0] + lean * t * t, cy = b[1] - h * t; P.line([[cx - 5, cy + 2], [cx + 5, cy - 1]], 0.6); }
+    for (let i = 0; i < 8; i++) {
+      const a = -Math.PI / 2 + (i - 3.5) * 0.42, len = 62 + (i % 2) * 14, droop = 26;
+      const tip = [top[0] + Math.cos(a) * len, top[1] + Math.sin(a) * len * 0.5 + droop], mid = [top[0] + Math.cos(a) * len * 0.5, top[1] + Math.sin(a) * len * 0.35 - 6];
+      const nx = -(tip[1] - top[1]) / len * 7, ny = (tip[0] - top[0]) / len * 7;
+      P.shape([top, [mid[0] + nx, mid[1] + ny], tip, [mid[0] - nx, mid[1] - ny]], i % 2 ? 'y6b5' : 'y5b6k1', 0.9);
+      P.line([top, mid, tip], 0.6);
+    }
+    if (o.dates) for (let i = 0; i < 5; i++) P.shape(P.disc(top[0] - 8 + i * 4, top[1] + 8 + (i % 2) * 4, 3, 8), 'r6y6k2', 0.5);
+  },
+  bush(P, x, y, z, r, tn = 'y5b5k1') { const b = P.I(x, y, z); P.shape(Lib.bumpy(P, b[0], b[1] - r * 0.55, r, r * 0.65, 8), tn, 1); P.line([[b[0] - r * 0.3, b[1] - r * 0.4], [b[0] - r * 0.05, b[1] - r * 0.7]], 0.6); },
+  cloud(P, cx, cy, w, h, tn = 'b2', o = {}) {
+    const n = o.n || Math.max(3, Math.round(w / h * 1.3)), sd = (cx * 7 + cy * 13) | 0;
+    const puffs = [];
+    for (let i = 0; i < n; i++) { const u = n === 1 ? .5 : i / (n - 1), r = h * (0.42 + 0.5 * Math.sin(Math.PI * (0.15 + u * 0.7))) * (0.85 + 0.3 * h2(i, 3, sd)); puffs.push([cx - w / 2 + r * 0.8 + u * (w - r * 1.6), cy - r * 0.35, r, 0]); }
+    for (let i = 0; i < n - 1; i++) { const r = h * (0.3 + 0.2 * h2(i, 5, sd)); puffs.push([(puffs[i][0] + puffs[i + 1][0]) / 2, cy - r * 0.1, r, 1]); }
+    puffs.sort((p, q) => q[2] - p[2] + (p[3] - q[3]) * 100);
+    for (const [x, y, r, f] of puffs) {
+      const pts = []; for (let k = 0; k < 20; k++) { const a = k / 20 * TAU; pts.push([x + Math.cos(a) * r, Math.min(cy, y + Math.sin(a) * r)]); }
+      P.shape(pts, f ? tn : tadd(tn, 'b1'), 0.9, o);
+      if (!o.noShade) P.fill(pts.map(p => [p[0], Math.max(p[1], cy - r * 0.35)]), tadd(tn, 'b1k1'), { noKnock: true });
+    }
+  },
+  star(P, x, y, r, tn = 'y7') { P.fill([[x, y - r], [x + r * 0.22, y - r * 0.22], [x + r, y], [x + r * 0.22, y + r * 0.22], [x, y + r], [x - r * 0.22, y + r * 0.22], [x - r, y], [x - r * 0.22, y - r * 0.22]], tn, { noKnock: true }); },
+  flame(P, x, y, w, h, ph, o = {}) {
+    const tones = o.tones || ['r7y9', 'r4y10', 'y9'], n = tones.length;
+    for (let k = 0; k < n; k++) {
+      const s = 1 - k * 0.28, pts = [];
+      for (let i = 0; i <= 14; i++) {
+        const t = i / 14, a = Math.PI * t, ww = Math.sin(a) * w * s * 0.5 * (1 + 0.35 * Math.sin(t * 9 + ph * 5 + k)), hh = h * s;
+        const flick = Math.sin(t * 13 + ph * 7 + k * 2) * 0.12 * hh * (1 - Math.abs(t - .5) * 2);
+        pts.push([x + Math.cos(a) * w * s * 0.5, y - Math.pow(Math.sin(a), 0.5) * hh * (0.55 + 0.45 * Math.sin(t * 5 + ph * 3 + k)) - flick]);
+      }
+      P.shape(pts, tones[k], k === 0 ? 0.9 : 0, { noKnock: !!o.noKnock });
+    }
+  },
+  waves(P, area, n, z = 0, ink = 2) {
+    for (let i = 0; i < n; i++) { const x = area[0] + P.r() * area[2], y = area[1] + P.r() * area[3], c = P.I(x, y, z); P.line([[c[0] - 9, c[1] + 1], [c[0] - 4, c[1] - 2.5], [c[0], c[1]], [c[0] + 5, c[1] - 2.5], [c[0] + 9, c[1] + 1]], 0.8, { ink }); }
+  },
+  tent(P, x, y, w, d, h, tn) {
+    const I = (a, b, c) => P.I(a, b, c);
+    P.shape([I(x, y + d, 0), I(x + w, y + d, 0), I(x + w, y + d / 2, h), I(x, y + d / 2, h)], tn, 1.1);
+    P.shape([I(x + w, y, 0), I(x + w, y + d, 0), I(x + w, y + d / 2, h)], tadd(tn, 'k2'), 1.1);
+    P.shape([I(x + w * 0.7, y + d, 0), I(x + w * 0.85, y + d * 0.93, h * 0.2), I(x + w, y + d * 0.93, h * 0.12), I(x + w, y + d, 0)], tadd(tn, 'k5'), 0.7);
+    for (let i = 1; i < 4; i++) P.line([I(x + w * i / 4, y + d, 0), I(x + w * i / 4, y + d / 2, h)], 0.55);
+    for (let i = 0; i < 2; i++) { const s = i ? I(x + w, y + d, 0) : I(x, y + d, 0), e = i ? I(x + w + 30, y + d + 10, 0) : I(x - 25, y + d + 12, 0); P.line([s, e], 0.5); }
+  },
+  jar(P, x, y, z, s = 1, tn = 'r5y6k1') { const b = P.I(x, y, z); P.shape([[b[0] - 5 * s, b[1]], [b[0] - 9 * s, b[1] - 10 * s], [b[0] - 7 * s, b[1] - 18 * s], [b[0] - 3 * s, b[1] - 21 * s], [b[0] - 4 * s, b[1] - 25 * s], [b[0] + 4 * s, b[1] - 25 * s], [b[0] + 3 * s, b[1] - 21 * s], [b[0] + 7 * s, b[1] - 18 * s], [b[0] + 9 * s, b[1] - 10 * s], [b[0] + 5 * s, b[1]]], tn, 0.9); P.line([[b[0] - 8 * s, b[1] - 13 * s], [b[0] + 8 * s, b[1] - 13 * s]], 0.5, { ink: 1 }); },
+  lamp(P, x, y, z, big = 1) { const b = P.I(x, y, z); P.halo(b[0], b[1] - 6, 40 * big, ['y2', 'y3', 'y4r1', 'y6r2']); P.shape([[b[0] - 8, b[1]], [b[0] + 8, b[1]], [b[0] + 5, b[1] - 5], [b[0] - 6, b[1] - 5]], 'r5y6k2', 0.8); Lib.flame(P, b[0] + 2, b[1] - 5, 6, 12, 0); },
+  sun(P, x, y, r) { P.halo(x, y, r * 2.6, ['y1', 'y2', 'y3r1', 'y4r1']); P.shape(P.disc(x, y, r, 30), 'y8r3', 1.2); },
+  moon(P, x, y, r) { P.halo(x, y, r * 3, ['b1', 'b2', 'b2y1', 'b3y1']); P.shape(P.disc(x, y, r, 30), 'y4', 1.1); P.fill(P.disc(x - r * 0.3, y + r * 0.2, r * 0.25, 12), 'y5k1', { noKnock: true }); P.fill(P.disc(x + r * 0.3, y - r * 0.3, r * 0.15, 10), 'y5k1', { noKnock: true }); },
+  rainbow(P, cx, cy, r, bw) { const tones = ['r7', 'r6y6', 'y7', 'y6b5', 'b7', 'b6r4']; tones.forEach((t, i) => { const r0 = r - i * bw, r1 = r0 - bw, pts = []; for (let k = 0; k <= 30; k++) { const a = Math.PI + Math.PI * k / 30; pts.push([cx + Math.cos(a) * r0, cy + Math.sin(a) * r0]); } for (let k = 30; k >= 0; k--) { const a = Math.PI + Math.PI * k / 30; pts.push([cx + Math.cos(a) * r1, cy + Math.sin(a) * r1]); } P.fill(pts, t, { noKnock: true }); }); },
+  bird(P, x, y, s, ph, tn = 'k1') {
+    const f = Math.sin(ph * TAU);
+    P.shape([[x - 7 * s, y], [x, y - 2 * s], [x + 8 * s, y - 1 * s], [x + 11 * s, y - 3 * s], [x + 9 * s, y + 1 * s], [x, y + 3 * s], [x - 9 * s, y + 3 * s]], tn, 0.6);
+    P.shape([[x - 2 * s, y - 1 * s], [x - 8 * s, y - 14 * s * f], [x + 4 * s, y - 1 * s]], tadd(tn, 'k1'), 0.6);
+  }
+};

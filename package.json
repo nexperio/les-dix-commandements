@@ -1,0 +1,11 @@
+{
+  "name": "parachiot-5787",
+  "private": true,
+  "description": "Feuilles riso animées de l'Ancien Testament et des parachiot, un fichier HTML autonome par page.",
+  "scripts": {
+    "build": "python3 tools/build.py",
+    "check": "python3 tools/check_quotes.py",
+    "shot": "node tools/shot.js wait:7000 shot:capture.png"
+  },
+  "devDependencies": { "playwright": "^1.56.0" }
+}

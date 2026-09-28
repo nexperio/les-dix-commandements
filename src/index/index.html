@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Parachiot 5787 · Index</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<!--
+  INDEX DES PARACHIOT, ANNÉE 5787 (2026-2027)
+  Les Dix Paroles (Exode 20, 2-17), traduites en français depuis la Douay-Rheims (Gutenberg n° 1609),
+  réparties selon la tradition juive, puis la liste des feuilles hebdomadaires.
+  Un seul fichier, tout est dessiné en code : pas d'image, pas de police, pas de bibliothèque.
+-->
+<style>
+:root{--ink:#2F2729;--r:#E0453A;--b:#2D5BA6;--y:#F0B21F;--paper:#F4E9D3}
+*{box-sizing:border-box}
+html,body{margin:0;background:#26211d;color:var(--ink);font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+.sheet{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:56px 32px 80px}
+header{text-align:center;margin-bottom:28px}
+.kick{font-variant:small-caps;letter-spacing:.18em;color:var(--r);font-size:15px}
+h1{font-weight:normal;font-size:clamp(40px,7vw,78px);line-height:1;margin:10px 0 8px}
+.sub{font-style:italic;color:var(--r);font-size:18px}
+.orn{display:flex;align-items:center;gap:12px;margin:26px auto;max-width:520px;color:var(--r)}.orn i{flex:1;height:1px;background:currentColor}.orn b{width:7px;height:7px;transform:rotate(45deg);background:currentColor}
+h2{font-weight:normal;font-size:32px;text-align:center;margin:0 0 6px}
+.h2s{text-align:center;font-style:italic;opacity:.75;margin:0 0 22px;font-size:15px}
+.tabwrap{position:relative;margin:0 auto 18px;max-width:980px}
+#tab{position:absolute;inset:0;width:100%;height:100%}
+.tables{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:4.5%;padding:9% 5.5% 5%}
+.tables ol{list-style:none;margin:0;padding:0 4%;counter-reset:c var(--start)}
+.tables li{counter-increment:c;margin:0 0 13px;font-size:15.5px;line-height:1.38;display:grid;grid-template-columns:46px 1fr;gap:8px}
+.tables li::before{content:counter(c,upper-roman);color:var(--r);font-size:19px;text-align:right;padding-top:1px}
+.tables li b{font-weight:normal;font-style:italic}
+.tables li small{display:block;opacity:.6;font-size:12px;letter-spacing:.05em;font-variant:small-caps}
+.note{max-width:760px;margin:0 auto 10px;font-size:14.5px;line-height:1.55;text-align:center;opacity:.85}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;margin-top:10px}
+.card{position:relative;display:block;text-decoration:none;color:inherit;padding:22px 24px 20px;background:rgba(255,255,255,.18);border:1px solid rgba(47,39,41,.25);box-shadow:0 1px 0 rgba(47,39,41,.1);transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
+.card canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.card .n{font-variant:small-caps;letter-spacing:.14em;font-size:13px}
+.card h3{font-weight:normal;font-size:28px;margin:6px 0 2px}
+.card .fr{font-style:italic;font-size:16px;margin-bottom:10px}
+.card .meta{font-size:14px;line-height:1.5}
+.card .go{display:inline-block;margin-top:12px;font-style:italic;border-bottom:1px solid currentColor}
+.card.soon{opacity:.55;pointer-events:none}
+footer{margin-top:44px;text-align:center;font-size:13px;opacity:.7;line-height:1.6}
+@media (max-width:760px){.tables{grid-template-columns:1fr;padding:18% 8% 10%}.sheet{padding:36px 16px 60px}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="sheet">
+<header>
+  <div class="kick">Année 5787 · 2026-2027</div>
+  <h1>Parachiot</h1>
+  <div class="sub">Une feuille riso par semaine, depuis le début de l’année biblique</div>
+</header>
+<div class="orn"><i></i><b></b><i></i></div>
+<h2>Les Dix Paroles</h2>
+<p class="h2s">Exode 20, 2 à 17 · traduit de la Douay-Rheims · division selon la tradition juive</p>
+<div class="tabwrap"><canvas id="tab"></canvas>
+<div class="tables">
+<ol style="--start:0">
+<li><div><b>Je suis le Seigneur ton Dieu, qui t’ai fait sortir du pays d’Égypte, de la maison de servitude.</b><small>Exode 20, 2</small></div></li>
+<li><div><b>Tu n’auras pas d’autres dieux devant moi. Tu ne te feras aucune image taillée, et tu ne te prosterneras pas devant elles.</b><small>Exode 20, 3 à 6</small></div></li>
+<li><div><b>Tu ne prendras pas en vain le nom du Seigneur ton Dieu.</b><small>Exode 20, 7</small></div></li>
+<li><div><b>Souviens-toi de sanctifier le jour du sabbat. Six jours tu travailleras ; le septième est le sabbat du Seigneur ton Dieu.</b><small>Exode 20, 8 à 11</small></div></li>
+<li><div><b>Honore ton père et ta mère, afin de vivre longtemps sur la terre que le Seigneur ton Dieu te donnera.</b><small>Exode 20, 12</small></div></li>
+</ol>
+<ol style="--start:5">
+<li><div><b>Tu ne tueras pas.</b><small>Exode 20, 13</small></div></li>
+<li><div><b>Tu ne commettras pas d’adultère.</b><small>Exode 20, 14</small></div></li>
+<li><div><b>Tu ne voleras pas.</b><small>Exode 20, 15</small></div></li>
+<li><div><b>Tu ne porteras pas de faux témoignage contre ton prochain.</b><small>Exode 20, 16</small></div></li>
+<li><div><b>Tu ne convoiteras pas la maison de ton prochain, ni sa femme, ni son serviteur, ni sa servante, ni son bœuf, ni son âne, ni rien de ce qui est à lui.</b><small>Exode 20, 17</small></div></li>
+</ol>
+</div></div>
+<p class="note">La Douay-Rheims, bible catholique, regroupe et découpe ces versets autrement (elle fond les deux premières paroles et divise la dixième). Ici, l’ordre suit la tradition juive des Aseret haDibrot, lues à Chavouot et dans la paracha Yitro.</p>
+<div class="orn"><i></i><b></b><i></i></div>
+<h2>Les parachiot de l’année</h2>
+<p class="h2s">Dates de la diaspora · chaque feuille s’ouvre dans ce même dossier</p>
+<div class="grid" id="grid"></div>
+<footer>Versets traduits en français depuis la Douay-Rheims, Old Testament Part 1 (Project Gutenberg n° 1609).<br>Chabbat du 12 septembre : Rosh Hashana · Chabbat du 26 septembre : Souccot · pas de paracha ces semaines-là.</footer>
+</div>
+<script>
+/*CORE*/
+const PARA = [
+  { n: 1, he: 'Haazinou', fr: 'Prêtez l’oreille', date: 'Chabbat Chouva · 19 septembre 2026', ref: 'Deutéronome 32', note: 'Le cantique de Moïse', file: '5787-01-haazinou.html', ink: 1 },
+  { n: 2, he: 'Vezot haBerakha', fr: 'Voici la bénédiction', date: 'Simhat Torah · 4 octobre 2026', ref: 'Deutéronome 33 et 34', note: 'Bénédiction des tribus, mort de Moïse', file: '5787-02-vezot-haberakha.html', ink: 2 },
+  { n: 3, he: 'Bereshit', fr: 'Au commencement', date: 'Chabbat 10 octobre 2026', ref: 'Genèse 1, 1 à 6, 8', note: 'Création, Éden, Caïn et Abel, Hénoch', file: '5787-03-bereshit.html', ink: 0 },
+  { n: 4, he: 'Noa’h', fr: 'Noé', date: 'Chabbat 17 octobre 2026', ref: 'Genèse 6, 9 à 11, 32', note: 'L’arche, le déluge, l’arc, Babel', file: '5787-04-noach.html', ink: 2 },
+  { n: 5, he: 'Lekh Lekha', fr: 'Va pour toi', date: 'Chabbat 24 octobre 2026', ref: 'Genèse 12, 1 à 17, 27', note: 'Le départ d’Abram, Lot, Melchisédech, Agar', file: '5787-05-lekh-lekha.html', ink: 1 },
+  { n: 6, he: 'Vayera', fr: 'Il apparut', date: 'Chabbat 31 octobre 2026', ref: 'Genèse 18, 1 à 22, 24', note: 'Mambré, Sodome, Isaac, la ligature', file: '5787-06-vayera.html', ink: 0 },
+  { n: 7, he: 'Hayé Sarah', fr: 'La vie de Sarah', date: 'Chabbat 7 novembre 2026', ref: 'Genèse 23, 1 à 25, 18', note: 'À paraître', soon: 1, ink: 2 },
+  { n: 8, he: 'Toledot', fr: 'Les générations', date: 'Chabbat 14 novembre 2026', ref: 'Genèse 25, 19 à 28, 9', note: 'À paraître', soon: 1, ink: 1 }
+];
+const grid = document.getElementById('grid');
+for (const p of PARA) {
+  const a = document.createElement('a'); a.className = 'card' + (p.soon ? ' soon' : ''); if (!p.soon) a.href = p.file;
+  a.style.color = 'var(--ink)';
+  a.innerHTML = `<canvas></canvas><div class="n" style="color:${INKS[p.ink].hex}">Feuille ${p.n} · ${p.date}</div><h3>${p.he}</h3><div class="fr">${p.fr}</div><div class="meta">${p.ref}<br>${p.note}</div>${p.soon ? '' : `<span class="go" style="color:${INKS[p.ink].hex}">Ouvrir la feuille ›</span>`}`;
+  grid.appendChild(a); a.dataset.ink = p.ink;
+}
+function paintBg() {
+  const c = document.getElementById('bg'), dp = Math.min(2, devicePixelRatio || 1); c.width = innerWidth * dp; c.height = innerHeight * dp;
+  const g = c.getContext('2d'); g.fillStyle = PAPER; g.fillRect(0, 0, c.width, c.height);
+  const r = rng(42); g.globalCompositeOperation = 'multiply';
+  for (let i = 0; i < c.width * c.height / 260; i++) { g.fillStyle = `rgba(${90 + r() * 40 | 0},${70 + r() * 30 | 0},${50 + r() * 20 | 0},${r() * 0.07})`; g.fillRect(r() * c.width, r() * c.height, 1 + r() * 1.5 * dp, 1 + r() * 1.5 * dp); }
+}
+function paintTables() {
+  const c = document.getElementById('tab'), box = c.getBoundingClientRect(), dp = Math.min(2.5, devicePixelRatio || 1), W = box.width, H = box.height;
+  c.width = W * dp; c.height = H * dp; const g = c.getContext('2d'); g.setTransform(dp, 0, 0, dp, 0, 0);
+  const P = new Painter(g, dp, 0, 3, 15); P.amp = 1.3;
+  const one = window.innerWidth <= 760;
+  const tab = (x0, w, y0, h) => { const pts = [[x0, y0 + h], [x0, y0 + w * 0.35]]; for (let i = 0; i <= 20; i++) { const a = Math.PI + Math.PI * i / 20; pts.push([x0 + w / 2 + Math.cos(a) * w / 2, y0 + w * 0.35 + Math.sin(a) * w * 0.35]); } pts.push([x0 + w, y0 + h]); return pts; };
+  const drawTab = (x0, w, y0, h) => { const t = tab(x0, w, y0, h); P.fill(t.map(p => [p[0] + 10, p[1] + 12]), 'k3b1', { noKnock: false }); P.shape(t, 'y2', 2); const inner = tab(x0 + 14, w - 28, y0 + 14, h - 28); P.outline(inner, 1); };
+  if (one) drawTab(W * 0.03, W * 0.94, 6, H - 12);
+  else { drawTab(W * 0.015, W * 0.47, 6, H - 12); drawTab(W * 0.515, W * 0.47, 6, H - 12); }
+}
+function paintCards() {
+  for (const a of document.querySelectorAll('.card')) {
+    const c = a.querySelector('canvas'), b = a.getBoundingClientRect(), dp = Math.min(2, devicePixelRatio || 1); c.width = b.width * dp; c.height = b.height * dp;
+    const g = c.getContext('2d'), st = 5 * dp; g.fillStyle = INKS[+a.dataset.ink].hex;
+    for (let y = 0; y < c.height; y += st) for (let x = 0; x < c.width; x += st) { const e = Math.min(x, y, c.width - x, c.height - y); if (e > 8 * dp) continue; const rr = st * 0.42 * (1 - e / (8 * dp)); if (rr > 0.2) { g.beginPath(); g.arc(x + st / 2, y + st / 2, rr, 0, TAU); g.fill(); } }
+  }
+}
+function paint() { paintBg(); paintTables(); paintCards(); }
+addEventListener('resize', () => { clearTimeout(paint.t); paint.t = setTimeout(paint, 150); });
+paint();
+</script>
+</body>
+</html>

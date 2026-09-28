@@ -3,36 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>L'Ancien Testament, scène par scène</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>Vezot haBerakha · Voici la bénédiction</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <!--
-  L'ANCIEN TESTAMENT, SCÈNE PAR SCÈNE
+  Vezot haBerakha · Voici la bénédiction
+  Lue à Simhat Torah · 4 octobre 2026 (3 octobre en Israël) · Deutéronome 33 et 34
   Un seul fichier. Canvas 2D. Aucune image, aucune police, aucune bibliothèque.
-  Chaque scène, personnage, vague et point d'encre est dessiné en code.
-  Citations : traduites en français de la Douay-Rheims, Old Testament Part 1,
-  Project Gutenberg n° 1609 (texte anglais d'origine affiché dans le commentaire).
+  Versets traduits en français depuis la Douay-Rheims (Project Gutenberg n° 1609).
 
-  Scènes (ordre du livre)                       Chapitre                    Fête juive
-   1  Le jardin d'Éden                          Genèse 3      (Gn 3:6)      Rosh Hashana
-   2  La colombe et le rameau (Noé)             Genèse 8      (Gn 8:11)     -
-   3  Le bélier dans le buisson (Isaac)         Genèse 22     (Gn 22:13)    Rosh Hashana
-   4  L'échelle de Jacob                        Genèse 28     (Gn 28:12)    -
-   5  Joseph tiré de la citerne                 Genèse 37     (Gn 37:28)    -
-   6  Le buisson ardent (Moïse)                 Exode 3       (Ex 3:5)      -
-   7  Le passage de la mer                      Exode 14      (Ex 14:22)    Pessah
-   8  Le Sinaï dans la fumée                    Exode 19      (Ex 19:18)    Chavouot
-   9  Le veau d'or                              Exode 32      (Ex 32:19)    Yom Kippour
-  10  Les cabanes du désert                     Lévitique 23  (Lv 23:42)    Souccot
-  11  Moïse au mont Nebo                        Deutéronome 34 (Dt 34:4)    Simhat Torah
-  12  Les murailles de Jéricho                  Josué 6       (Josue 6:20)  -
-  13  Ruth dans le champ de Booz                Ruth 2        (Ruth 2:3)    Chavouot
-  14  David et Goliath                          1 Samuel 17   (1 Kings 17:49, Douay) -
-  15  Le feu du Carmel (Élie)                   1 Rois 18     (3 Kings 18:38, Douay) -
-  16  Esther devant le roi                      Esther 5      (Esther 5:2)  Pourim
+  1. Moïse bénit les tribus  (Deutéronome 33, 1)  fête : Simhat Torah
+  2. Joseph, le taureau premier-né  (Deutéronome 33, 13)  fête : Simhat Torah
+  3. Josué rempli de sagesse  (Deutéronome 34, 9)  fête : Simhat Torah
+  (+ scènes reprises de L'Ancien Testament)
 
-  Commandes : glisser (inertie), molette (zoom sous le curseur), pincer, double-clic
-  sur une scène, flèches, + / -, 0 (toute la feuille), C (carte de chapitre).
-
+  Commandes : glisser, molette, pincer, double-clic, flèches, + / -, 0, C.
 -->
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#26211d;touch-action:none;-webkit-user-select:none;user-select:none}
@@ -1432,7 +1416,98 @@ const AT = [
 }
 ];
 
-const SCENES = AT, SHEET = { title: 'L\u2019Ancien Testament' };
+/* ---- personnages supplémentaires des parachiot ---- */
+Object.assign(LK, {
+  adamSkin: Object.assign({}, LK.adam, { robe: 'r4y5k3', skirt: 0, len: 'knee', leafy: 0, sleeves: 'short' }),
+  eveSkin: Object.assign({}, LK.eve, { robe: 'r4y5k2', len: 'ankle', leafy: 0, sleeves: 'short' }),
+  cain: { skin: 'y6r5k1', hs: 'curly', hair: 'k8', beard: 'short', robe: 'r5y4k2', len: 'knee', sleeves: 'short', sash: 'k5', feet: 'bare' },
+  abel: { skin: 'y5r4', hs: 'curly', hair: 'r5y4k2', robe: 'y2k1', len: 'knee', sleeves: 'short', sash: 'b5', feet: 'bare' },
+  enoch: { old: 1, skin: 'y5r4', hs: 'fringe', hair: 'k1', beard: 'full', bt: 'k1b1', robe: 'y1b1', cloak: 'y3b2', sash: 'y6' },
+  son1: { skin: 'y6r4k1', hs: 'curly', hair: 'k8', beard: 'short', robe: 'b4y3', len: 'knee', sleeves: 'short', sash: 'r6', head: 'cap', ht: 'y2' },
+  son2: { skin: 'y5r4k1', hs: 'short', hair: 'k7r2', beard: 'short', robe: 'r5y3k1', len: 'knee', sleeves: 'short', sash: 'b5' },
+  sarai: { fem: 1, skin: 'y5r4', hs: 'long', hair: 'k7', robe: 'b5r3', len: 'floor', head: 'veil', ht: 'y3r3', sash: 'y7r2' },
+  saraiOld: { fem: 1, old: 1, skin: 'y5r4', hs: 'long', hair: 'k2', robe: 'b5r3', len: 'floor', head: 'veil', ht: 'y2', sash: 'y7r2' },
+  lot: { skin: 'y5r4k1', hs: 'short', hair: 'k7r2', beard: 'long', robe: 'r6y3k1', cloak: 'y4b3', sash: 'b6', head: 'cloth', ht: 'b3y1', band: 'k6' },
+  abram: { skin: 'y5r4k1', hs: 'short', hair: 'k5', beard: 'long', bt: 'k4', robe: 'y2k1', cloak: 'r5b3k1', sash: 'b5', head: 'cloth', ht: 'y2r1', band: 'k6' },
+  melchi: { skin: 'y5r4', hs: 'short', hair: 'k3', beard: 'long', bt: 'k2', robe: 'y1b1', trim: 1, cloak: 'r7b4', sash: 'y8', head: 'crown', ht: 'y8r2', sleeves: 'long', wide: 1 },
+  hagar: { fem: 1, skin: 'y6r5k2', hs: 'long', hair: 'k8', robe: 'r5y5', len: 'floor', head: 'veil', ht: 'b4y2', sash: 'r7' },
+  ishmael: { child: 1, skin: 'y6r5k1', hs: 'curly', hair: 'k8', robe: 'y3r2', len: 'knee', sleeves: 'short', sash: 'r5', feet: 'bare' },
+  isaacChild: { child: 1, skin: 'y5r4', hs: 'curly', hair: 'k7r2', robe: 'y1b1', len: 'knee', sleeves: 'short', sash: 'b5', feet: 'bare' },
+  visitor: { skin: 'y4r3', hs: 'curly', hair: 'y6r2k2', beard: 'short', bt: 'y6r2k2', robe: 'y1b1', cloak: 'b3k1', sash: 'y6', head: 'cloth', ht: 'y1', band: 'y7' },
+  saltWife: { fem: 1, skin: 'y1b1k1', hs: 'long', hair: 'y1b2k1', robe: 'y1b1k1', len: 'floor', head: 'veil', ht: 'b1k1', sash: 'b1k2' },
+  lotDau: { fem: 1, skin: 'y5r4', hs: 'long', hair: 'k7r2', robe: 'r5b2', len: 'floor', head: 'veil', ht: 'y3', sash: 'b5' },
+  joshua: { skin: 'y6r4k1', hs: 'short', hair: 'k7', beard: 'short', robe: 'r5y3k1', cloak: 'b6k1', sash: 'y7', head: 'helmet', ht: 'y5r3k3', greaves: 'y5r3k3', feet: 'boot' },
+  shepherd: { skin: 'y6r4k1', hs: 'curly', hair: 'k8', beard: 'short', robe: 'y4r3k1', len: 'knee', sleeves: 'short', sash: 'b4', head: 'cloth', ht: 'y2', band: 'k6', cloak: 'k3y2' }
+});
+CLIPS.sulk = { d: 4, k: [{ nU: 30, nL: 112, fU: 24, fL: 116, head: 22, lean: 4, nT: 6, fT: -6 }, { nU: 32, nL: 110, fU: 26, fL: 114, head: 26, lean: 6, nT: 6, fT: -6 }] };
+const reuse = (s, o) => Object.assign(Object.create(s), o || {});
+
+/* PARACHA VEZOT HABERAKHA · Deutéronome 33 et 34 · Simhat Torah, 4 octobre 2026 */
+const SHEET = { title: 'Vezot haBerakha · Voici la bénédiction', sub: 'Lue à Simhat Torah · 4 octobre 2026 (3 octobre en Israël) · Deutéronome 33 et 34' };
+const SCENES = [
+{
+  title: 'Moïse bénit les tribus', book: 'Deutéronome', ch: 33, ref: 'Deuteronomy 33:1', refFr: 'Deutéronome 33, 1', accent: 2, feast: 'Simhat Torah',
+  quote: 'This is the blessing, wherewith the man of God, Moses, blessed the children of Israel, before his death.',
+  fr: 'Voici la bénédiction dont Moïse, l’homme de Dieu, bénit les enfants d’Israël avant sa mort.',
+  more: ['Comme Jacob avant lui, Moïse bénit les tribus une à une avant de mourir : Ruben, Juda, Lévi, Benjamin, Joseph, Zabulon et Issachar, Gad, Dan, Nephtali, Aser. Chaque bénédiction dessine une vocation, une terre, un caractère.',
+    'Correspondance : <b>Simhat Torah</b>. Cette dernière paracha n’a pas de Chabbat : elle est lue le jour de Simhat Torah, et chacun est appelé à la Torah, jusqu’aux enfants, réunis sous un grand talith.'],
+  back(P) {
+    Lib.sun(P, 830, 140, 28);
+    Lib.platform(P, 'y4r2', 'y4r3k2');
+    Lib.rock(P, 150, 150, 0, 56, 36, 'y4r3k2');
+    const tones = ['r7', 'b6', 'y8', 'r5b4', 'y6b5', 'r7y5', 'b5y2', 'k6', 'y5r3', 'b7k1', 'r6k2', 'y7b2'];
+    for (let i = 0; i < 12; i++) { const a = -0.2 + i / 11 * 1.9, x = 200 + Math.cos(a) * 280, y = 200 + Math.sin(a) * 260; if (x > 530 || y > 530) continue; P.box(x - 2, y - 2, 0, 4, 4, 110, 'r4y5k3', 0.6); const t = P.I(x, y, 110); P.shape([[t[0], t[1]], [t[0] + 30, t[1] + 4], [t[0] + 26, t[1] + 14], [t[0] + 30, t[1] + 24], [t[0], t[1] + 22]], tones[i], 0.8); }
+  },
+  chars: [
+    ch(LK.mosesOld, { x: 150, y: 150, z: 34, face: 1, clip: 'bless', h: 150 }),
+    ...[[LK.isrM, 300, 300], [LK.isrW, 350, 250], [LK.isrOld, 280, 400], [LK.isrM2, 400, 350], [LK.priest, 230, 330], [LK.childG, 330, 450], [LK.isrW2, 450, 420], [LK.joshua, 230, 200], [LK.child, 400, 480]].map(([lk, x, y], i) => ch(lk, { x, y, face: -1, clip: i % 3 === 0 ? 'bow' : i % 3 === 1 ? 'lookup' : 'idle', h: lk.child ? 92 : 134, t0: i * 0.6 }))
+  ]
+},
+{
+  title: 'Joseph, le taureau premier-né', book: 'Deutéronome', ch: 33, ref: 'Deuteronomy 33:13', refFr: 'Deutéronome 33, 13', accent: 0, feast: 'Simhat Torah',
+  quote: 'To Joseph also he said:  Of the blessing of the Lord be his land, of the fruits of heaven, and of the dew, and of the deep that lieth beneath.',
+  fr: 'Et à Joseph il dit : Que sa terre soit bénie du Seigneur, des fruits du ciel, de la rosée, et de l’abîme qui s’étend en dessous.',
+  more: ['La bénédiction de Joseph est la plus abondante : les fruits du ciel, la rosée, les eaux profondes, les récoltes du soleil et des lunes, les richesses des montagnes antiques. Sa majesté est celle du taureau premier-né, ses cornes celles du buffle : ce sont les multitudes d’Éphraïm et de Manassé.',
+    'Correspondance : <b>Simhat Torah</b>. La fête clôt la saison des récoltes de Souccot ; les images de rosée et de fruits de cette bénédiction y trouvent un écho naturel.'],
+  back(P) {
+    Lib.sun(P, 180, 150, 32); Lib.cloud(P, 760, 140, 170, 34, 'b1');
+    Lib.platform(P, 'y4b4', 'r3y5k1', { strata: [[0, .3, 'y5b4k1'], [.3, .6, 'b4y2k1'], [.6, 1, 'b6k2']] });
+    for (let i = 0; i < 5; i++) { const c = P.I(540, 80 + i * 90, -48); drawFish(P, c[0], c[1], 12, 1, 'y5b3'); }
+    Lib.vines(P, 300, 320, 220, 190, 4);
+    for (const [x, y] of [[80, 90], [180, 60], [90, 220]]) Lib.tree(P, x, y, 0, { h: 150, r: 40, can: 'y5b6', fruit: 8, fruitTone: 'y8r4' });
+    Lib.field(P, 260, 60, 260, 200, 6);
+    const s = P.I(200, 420, 0); P.shape(P.ell(200, 420, 0.5, 40, 30, 18), 'b5y1', 0.9);
+  },
+  chars: [
+    { beast: 'bull', h: 110, x: 190, y: 330, face: 1 },
+    { beast: 'calf', h: 80, x: 140, y: 400, face: 1, look: 0 },
+    ch(LK.shepherd, { x: 260, y: 440, face: -1, clip: 'lookup', h: 136, hold: { f: 'staffV' } })
+  ]
+},
+reuse(AT[10], { feast: 'Simhat Torah' }),
+{
+  title: 'Josué rempli de sagesse', book: 'Deutéronome', ch: 34, ref: 'Deuteronomy 34:9', refFr: 'Deutéronome 34, 9', accent: 1, feast: 'Simhat Torah',
+  quote: 'And Josue the son of Nun was filled with the spirit of wisdom, because Moses had laid his hands upon him.  And the children of Israel obeyed him, and did as the Lord commanded Moses.',
+  fr: 'Et Josué, fils de Noun, fut rempli de l’esprit de sagesse, parce que Moïse lui avait imposé les mains. Et les enfants d’Israël lui obéirent, et firent comme le Seigneur l’avait ordonné à Moïse.',
+  more: ['Moïse est mort au pays de Moab, et nul ne connaît son tombeau. Israël le pleure trente jours. Josué, sur qui Moïse a posé les mains, prend la tête du peuple. La Torah se clôt sur un éloge : il ne s’est plus levé en Israël de prophète comme Moïse, que le Seigneur connaissait face à face.',
+    'Correspondance : <b>Simhat Torah</b>. Aussitôt ces derniers versets lus, on déroule le rouleau jusqu’au début et l’on reprend « Au commencement ». La fin de la Torah et son premier mot sont lus le même jour, sans interruption.'],
+  back(P) {
+    Lib.cloud(P, 250, 140, 170, 34, 'b1');
+    Lib.platform(P, 'y4r2', 'y4r3k2');
+    Lib.mound(P, 90, 90, 90, 150, 'y4r3k3');
+    P.fill([P.I(440, 0, 0.5), P.I(500, 0, 0.5), P.I(540, 540, 0.5), P.I(480, 540, 0.5)], 'b5y1', {});
+    Lib.tent(P, 40, 380, 80, 70, 60, 'y3r2k1'); Lib.tent(P, 130, 440, 70, 60, 56, 'r4y4k1');
+    P.box(250, 130, 0, 60, 40, 34, 'y9r3');
+    for (const y of [124, 176]) P.line([P.I(230, y, 30), P.I(330, y, 30)], 2.2);
+    for (const s of [-1, 1]) { const c = P.I(280 + s * 12, 150, 34); P.shape([[c[0], c[1]], [c[0] + s * 16, c[1] - 22], [c[0] + s * 22, c[1] - 10]], 'y8r2', 0.8); }
+  },
+  chars: [
+    ch(LK.joshua, { x: 330, y: 250, face: 1, clip: 'point', h: 146, hold: { f: 'spear' } }),
+    ch(LK.priest, { x: 240, y: 170, face: 1, clip: 'idle', h: 134 }), ch(LK.priest, { x: 320, y: 160, face: -1, clip: 'idle', h: 134, t0: 1 }),
+    ...[[LK.isrM, 400, 330], [LK.isrW, 360, 400], [LK.isrOld, 450, 380], [LK.soldier, 300, 360], [LK.isrM2, 250, 420], [LK.childG, 420, 470]].map(([lk, x, y], i) => ch(lk, { x, y, face: -1, clip: i % 2 ? 'bow' : 'idle', h: lk.child ? 92 : 134, t0: i * 0.5 }))
+  ]
+}
+];
 
 /* ============================================================
    APPLICATION : feuille, caches par niveau de détail, impression,
@@ -1754,7 +1829,7 @@ requestAnimationFrame(loop);
   btn.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
   addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
   addEventListener('pointerdown', e => { if (!nav.contains(e.target)) setOpen(false); });
-})("", [{"mark": "AT", "he": "L’Ancien Testament", "fr": "Seize scènes, une seule feuille", "href": "index.html", "ink": 3}, {"mark": "✦", "he": "Parachiot 5787", "fr": "Les Dix Paroles et l’index", "href": "parachiot/index.html", "ink": 1, "sep": 1}, {"mark": "1", "he": "Haazinou", "fr": "Prêtez l’oreille · 19 septembre 2026", "href": "parachiot/5787-01-haazinou.html", "ink": 1}, {"mark": "2", "he": "Vezot haBerakha", "fr": "Voici la bénédiction · 4 octobre 2026", "href": "parachiot/5787-02-vezot-haberakha.html", "ink": 2}, {"mark": "3", "he": "Bereshit", "fr": "Au commencement · 10 octobre 2026", "href": "parachiot/5787-03-bereshit.html", "ink": 0}, {"mark": "4", "he": "Noa’h", "fr": "Noé · 17 octobre 2026", "href": "parachiot/5787-04-noach.html", "ink": 2}, {"mark": "5", "he": "Lekh Lekha", "fr": "Va pour toi · 24 octobre 2026", "href": "parachiot/5787-05-lekh-lekha.html", "ink": 1}, {"mark": "6", "he": "Vayera", "fr": "Il apparut · 31 octobre 2026", "href": "parachiot/5787-06-vayera.html", "ink": 0}, {"mark": "7", "he": "Hayé Sarah", "fr": "À paraître · 7 novembre 2026", "href": null, "ink": 2}, {"mark": "8", "he": "Toledot", "fr": "À paraître · 14 novembre 2026", "href": null, "ink": 1}], "index.html");
+})("../", [{"mark": "AT", "he": "L’Ancien Testament", "fr": "Seize scènes, une seule feuille", "href": "index.html", "ink": 3}, {"mark": "✦", "he": "Parachiot 5787", "fr": "Les Dix Paroles et l’index", "href": "parachiot/index.html", "ink": 1, "sep": 1}, {"mark": "1", "he": "Haazinou", "fr": "Prêtez l’oreille · 19 septembre 2026", "href": "parachiot/5787-01-haazinou.html", "ink": 1}, {"mark": "2", "he": "Vezot haBerakha", "fr": "Voici la bénédiction · 4 octobre 2026", "href": "parachiot/5787-02-vezot-haberakha.html", "ink": 2}, {"mark": "3", "he": "Bereshit", "fr": "Au commencement · 10 octobre 2026", "href": "parachiot/5787-03-bereshit.html", "ink": 0}, {"mark": "4", "he": "Noa’h", "fr": "Noé · 17 octobre 2026", "href": "parachiot/5787-04-noach.html", "ink": 2}, {"mark": "5", "he": "Lekh Lekha", "fr": "Va pour toi · 24 octobre 2026", "href": "parachiot/5787-05-lekh-lekha.html", "ink": 1}, {"mark": "6", "he": "Vayera", "fr": "Il apparut · 31 octobre 2026", "href": "parachiot/5787-06-vayera.html", "ink": 0}, {"mark": "7", "he": "Hayé Sarah", "fr": "À paraître · 7 novembre 2026", "href": null, "ink": 2}, {"mark": "8", "he": "Toledot", "fr": "À paraître · 14 novembre 2026", "href": null, "ink": 1}], "parachiot/5787-02-vezot-haberakha.html");
 </script>
 </body>
 </html>

@@ -1,0 +1,26 @@
+---
+description: Moteur riso et feuilles de parachiot (pages HTML autonomes dessinées en Canvas 2D)
+globs: src/**/*.js, src/**/*.html, tools/*.py
+alwaysApply: true
+---
+
+# Contexte
+
+Projet de pages HTML autonomes : dioramas isométriques animés, imprimés en riso simulée (4 encres, trames tournées, multiply, knockout). Lire README.md avant toute modification.
+
+# Contraintes non négociables
+
+- Chaque page construite (`index.html`, `parachiot/*.html`) reste un fichier unique : aucune image, aucun data-URI, aucune police téléchargée, aucune bibliothèque, aucune requête réseau. Canvas 2D uniquement (pas de WebGL).
+- Les sources sont des scripts classiques concaténés par `tools/build.py` dans une seule portée globale. Ne pas introduire de modules ES, d'imports ou de bundler.
+- Tout l'aléatoire est seedé (`rng`, `h2`, `vn`) : jamais `Math.random()` dans le dessin.
+- Les couleurs s'écrivent en teintes d'encre (`'y5r2b1k3'`), jamais en RVB.
+- `quote` = texte anglais copié mot pour mot du Project Gutenberg n° 1609 ; `fr` = traduction française affichée. `python3 tools/check_quotes.py` doit passer.
+- `feast` seulement pour une correspondance réelle et vérifiable avec une fête juive, sinon `null`. Aucun fait inventé dans `more`.
+- Textes en français, sans tiret cadratin.
+
+# Conventions
+
+- Nouvelle paracha : `src/parachiot/<id>.js` (modèle : `vayera.js`), puis l'ajouter à `PARACHIOT` dans `tools/build.py` et à `PARA` dans `src/index/index.html`.
+- Nouveaux costumes : `src/scenes/personnages.js` (objet `LK`). Nouvelles poses : `CLIPS`. Nouveaux décors ou accessoires : `lib2.js` (`Lib`, `PROPS2`).
+- Préserver les performances : décor statique dans `back(P)` (mis en cache, 3 variantes), seul ce qui bouge dans `chars`, `live` ou `top`.
+- Après modification : `python3 tools/build.py` puis vérifier une page avec `node tools/shot.js` (0 erreur console, 1 seule requête).
