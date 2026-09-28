@@ -50,10 +50,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:#26211d;touch-action:n
 .more{max-height:0;overflow:hidden;transition:max-height .7s ease}.more.open{max-height:52vh;overflow:auto}
 .more p{font-size:14.5px;line-height:1.52;margin:12px 0 0}.more p.orig{font-size:13px;opacity:.78;border-top:1px solid var(--acc);padding-top:10px}
 @media (max-width:640px){#card{left:12px;bottom:12px;width:calc(100vw - 24px)}#card .in{padding:16px 18px 14px}#card h1{font-size:26px}.q{font-size:14.5px}.q .dc{font-size:46px}}
+#help{position:fixed;top:20px;right:20px;max-width:calc(100vw - 40px);padding:9px 14px;background:rgba(244,233,211,.92);color:#2F2729;font:italic 13.5px/1.45 "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;box-shadow:0 6px 18px rgba(0,0,0,.3);transition:opacity .8s ease;pointer-events:auto}
+#help b{font-style:normal;font-weight:normal;font-variant:small-caps;letter-spacing:.08em;color:#E0453A}
+#help.dim{opacity:.35}#help.dim:hover{opacity:1}
+@media (max-width:640px){#help{top:12px;right:12px;left:12px;max-width:none;font-size:12.5px;text-align:center}}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div id="help"><b>Double-clic</b> sur une scène pour y entrer · <b>glisser</b> pour se déplacer · <b>molette</b> pour zoomer · <b>0</b> vue d’ensemble · <b>C</b> carte</div>
 <div id="card"><canvas></canvas><div class="in"></div></div>
 <script>
 'use strict';
@@ -1523,11 +1528,13 @@ function tourStep(now) {
 function goScene(i, now) { tour.idx = i; const v = sceneView(i); flyTo(v); tour.until = now + fly.dur + 9; prefetch(i, v.z); }
 function prefetch(i, z) { const sc = SC[i]; const s = clamp(bucket(z * DPR), S0, SMAX); enqueue(sc, s, -10); }
 function nearestScene() { let b = { i: 0, d: 1e9 }; for (let i = 0; i < SCENES.length; i++) { const [x, y] = cellPos(i), d = Math.hypot(x + CELL / 2 - cam.x, y + CELL / 2 - cam.y); if (d < b.d) b = { i, d }; } return b; }
-function interact() { userT = performance.now() / 1000; if (tour.mode !== 'reveal' || revealDone) tour.mode = 'user'; fly = null; }
+function interact() { document.getElementById('help').classList.add('dim'); userT = performance.now() / 1000; if (tour.mode !== 'reveal' || revealDone) tour.mode = 'user'; fly = null; }
 const zLim = () => [fitZ() * 0.55, Math.min(VW, VH) / CELL * 5];
 function zoomAt(f, sx, sy) { const [a, b] = zLim(), nz = clamp(cam.z * f, a, b); const wx = cam.x + (sx - VW / 2) / cam.z, wy = cam.y + (sy - VH / 2) / cam.z; cam.z = nz; cam.x = wx - (sx - VW / 2) / nz; cam.y = wy - (sy - VH / 2) / nz; needDraw = true; }
 
 /* ---------- entrées ---------- */
+const helpEl = document.getElementById('help');
+if (matchMedia('(pointer: coarse)').matches) helpEl.innerHTML = '<b>Double-tap</b> sur une scène pour y entrer · <b>glisser</b> pour se déplacer · <b>pincer</b> pour zoomer';
 const ptrs = new Map(); let pinch = null, lastTap = 0;
 cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, t: performance.now() }); interact(); cam.vx = cam.vy = 0; if (ptrs.size === 2) { const [p, q] = [...ptrs.values()]; pinch = { d: Math.hypot(p.x - q.x, p.y - q.y), mx: (p.x + q.x) / 2, my: (p.y + q.y) / 2 }; } cv.style.cursor = 'grabbing'; });
 cv.addEventListener('pointermove', e => {
