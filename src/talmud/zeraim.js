@@ -135,11 +135,11 @@ const tzSky = (P, tones, y0 = 40, y1 = 640) => {
 };
 /* chaîne de collines lointaines (coordonnées écran) */
 const tzHills = (P, x0, x1, yb, hh, tn, seed, o = {}) => {
-  const r = rng(seed), pts = [[x0, yb + 40]], n = o.n || 9;
-  for (let i = 0; i <= n; i++) { const x = lerp(x0, x1, i / n); pts.push([x, yb - hh * (0.35 + 0.65 * Math.abs(Math.sin(i * 1.3 + seed))) * (0.7 + r() * 0.3)]); }
+  const N = 40, pts = [[x0, yb + 40]];
+  for (let i = 0; i <= N; i++) pts.push([lerp(x0, x1, i / N), yb - hh * (0.55 + 0.25 * Math.sin(i * 0.33 + seed) + 0.2 * Math.sin(i * 0.87 + seed * 2.1))]);
   pts.push([x1, yb + 40]);
-  const sm = smooth(pts.slice(1, -1), 4); P.shape([[x0, yb + 40]].concat(sm.filter(p => p[0] >= x0 && p[0] <= x1), [[x1, yb + 40]]), tn, o.lw === undefined ? 0.8 : o.lw);
-  if (o.terr) for (let k = 1; k < 4; k++) P.line([[x0 + 20, yb - hh * 0.12 * k + 6], [x1 - 20, yb - hh * 0.12 * k + 2]], 0.5, { ink: 3, lvl: 4 });
+  P.shape(pts, tn, o.lw === undefined ? 0.8 : o.lw);
+  if (o.terr) for (let k = 1; k < 4; k++) { const q = []; for (let i = 2; i <= N - 2; i += 2) q.push([lerp(x0, x1, i / N), Math.max(pts[i + 1][1] + 6, yb - hh * 0.5 + k * hh * 0.16)]); P.line(q, 0.5, { ink: 3, lvl: 4 }); }
 };
 /* maison de pierre à toit plat : portes et fenêtres sur les deux faces visibles */
 const tzHouse = (P, x, y, w, d, h, tn = 'y3r2k1', o = {}) => {
@@ -273,18 +273,25 @@ const tzOxCrown = (c) => ({ depth: t => { const st = charState(c, t); return st.
   for (let i = 0; i < 9; i++) { const q = M(w[i]), a = i / 9 * TAU; P.shape([[q[0], q[1]], [q[0] + Math.cos(a + 1) * s * 0.025, q[1] + Math.sin(a + 1) * s * 0.012 - s * 0.008], [q[0] + Math.cos(a + 1.4) * s * 0.012, q[1] + s * 0.004]], i % 2 ? 'y4b6k1' : 'y3b4k2', lw * 0.4); }
   for (const i of [1, 4, 7]) { const q = M(w[i]); P.fill(P.disc(q[0], q[1] - s * 0.006, s * 0.007, 6), 'k6b2', { noKnock: true }); }
 } });
-/* le laboureur et son bœuf : l'araire suit le bœuf */
-const tzPlough = (c) => ({ depth: t => { const st = charState(c, t); return st.x + st.y - 30; }, draw(P, t) {
-  const st = charState(c, t), fc = st.face, dx = -fc * 60;
-  const a = P.I(st.x - fc * 22, st.y + fc * 22, 30), b = P.I(st.x + dx * 0.5, st.y - dx * 0.5, 14), tip = P.I(st.x + dx * 0.72, st.y - dx * 0.72, 0), hd = P.I(st.x + dx * 0.95, st.y - dx * 0.95, 34);
-  P.line([a, b], 2.2, { ink: 3, lvl: 7, taper: 0 }); P.line([b, tip], 2.6, { ink: 3, lvl: 8, taper: 0 }); P.line([b, hd], 1.8, { ink: 3, lvl: 7, taper: 0 });
-  P.shape([[tip[0] - 4, tip[1] - 2], [tip[0] + fc * 9, tip[1] + 1], [tip[0] - 2, tip[1] + 3]], 'k5b2', 0.6);
-  for (let i = 0; i < 4; i++) { const q = P.I(st.x + dx * (0.8 + i * 0.2), st.y - dx * (0.8 + i * 0.2), 0); P.fill(P.disc(q[0], q[1], 2.2, 6), 'r5y4k3', { noKnock: true }); }
+/* l'araire tiré par le bœuf : dir = axe du sillon */
+const tzPlough = (lead, dir) => ({ depth: t => { const st = charState(lead, t); return st.x + st.y - 1; }, draw(P, t) {
+  const st = charState(lead, t), f = st.face, B = (k, z) => P.I(st.x - f * dir[0] * k, st.y - f * dir[1] * k, z);
+  const yoke = B(-40, 52), mid = B(46, 12), share = B(52, 0), handle = B(62, 50);
+  P.line([yoke, mid], 2.4, { ink: 3, lvl: 7, taper: 0 }); P.line([mid, share], 2.8, { ink: 3, lvl: 8, taper: 0 }); P.line([share, handle], 2, { ink: 3, lvl: 7, taper: 0 });
+  P.shape([[share[0] - 5, share[1] - 2], [share[0] + f * 10, share[1] + 1], [share[0] - 3, share[1] + 3]], 'k5b2', 0.6);
+  for (let i = 0; i < 5; i++) { const q = B(60 + i * 12, 0); P.fill(P.disc(q[0] + Math.sin(i * 2.3) * 3, q[1], 2.4, 6), 'r5y4k3', { noKnock: true }); }
 } });
+/* un personnage qui suit un autre à distance fixe le long de dir */
+CLIPS.tzWalkSlow = { d: 7, k: CLIPS.walk.k };
+const tzFollow = (lead, look, dir, gap, o) => {
+  const f = prepChar(ch(look, Object.assign({ x: 0, y: 0, clip: 'idle' }, o)));
+  const pos = t => { const st = charState(lead, t); return [st.x - st.face * dir[0] * gap, st.y - st.face * dir[1] * gap, st]; };
+  return { depth: t => { const q = pos(t); return q[0] + q[1] - 2; }, draw(P, t) { const [x, y, st] = pos(t); f.x = x; f.y = y; f.face = st.face; f.clip = st.walking ? 'tzWalkSlow' : 'idle'; renderChar(P, f, t); } };
+};
 const SHEET = { title: 'Zeraïm · Semences', sub: 'Le Talmud · feuille ב · premier ordre : la prière, les bénédictions, les récoltes' };
-const tzHaninaCh = ch(LK.tzHanina, { h: 136, speed: 20, hold: { nTop: 'tzArod' }, path: [W(128, 404, tzHaninaWait, 'tzHeel', { f: 1 }), W(250, 330, 0, null, { o: 'tzShoulder' }), W(360, 262, 5, 'talk', { f: 1, o: 'tzShoulder' }), W(128, 404, 0, null, { jump: 1 })] });
-const tzOx = { beast: 'bull', h: 104, speed: 16, path: [W(230, 480, 0.6), W(470, 250, 0.6), W(230, 480, 0)] };
-const tzOx2 = { beast: 'bull', h: 108, speed: 22, t0: 0, path: [W(40, 520, 0), W(420, 150, 0), W(40, 520, 0, null, { jump: 1 })] };
+const tzHaninaCh = ch(LK.tzHanina, { h: 136, speed: 20, hold: { nTop: 'tzArod' }, path: [W(136, 402, tzHaninaWait, 'tzHeel', { f: 1 }), W(141, 398, 0, null, { o: 'tzShoulder' }), W(250, 330, 0, null, { o: 'tzShoulder' }), W(360, 262, 5, 'talk', { f: 1, o: 'tzShoulder' }), W(136, 402, 0, null, { jump: 1 })] });
+const tzOx = { beast: 'bull', h: 104, speed: 14, path: [W(300, 470, 1.2), W(480, 300, 1.2), W(300, 470, 0)] }, tzFurrow = [0.727, -0.687];
+const tzOx2 = { beast: 'bull', h: 108, speed: 22, t0: 0, path: [W(40, 520, 0), W(415, 56, 0), W(40, 520, 0, null, { jump: 1 })] };
 const SCENES = [
 {
   title: 'À partir de quand lit-on le Chema du soir ?', book: 'Berakhot', ch: 2, ref: 'Berakhot 2a', refFr: 'Berakhot 2a', accent: 2, feast: null,
@@ -316,21 +323,21 @@ const SCENES = [
     Lib.waves(P, [420, 480, 90, 34], 5, -40, 3);
     P.box(390, 380, 0, 8, 140, 16, 'y3r2k1', 0.7); P.box(390, 380, 0, 140, 8, 16, 'y3r2k1', 0.7);
     Lib.tree(P, 60, 470, 0, { h: 150, r: 40, can: 'y3b4k2', trunk: 'r4y3k5', fruit: 6, fruitTone: 'k6b2' });
-    Lib.jar(P, 190, 150, 0, 1.2, 'r5y6k1'); Lib.jar(P, 210, 170, 0, 1, 'y5r4k2');
+    Lib.jar(P, 240, 160, 0, 1.2, 'r5y6k1'); Lib.jar(P, 256, 178, 0, 1, 'y5r4k2'); P.box(214, 196, 0, 22, 22, 34, 'r4y5k3', 0.7);
   },
   live(P, t) { for (const [x, y, s] of [[300, 120, 9], [520, 80, 8], [700, 150, 7.5]]) { const k = 0.8 + 0.2 * Math.sin(t * 1.3 + x); Lib.star(P, x, y, s * k, 'y8'); } },
   chars: [
-    { depth: 420, draw(P, t) {
-      P.box(206, 164, 0, 90, 60, 26, 'r4y5k2'); P.box(204, 162, 26, 94, 64, 3, 'r4y5k3', 0.6);
-      const q = P.I(230, 185, 29); P.shape(Lib.bumpy(P, q[0], q[1] - 5, 14, 7, 6), 'y7r4k1', 0.6);
-      const f = P.I(262, 204, 29); P.shape([[f[0] - 11, f[1]], [f[0] + 11, f[1]], [f[0] + 8, f[1] + 4], [f[0] - 8, f[1] + 4]], 'b1k2', 0.5); for (let i = 0; i < 4; i++) P.fill(P.disc(f[0] - 6 + i * 4, f[1] - 2, 2.6, 6), 'r5b4k3', {});
-      Lib.jar(P, 280, 176, 29, 0.7, 'y6r3k1');
-      const l = P.I(240, 210, 29); P.halo(l[0], l[1] - 8, 34, ['y1', 'y2', 'y3r1']); P.shape([[l[0] - 7, l[1]], [l[0] + 8, l[1] - 1], [l[0] + 5, l[1] - 5], [l[0] - 5, l[1] - 5]], 'r5y6k2', 0.6); Lib.flame(P, l[0] + 6, l[1] - 4, 5, 11, t * 1.4, { noKnock: true });
+    { depth: 350, draw(P, t) {
+      P.box(110, 170, 0, 90, 60, 26, 'r4y5k2'); P.box(108, 168, 26, 94, 64, 3, 'r4y5k3', 0.6);
+      const q = P.I(134, 191, 29); P.shape(Lib.bumpy(P, q[0], q[1] - 5, 14, 7, 6), 'y7r4k1', 0.6);
+      const f = P.I(166, 210, 29); P.shape([[f[0] - 11, f[1]], [f[0] + 11, f[1]], [f[0] + 8, f[1] + 4], [f[0] - 8, f[1] + 4]], 'b1k2', 0.5); for (let i = 0; i < 4; i++) P.fill(P.disc(f[0] - 6 + i * 4, f[1] - 2, 2.6, 6), 'r5b4k3', {});
+      Lib.jar(P, 184, 182, 29, 0.7, 'y6r3k1');
+      const l = P.I(144, 216, 29); P.halo(l[0], l[1] - 8, 34, ['y1', 'y2', 'y3r1']); P.shape([[l[0] - 7, l[1]], [l[0] + 8, l[1] - 1], [l[0] + 5, l[1] - 5], [l[0] - 5, l[1] - 5]], 'r5y6k2', 0.6); Lib.flame(P, l[0] + 6, l[1] - 4, 5, 11, t * 1.4, { noKnock: true });
     } },
-    ch(LK.tzKohenOld, { x: 230, y: 150, face: 1, clip: 'eat', h: 134, hold: { n: 'bread' } }),
-    ch(LK.tzKohen, { h: 140, speed: 22, path: [W(400, 350, 2, 'idle', { f: -1 }), W(330, 300, 3.5, 'lookup', { f: -1 }), W(215, 110, 3, 'idle', { f: -1 }), W(400, 350, 0, null, { jump: 1 })] }),
-    ch(LK.tzKohen2, { h: 138, speed: 20, t0: 4, path: [W(470, 350, 2.5, 'lookup', { f: -1 }), W(300, 260, 0), W(260, 150, 3, 'idle', { f: -1 }), W(470, 350, 0, null, { jump: 1 })] }),
-    ch(LK.tzWife, { h: 132, speed: 16, hold: { nTop: 'tzLampHand' }, path: [W(390, 150, 2), W(300, 240, 3, 'offer', { f: -1 }), W(390, 150, 0)] }),
+    ch(LK.tzKohenOld, { x: 216, y: 206, face: -1, clip: 'eat', h: 134, hold: { n: 'bread' } }),
+    ch(LK.tzKohen, { h: 140, speed: 22, path: [W(400, 350, 2, 'idle', { f: -1 }), W(330, 300, 3.5, 'lookup', { f: -1 }), W(216, 116, 3, 'idle', { f: -1 }), W(400, 350, 0, null, { jump: 1 })] }),
+    ch(LK.tzKohen2, { h: 138, speed: 20, t0: 4, path: [W(470, 350, 2.5, 'lookup', { f: -1 }), W(425, 146, 3, 'idle', { f: -1 }), W(470, 350, 0, null, { jump: 1 })] }),
+    ch(LK.tzWife, { h: 132, speed: 16, hold: { nTop: 'tzLampHand' }, path: [W(425, 140, 2), W(170, 256, 3, 'offer', { f: -1 }), W(425, 140, 0)] }),
     ch(LK.tzJew, { x: 130, y: 330, face: 1, clip: 'tzShema', h: 140 }),
     ch(LK.tzBoy, { x: 340, y: 440, face: -1, clip: 'point', h: 90, look: Object.assign({}, LK.tzBoy, { robe: 'b5y2' }) }),
     ch(LK.tzGirl, { x: 300, y: 470, face: 1, clip: 'lookup', h: 84 })
@@ -380,7 +387,7 @@ const SCENES = [
   },
   chars: [
     tzDesk(386, 300, 60, 44, { h: 46, lamp: 1 }),
-    ch(LK.tzDavid, { h: 142, speed: 14, path: [W(230, 170, 5, 'lookup', { f: 1 }), W(370, 330, 7, 'tzRead', { f: 1 }), W(230, 170, 0, null, { jump: 1 })] }),
+    ch(LK.tzDavid, { h: 142, speed: 14, path: [W(230, 150, 5, 'lookup', { f: 1 }), W(420, 364, 7, 'tzRead', { f: 1 }), W(230, 150, 0, null, { jump: 1 })] }),
     ch(LK.tzServant, { x: 60, y: 480, face: 1, clip: 'tzDoze', h: 128 })
   ]
 },
@@ -426,7 +433,7 @@ const SCENES = [
   },
   live(P, t) { const a = P.I(455, 90, 42); Lib.flame(P, a[0], a[1], 34, 46, t); Lib.smoke(P, a[0], a[1] - 30, t, { n: 5, h: 190, r: 18 }); },
   chars: [
-    ch(LK.tzEli, { x: 256, y: 200, face: 1, clip: 'sit', h: 136 }),
+    ch(LK.tzEli, { x: 256, y: 200, face: -1, clip: 'sit', h: 136 }),
     ch(LK.tzHannah, { x: 322, y: 300, face: -1, clip: 'tzPrayS', h: 134 }),
     ch(LK.tzElkana, { x: 420, y: 500, face: 1, clip: 'talk', h: 142 }),
     ch(LK.tzPeninna, { x: 480, y: 470, face: -1, clip: 'sit', h: 130 }),
@@ -469,7 +476,7 @@ const SCENES = [
     { depth: 146 + 392 + 2, draw(P, t) {
       const tt = tzHaninaPhase(t); if (tt >= tzHaninaWait) return;
       const c = P.I(146, 392, 0.5), u = tt / tzHaninaWait;
-      if (u < 0.5) { const out = Math.min(1, u / 0.42), pts = []; for (let k = 0; k <= 14; k++) { const s = k / 14 * out; pts.push([c[0] - 4 + s * 22 + Math.sin(s * 7 + t * 5) * 3, c[1] - s * 18 - Math.sin(s * 3) * 6]); } if (out > 0.05) tzArodDraw(P, pts, 3.2, false); }
+      if (u < 0.5) { const out = Math.min(1, u / 0.42), pts = []; for (let k = 0; k <= 14; k++) { const s = k / 14 * out; pts.push([c[0] + 4 - s * 16 + Math.sin(s * 7 + t * 5) * 3, c[1] - s * 16 - Math.sin(s * 3) * 5]); } if (out > 0.05) tzArodDraw(P, pts, 3.2, false); }
       else { const pts = []; for (let k = 0; k <= 14; k++) { const s = k / 14; pts.push([c[0] - 30 + s * 44, c[1] + 10 + Math.sin(s * 5) * 3]); } tzArodDraw(P, pts, 3.2, true); }
     } },
     tzHaninaCh,
@@ -499,7 +506,7 @@ const SCENES = [
     { const I = (a, z) => P.I(a * 0.7 + 2, 470 + a * 0.05, z); P.shape([I(0, 0), I(80, 0), I(80, 150), I(0, 150)], 'r4y5k2', 0.9); }
     /* l'estrade du maître */
     P.box(250, 30, 0, 160, 90, 18, 'r4y5k2'); P.box(250, 120, 0, 60, 16, 9, 'r4y5k3', 0.6);
-    P.box(310, 50, 18, 34, 34, 20, 'r6b3k1', 0.8); P.box(340, 50, 18, 6, 34, 64, 'r6b3k2', 0.8);
+    P.box(310, 50, 18, 34, 34, 34, 'r6b3k1', 0.8); P.box(340, 50, 18, 6, 34, 84, 'r6b3k2', 0.8); P.box(258, 138, 0, 28, 28, 34, 'r4y5k3', 0.8);
     /* bancs pleins, rang par rang */
     const rows = [[110, 190, 160, [LK.tzStud4, LK.tzStud1, LK.tzStud3]], [110, 290, 180, [LK.tzStud2, LK.tzStud5, LK.tzStud4, LK.tzStud1]], [250, 380, 150, [LK.tzStud3, LK.tzStud2]]];
     let k = 0;
@@ -511,7 +518,7 @@ const SCENES = [
     tzHangLamp(P, 200, 250, 170, 240); tzHangLamp(P, 380, 200, 180, 240);
   },
   chars: [
-    ch(LK.tzElazar, { x: 322, y: 70, z: 18, face: 1, clip: 'tzSitTalk', h: 136 }),
+    ch(LK.tzElazar, { x: 322, y: 70, z: 18, face: -1, clip: 'tzSitTalk', h: 136 }),
     ch(LK.tzGamliel, { x: 272, y: 150, z: 0, face: 1, clip: 'tzSitRead', h: 132, t0: 1.2, hold: { nTop: 'scroll' } }),
     ch(LK.tzGuard, { x: 120, y: 500, face: -1, clip: 'guard', h: 140, hold: { n: 'staffV' } }),
     ch(LK.tzStud2, { h: 136, speed: 22, over: 'carry', hold: { nTop: 'tzBenchCarry' }, path: [W(20, 420, 0.5), W(360, 460, 2.5, 'idle', { f: 1 }), W(20, 420, 0, null, { jump: 1 })] }),
@@ -555,12 +562,12 @@ const SCENES = [
     Lib.well(P, 120, 340, 22);
   },
   chars: [
-    tzPlough(tzOx),
+    tzPlough(tzOx, tzFurrow),
     tzOx,
-    ch(LK.tzFarmer, { h: 140, speed: 16, over: 'tzPlough', hold: { f: 'tzGoad' }, path: [W(230 - 62, 480 + 62, 0.6, 'idle', { f: 1 }), W(470 - 62, 250 + 62, 0.6, 'idle', { f: -1 }), W(230 - 62, 480 + 62, 0)] }),
+    tzFollow(tzOx, LK.tzFarmer, tzFurrow, 76, { h: 138, over: 'tzPlough', hold: { f: 'tzGoad' } }),
     ch(LK.tzSage, { h: 140, speed: 18, hold: { n: 'tzScroll' }, path: [W(300, 300, 2, 'idle', { f: -1 }), W(150, 180, 0), W(100, 150, 4, 'talk', { f: -1 }), W(300, 300, 0, null, { jump: 1 })] }),
     ch(LK.tzStud1, { x: 60, y: 150, face: 1, clip: 'bow', h: 134 }),
-    ch(LK.tzVillagerW, { x: 150, y: 350, face: -1, clip: 'fill', h: 130 }),
+    ch(LK.tzVillagerW, { x: 156, y: 364, face: -1, clip: 'fill', h: 130 }),
     { draw(P, t) { for (let i = 0; i < 4; i++) { const a = t * 0.4 + i * 1.6; Lib.bird(P, 560 + Math.cos(a) * 170, 200 + Math.sin(a * 1.3) * 40, 1.1, t * 2 + i, 'k3b1'); } }, depth: 2000 }
   ]
 },
@@ -623,20 +630,20 @@ const SCENES = [
     Lib.tree(P, 70, 330, 0, { h: 160, r: 46, can: 'y3b4k2', trunk: 'r4y3k5', fruit: 8, fruitTone: 'k6b2' });
     const fg = Lib.tree(P, 60, 90, 0, { h: 130, r: 36, can: 'y5b5k1', trunk: 'r4y4k4', fruit: 6, fruitTone: 'r5b4k3' });
     P.line([[fg[0] + 10, fg[1] + 4], [fg[0] + 18, fg[1] + 10], [fg[0] + 26, fg[1] + 6]], 1.6, { ink: 1, lvl: 7 });
-    P.box(20, 380, 0, 44, 24, 18, 'y3r2k2', 0.8);
+    P.box(24, 380, 0, 44, 24, 34, 'y3r2k2', 0.8); P.box(112, 408, 0, 26, 22, 22, 'y3r2k3', 0.8);
     /* l'aire de battage, l'âne chargé */
     P.shape(P.ell(230, 470, 0.4, 55, 45, 22), 'y4r2k2', 0.8); for (let i = 0; i < 16; i++) { const q = P.I(200 + P.r() * 60, 440 + P.r() * 60, 0.6); P.line([[q[0] - 4, q[1]], [q[0] + 4, q[1] - 1]], 0.6, { ink: 0 }); }
-    Lib.jar(P, 300, 110, 0, 1.2, 'r5y6k1');
+    Lib.jar(P, 250, 50, 0, 1.2, 'r5y6k1');
   },
   chars: [
     ch(LK.tzReaper, { x: 330, y: 150, face: 1, clip: 'reap', h: 138, hold: { n: 'sickle' } }),
-    ch(LK.tzReaper, { x: 420, y: 200, face: 1, clip: 'reap', h: 136, t0: 0.7, hold: { n: 'sickle' }, look: Object.assign({}, LK.tzReaper, { robe: 'b4y3k1', ht: 'r5y3', hair: 'r5y2k4', bt: 'r5y2k4' }) }),
+    ch(LK.tzReaper, { x: 440, y: 162, face: 1, clip: 'reap', h: 136, t0: 0.7, hold: { n: 'sickle' }, look: Object.assign({}, LK.tzReaper, { robe: 'b4y3k1', ht: 'r5y3', hair: 'r5y2k4', bt: 'r5y2k4' }) }),
     ch(LK.tzWidow, { x: 430, y: 470, face: 1, clip: 'glean', h: 128 }),
     ch(LK.tzStranger, { h: 138, speed: 16, hold: { n: 'sheaf' }, path: [W(470, 420, 3, 'glean', { f: 1 }), W(300, 360, 2.5, 'idle', { f: -1 }), W(470, 420, 0)] }),
     ch(LK.tzOwner, { x: 210, y: 300, face: 1, clip: 'offer', h: 142, hold: { n: 'bread' } }),
     ch(LK.tzPoor, { x: 270, y: 330, face: -1, clip: 'reach', h: 128 }),
-    ch(LK.tzFather, { x: 100, y: 390, face: 1, clip: 'tzSitTalk', h: 134 }),
-    ch(LK.tzBoy, { x: 140, y: 420, face: -1, clip: 'tzSitRead', h: 86, hold: { nTop: 'scroll' } }),
+    ch(LK.tzFather, { x: 46, y: 392, face: 1, clip: 'tzSitTalk', h: 134 }),
+    ch(LK.tzBoy, { x: 125, y: 419, face: -1, clip: 'tzSitRead', h: 86, hold: { nTop: 'scroll' } }),
     { beast: 'donkey', h: 96, x: 170, y: 510, face: 1 }
   ]
 },
@@ -663,9 +670,9 @@ const SCENES = [
     for (let i = 0; i < 16; i++) { const k = i / 16; P.line([P.I(lerp(0, 380, k), lerp(480, 140, k), 0.5), P.I(lerp(80, 460, k), lerp(540, 170, k), 0.5)], 0.35); }
     P.box(330, 0, 0, 30, 30, 170, 'y5r3k2'); P.box(470, 0, 0, 30, 30, 170, 'y5r3k2');
     P.box(360, 0, 0, 110, 22, 140, 'y5r3k1'); tzArch(P, (a, z) => P.I(360 + a, 22.5, z), 25, 60, 104, 'k7r2');
-    P.box(500, 0, 0, 40, 22, 120, 'y5r3k2'); P.box(0, 0, 0, 330, 22, 110, 'y5r3k2');
-    for (let x = 4; x < 540; x += 16) P.box(x, 2, x < 330 ? 110 : x < 360 || (x >= 470 && x < 500) ? 170 : x < 470 ? 140 : 120, 9, 18, 8, 'y5r3k2', 0.5);
-    for (let z = 15; z < 110; z += 15) P.line([P.I(0, 22, z), P.I(330, 22, z)], 0.35);
+    P.box(500, 0, 0, 40, 22, 120, 'y5r3k2'); P.box(0, 0, 0, 330, 22, 64, 'y5r3k2');
+    for (let x = 4; x < 540; x += 16) P.box(x, 2, x < 330 ? 64 : x < 360 || (x >= 470 && x < 500) ? 170 : x < 470 ? 140 : 120, 9, 18, 8, 'y5r3k2', 0.5);
+    for (let z = 16; z < 64; z += 16) P.line([P.I(0, 22, z), P.I(330, 22, z)], 0.35);
     tzDryWall(P, 20, 380, 250, 150, 14); tzDryWall(P, 200, 540, 520, 230, 14);
     for (const [x, y, hh] of [[60, 300, 120], [150, 220, 110], [260, 110, 100]]) Lib.tree(P, x, y, 0, { h: hh, r: hh * 0.3, can: 'y3b4k2', trunk: 'r4y3k5', fruit: 5, fruitTone: 'k6b2' });
     Lib.vines(P, 380, 330, 140, 150, 3);
@@ -673,13 +680,13 @@ const SCENES = [
   },
   chars: [
     tzOxCrown(tzOx2), tzOx2,
-    ch(LK.tzFlutist, { h: 128, speed: 22, t0: -3.2, clip: 'blow', walk: 'walk', over: 'blow', hold: { nTop: 'tzFlute' }, path: [W(40, 520, 0), W(420, 150, 0), W(40, 520, 0, null, { jump: 1 })] }),
-    ch(LK.tzPilgrim, { h: 138, speed: 22, t0: -6.4, over: 'carry', hold: { nTop: 'tzBasket' }, path: [W(40, 520, 0), W(420, 150, 0), W(40, 520, 0, null, { jump: 1 })] }),
-    ch(LK.tzPilgrimW, { h: 130, speed: 22, t0: -9.6, over: 'carry', hold: { nTop: 'tzBasket' }, path: [W(40, 520, 0), W(420, 150, 0), W(40, 520, 0, null, { jump: 1 })] }),
-    ch(LK.tzPilgrim2, { h: 140, speed: 22, t0: -12.8, over: 'carry', hold: { nTop: 'tzBasket' }, path: [W(40, 520, 0), W(420, 150, 0), W(40, 520, 0, null, { jump: 1 })] }),
-    ch(LK.tzGirl, { h: 86, speed: 22, t0: -15.4, hold: { n: 'tzBasketHand' }, path: [W(40, 520, 0), W(420, 150, 0), W(40, 520, 0, null, { jump: 1 })] }),
-    ch(LK.tzOfficial, { x: 480, y: 120, face: -1, clip: 'bless', h: 142 }),
-    ch(LK.tzCraft, { x: 330, y: 70, face: 1, clip: 'bow', h: 134 })
+    ch(LK.tzFlutist, { h: 128, speed: 22, t0: -3.2, clip: 'blow', walk: 'walk', over: 'blow', hold: { nTop: 'tzFlute' }, path: [W(40, 520, 0), W(415, 56, 0), W(40, 520, 0, null, { jump: 1 })] }),
+    ch(LK.tzPilgrim, { h: 138, speed: 22, t0: -6.4, over: 'carry', hold: { nTop: 'tzBasket' }, path: [W(40, 520, 0), W(415, 56, 0), W(40, 520, 0, null, { jump: 1 })] }),
+    ch(LK.tzPilgrimW, { h: 130, speed: 22, t0: -9.6, over: 'carry', hold: { nTop: 'tzBasket' }, path: [W(40, 520, 0), W(415, 56, 0), W(40, 520, 0, null, { jump: 1 })] }),
+    ch(LK.tzPilgrim2, { h: 140, speed: 22, t0: -12.8, over: 'carry', hold: { nTop: 'tzBasket' }, path: [W(40, 520, 0), W(415, 56, 0), W(40, 520, 0, null, { jump: 1 })] }),
+    ch(LK.tzGirl, { h: 86, speed: 22, t0: -15.4, hold: { n: 'tzBasketHand' }, path: [W(40, 520, 0), W(415, 56, 0), W(40, 520, 0, null, { jump: 1 })] }),
+    ch(LK.tzOfficial, { x: 478, y: 76, face: -1, clip: 'bless', h: 142 }),
+    ch(LK.tzCraft, { x: 346, y: 96, face: 1, clip: 'bow', h: 134 })
   ]
 }
 ];
