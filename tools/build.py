@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Construit toutes les pages autonomes (un fichier HTML chacune) à la racine du dépôt :
-index.html (accueil), ancien-testament.html, parachiot/*.html et femmes/*.html.
+index.html (accueil), ancien-testament.html, parachiot/*.html, femmes/*.html et hommes/*.html.
 
   python3 tools/build.py            # tout
-  python3 tools/build.py noach      # une seule paracha (ou une feuille de la section Femmes : femmes, chalombayit, mitsvot)
+  python3 tools/build.py noach      # une seule paracha (ou une feuille de section : femmes, chalombayit, mitsvot, hommes)
 """
 import json, os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -45,6 +45,11 @@ FEMMES = [
     ('ב', 'chalombayit', 'chalom-bayit.html',        'Chalom bayit',           'La paix du foyer', 2),
     ('ג', 'mitsvot',     'mitsvot-des-femmes.html',  'Les mitsvot des femmes', 'Bougies, hallah, mikvé : les berakhot', 0),
 ]
+# section « Les hommes » : même format, src/hommes/<id>.js
+HOMMES = [
+    ('א', 'hommes', 'mitsvot-des-hommes.html', 'Les mitsvot des hommes', 'Talit, tefillin, kiddouch : les berakhot', 2),
+]
+SECTIONS = [('femmes', FEMMES), ('hommes', HOMMES)]
 ENGINE = ['core.js', 'figures.js', 'lib2.js']
 read = lambda p: open(p, encoding='utf-8').read()
 
@@ -54,8 +59,9 @@ def nav_items():
     """Entrées du menu vertical, tirées du tableau PARA de l'index (source unique)."""
     items = [{'mark': '⌂', 'he': 'Accueil', 'fr': 'Toutes les feuilles', 'href': 'index.html', 'ink': 3},
              {'mark': 'AT', 'he': 'L’Ancien Testament', 'fr': 'Seize scènes, une seule feuille', 'href': 'ancien-testament.html', 'ink': 3, 'sep': 1}]
-    for i, (mark, fid, out, he, fr, ink) in enumerate(FEMMES):
-        items.append({'mark': mark, 'he': he, 'fr': fr, 'href': 'femmes/' + out, 'ink': ink, 'sec': 'femmes', 'sep': int(i == 0)})
+    for sec, sheets in SECTIONS:
+        for i, (mark, fid, out, he, fr, ink) in enumerate(sheets):
+            items.append({'mark': mark, 'he': he, 'fr': fr, 'href': sec + '/' + out, 'ink': ink, 'sec': sec, 'sep': int(i == 0)})
     items.append({'mark': '✦', 'he': 'Parachiot 5787', 'fr': 'Les Dix Paroles et l’index', 'href': 'parachiot/index.html', 'ink': 1, 'sep': 1})
     for m in re.finditer(r"\{ n: (\d+), he: '([^']*)', fr: '([^']*)', date: '([^']*)'(.*?)ink: (\d) \}", read(S('index', 'index.html'))):
         n, he, fr, date, rest, ink = m.groups()
@@ -118,5 +124,6 @@ if __name__ == '__main__':
     if not only: build_home(); build_at(); build_index()
     for n, pid, out in PARACHIOT:
         if (not only or pid in only) and os.path.exists(S('parachiot', pid + '.js')): build_paracha(pid, out)
-    for mark, fid, out, *_ in FEMMES:
-        if (not only or fid in only) and os.path.exists(S('femmes', fid + '.js')): build_paracha(fid, out, 'femmes')
+    for sec, sheets in SECTIONS:
+        for mark, fid, out, *_ in sheets:
+            if (not only or fid in only) and os.path.exists(S(sec, fid + '.js')): build_paracha(fid, out, sec)
