@@ -30,7 +30,7 @@ const SCENES = [
     Lib.sun(P, 820, 150, 28); Lib.cloud(P, 280, 140, 160, 30, 'b1');
     Lib.platform(P, 'y4r2', 'y4r3k2');
     Lib.mound(P, 470, 50, 80, 140, 'r5y4k2'); Lib.mound(P, 520, 170, 60, 90, 'r5y3k3'); Lib.mound(P, 350, 20, 60, 80, 'r4y4k2');
-    const road = [[60, 540], [200, 400], [330, 280], [470, 150]]; for (let i = 0; i < road.length - 1; i++) { const a = road[i], b = road[i + 1]; P.fill([P.I(a[0] - 28, a[1] - 28, 0.5), P.I(b[0] - 28, b[1] - 28, 0.5), P.I(b[0] + 28, b[1] + 28, 0.5), P.I(a[0] + 28, a[1] + 28, 0.5)], 'y3r1', {}); }
+    const road = [[90, 500], [200, 400], [330, 280], [460, 160]]; for (let i = 0; i < road.length - 1; i++) { const a = road[i], b = road[i + 1]; P.fill([P.I(a[0] - 24, a[1] - 24, 0.5), P.I(b[0] - 24, b[1] - 24, 0.5), P.I(b[0] + 24, b[1] + 24, 0.5), P.I(a[0] + 24, a[1] + 24, 0.5)], 'y3r1', {}); }
     Lib.tent(P, 30, 200, 130, 110, 110, 'r5y4k1'); Lib.tent(P, 60, 60, 110, 90, 90, 'b4y3k1');
     Lib.palm(P, 250, 120, 0, 150, { lean: 12 }); Lib.bush(P, 420, 420, 0, 26, 'y5b5k1');
     Lib.stones(P, 24, 'y3r2k3', [20, 20, 500, 500]);
@@ -51,7 +51,7 @@ const SCENES = [
     'Pas de fête juive attachée à ce passage. Le texte en tire l’interdit de manger le nerf sciatique (guid hanaché), toujours observé ; Rachi identifie l’adversaire à l’ange protecteur d’Ésaü.'],
   back(P) {
     nightSky(P, 'b7k4', 70);
-    P.halo(820, 330, 220, ['r1y1', 'r2y2', 'r3y3', 'r3y5'], { knock: true });
+    P.halo(800, 320, 140, ['r1y1', 'r2y2', 'r3y3', 'r3y5'], { knock: true });
     Lib.moon(P, 200, 150, 20);
     Lib.platform(P, 'y3r2b3k1', 'y3r3b2k2', { strata: [[0, .4, 'y3r3b2k2'], [.4, 1, 'y3r3b3k3']] });
     P.shape([P.I(0, 150, 0.6), P.I(540, 190, 0.6), P.I(540, 280, 0.6), P.I(0, 240, 0.6)], 'b6k2', 1.1);
@@ -163,7 +163,7 @@ const SCENES = [
     Lib.sun(P, 820, 150, 26); Lib.cloud(P, 260, 140, 170, 32, 'b1');
     Lib.platform(P, 'y5b3', 'y4r3k2');
     Lib.city(P, 380, 20, 140, 120, 6, 'y3r2', 50);
-    const road = [[540, 200], [380, 260], [200, 360], [0, 440]]; for (let i = 0; i < road.length - 1; i++) { const a = road[i], b = road[i + 1]; P.fill([P.I(a[0] - 22, a[1] - 22, 0.5), P.I(b[0] - 22, b[1] - 22, 0.5), P.I(b[0] + 22, b[1] + 22, 0.5), P.I(a[0] + 22, a[1] + 22, 0.5)], 'y4r2', {}); }
+    const road = [[515, 215], [380, 260], [200, 360], [25, 430]]; for (let i = 0; i < road.length - 1; i++) { const a = road[i], b = road[i + 1]; P.fill([P.I(a[0] - 22, a[1] - 22, 0.5), P.I(b[0] - 22, b[1] - 22, 0.5), P.I(b[0] + 22, b[1] + 22, 0.5), P.I(a[0] + 22, a[1] + 22, 0.5)], 'y4r2', {}); }
     Lib.grass(P, 50, 'y5b5');
     for (let i = 0; i < 40; i++) { const c = P.I(20 + P.r() * 500, 20 + P.r() * 500, 0); P.fill(P.disc(c[0], c[1] - 2, 2.2, 6), ['y8', 'r7', 'r5b5', 'y1'][i % 4], {}); }
     stoneStack(P, 200, 180, 70, 50, 32, 'y3r2k2');
@@ -176,7 +176,7 @@ const SCENES = [
     ch(LK.maid, { x: 360, y: 330, face: -1, clip: 'cradle', h: 126, hold: { n: 'baby' } }),
     ch(LK.vs_leah, { x: 400, y: 280, face: -1, clip: 'sulk', h: 128 }),
     ch(LK.joseph, { x: 320, y: 380, face: -1, clip: 'still', h: 100, look: Object.assign({}, LK.child, { robe: 'r6b5', sash: 'y7' }) }),
-    { beast: 'camel', h: 110, x: 470, y: 400, face: -1 }, { beast: 'donkey', h: 88, x: 420, y: 470, face: -1 },
+    { beast: 'camel', h: 110, x: 490, y: 470, face: -1 }, { beast: 'donkey', h: 88, x: 380, y: 500, face: -1 },
     { beast: 'sheep', h: 58, speed: 6, path: [W(140, 440, 3), W(90, 500, 3), W(140, 440, 0)] }
   ]
 },
@@ -192,20 +192,20 @@ const SCENES = [
     const m = Lib.mound(P, 120, 110, 110, 180, 'y4r3k2');
     const c = P.I(170, 170, 0); P.shape([[c[0] - 26, c[1]], [c[0] - 24, c[1] - 30], [c[0] - 10, c[1] - 44], [c[0] + 10, c[1] - 44], [c[0] + 24, c[1] - 30], [c[0] + 26, c[1]]], 'k8r2', 1.1);
     Lib.tree(P, 420, 60, 0, { h: 220, r: 66, blobs: 9, can: 'y4b6k2', trunk: 'r5y4k4' }); Lib.tree(P, 490, 190, 0, { h: 170, r: 50, can: 'y5b5k2' });
-    P.box(230, 220, 0, 100, 36, 22, 'r4y5k3');
-    P.shape([P.I(236, 224, 22), P.I(324, 224, 22), P.I(324, 252, 22), P.I(236, 252, 22)].map((p, i) => [p[0], p[1] - (i === 1 || i === 2 ? 8 : 12)]), 'y1', 1);
-    Lib.lamp(P, 350, 210, 0, 1);
+    P.box(250, 290, 0, 100, 36, 22, 'r4y5k3');
+    P.shape([P.I(256, 294, 22), P.I(344, 294, 22), P.I(344, 322, 22), P.I(256, 322, 22)].map((p, i) => [p[0], p[1] - (i === 1 || i === 2 ? 8 : 12)]), 'y1', 1);
+    Lib.lamp(P, 390, 270, 0, 1);
     Lib.stones(P, 22, 'y3r2k3', [20, 300, 500, 220]);
   },
-  live(P, t) { const c = P.I(350, 210, 0); Lib.smoke(P, c[0], c[1] - 20, t, { n: 4, h: 110, r: 12, tn: 'k2' }); },
+  live(P, t) { const c = P.I(390, 270, 0); Lib.smoke(P, c[0], c[1] - 20, t, { n: 4, h: 110, r: 12, tn: 'k2' }); },
   chars: [
-    ch(LK.vs_esau, { x: 260, y: 310, face: 1, clip: 'bow', h: 148 }),
-    ch(LK.vs_israel, { x: 350, y: 270, face: -1, clip: 'bow', h: 146, t0: 1 }),
-    ch(LK.vs_leah, { x: 380, y: 360, face: -1, clip: 'sulk', h: 128 }),
-    ch(LK.isrOld, { x: 430, y: 310, face: -1, clip: 'pray', h: 134 }),
-    ch(LK.vs_esauMan, { x: 180, y: 420, face: 1, clip: 'guard', h: 134, hold: { n: 'spear' } }),
-    ch(LK.isrW, { x: 300, y: 430, face: -1, clip: 'sulk', h: 126, t0: 2 }),
-    { beast: 'camel', h: 110, x: 480, y: 460, face: -1 }
+    ch(LK.vs_esau, { x: 250, y: 390, face: 1, clip: 'bow', h: 148 }),
+    ch(LK.vs_israel, { x: 380, y: 340, face: -1, clip: 'bow', h: 146, t0: 1 }),
+    ch(LK.vs_leah, { x: 430, y: 410, face: -1, clip: 'sulk', h: 128 }),
+    ch(LK.isrOld, { x: 470, y: 350, face: -1, clip: 'pray', h: 134 }),
+    ch(LK.vs_esauMan, { x: 170, y: 470, face: 1, clip: 'guard', h: 134, hold: { n: 'spear' } }),
+    ch(LK.isrW, { x: 330, y: 470, face: -1, clip: 'sulk', h: 126, t0: 2 }),
+    { beast: 'camel', h: 110, x: 500, y: 250, face: -1 }
   ]
 }
 ];

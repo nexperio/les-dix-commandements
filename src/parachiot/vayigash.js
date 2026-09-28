@@ -90,12 +90,12 @@ const SCENES = [
     Lib.lamp(P, 200, 480, 0, 1.2);
   },
   chars: [
-    ch(LK.vg_joseph, { x: 230, y: 270, face: 1, clip: 'offer', h: 146 }),
-    ch(LK.vg_benjamin, { x: 300, y: 300, face: -1, clip: 'lookup', h: 130 }),
-    ch(LK.vg_judah, { x: 330, y: 230, face: -1, clip: 'kneel', h: 144 }),
-    ch(LK.bro1, { x: 370, y: 330, face: -1, clip: 'stagger', h: 140 }),
-    ch(LK.bro2, { x: 340, y: 410, face: -1, clip: 'kneel', h: 140, t0: 1 }),
-    ch(LK.bro3, { x: 420, y: 380, face: -1, clip: 'still', h: 140 }),
+    ch(LK.vg_joseph, { x: 200, y: 290, face: 1, clip: 'offer', h: 146 }),
+    ch(LK.vg_benjamin, { x: 280, y: 330, face: -1, clip: 'lookup', h: 130 }),
+    ch(LK.vg_judah, { x: 320, y: 250, face: -1, clip: 'kneel', h: 144 }),
+    ch(LK.bro1, { x: 400, y: 320, face: -1, clip: 'stagger', h: 140 }),
+    ch(LK.bro2, { x: 340, y: 440, face: -1, clip: 'kneel', h: 140, t0: 1 }),
+    ch(LK.bro3, { x: 450, y: 420, face: -1, clip: 'still', h: 140 }),
     ch(LK.vg_egypt, { h: 136, speed: 18, path: [W(260, 150, 1.5, 'idle'), W(420, 20, 0), W(260, 150, 0, null, { jump: 1 })] }),
     ch(LK.vg_egyptW, { h: 128, speed: 18, t0: 4, path: [W(200, 180, 1.5, 'idle'), W(410, 25, 0), W(200, 180, 0, null, { jump: 1 })] })
   ]
@@ -174,7 +174,7 @@ const SCENES = [
     Lib.stones(P, 14, 'y3r2k3', [200, 400, 300, 120]);
   },
   chars: [
-    vgChariot(430, 230), { beast: 'vg_horse', h: 118, x: 363, y: 297, face: -1 },
+    vgChariot(480, 200), { beast: 'vg_horse', h: 118, x: 413, y: 267, face: -1 },
     ch(LK.vg_joseph, { x: 270, y: 300, face: -1, clip: 'cradle', h: 146 }),
     ch(LK.vg_jacob, { x: 245, y: 285, face: 1, clip: 'cradle', h: 140 }),
     ch(LK.vg_judah, { x: 180, y: 380, face: 1, clip: 'idle', h: 144, hold: { f: 'staffV' } }),
@@ -195,6 +195,7 @@ const SCENES = [
     P.shape([P.I(210, 240, 0.5), P.I(520, 240, 0.5), P.I(520, 320, 0.5), P.I(210, 320, 0.5)], 'r7y3', 1);
     for (let i = 0; i < 6; i++) P.line([P.I(230 + i * 50, 252, 1), P.I(230 + i * 50, 308, 1)], 0.8, { ink: 2 });
     Lib.lamp(P, 170, 110, 0, 1.2); Lib.lamp(P, 170, 400, 0, 1.2);
+    P.box(328, 138, 0, 24, 24, 16, 'r4y5k2');
   },
   chars: [
     ch(LK.vg_pharaoh, { x: 100, y: 255, z: 34, face: 1, clip: 'throne', hold: { n: 'scepter' }, h: 150 }),
@@ -204,7 +205,7 @@ const SCENES = [
     ch(LK.vg_joseph, { x: 300, y: 350, face: -1, clip: 'offer', h: 146 }),
     ch(LK.vg_judah, { x: 420, y: 300, face: -1, clip: 'bow', h: 142 }),
     ch(LK.bro1, { x: 440, y: 400, face: -1, clip: 'bow', h: 140, t0: 1 }),
-    ch(LK.vg_egypt, { x: 340, y: 150, face: -1, clip: 'sit', h: 130, hold: { n: 'scroll' }, look: Object.assign({}, LK.vg_egypt, { robe: 'y2', head: null }) })
+    ch(LK.vg_egypt, { x: 340, y: 150, z: 16, face: -1, clip: 'sit', h: 130, hold: { n: 'scroll' }, look: Object.assign({}, LK.vg_egypt, { robe: 'y2', head: null }) })
   ]
 },
 {
@@ -223,18 +224,19 @@ const SCENES = [
     for (const [x, y] of [[180, 250], [240, 270], [300, 250]]) P.box(x, y, 0, 6, 6, 110, 'r4y5k3', 0.7);
     P.shape([P.I(170, 240, 110), P.I(310, 240, 110), P.I(310, 280, 104), P.I(170, 280, 104)], 'b5y1', 1);
     vgSacks(P, [[330, 150, 1], [360, 180, 0.9], [300, 120, 1]]);
+    P.box(268, 318, 0, 24, 24, 16, 'r4y5k2');
     Lib.palm(P, 490, 60, 0, 160, { lean: -12, dates: 1 });
     Lib.stones(P, 18, 'y4r3k2', [300, 300, 220, 220]);
   },
   chars: [
     ch(LK.vg_joseph, { x: 220, y: 300, face: 1, clip: 'point', h: 146 }),
-    ch(LK.vg_egypt, { x: 280, y: 330, face: 1, clip: 'sit', h: 128, hold: { n: 'scroll' }, look: Object.assign({}, LK.vg_egypt, { robe: 'y2', head: null }) }),
+    ch(LK.vg_egypt, { x: 280, y: 330, z: 16, face: 1, clip: 'sit', h: 128, hold: { n: 'scroll' }, look: Object.assign({}, LK.vg_egypt, { robe: 'y2', head: null }) }),
     ch(LK.vg_egypt, { h: 136, speed: 14, path: [W(520, 480, 0), W(360, 370, 3, 'offer'), W(520, 480, 0)] }),
     { beast: 'bull', h: 84, speed: 14, t0: 0.7, path: [W(540, 440, 0), W(410, 360, 3), W(540, 440, 0)] },
     ch(LK.vg_egyptW, { h: 128, speed: 12, t0: 5, path: [W(470, 520, 0), W(340, 430, 3, 'idle'), W(470, 520, 0)] }),
     { beast: 'donkey', h: 88, speed: 12, t0: 5.6, path: [W(500, 540, 0), W(380, 460, 3), W(500, 540, 0)] },
     { beast: 'sheep', h: 56, x: 450, y: 330, face: -1 }, { beast: 'sheep', h: 54, x: 490, y: 300, face: -1 },
-    ch(LK.vg_egypt, { h: 134, speed: 16, over: 'carry', hold: { nTop: 'jarhead' }, path: [W(320, 200, 1), W(160, 470, 0), W(320, 200, 0, null, { jump: 1 })], look: Object.assign({}, LK.vg_egypt, { ht: 'r5y3' }) })
+    ch(LK.vg_egypt, { h: 134, speed: 16, over: 'carry', hold: { nTop: 'jarhead' }, path: [W(350, 190, 1.5, 'idle'), W(510, 230, 0), W(350, 190, 0, null, { jump: 1 })], look: Object.assign({}, LK.vg_egypt, { ht: 'r5y3' }) })
   ]
 }
 ];
