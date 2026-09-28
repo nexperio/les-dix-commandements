@@ -33,7 +33,7 @@ Object.assign(CLIPS, {
   ttExam: { d: 3, k: [{ lean: 14, head: 16, nU: 70, nL: 20, fU: 40, fL: 60, nT: 6, fT: -6 }, { lean: 17, head: 20, nU: 76, nL: 14, fU: 42, fL: 56, nT: 6, fT: -6 }] },
   ttArm: { d: 3.4, k: [{ lean: -2, head: 10, nU: 84, nL: 6, fU: 20, fL: 70, nT: 4, fT: -4 }, { lean: -1, head: 14, nU: 86, nL: 4, fU: 22, fL: 68, nT: 4, fT: -4 }] },
   ttRock: { d: 2.4, k: [{ nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 18, head: 18, nU: 40, nL: 20, fU: 36, fL: 24 }, { nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 24, head: 22, nU: 52, nL: 14, fU: 46, fL: 18 }] },
-  ttDip: { d: 2.6, k: [{ nT: 4, nK: -95, fT: 0, fK: -95, lean: 44, head: 20, nU: 70, nL: 10, fU: 60, fL: 16 }, { nT: 4, nK: -95, fT: 0, fK: -95, lean: 52, head: 24, nU: 80, nL: 4, fU: 70, fL: 10 }] },
+  ttDip: { d: 2.6, k: [{ nT: 4, nK: -95, fT: 0, fK: -95, lean: 26, head: 16, nU: 52, nL: 16, fU: 44, fL: 22 }, { nT: 4, nK: -95, fT: 0, fK: -95, lean: 32, head: 20, nU: 62, nL: 8, fU: 52, fL: 16 }] },
   ttJoy: { d: 2.4, k: [{ nU: 120, nL: 30, fU: 110, fL: 40, lean: -4, head: -10, nT: 8, fT: -8 }, { nU: 138, nL: 18, fU: 128, fL: 24, lean: -6, head: -14, nT: 8, fT: -8 }] }
 });
 /* ---------- accessoires ---------- */
@@ -242,7 +242,7 @@ const SCENES = [
     /* au premier plan : la tour de guet, les rochers, les poteries du potier */
     Lib.rock(P, 40, 380, 0, 70, 40, 'y3r2k3'); Lib.rock(P, 480, 460, 0, 60, 34, 'y3r2k3');
     for (const [x, y, tn] of [[470, 60, 'r6y5k1'], [492, 72, 'r5y6k2'], [484, 90, 'r6y4k1'], [506, 50, 'r6y5k2']]) Lib.jar(P, x, y, 0, 1.2, tn);
-    ttOlive(P, 90, 250, 110, 34); Lib.bush(P, 190, 480, 0, 20, 'y4b5k3'); Lib.bush(P, 520, 300, 0, 18, 'y4b5k3');
+    ttOlive(P, 90, 250, 110, 34); Lib.bush(P, 280, 510, 0, 20, 'y4b5k3'); Lib.bush(P, 520, 300, 0, 18, 'y4b5k3');
   },
   live(P, t) {
     const X0 = 250, X1 = 460, Y0 = 160, Y1 = 350;
@@ -451,11 +451,10 @@ const SCENES = [
     P.box(390, 190, 0, 90, 60, 14, { t: 'r6b3k1', l: 'y4r3k2', r: 'y4r3k3' }, 0.9);
     P.box(446, 204, 14, 20, 34, 26, 'r5y4k2', 0.8); P.box(462, 204, 40, 5, 34, 36, 'r5y4k2', 0.8);
     /* les bancs des élèves, en rangées comme des ceps, tournés vers Rabbi Akiva */
-    for (const x of [90, 170, 250]) { P.box(x - 13, 250, 0, 26, 236, 20, 'r4y5k2', 0.8); P.box(x - 11, 250, 20, 22, 236, 3, 'r4y5k1', 0.5); }
-    ttStatic(P, LK.ttSage3, { x: 90, y: 270, face: 1, clip: 'ttSitRead', h: 118, tt: 0.4 });
-    ttStatic(P, LK.ttSage2, { x: 170, y: 262, face: 1, clip: 'ttSitTalk', h: 120, tt: 1.2 });
-    ttStatic(P, LK.ttSage4, { x: 250, y: 266, face: 1, clip: 'ttSitRead', h: 118, tt: 2.1 });
-    ttStatic(P, LK.ttBenAzzai, { x: 90, y: 340, face: 1, clip: 'ttSitRead', h: 116, tt: 0.9, look: Object.assign({}, LK.ttBenAzzai, { robe: 'r5b3k2', ht: 'y2b1' }) });
+    for (const x of [70, 170, 270]) { P.box(x - 13, 250, 0, 26, 250, 20, 'r4y5k2', 0.8); P.box(x - 11, 250, 20, 22, 250, 3, 'r4y5k1', 0.5); }
+    ttStatic(P, LK.ttSage3, { x: 70, y: 285, face: 1, clip: 'ttSitRead', h: 118, tt: 0.4 });
+    ttStatic(P, LK.ttSage2, { x: 170, y: 275, face: 1, clip: 'ttSitTalk', h: 120, tt: 1.2 });
+    ttStatic(P, LK.ttSage4, { x: 270, y: 290, face: 1, clip: 'ttSitRead', h: 118, tt: 2.1 });
     ttOlive(P, 40, 180, 100, 32); ttCypress(P, 530, 140, 120); ttCypress(P, 530, 190, 100); ttOlive(P, 500, 510, 76, 26); ttCypress(P, 530, 420, 100);
     Lib.grass(P, 24, 'y5b5k1', [300, 380, 200, 150]);
   },
@@ -463,12 +462,11 @@ const SCENES = [
     ch(LK.ttAkiva, { x: 360, y: 340, face: -1, clip: 'ttUnroll', h: 138, hold: { nTop: 'ttScroll' } }),
     ch(LK.ttEleazar, { x: 452, y: 222, z: 14, face: -1, clip: 'sit', h: 128 }),
     ch(LK.ttBenAzzai, { x: 400, y: 250, face: -1, clip: 'talk', h: 134, t0: 0.6 }),
-    ch(LK.ttSage, { x: 170, y: 340, face: 1, clip: 'ttSitTalk', h: 118, t0: 0.3 }),
-    ch(LK.ttSage3, { x: 250, y: 340, face: 1, clip: 'ttSitRead', h: 118, t0: 1.4, look: Object.assign({}, LK.ttSage3, { robe: 'y5r3k2', hair: 'k7', bt: 'k7' }) }),
-    ch(LK.ttMan, { x: 90, y: 410, face: 1, clip: 'ttSitRead', h: 118, t0: 2.2 }),
-    ch(LK.ttSage2, { x: 170, y: 415, face: 1, clip: 'ttSitRead', h: 118, t0: 0.9, look: Object.assign({}, LK.ttSage2, { robe: 'b5y2k2', ht: 'y2' }) }),
-    ch(LK.ttSage4, { x: 250, y: 410, face: 1, clip: 'ttSitTalk', h: 118, t0: 1.8 }),
-    ch(LK.ttBoy, { x: 170, y: 470, face: 1, clip: 'ttSitRead', h: 84, t0: 0.4 })
+    ch(LK.ttSage, { x: 170, y: 385, face: 1, clip: 'ttSitTalk', h: 118, t0: 0.3 }),
+    ch(LK.ttSage3, { x: 270, y: 400, face: 1, clip: 'ttSitRead', h: 118, t0: 1.4, look: Object.assign({}, LK.ttSage3, { robe: 'y5r3k2', hair: 'k7', bt: 'k7' }) }),
+    ch(LK.ttMan, { x: 70, y: 395, face: 1, clip: 'ttSitRead', h: 118, t0: 2.2 }),
+    ch(LK.ttBoy, { x: 170, y: 480, face: 1, clip: 'ttSitRead', h: 84, t0: 0.4 }),
+    ch(LK.ttSage2, { x: 70, y: 485, face: 1, clip: 'ttSitTalk', h: 118, t0: 0.9, look: Object.assign({}, LK.ttSage2, { robe: 'b5y2k2', ht: 'y2' }) })
   ]
 },
 {

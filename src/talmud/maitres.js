@@ -152,7 +152,7 @@ const trNiches = (P, side, a0, z0, cols, rows, cw = 26, rh = 22) => {
 /* lampe d'argile suspendue */
 const trHangLamp = (P, x, y, z, ceil) => {
   P.line([P.I(x, y, ceil), P.I(x, y, z + 14)], 0.6); for (const d of [-6, 6]) P.line([P.I(x, y, z + 14), P.I(x + d, y, z + 3)], 0.5);
-  const q = P.I(x, y, z); P.halo(q[0], q[1] - 8, 42, ['y1', 'y2', 'y3r1']);
+  const q = P.I(x, y, z); P.halo(q[0], q[1] - 8, 40, ['y4r2', 'y3r1', 'y2', 'y1'], { knock: true });
   P.shape([[q[0] - 12, q[1] - 3], [q[0] + 12, q[1] - 5], [q[0] + 8, q[1] + 4], [q[0] - 8, q[1] + 4]], 'r5y6k2', 0.8);
   Lib.flame(P, q[0] + 11, q[1] - 5, 6, 12, x, { noKnock: true });
 };
@@ -168,7 +168,16 @@ const trHouse = (P, x, y, w, d, h, o = {}) => {
   for (const [a, z, ww, hh, tn] of o.winR || []) { const I = (u, zz) => P.I(x + w + 0.5, y + u, zz); P.shape([I(a, z), I(a + ww, z), I(a + ww, z + hh), I(a, z + hh)], tn || 'k6r2', 0.7); P.line([I(a + ww / 2, z), I(a + ww / 2, z + hh)], 0.6); P.box(x + w, y + a - 3, z - 3, 4, ww + 6, 3, 'r4y5k3', 0.5); }
 };
 /* colline à sommet arrondi */
-const trHill = (P, x, y, r, h, tn, o = {}) => Lib.mound(P, x, y, r, h, tn, Object.assign({ conc: 0.8 }, o));
+const trHill = (P, x, y, r, h, tn, o = {}) => {
+  const b = P.I(x, y, 0), rx = r * 1.22, ry = r * 0.4, sd = (x * 13 + y * 7) | 0, top = [];
+  for (let i = 0; i <= 28; i++) { const a = Math.PI * i / 28, k = Math.pow(Math.sin(a), 0.7), n = i === 0 || i === 28 ? 0 : (h2(i, 1, sd) - 0.5) * h * 0.12 * Math.sin(a); top.push([b[0] - rx * Math.cos(a), b[1] - h * k + n]); }
+  const bot = []; for (let i = 1; i < 12; i++) { const a = Math.PI * i / 12; bot.push([b[0] + rx * Math.cos(a), b[1] + ry * Math.sin(a)]); }
+  const all = top.concat(bot); P.fill(all, tn);
+  const cut = b[0] + rx * 0.15, sh = all.filter(p => p[0] > cut + (b[1] - p[1]) * 0.25);
+  if (sh.length > 2) P.fill([[cut, b[1] - h * 0.95]].concat(sh), tadd(tn, o.shade || 'k2b1'), { noKnock: true });
+  for (let k = 0; k < 5; k++) { const u = 0.2 + h2(k, 3, sd) * 0.6, xx = b[0] - rx * 0.7 + u * rx * 1.4, yy = b[1] - h * (0.25 + h2(k, 4, sd) * 0.4); P.line([[xx - 10, yy], [xx + 10, yy + 3]], 0.7); }
+  P.outline(all, 1.3);
+};
 /* olivier : tronc noueux, feuillage gris-vert */
 const trOlive = (P, x, y, h = 110, fruit = 5) => Lib.tree(P, x, y, 0, { h, r: h * 0.32, can: 'y4b5k2', trunk: 'r4y4k5', blobs: 6, fruit, fruitTone: 'k6b3' });
 /* roseaux */
@@ -235,7 +244,7 @@ const SCENES = [
     P.cyl(312, 322, 0, 14, 16, 'k5r2', 0.8, 14); P.shape(P.ell(312, 322, 16.4, 10, 10, 14), 'r7y5', 0.5);
     P.box(130, 282, 0, 40, 16, 20, 'r4y5k3', 0.7); P.fill([P.I(130, 282, 20.5), P.I(170, 282, 20.5), P.I(170, 298, 20.5), P.I(130, 298, 20.5)], 'b1', {});
   },
-  live(P, t) { const q = P.I(312, 322, 17); P.halo(q[0], q[1] - 8, 56, ['y1', 'y2', 'y3r1', 'y4r2']); for (const dx of [-5, 3]) Lib.flame(P, q[0] + dx, q[1], 12, 26, t * 1.3 + dx, { noKnock: true }); },
+  live(P, t) { const q = P.I(312, 322, 17); P.halo(q[0], q[1] - 8, 56, ['y1', 'y2', 'y3r1', 'y4r2']); for (const dx of [-6, 4]) Lib.flame(P, q[0] + dx, q[1], 16, 38, t * 1.3 + dx, { noKnock: true }); },
   top(P, t) {
     const o = this.chars[0].out; if (o && o.head) { const q = o.head; P.shape(Lib.bumpy(P, q[0] - 1, q[1] - 7, 10, 5, 6), 'b1', 0.5); P.shape(Lib.bumpy(P, q[0] - 8, q[1] + 12, 13, 5, 6), 'b1', 0.5); }
     const r = rng(11);
@@ -248,10 +257,10 @@ const SCENES = [
   chars: [
     ch(LK.trHillel, { x: 276, y: 226, z: 150, face: 1, clip: 'trFastSit', h: 118, noShadow: 1 }),
     { depth: 276 + 226 + 2, draw(P, t) { const q = P.I(276, 226, 150); P.shape(Lib.bumpy(P, q[0] + 2, q[1] - 14, 40, 20, 8), 'b1', 0.8); P.shape(Lib.bumpy(P, q[0] - 22, q[1] - 6, 22, 11, 6), 'b1', 0.6); P.shape(Lib.bumpy(P, q[0] + 26, q[1] - 8, 20, 10, 6), 'b1', 0.6); P.line([[q[0] - 30, q[1] - 16], [q[0] + 8, q[1] - 24]], 0.5, { ink: 2, lvl: 4 }); } },
-    ch(LK.trShemaya, { x: 215, y: 252, z: 150, face: 1, clip: 'trBrush', h: 130 }),
+    ch(LK.trShemaya, { x: 236, y: 240, z: 150, face: 1, clip: 'trBrush', h: 130 }),
     ch(LK.trAvtalyon, { h: 130, speed: 18, path: [W(470, 128, 2.5, 'lookup', { f: -1 }), W(469.5, 128.3, 0, 'walk'), W(436, 128, 0, 'climb'), W(418, 128, 3.5, 'lookup', { z: 128, f: -1 }), W(470, 128, 0, null, { jump: 1 })] }),
     ch(LK.trGuard, { x: 160, y: 300, face: 1, clip: 'guard', h: 140, hold: { n: 'staffV' } }),
-    ch(LK.trStudent2, { x: 340, y: 336, face: -1, clip: 'trFan', h: 126 })
+    ch(LK.trStudent2, { x: 282, y: 338, face: 1, clip: 'trFan', h: 126 })
   ]
 },
 {
@@ -395,7 +404,7 @@ const SCENES = [
     ch(LK.trBabli, { x: 140, y: 240, face: 1, clip: 'trArgue', h: 132 }),
     ch(LK.trBabli2, { x: 180, y: 270, face: -1, clip: 'trArgue', h: 132, t0: 0.7 }),
     { beast: 'camel', h: 120, x: 110, y: 470, face: -1 },
-    ch(LK.trDriver, { x: 150, y: 490, face: -1, clip: 'haul', h: 130 }),
+    ch(LK.trDriver, { x: 84, y: 512, face: -1, clip: 'haul', h: 130 }),
     ch(LK.trShepherd, { x: 470, y: 330, face: -1, clip: 'idle', h: 132, hold: { n: 'staffV' } }),
     { beast: 'sheep', h: 56, x: 420, y: 380, face: 1 }, { beast: 'sheep', h: 52, x: 500, y: 410, face: -1 }
   ]
@@ -449,12 +458,13 @@ const SCENES = [
     'Ses élèves lui demandent une bénédiction : « Que la crainte du Ciel soit sur vous comme la crainte des hommes. » Seulement cela ? « Si seulement ! Quand un homme commet une faute, il se dit : pourvu que personne ne me voie. » À l’heure de sa mort, il dit : « Préparez un siège pour Ézéchias, roi de Juda, qui vient. » Le plus jeune des élèves de Hillel (Souccah 28a) avait sauvé l’étude en obtenant de Vespasien Yavné et ses sages (Guittin 56b).'],
   back(P) {
     trRoom(P, { wl: 'y2r2k1', band: 'b5r3', h: 230, floor: 'y4r3k2', seed: 7 });
-    trWinR(P, 260, 88, 124, 96, 'b2y1', v => {
-      P.fill([v(0, 0.55), v(1, 0.5), v(1, 1), v(0, 1)], 'y4b4k1', {});
-      P.fill([v(0.46, 1), v(0.56, 1), v(0.3, 0.52), v(0.26, 0.53)], 'y3r2', {});
-      P.fill([v(0.56, 1), v(0.66, 1), v(0.86, 0.56), v(0.82, 0.55)], 'y4r3k2', {});
-      { const c = v(0.24, 0.4); P.halo(c[0], c[1], 24, ['y1', 'y2', 'y3r1']); for (let i = 0; i < 4; i++) { const q = v(0.12 + i * 0.07, 0.5); P.shape(Lib.bumpy(P, q[0], q[1] - 5, 6, 6, 5), 'y4b6', 0.4); } }
-      { const q = v(0.84, 0.5); P.fill([v(0.72, 0.5), v(1, 0.44), v(1, 0.62), v(0.78, 0.58)], 'k5b3r1', {}); P.fill(P.disc(q[0], q[1], 3, 6), 'r6k3', { noKnock: true }); }
+    trWinR(P, 250, 84, 150, 110, 'b2y1', v => {
+      P.fill([v(0, 0.5), v(1, 0.46), v(1, 1), v(0, 1)], 'y5b4', {});
+      { const c = v(0.2, 0.36); P.halo(c[0], c[1], 34, ['y1', 'y2', 'y3r1'], { knock: true }); for (let i = 0; i < 5; i++) { const q = v(0.07 + i * 0.065, 0.47 - (i % 2) * 0.03); P.shape(Lib.bumpy(P, q[0], q[1] - 6, 7, 7, 5), i % 2 ? 'y5b6' : 'y4b5', 0.4); } }
+      P.fill([v(0.5, 1), v(0.6, 1), v(0.26, 0.5), v(0.22, 0.51)], 'y2r1', {});
+      P.fill([v(0.6, 1), v(0.7, 1), v(0.94, 0.52), v(0.88, 0.5)], 'y4r3k3', {});
+      P.fill([v(0.72, 0.5), v(1, 0.42), v(1, 0.6), v(0.8, 0.56)], 'k6b3r1', {});
+      for (let i = 0; i < 3; i++) { const q = v(0.82 + i * 0.05, 0.45); P.line([q, [q[0] + 2, q[1] - 8]], 0.8, { ink: 1, lvl: 7 }); }
     });
     trNiches(P, 'R', 60, 110, 5, 3);
     { const I = (u, z) => P.I(0.6, u, z); P.shape([I(430, 0), I(490, 0), I(490, 136), I(430, 136)], 'r4y5k3', 1); P.shape([I(436, 0), I(484, 0), I(484, 128), I(436, 128)], 'r5y4k3', 0.9); P.line([I(460, 4), I(460, 120)], 0.5); P.shape([I(422, 70), I(426, 72), I(426, 92), I(422, 90)], 'b1k3', 0.5); }
@@ -470,18 +480,20 @@ const SCENES = [
     P.halo(P.I(60, 397, 60)[0], P.I(60, 397, 60)[1], 30, ['y1', 'y2'], { sq: 0.8 });
     /* broc, bassine, rouleaux posés */
     P.cyl(470, 60, 0, 14, 8, 'b1k3', 0.7, 14); Lib.jar(P, 490, 40, 0, 1.1, 'r5y6k1');
-    P.box(420, 380, 0, 70, 50, 36, 'r4y5k2'); for (let i = 0; i < 3; i++) P.cyl(440 + i * 16, 400 + (i % 2) * 8, 36, 5, 5, 'y2r1', 0.5, 10);
+    P.box(440, 400, 0, 70, 50, 36, 'r4y5k2'); for (let i = 0; i < 3; i++) P.cyl(460 + i * 16, 420 + (i % 2) * 8, 36, 5, 5, 'y2r1', 0.5, 10);
+    { const q = (a, b) => P.I(a, b, 0.5); P.shape([q(180, 180), q(410, 180), q(410, 440), q(180, 440)], 'r5b3k1', 0.9); P.shape([q(194, 194), q(396, 194), q(396, 426), q(194, 426)], 'y5r3', 0.6); P.shape([q(206, 206), q(384, 206), q(384, 414), q(206, 414)], 'r5b3k1', 0.5); for (let i = 1; i < 5; i++) { const c = q(295, 206 + i * 42); P.fill([[c[0], c[1] - 7], [c[0] + 11, c[1]], [c[0], c[1] + 7], [c[0] - 11, c[1]]], 'b6y2', {}); } }
+    trHangLamp(P, 300, 300, 170, 230);
   },
-  live(P, t) { const q = P.I(170, 150, 96); P.cyl(170, 150, 0, 9, 4, 'y6r3k2', 0.6, 12); P.line([P.I(170, 150, 4), P.I(170, 150, 92)], 2.2, { ink: 0, lvl: 8, taper: 0 }); P.halo(q[0], q[1] - 10, 60, ['y1', 'y2', 'y3r1']); P.shape([[q[0] - 10, q[1]], [q[0] + 11, q[1] - 2], [q[0] + 7, q[1] - 6], [q[0] - 7, q[1] - 6]], 'r5y6k2', 0.7); Lib.flame(P, q[0] + 10, q[1] - 6, 7, 15, t * 1.3, { noKnock: true }); },
+  live(P, t) { const q = P.I(170, 150, 96); P.cyl(170, 150, 0, 9, 4, 'y6r3k2', 0.6, 12); P.line([P.I(170, 150, 4), P.I(170, 150, 92)], 2.2, { ink: 0, lvl: 8, taper: 0 }); P.halo(q[0], q[1] - 12, 46, ['y4r2', 'y3r1', 'y2', 'y1'], { knock: true }); P.shape([[q[0] - 10, q[1]], [q[0] + 11, q[1] - 2], [q[0] + 7, q[1] - 6], [q[0] - 7, q[1] - 6]], 'r5y6k2', 0.7); Lib.flame(P, q[0] + 10, q[1] - 6, 7, 15, t * 1.3, { noKnock: true }); },
   top(P, t) { const o = this.chars[0].out; if (!o || !o.head) return; for (let i = 0; i < 2; i++) { const u = (t * 0.4 + i / 2) % 1; P.fill(P.disc(o.head[0] + 5, o.head[1] + 2 + u * 22, 1.6 * (1 - u * 0.5), 6), 'b6', { noKnock: true }); } },
   chars: [
     ch(LK.trRYBZ, { x: 82, y: 222, z: 40, face: 1, clip: 'trBedBless', h: 130, noShadow: 1 }),
-    ch(LK.trStudent, { x: 190, y: 230, face: -1, clip: 'trWeep', h: 136 }),
-    ch(LK.trStudent3, { x: 222, y: 300, face: -1, clip: 'talk', h: 138, t0: 0.6 }),
-    ch(LK.trStudent2, { x: 172, y: 380, face: -1, clip: 'bow', h: 128, t0: 1.2 }),
-    ch(LK.trStudent4, { x: 290, y: 250, face: -1, clip: 'trWeep', h: 140, t0: 2 }),
-    ch(LK.trHillel, { x: 300, y: 350, face: -1, clip: 'lookup', h: 132, t0: 0.3 }),
-    ch(LK.trShemaya, { h: 134, speed: 14, path: [W(70, 470, 2, 'idle', { f: 1 }), W(70.5, 469.5, 0, 'walk'), W(230, 420, 4, 'bow', { f: -1 }), W(230.5, 419.5, 0, 'walk'), W(70, 470, 0)], look: Object.assign({}, LK.trShemaya, { cloak: 'b3k1', robe: 'k5b2' }) })
+    ch(LK.trStudent, { x: 222, y: 205, face: -1, clip: 'trWeep', h: 136 }),
+    ch(LK.trStudent3, { x: 250, y: 300, face: -1, clip: 'talk', h: 138, t0: 0.6 }),
+    ch(LK.trStudent2, { x: 200, y: 392, face: -1, clip: 'bow', h: 128, t0: 1.2 }),
+    ch(LK.trStudent4, { x: 336, y: 238, face: -1, clip: 'trWeep', h: 140, t0: 2 }),
+    ch(LK.trHillel, { x: 340, y: 360, face: -1, clip: 'lookup', h: 132, t0: 0.3 }),
+    ch(LK.trShemaya, { h: 134, speed: 14, path: [W(40, 460, 2, 'idle', { f: 1 }), W(40.5, 459.5, 0, 'walk'), W(260, 470, 4, 'bow', { f: -1 }), W(260.5, 469.5, 0, 'walk'), W(40, 460, 0)], look: Object.assign({}, LK.trShemaya, { cloak: 'b3k1', robe: 'k5b2' }) })
   ]
 },
 {
@@ -498,35 +510,50 @@ const SCENES = [
       const q = v(0.25, 0.14); Lib.star(P, q[0], q[1], 3.5, 'y8');
       P.fill([v(0, 1), v(0, 0.86), v(0.3, 0.8), v(0.6, 0.88), v(1, 0.82), v(1, 1)], 'y3r3k4', {});
     });
-    /* la niche de la lampe */
-    { const I = (u, z) => P.I(u, 0.6, z); P.shape([I(270, 88), I(340, 88), I(340, 136), I(270, 136)], 'r4y5k3', 0.9); const pts = [I(276, 92), I(334, 92), I(334, 128)]; for (let i = 0; i <= 8; i++) { const a = Math.PI * i / 8; pts.push(I(305 + Math.cos(a) * 29, 128 + Math.sin(a) * 16)); } pts.push(I(276, 128)); P.shape(pts, 'k5r3', 0.8); }
+    /* la grande niche de la lampe */
+    { const c = P.I(306, 4, 104); P.halo(c[0], c[1], 118, ['y5r2', 'y4r2', 'y3r1', 'y3r1', 'y2', 'y1'], { knock: true }); }
+    { const I = (u, z) => P.I(u, 0.6, z); P.outline([I(262, 78), I(350, 78), I(350, 150), I(262, 150)], 1.2); const pts = [I(270, 84), I(342, 84), I(342, 136)]; for (let i = 0; i <= 10; i++) { const a = Math.PI * i / 10; pts.push(I(306 + Math.cos(a) * 36, 136 + Math.sin(a) * 18)); } pts.push(I(270, 136)); P.fill(pts, 'y3r2', { noKnock: true }); P.outline(pts, 1); P.box(262, 1, 72, 88, 16, 6, 'r4y5k3', 0.8); }
     /* étagère : la jarre d'huile et la jarre de vinaigre */
     P.box(110, 1, 58, 110, 20, 4, 'r4y5k3', 0.7);
     Lib.jar(P, 135, 11, 62, 1.1, 'y6r3k1'); Lib.jar(P, 190, 11, 62, 1.1, 'r6b3k2');
     { const q = P.I(190, 11, 90); P.fill([[q[0] - 4, q[1]], [q[0] + 4, q[1]], [q[0] + 3, q[1] - 3], [q[0] - 3, q[1] - 3]], 'k6', {}); }
+    /* oignons et herbes pendus */
+    for (let i = 0; i < 5; i++) { const a = P.I(400 + i * 14, 1, 170), b = P.I(400 + i * 14, 1, 128 + (i % 2) * 10); P.line([a, b], 0.6); P.shape(P.disc(b[0], b[1] + 4, 5, 10), i % 2 ? 'y6r3k1' : 'y4b5k1', 0.5); }
+    /* le four d'argile, les meules, la corbeille de caroubes */
+    P.cyl(60, 60, 0, 30, 44, 'r5y5k2', 1, 18); P.shape(P.ell(60, 60, 44.4, 22, 22, 18), 'k6r3', 0.7);
+    { const q = P.I(60, 90, 20); P.shape(P.disc(q[0], q[1], 9, 12).map(p => [p[0], Math.min(p[1], q[1] + 4)]), 'k6r2', 0.6); P.halo(q[0], q[1], 16, ['r3y3', 'r4y4'], { sq: 0.7 }); }
+    P.cyl(130, 70, 0, 18, 8, 'k3y3', 0.8, 16); P.cyl(130, 70, 8, 16, 7, 'k3y2', 0.8, 16); P.line([P.I(130, 70, 15), P.I(140, 60, 30)], 1.6, { ink: 3, lvl: 8, taper: 0 });
+    P.cyl(440, 70, 0, 18, 18, 'y5r3k2', 0.8, 16); for (let i = 0; i < 6; i++) { const q = P.I(432 + (i % 3) * 8, 66 + ((i / 3) | 0) * 8, 18.5); P.line([[q[0] - 6, q[1] - 2], [q[0] + 5, q[1] + 1]], 2, { ink: 1, lvl: 7, taper: 0.4 }); }
+    /* banc contre le mur gauche, nattes */
+    P.box(4, 260, 0, 34, 130, 28, 'r4y5k2', 0.8); P.box(4, 262, 28, 34, 126, 5, 'y5r3k1', 0.6);
+    P.cyl(40, 460, 0, 12, 10, 'y5r3k1', 0.7, 12); P.box(30, 440, 10, 20, 40, 8, 'y5r3k1', 0.6);
     /* table basse du Chabbat */
-    P.box(190, 340, 0, 96, 64, 22, 'r4y5k2'); P.shape([P.I(188, 338, 22.3), P.I(288, 338, 22.3), P.I(288, 406, 22.3), P.I(188, 406, 22.3)], 'y1', 0.8);
-    P.shape([P.I(188, 406.4, 22.3), P.I(288, 406.4, 22.3), P.I(288, 406.4, 12), P.I(188, 406.4, 12)], 'y1b1', 0.7); P.shape([P.I(288.4, 338, 22.3), P.I(288.4, 406, 22.3), P.I(288.4, 406, 12), P.I(288.4, 338, 12)], 'y1b1k1', 0.7);
-    { const q = P.I(220, 360, 23); P.shape(Lib.bumpy(P, q[0], q[1] - 5, 18, 7, 7), 'b5r3', 0.7); }
-    { const q = P.I(260, 385, 23); P.shape([[q[0] - 11, q[1]], [q[0] + 11, q[1]], [q[0] + 8, q[1] + 3], [q[0] - 8, q[1] + 3]], 'y1b1k1', 0.5); for (let i = 0; i < 4; i++) { const a = q[0] - 9 + i * 5; P.line([[a, q[1] - 1], [a + 6, q[1] - 5]], 1.8, { ink: 1, lvl: 6, taper: 0.3 }); } }
-    P.cyl(268, 352, 23, 4, 9, 'r5y4k2', 0.5, 10);
-    /* natte roulée, tabouret, jarre à eau */
-    P.cyl(40, 300, 0, 14, 12, 'y5r3k1', 0.7, 12); P.box(30, 270, 12, 20, 60, 10, 'y5r3k1', 0.7);
-    P.box(244, 220, 0, 22, 22, 34, 'r4y5k3', 0.8);
-    Lib.jar(P, 480, 60, 0, 1.6, 'r5y5k2');
+    P.box(140, 250, 0, 96, 64, 22, 'r4y5k2'); P.shape([P.I(138, 248, 22.3), P.I(238, 248, 22.3), P.I(238, 316, 22.3), P.I(138, 316, 22.3)], 'y1', 0.8);
+    P.shape([P.I(138, 316.4, 22.3), P.I(238, 316.4, 22.3), P.I(238, 316.4, 12), P.I(138, 316.4, 12)], 'y1b1', 0.7); P.shape([P.I(238.4, 248, 22.3), P.I(238.4, 316, 22.3), P.I(238.4, 316, 12), P.I(238.4, 248, 12)], 'y1b1k1', 0.7);
+    { const q = P.I(170, 270, 23); P.shape(Lib.bumpy(P, q[0], q[1] - 5, 18, 7, 7), 'b5r3', 0.7); }
+    { const q = P.I(210, 295, 23); P.shape([[q[0] - 11, q[1]], [q[0] + 11, q[1]], [q[0] + 8, q[1] + 3], [q[0] - 8, q[1] + 3]], 'y1b1k1', 0.5); for (let i = 0; i < 4; i++) { const a = q[0] - 9 + i * 5; P.line([[a, q[1] - 1], [a + 6, q[1] - 5]], 1.8, { ink: 1, lvl: 6, taper: 0.3 }); } }
+    P.cyl(218, 262, 23, 4, 9, 'r5y4k2', 0.5, 10);
+    P.box(326, 98, 0, 22, 22, 34, 'r4y5k3', 0.8);
+    Lib.jar(P, 490, 40, 0, 1.6, 'r5y5k2');
     { const I = (u, z) => P.I(0.6, u, z); P.shape([I(420, 0), I(484, 0), I(484, 132), I(420, 132)], 'r4y5k3', 1); P.shape([I(426, 0), I(478, 0), I(478, 124), I(426, 124)], 'r5y4k4', 0.9); }
+    { const q = (a, b) => P.I(a, b, 0.5); P.shape([q(250, 380), q(420, 380), q(420, 500), q(250, 500)], 'y5r3k2', 0.9); for (let i = 1; i < 9; i++) P.line([q(250 + i * 19, 380), q(250 + i * 19, 500)], 0.5, { ink: 0, lvl: 6 }); P.line([q(250, 440), q(420, 440)], 0.6, { ink: 1, lvl: 6 }); }
+    for (const [x, y, tn] of [[300, 470, 'r5b3k1'], [370, 470, 'b4r2k1']]) { const c = P.I(x, y, 0.5); P.shape(Lib.bumpy(P, c[0], c[1] - 5, 16, 7, 6), tn, 0.7); }
+    P.box(460, 380, 0, 56, 40, 34, 'r4y5k2', 0.9); P.box(458, 378, 34, 60, 44, 5, 'r4y5k3', 0.7); P.line([P.I(488, 420.4, 10), P.I(488, 420.4, 28)], 0.8);
+    { const a = P.I(505, 300, 0), b = P.I(508, 300, 95); P.line([a, b], 1.6, { ink: 3, lvl: 8, taper: 0 }); for (let i = -3; i <= 3; i++) P.line([a, [a[0] + i * 3, a[1] + 16]], 0.8, { ink: 0, lvl: 8 }); }
   },
   live(P, t) {
-    const q = P.I(305, 12, 100);
-    P.halo(q[0], q[1] - 12, 120, ['y1', 'y2', 'y3r1', 'y4r1']);
-    P.shape([[q[0] - 13, q[1]], [q[0] + 13, q[1] - 2], [q[0] + 9, q[1] - 7], [q[0] - 9, q[1] - 7]], 'r5y6k2', 0.8);
-    Lib.flame(P, q[0] + 12, q[1] - 7, 10, 24, t * 1.4, { noKnock: true });
+    const q = P.I(300, 9, 79), s = 1.6;
+    P.halo(q[0] + 18 * s, q[1] - 22, 30, ['y2r1', 'y1'], { knock: true });
+    P.shape(smooth([[q[0] - 12 * s, q[1] - 4 * s], [q[0] - 4 * s, q[1] - 9 * s], [q[0] + 8 * s, q[1] - 9 * s], [q[0] + 14 * s, q[1] - 6 * s], [q[0] + 19 * s, q[1] - 7 * s], [q[0] + 18 * s, q[1] - 4 * s], [q[0] + 8 * s, q[1]], [q[0] - 6 * s, q[1]]], 2), 'r5y6k2', 0.9);
+    P.line([[q[0] - 11 * s, q[1] - 5 * s], [q[0] - 17 * s, q[1] - 9 * s], [q[0] - 15 * s, q[1] - 2 * s]], 1.4);
+    P.fill(P.disc(q[0] + 2 * s, q[1] - 8 * s, 2.4 * s, 8).map(p => [p[0], q[1] - 8 * s + (p[1] - q[1] + 8 * s) * 0.4]), 'k6r2', { noKnock: true });
+    Lib.flame(P, q[0] + 18 * s, q[1] - 7 * s, 12, 34, t * 1.4, { noKnock: true });
   },
   chars: [
-    ch(LK.trHaninaDau, { x: 255, y: 231, face: 1, clip: 'trSadSit', h: 116 }),
-    ch(LK.trHanina, { x: 345, y: 250, face: -1, clip: 'talk', h: 138 }),
-    ch(LK.trHaninaSon, { x: 330, y: 380, face: 1, clip: 'lookup', h: 86, t0: 1 }),
-    ch(LK.trHaninaWife, { h: 128, speed: 14, hold: { n: 'jarhead' }, over: 'carry', path: [W(120, 470, 2, 'idle', { f: 1 }), W(120.5, 469.5, 0, 'walk'), W(160, 300, 3, 'idle', { f: 1 }), W(160.5, 300.5, 0, 'walk'), W(120, 470, 0)] })
+    ch(LK.trHaninaDau, { x: 337, y: 109, face: -1, clip: 'trSadSit', h: 116 }),
+    ch(LK.trHanina, { x: 262, y: 172, face: 1, clip: 'talk', h: 138 }),
+    ch(LK.trHaninaSon, { x: 300, y: 300, face: 1, clip: 'lookup', h: 86, t0: 1 }),
+    ch(LK.trHaninaWife, { h: 128, speed: 14, hold: { n: 'jarhead' }, over: 'carry', path: [W(40, 452, 2, 'idle', { f: 1 }), W(40.5, 451.5, 0, 'walk'), W(160, 360, 3, 'idle', { f: -1 }), W(160.5, 360.5, 0, 'walk'), W(40, 452, 0)] })
   ]
 },
 {
@@ -543,12 +570,13 @@ const SCENES = [
     trRoad(P, [[0, 450], [455, 450], [455, 0]], 42, 'y4r3k1');
     trRoad(P, [[455, 450], [540, 540]], 40, 'y4r3k1');
     P.fill([P.I(120, 110, 0.5), P.I(420, 110, 0.5), P.I(420, 410, 0.5), P.I(120, 410, 0.5)], 'y6r3k1');
-    trRoad(P, [[150, 410], [220, 330], [300, 260], [420, 170]], 20, 'y4r3k2', 0.7);
-    { const r = rng(21); for (let i = 0; i < 420; i++) { const x = 124 + r() * 292, y = 114 + r() * 292, h = 14 + r() * 10; const cx = x - 150, cy = y - 410, t = (cx * 270 - cy * 240) / (270 * 270 + 240 * 240); const px = 150 + 270 * t, py = 410 - 240 * t, d = Math.hypot(x - px, y - py); if (d < 16) continue; const q = P.I(x, y, 0); P.line([q, [q[0] + 1, q[1] - h]], 0.7, { ink: 0 }); P.fill([[q[0] - 1.6, q[1] - h], [q[0] + 1, q[1] - h - 7], [q[0] + 2.6, q[1] - h]], 'y7r2', {}); } }
+    trRoad(P, [[150, 410], [220, 330], [300, 260], [420, 170]], 24, 'y3r2k3', 0.7);
+    { const r = rng(21); for (let i = 0; i < 760; i++) { const x = 124 + r() * 292, y = 114 + r() * 292, h = 18 + r() * 12; const cx = x - 150, cy = y - 410, t = (cx * 270 - cy * 240) / (270 * 270 + 240 * 240); const px = 150 + 270 * t, py = 410 - 240 * t, d = Math.hypot(x - px, y - py); if (d < 16) continue; const q = P.I(x, y, 0); P.line([q, [q[0] + 1, q[1] - h]], 0.8, { ink: 3, lvl: 3 }); P.fill([[q[0] - 2, q[1] - h + 1], [q[0] + 1, q[1] - h - 9], [q[0] + 3.2, q[1] - h + 1]], i % 3 ? 'y7r3' : 'y8r4k1', {}); } }
+    for (let i = 0; i < 16; i++) { const u = (i + 0.5) / 16, q = P.I(lerp(150, 420, u) + (i % 2 ? 4 : -4), lerp(410, 170, u), 0.8); P.fill(P.disc(q[0], q[1], 2.4, 7).map(p => [p[0], q[1] + (p[1] - q[1]) * 0.5]), 'y3r3k4', { noKnock: true }); }
     Lib.stones(P, 22, 'y3r2k3', [110, 92, 310, 12]); Lib.stones(P, 16, 'y3r2k3', [100, 110, 12, 300]);
     trOlive(P, 490, 490, 120); trOlive(P, 60, 60, 110); trOlive(P, 50, 330, 100);
     Lib.well(P, 500, 240, 22);
-    trHouse(P, 482, 20, 50, 60, 70, { tn: 'y5r3k1', doorR: [20, 40, 46] }); trHouse(P, 492, 300, 42, 48, 56, { tn: 'y4r3k1', doorR: [14, 32, 40] });
+    trHouse(P, 482, 20, 50, 60, 70, { tn: 'y5r3k1', doorR: [20, 40, 46] }); trHouse(P, 20, 150, 56, 64, 60, { tn: 'y4r3k1', doorR: [20, 40, 42], winR: [[46, 34, 12, 14]] });
   },
   chars: [
     ch(LK.trYehoshua, { h: 136, speed: 15, hold: { n: 'staff' }, path: [W(40, 450, 1.5, 'idle', { f: 1 }), W(40.5, 450, 0, 'walk'), W(150, 432, 0, 'walk'), W(360, 215, 6, 'talk', { f: 1 }), W(40, 450, 0, null, { jump: 1 })] }),

@@ -45,6 +45,7 @@ Object.assign(CLIPS, {
   tyDig: { d: 1.3, k: [{ lean: 30, head: 12, nU: 150, nL: 30, fU: 140, fL: 36, nT: 24, nK: -20, fT: -10, fK: -10 }, { lean: 44, head: 18, nU: 60, nL: 20, fU: 54, fL: 26, nT: 24, nK: -20, fT: -10, fK: -10 }] },
   tyFloor: { d: 3.6, k: [{ nT: 70, nK: -120, fT: 80, fK: -140, lean: 10, head: 8, nU: 30, nL: 60, fU: 24, fL: 66 }, { nT: 70, nK: -120, fT: 80, fK: -140, lean: 6, head: 2, nU: 34, nL: 56, fU: 26, fL: 62 }] },
   tyFloorHold: { d: 4, k: [{ nT: 70, nK: -120, fT: 80, fK: -140, lean: 16, head: 18, nU: 34, nL: 74, fU: 28, fL: 80 }, { nT: 70, nK: -120, fT: 80, fK: -140, lean: 20, head: 22, nU: 36, nL: 72, fU: 30, fL: 78 }] },
+  tyPointUp: { d: 3, k: [{ lean: -3, head: -20, nU: 128, nL: 6, fU: -4, fL: 14, nT: 10, fT: -8, fK: -4 }, { lean: -4, head: -24, nU: 134, nL: 2, fU: -2, fL: 18, nT: 10, fT: -8, fK: -4 }] },
   tyNod: { d: 2.2, k: [{ nU: 30, nL: 70, fU: 10, fL: 20, head: 8, lean: 4, nT: 6, fT: -6 }, { nU: 34, nL: 66, fU: 12, fL: 22, head: -4, lean: 2, nT: 6, fT: -6 }] }
 });
 /* ---------- accessoires ---------- */
@@ -184,20 +185,21 @@ const tyVineRow = (P, x0, x1, y, seed, o = {}) => {
 };
 /* palmier dattier (tronc vers l'avant) */
 const tyPalm = (P, x, y, h = 150, o = {}) => Lib.palm(P, x, y, 0, h, Object.assign({ lean: 14, dates: 1 }, o));
-/* petite barque de pêche du lac, voile latine ; la coque avant se dessine devant les personnages */
-const tyBoatIn = (P, x, y) => {
-  const I = (a, b, c) => P.I(x + a, y + b, c);
-  P.shape([I(-40, 0, 9), I(-22, -11, 9), I(24, -11, 9), I(44, 0, 11), I(24, 11, 9), I(-22, 11, 9)], 'r4y4k4', 1);
-  for (const a of [-18, 6]) P.line([I(a, -10, 9), I(a, 10, 9)], 1.4);
-  P.line([I(4, 0, 9), I(4, 0, 84)], 1.6, { taper: 0 });
-  P.shape([I(4, 0, 82), I(40, -2, 44), I(-30, 2, 16)], 'y1b1', 0.9); P.line([I(4, 0, 82), I(-30, 2, 16)], 1.2);
-  for (let i = 1; i < 4; i++) P.line([I(4 - i * 8, 0, 82 - i * 17), I(4 + i * 9, -0.5, 82 - i * 9.5)], 0.35);
+/* barque de pêche du lac, longue et basse, avec ses rames ; la coque avant se dessine devant les personnages */
+const tyBoatIn = (P, x, y, k = 1.8) => {
+  const I = (a, b, c) => P.I(x + a * k, y + b * k, c);
+  P.shape([I(-40, 0, 12), I(-24, -12, 12), I(26, -12, 12), I(46, 0, 15), I(26, 12, 12), I(-24, 12, 12)], 'r4y4k4', 1);
+  for (const a of [-20, 4, 24]) P.line([I(a, -11, 12), I(a, 11, 12)], 1.6);
+  P.line([I(-10, -12, 12), I(-26, -30, 0.5)], 1.6, { taper: 0 }); P.line([I(12, -12, 12), I(-2, -30, 0.5)], 1.6, { taper: 0 });
+  for (const q of [I(-27, -31, 0.5), I(-3, -31, 0.5)]) P.shape([[q[0] - 6, q[1] + 1], [q[0] + 4, q[1] - 3], [q[0] + 7, q[1] - 1], [q[0] - 3, q[1] + 3]], 'r4y5k3', 0.6);
+  { const c = I(-30, 0, 12); P.shape(Lib.bumpy(P, c[0], c[1] - 3, 12, 5, 7), 'k4y2', 0.6); }
 };
-const tyBoatOut = (P, x, y) => {
-  const I = (a, b, c) => P.I(x + a, y + b, c);
-  P.shape([I(-40, 0, 9), I(-22, 11, 9), I(24, 11, 9), I(44, 0, 11), I(34, 4, 1), I(-18, 7, -1), I(-34, 3, 2)], 'r4y5k3', 1);
-  P.line([I(-37, 2, 6), I(-20, 10, 6), I(26, 10, 6), I(42, 1, 8)], 0.8, { ink: 1, lvl: 7 });
-  P.shape([I(26, 11.5, 8), I(33, 9, 8), I(33, 9, 4), I(26, 11.5, 4)], 'k6', 0.4);
+const tyBoatOut = (P, x, y, k = 1.8) => {
+  const I = (a, b, c) => P.I(x + a * k, y + b * k, c);
+  P.shape([I(-40, 0, 12), I(-24, 12, 12), I(26, 12, 12), I(46, 0, 15), I(36, 4, 1), I(-18, 8, -1), I(-34, 3, 2)], 'r4y5k3', 1);
+  P.line([I(-37, 2, 9), I(-22, 11, 9), I(26, 11, 9), I(44, 1, 11)], 1, { ink: 1, lvl: 7 });
+  P.line([I(10, 12, 12), I(24, 30, 0.5)], 1.6, { taper: 0 }); { const q = I(25, 31, 0.5); P.shape([[q[0] - 6, q[1] + 1], [q[0] + 4, q[1] - 3], [q[0] + 7, q[1] - 1], [q[0] - 3, q[1] + 3]], 'r4y5k3', 0.6); }
+  P.shape([I(28, 12.5, 11), I(34, 10, 11), I(34, 10, 6), I(28, 12.5, 6)], 'k6', 0.4);
 };
 /* bande d'eau sur le plateau entre deux courbes ; renvoie le rivage */
 const tyShore = (P, pts, tn = 'b4y1') => {
@@ -260,7 +262,7 @@ const SCENES = [
     tyHouse(P, 14, 310, 50, 60, 40, 'y2r2k2', { win: [0.5] });
     tySyn(P, 14, 390, 70, 110, 70, { cols: 4 });
     tyHouse(P, 20, 510, 44, 28, 34, 'y3r1k2', { door: false, win: [0.5] });
-    tyPalm(P, 104, 262, 150); tyPalm(P, 470, 228, 130, { lean: -10 });
+    tyPalm(P, 104, 262, 150); tyPalm(P, 140, 234, 124, { lean: -12 });
     Lib.rock(P, 214, 284, 0, 26, 38, 'y3r2k3'); Lib.rock(P, 326, 250, 0, 24, 36, 'y4r2k3'); Lib.rock(P, 270, 250, 0, 14, 10, 'y3r2k2'); Lib.rock(P, 380, 396, 0, 22, 34, 'y3r2k3'); Lib.rock(P, 436, 342, 0, 20, 32, 'y4r2k3');
     /* filets qui sèchent, paniers de poissons, barque tirée sur la grève */
     for (const [x, y] of [[230, 440], [330, 470]]) P.box(x - 2, y - 2, 0, 4, 4, 64, 'r4y5k3', 0.6);
@@ -268,18 +270,19 @@ const SCENES = [
     for (const [x, y] of [[270, 520], [300, 530]]) { const c = P.I(x, y, 0); P.shape([[c[0] - 12, c[1] - 12], [c[0] + 12, c[1] - 12], [c[0] + 9, c[1]], [c[0] - 9, c[1]]], 'y5r4k2', 0.7); for (let i = 0; i < 4; i++) drawFish(P, c[0] - 7 + i * 5, c[1] - 13 - (i % 2) * 3, 8, i % 2 ? 1 : -1, i % 2 ? 'b3y3' : 'y5b2'); }
     { const I = (a, b, c) => P.I(a, b, c), x = 150, y = 215; P.shape([I(x - 34, y, 1), I(x - 18, y + 10, 1), I(x + 20, y + 10, 1), I(x + 38, y, 3), I(x + 28, y + 3, 16), I(x - 16, y + 6, 18), I(x - 28, y + 2, 14)], 'r4y5k3', 1); P.line([I(x - 30, y + 2, 12), I(x - 16, y + 8, 15), I(x + 24, y + 7, 14), I(x + 36, y + 1, 5)], 0.7, { ink: 1, lvl: 7 }); }
     Lib.rock(P, 380, 470, 0, 22, 14, 'y3r2k3'); Lib.bush(P, 420, 520, 0, 16, 'y4b5k1');
-    tyBoatIn(P, 360, 90);
+    tyBoatIn(P, 350, 90);
     Lib.jar(P, 470, 290, 0, 1.2, 'r5y5k2'); P.box(488, 300, 0, 22, 18, 10, 'r4y5k3', 0.6);
   },
   live(P, t) { tyRipples(P, t, [20, 20, 500, 140], 18); },
-  front(P) { tyBoatOut(P, 360, 90); },
+  front(P) { tyBoatOut(P, 350, 90); },
   chars: [
     { depth: 150 + 420, draw(P) { tyOlive(P, 150, 420, 2.1, 21, { fruit: 1 }); } },
     ch(LK.tyAkiva, { x: 220, y: 284, face: 1, clip: 'tyArgue', h: 138 }),
     ch(LK.tyAzzai, { x: 330, y: 254, face: -1, clip: 'tyArgue', h: 138, t0: 0.8 }),
     ch(LK.tyDisc, { x: 370, y: 390, face: -1, clip: 'tyListen', h: 132, t0: 0.4 }),
     ch(LK.tyDisc2, { x: 426, y: 336, face: -1, clip: 'tyListen', h: 126, t0: 1.7 }),
-    ch(LK.tyFisher, { x: 360, y: 92, z: 8, face: -1, clip: 'haul', h: 118, noShadow: 1, hold: { nTop: 'tyNet' } }),
+    ch(LK.tyFisher, { x: 380, y: 90, z: 10, face: -1, clip: 'haul', h: 118, noShadow: 1, hold: { nTop: 'tyNet' } }),
+    ch(LK.tyYoung, { x: 316, y: 92, z: 10, face: 1, clip: 'haul', h: 112, noShadow: 1, t0: 0.8, look: Object.assign({}, LK.tyYoung, { robe: 'b4y2k1', ht: 'y1' }) }),
     ch(LK.tyYoung, { h: 130, speed: 16, path: [W(500, 215, 3, 'idle', { f: -1 }), W(490, 300, 3.5, 'lookup', { f: -1 }), W(500, 215, 0)] })
   ]
 },
@@ -311,6 +314,9 @@ const SCENES = [
     for (let i = 0; i < 3; i++) { const c = P.I(80 + i * 10, 395, 20); P.shape(Lib.bumpy(P, c[0], c[1] - 4, 8, 5, 6), 'y2', 0.6); }
     Lib.grass(P, 20, 'y5b4', [300, 480, 200, 50]);
     Lib.stones(P, 12, 'y3r2k3', [120, 470, 380, 60]);
+    /* la fontaine de la place */
+    P.cyl(200, 470, 0, 34, 14, { t: 'y2r1k1', s: 'y2r2k2', d: 'y2r2k3' }, 1, 22); P.shape(P.ell(200, 470, 14.4, 27, 27, 22), 'b4y1', 0.7); P.cyl(200, 470, 14, 6, 26, 'y2r1k1', 0.7, 12); P.cyl(200, 470, 40, 12, 5, 'y2r1k2', 0.7, 14);
+    Lib.jar(P, 150, 500, 0, 1.2, 'r5y6k1'); Lib.jar(P, 250, 510, 0, 1, 'b5y3');
   },
   chars: [
     tyStall(150, 120, 90, 50, 'r6y2', (P, t, z) => { for (let i = 0; i < 12; i++) { const q = P.I(158 + (i % 6) * 13, 128 + Math.floor(i / 6) * 22, z); P.shape(P.disc(q[0], q[1] - 3, 5, 10), ['y7r2', 'r7y3', 'y6b5', 'r6b4'][i % 4], 0.5); } }),
@@ -323,7 +329,10 @@ const SCENES = [
     ch(LK.tyDisc3, { h: 132, speed: 18, t0: 1, path: [W(360, 400, 4, 'talk', { f: 1 }), W(200, 410, 4.5, 'point', { f: -1 }), W(360, 400, 0)] }),
     ch(LK.tyArab, { x: 440, y: 330, face: -1, clip: 'bless', h: 138, t0: 0.3 }),
     { beast: 'camel', h: 112, x: 490, y: 250, face: -1 },
-    ch(LK.tyBoy, { x: 330, y: 470, face: -1, clip: 'lookup', h: 84 })
+    ch(LK.tyBoy, { x: 330, y: 470, face: -1, clip: 'lookup', h: 84 }),
+    { depth: 200 + 470 + 30, draw(P, t) { const q = P.I(200, 470, 46); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + 0.6, u = (t * 0.8 + i * 0.25) % 1; P.line([[q[0] + Math.cos(a) * 4, q[1] - 4], [q[0] + Math.cos(a) * (6 + u * 18), q[1] - 6 + u * u * 40 - u * 10]], 1, { ink: 2, lvl: 7 }); } } },
+    ch(LK.tyWoman, { h: 126, hold: { nTop: 'jarhead' }, over: 'carry', speed: 14, t0: 3, path: [W(100, 530, 2), W(146, 452, 3.5, 'fill', { f: 1 }), W(100, 530, 0)] }),
+    ch(LK.tyWorker2, { h: 128, hold: { nTop: 'bundle' }, speed: 16, t0: 6, path: [W(440, 520, 1), W(520, 400, 2, 'idle', { f: -1 }), W(440, 520, 0)] })
   ]
 },
 {
@@ -356,16 +365,23 @@ const SCENES = [
     P.box(130, 350, 0, 26, 24, 38, 'r4y5k2', 0.8);
     P.box(226, 344, 0, 16, 104, 22, 'r4y5k2', 0.8); P.box(226, 346, 22, 16, 100, 3, 'r4y5k1', 0.5);
     P.box(96, 460, 0, 20, 30, 20, 'r4y5k2', 0.6); for (let i = 0; i < 3; i++) P.box(98 + i * 5, 462, 20, 4, 26, 4, ['y2r1', 'y1b1', 'y2'][i], 0.4);
-    Lib.grass(P, 40, 'y5b4', [260, 300, 260, 220]);
+    Lib.grass(P, 40, 'y5b4', [330, 300, 200, 220]);
+    /* la route pavée qui monte à la porte */
+    P.shape([P.I(264, 80, 0.3), P.I(316, 80, 0.3), P.I(330, 540, 0.3), P.I(250, 540, 0.3)], 'y3r2k2', 0.8);
+    for (let y = 96; y < 540; y += 18) { const w = lerp(26, 40, (y - 80) / 460); P.line([P.I(290 - w, y, 0.4), P.I(290 + w, y, 0.4)], 0.35); for (let k = -1; k <= 1; k++) P.line([P.I(290 + k * w * 0.5 + ((y / 18) % 2) * 6, y, 0.4), P.I(290 + k * w * 0.5 + ((y / 18) % 2) * 6, y + 18, 0.4)], 0.3); }
+    Lib.bush(P, 380, 470, 0, 16, 'y4b5k1'); Lib.bush(P, 520, 300, 0, 14, 'y5b5k1'); Lib.rock(P, 460, 520, 0, 20, 12, 'y3r2k3');
     Lib.stones(P, 14, 'y3r2k3', [240, 100, 200, 60]);
   },
   chars: [
     ch(LK.tyGuard, { x: 120, y: 66, z: 92, face: 1, clip: 'guard', h: 118, hold: { n: 'spear' }, noShadow: 1 }),
     ch(LK.tyGuard, { h: 118, hold: { n: 'spear', f: 'shield' }, noShadow: 1, speed: 12, t0: 2, path: [W(390, 66, 3, 'guard', { z: 92, f: -1 }), W(490, 66, 2.5, 'guard', { z: 92, f: 1 }), W(390, 66, 0, null, { z: 92 })] }),
     ch(LK.tyGuard, { x: 262, y: 120, face: 1, clip: 'guard', h: 132, hold: { n: 'spear', f: 'shield' }, look: Object.assign({}, LK.tyGuard, { beard: 'full', robe: 'r5y4k2' }) }),
-    ch(LK.tyHiyya, { x: 330, y: 200, face: -1, clip: 'point', h: 136 }),
-    ch(LK.tyAssi, { x: 380, y: 250, face: -1, clip: 'talk', h: 138, t0: 0.9 }),
-    ch(LK.tyAmmi, { x: 320, y: 290, face: -1, clip: 'point', h: 136, t0: 1.6, hold: {} }),
+    ch(LK.tyHiyya, { x: 360, y: 196, face: -1, clip: 'point', h: 136 }),
+    { depth: 500 + 470, draw(P) { tyOlive(P, 500, 470, 1.8, 34, { fruit: 1 }); } },
+    ch(LK.tyShepherd, { h: 126, hold: { n: 'staffV' }, speed: 14, t0: 1, path: [W(300, 530, 1.5), W(300, 150, 3, 'idle', { f: -1 }), W(300, 530, 0)] }),
+    { beast: 'donkey', h: 88, speed: 14, t0: 0, path: [W(286, 520, 1.5), W(286, 180, 3), W(286, 520, 0)] },
+    ch(LK.tyAssi, { x: 410, y: 246, face: -1, clip: 'talk', h: 138, t0: 0.9 }),
+    ch(LK.tyAmmi, { x: 356, y: 296, face: -1, clip: 'point', h: 136, t0: 1.6, hold: {} }),
     { depth: 60 + 500, draw(P) { tyFig(P, 60, 500, 2.1, 33); } },
     ch(LK.tyTeacher, { x: 146, y: 362, face: 1, clip: 'tyArgue', h: 130, hold: { f: 'tyRoll' } }),
     ch(LK.tyKid, { x: 236, y: 362, face: -1, clip: 'tySitHold', h: 84, hold: { nTop: 'tyTablet' } }),
@@ -445,7 +461,7 @@ const SCENES = [
     { beast: 'sheep', h: 60, speed: 6, path: [W(420, 200, 3), W(460, 150, 2), W(420, 200, 0)] },
     { beast: 'sheep', h: 56, x: 500, y: 310, face: -1 },
     { beast: 'ram', h: 62, x: 440, y: 290, face: 1 },
-    { beast: 'camel', h: 104, x: 300, y: 500, face: -1 }
+    { beast: 'camel', h: 104, x: 520, y: 390, face: -1 }
   ]
 },
 {
@@ -464,7 +480,8 @@ const SCENES = [
     for (const [x, z] of [[140, 110], [300, 82], [230, 128]]) { const q = P.I(x, 45, z); P.shape(Lib.bumpy(P, q[0], q[1] - 6, 10, 7, 6), 'y5b5k1', 0.6); }
     /* tambours de colonnes tombés, chapiteau */
     for (const [x, y, r] of [[470, 120, 16], [500, 180, 14], [120, 150, 15]]) { P.cyl(x, y, 0, r, 18, 'y2r1k1', 0.8, 14); P.line([P.I(x - r, y, 9), P.I(x + r, y, 9)], 0.4); }
-    { const I = (a, b, c) => P.I(a, b, c); P.shape([I(60, 250, 0), I(110, 262, 0), I(118, 250, 34), I(76, 240, 30)], 'y2r1k2', 1); P.shape([I(60, 250, 0), I(76, 240, 30), I(62, 222, 30), I(50, 230, 2)], 'y2r1k3', 1); for (let i = 0; i < 4; i++) P.line([I(80 + i * 8, 256, 4), I(84 + i * 8, 246, 30)], 0.5); }
+    P.box(380, 440, 0, 70, 34, 30, { t: 'y3r1k1', l: 'y2r2k2', r: 'y2r2k3' }, 1); P.line([P.I(386, 474.5, 5), P.I(444, 474.5, 5), P.I(444, 474.5, 25), P.I(386, 474.5, 25), P.I(386, 474.5, 5)], 0.5);
+    Lib.bush(P, 470, 500, 0, 16, 'y4b5k1'); Lib.bush(P, 360, 510, 0, 12, 'y5b5k1'); tyTufts(P, [300, 420, 220, 110], 20, 64);
     for (const [x, y, w, h] of [[200, 110, 34, 22], [380, 100, 26, 18], [90, 380, 30, 20], [470, 470, 26, 16]]) Lib.rock(P, x, y, 0, w, h, 'y3r2k2');
     Lib.stones(P, 26, 'y3r2k3', [60, 90, 460, 400]);
     tyTufts(P, [60, 200, 440, 300], 26, 62);
@@ -498,9 +515,8 @@ const SCENES = [
     tySkyDisc(P, ['b6r3', 'b5r3', 'b4r3', 'r3b3y1', 'r2y3b1', 'r2y4']);
     for (let i = 0; i < 22; i++) { const x = 90 + ((i * 0.618034) % 1) * 820, y = 40 + ((i * 0.3819) % 1) * 150; if (Math.hypot(x - 500, y - 470) < 430 && Math.hypot(x - 300, y - 150) > 70) Lib.star(P, x, y, 1.5 + (i % 3), i % 4 ? 'y4' : 'y6'); }
     tyRange(P, 40, 960, 0, 50, 'b4r3k3', 71, { freq: 5 });
-    Lib.mound(P, 470, 20, 80, 80, 'y3b3k4');
     Lib.platform(P, 'y4b2k2', 'y4r3k3', { h: 50 });
-    const hill = Lib.mound(P, 90, 80, 120, 150, 'y4b3k3', { px: 14 });
+    const hill = Lib.mound(P, 90, 80, 120, 150, 'y4b3k2', { px: 14, shade: 'k1b1' });
     /* Béthar sur sa colline : muraille, tours */
     { const pk = hill.peak, bx = pk[0], by = pk[1] + 14; const S = (a, b) => [bx + a, by + b];
       P.shape([S(-110, 20), S(-110, -14), S(110, -14), S(110, 20)], 'y3r3k3', 1);
@@ -524,10 +540,10 @@ const SCENES = [
   },
   chars: [
     { depth: 90 + 330, draw(P) { tyOlive(P, 90, 330, 2, 73, { fruit: 1 }); } },
-    { depth: 470 + 440, draw(P) { tyOlive(P, 480, 450, 1.7, 74); } },
-    ch(LK.tyAkiva, { x: 250, y: 330, face: 1, clip: 'point', h: 140, hold: { f: 'staffV' } }),
+    { depth: 130 + 500, draw(P) { tyOlive(P, 130, 500, 1.7, 74); } },
+    ch(LK.tyAkiva, { x: 250, y: 330, face: -1, clip: 'tyPointUp', h: 140, hold: { f: 'staffV' } }),
     ch(LK.tyTorta, { x: 330, y: 370, face: -1, clip: 'talk', h: 138, t0: 0.7 }),
-    ch(LK.tyDisc, { x: 190, y: 400, face: 1, clip: 'lookup', h: 130, t0: 1.4 }),
+    ch(LK.tyDisc, { x: 200, y: 420, face: -1, clip: 'lookup', h: 130, t0: 1.4 }),
     ch(LK.tyShepherd, { h: 128, hold: { n: 'staffV' }, speed: 12, path: [W(380, 150, 3), W(460, 230, 3), W(380, 150, 0)] }),
     { beast: 'sheep', h: 56, speed: 8, path: [W(420, 170, 2), W(490, 240, 2.5), W(420, 170, 0)] },
     { beast: 'sheep', h: 52, x: 470, y: 300, face: -1 }

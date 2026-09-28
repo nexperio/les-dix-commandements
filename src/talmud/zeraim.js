@@ -139,11 +139,13 @@ const tzSky = (P, tones, y0 = 2, y1 = 640) => {
 };
 /* chaîne de collines lointaines (coordonnées écran) */
 const tzHills = (P, x0, x1, yb, hh, tn, seed, o = {}) => {
-  const N = 40, pts = [[x0, yb + 40]];
+  const c = P.ctx, D = P.disc(500, 470, 470, 72), cp = new Path2D(); cp.moveTo(D[0][0], D[0][1]); for (const q of D) cp.lineTo(q[0], q[1]); cp.closePath(); c.save(); c.clip(cp);
+  const N = 40, pts = [[x0, Math.max(yb + 40, 700)]];
   for (let i = 0; i <= N; i++) pts.push([lerp(x0, x1, i / N), yb - hh * (0.55 + 0.25 * Math.sin(i * 0.33 + seed) + 0.2 * Math.sin(i * 0.87 + seed * 2.1))]);
-  pts.push([x1, yb + 40]);
+  pts.push([x1, Math.max(yb + 40, 700)]);
   P.shape(pts, tn, o.lw === undefined ? 0.8 : o.lw);
   if (o.terr) for (let k = 1; k < 4; k++) { const q = []; for (let i = 2; i <= N - 2; i += 2) q.push([lerp(x0, x1, i / N), Math.max(pts[i + 1][1] + 6, yb - hh * 0.5 + k * hh * 0.16)]); P.line(q, 0.5, { ink: 3, lvl: 4 }); }
+  c.restore();
 };
 /* maison de pierre à toit plat : portes et fenêtres sur les deux faces visibles */
 const tzHouse = (P, x, y, w, d, h, tn = 'y3r2k1', o = {}) => {
@@ -258,14 +260,14 @@ const tzDryWall = (P, x0, y0, x1, y1, h = 18, tn = 'y3r2k2') => { const n = Math
 /* la harpe de David (kinnor), en coordonnées écran ; ph = oscillation, vib = vibration des cordes */
 const tzKinnor = (P, cx, cy, s, ph, vib) => {
   const rot = Math.sin(ph) * 0.06, R = ([x, y]) => [cx + (x * Math.cos(rot) - y * Math.sin(rot)) * s, cy + (x * Math.sin(rot) + y * Math.cos(rot)) * s];
-  const top = R([0, -10]);
-  P.line([[cx, cy - 44 * s], top], 0.8);
-  const box = [[-20, 46], [20, 46], [24, 30], [16, 20], [-16, 20], [-24, 30]].map(R);
-  P.shape(box, 'r5y5k2', 1); P.shape(P.disc(R([0, 34])[0], R([0, 34])[1], 4.5 * s, 10), 'k7r2', 0.5);
-  for (const sg of [-1, 1]) { const arm = [[sg * 14, 22], [sg * 20, 6], [sg * 18, -8], [sg * 24, -18], [sg * 20, -24], [sg * 12, -12], [sg * 12, 2], [sg * 8, 22]].map(R); P.shape(arm, 'r5y5k3', 0.9); }
-  P.shape([[-26, -20], [26, -20], [26, -14], [-26, -14]].map(R), 'r4y5k3', 0.8);
-  for (let i = 0; i < 7; i++) { const x = -9 + i * 3, a = R([x, -14]), b = R([x * 1.3, 22]), m = [(a[0] + b[0]) / 2 + Math.sin(vib * 21 + i * 1.9) * 1.6 * s, (a[1] + b[1]) / 2]; P.line([a, m, b], 0.55, { ink: 0, lvl: 9, taper: 0 }); P.line([a, m, b], 0.3, { taper: 0 }); }
-  for (const sg of [-1, 1]) { const q = R([sg * 26, -17]); P.shape(P.disc(q[0], q[1], 3 * s, 8), 'y7r2', 0.5); }
+  for (const sg of [-1, 1]) P.line([[cx, cy - 44 * s], R([sg * 20, -20])], 0.6);
+  for (const sg of [-1, 1]) P.shape(limbPoly([[sg * 12, 24], [sg * 19, 8], [sg * 18, -6], [sg * 23, -16], [sg * 21, -22]].map(R), [3.6 * s, 3 * s, 2.6 * s, 2.4 * s, 2.2 * s]), 'r5y5k3', 0.8);
+  P.shape(limbPoly([[-26, -17], [0, -20], [26, -17]].map(R), [2.6 * s, 2.8 * s, 2.6 * s]), 'r4y5k3', 0.8);
+  const box = smooth([[-17, 20], [17, 20], [20, 32], [15, 44], [-15, 44], [-20, 32]], 3).map(R);
+  P.shape(box, 'r5y6k2', 1); P.shape(smooth([[-12, 24], [12, 24], [14, 32], [10, 40], [-10, 40], [-14, 32]], 3).map(R), 'y6r4k1', 0.5);
+  { const c = R([0, 32]); P.shape(P.disc(c[0], c[1], 4 * s, 12), 'k7r2', 0.5); }
+  for (let i = 0; i < 7; i++) { const x = -9 + i * 3, a = R([x * 1.25, -17]), b = R([x, 22]), m = [(a[0] + b[0]) / 2 + Math.sin(vib * 21 + i * 1.9) * 1.4 * s, (a[1] + b[1]) / 2]; P.line([a, m, b], 0.5, { ink: 0, lvl: 9, taper: 0 }); P.line([a, m, b], 0.28, { taper: 0 }); }
+  for (const sg of [-1, 1]) { const q = R([sg * 26, -17]); P.shape(P.disc(q[0], q[1], 2.6 * s, 8), 'y7r2', 0.5); }
 };
 /* bœuf des prémices : cornes dorées et couronne d'olivier, calées sur le dessin de BEAST.bull */
 const tzOxCrown = (c) => ({ depth: t => { const st = charState(c, t); return st.x + st.y + 0.5; }, draw(P, t) {
@@ -375,7 +377,8 @@ const SCENES = [
     { const pts = []; for (let i = 0; i <= 10; i++) pts.push(P.I(bx + 16 * i, by + 101, 188 - Math.sin(Math.PI * i / 10) * 24)); pts.push(P.I(bx + 160, by + 101, 196), P.I(bx, by + 101, 196)); P.shape(pts, 'y6r3k1', 0.7); }
     /* coffre, tabouret et lampe de nuit */
     P.box(40, 160, 0, 44, 70, 34, 'r5y4k3'); P.box(38, 158, 34, 48, 74, 4, 'r5y4k2', 0.6); for (const y of [175, 210]) { const c = P.I(84.5, y, 20); P.fill(P.disc(c[0], c[1], 3, 6), 'y7r2', {}); }
-    P.box(470, 30, 0, 30, 30, 34, 'r4y5k2'); Lib.jar(P, 485, 45, 34, 0.8, 'y6r3k1'); P.cyl(120, 40, 0, 8, 4, 'y6r3k2', 0.6, 10); P.cyl(120, 40, 4, 2.5, 120, 'y6r3k2', 0.6, 8); P.cyl(120, 40, 124, 9, 3, 'y6r3k2', 0.6, 10);
+    P.box(470, 30, 0, 30, 30, 34, 'r4y5k2'); Lib.jar(P, 485, 45, 34, 0.8, 'y6r3k1'); P.cyl(340, 150, 0, 8, 4, 'y6r3k2', 0.6, 10); P.cyl(340, 150, 4, 2.5, 110, 'y6r3k2', 0.6, 8); P.cyl(340, 150, 114, 9, 3, 'y6r3k2', 0.6, 10);
+    P.line([P.I(232, 20, 190), P.I(232, 116, 190)], 2.4, { ink: 3, lvl: 7, taper: 0 });
     P.shape([P.I(160, 250, 0.5), P.I(340, 250, 0.5), P.I(340, 380, 0.5), P.I(160, 380, 0.5)], 'r6b3k1', 0.9);
     P.shape([P.I(174, 264, 0.6), P.I(326, 264, 0.6), P.I(326, 366, 0.6), P.I(174, 366, 0.6)], 'y5r3', 0.6);
     for (let i = 1; i < 4; i++) { const c = P.I(160 + 45 * i, 315, 0.7); P.fill([[c[0], c[1] - 8], [c[0] + 13, c[1]], [c[0], c[1] + 8], [c[0] - 13, c[1]]], 'b6y2', {}); }
@@ -384,8 +387,8 @@ const SCENES = [
     P.box(40, 470, 0, 28, 28, 30, 'r4y5k2', 0.8);
   },
   live(P, t) {
-    const hx = P.I(232, 66, 190), vib = t * 3;
-    { const q = P.I(120, 40, 127); P.halo(q[0], q[1] - 8, 40, ['y1', 'y2', 'y3r1']); Lib.flame(P, q[0], q[1] - 2, 6, 13, t * 1.3, { noKnock: true }); }
+    const hx = P.I(232, 66, 188), vib = t * 3;
+    { const q = P.I(340, 150, 117); P.halo(q[0], q[1] - 8, 40, ['y1', 'y2', 'y3r1']); Lib.flame(P, q[0], q[1] - 2, 6, 13, t * 1.3, { noKnock: true }); }
     for (let i = 0; i < 5; i++) { const u = (t * 0.2 + i / 5) % 1, pts = []; for (let k = 0; k <= 14; k++) { const s2 = k / 14, x = 350 + i * 22 - u * 120 - s2 * 30, y = 6 + u * 90 + s2 * 50; pts.push(P.I(x, y, 150 - u * 10 + Math.sin(s2 * 7 + t * 2 + i) * 8)); } P.line(pts, 2.2 * Math.sin(Math.PI * u) + 0.2, { ink: 2, lvl: 7 }); }
     tzKinnor(P, hx[0], hx[1] + 66, 1.5, t * 1.4, vib);
     for (let i = 0; i < 3; i++) { const u = (t * 0.5 + i / 3) % 1, a = -0.7 + i * 0.5; const c = [hx[0] + Math.cos(a) * (40 + u * 70), hx[1] + 80 + Math.sin(a) * (24 + u * 34)]; P.line([[c[0] - 5, c[1]], [c[0], c[1] - 3], [c[0] + 5, c[1]]], 1.4 * (1 - u) + 0.2, { ink: 0, lvl: 9 }); }

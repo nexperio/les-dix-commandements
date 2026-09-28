@@ -1621,7 +1621,7 @@ const tmStatic = (P, lk, o) => renderChar(P, prepChar(ch(lk, o)), o.tt || 1.3);
 /* un objet qui suit un trajet comme un personnage (agneaux, anges) */
 const tmTrack = (o) => prepChar(Object.assign({ h: 60 }, o));
 /* ciel de nuit, ciel de crépuscule */
-const tmDusk = (P, tones, ys) => { const t = tones || ['b4r2k1', 'b3r2', 'r3y3', 'r2y5'], Y = ys || [0, 190, 270, 330], d = P.disc(500, 470, 450, 72); for (let i = 0; i < t.length; i++) P.fill(d.map(p => [p[0], Math.max(p[1], Y[i])]), t[i], {}); };
+const tmDusk = (P, tones, ys) => { const t = tones || ['b4r2k1', 'b3r2', 'r3y3', 'r2y5'], Y = ys || [0, 190, 270, 330], d = P.disc(500, 470, 450, 72); for (let i = 0; i < t.length; i++) P.fill(d.map(p => [p[0], Math.min(640, Math.max(p[1], Y[i]))]), t[i], {}); };
 /* maison de pierre à toit plat : porte en arc sur la face avant gauche (dx) ou droite (dy), fenêtres */
 const tmHouse = (P, x, y, w, d, h, tn, o = {}) => {
   P.box(x, y, 0, w, d, h, tn);
@@ -1696,8 +1696,8 @@ const tmMenorahPts = (x, y, H) => [[x - 26, y], [x + 26, y], [x, y - 26], [x, y 
 const tmMenorah = (P, x, y, H) => {
   const g = 'y7r2', gd = 'y7r3k1';
   P.box(x - 22, y - 22, 0, 44, 44, 12, 'y3r2k2', 0.9); P.box(x - 15, y - 15, 12, 30, 30, 8, gd, 0.8);
-  P.cyl(x, y, 20, 6, H - 20, g, 0.9, 14);
-  for (let z = 50; z < H - 10; z += 44) P.cyl(x, y, z, 9, 6, gd, 0.6, 14);
+  P.cyl(x, y, 20, 8, H - 20, g, 0.9, 16);
+  for (let z = 60; z < H - 20; z += 70) P.cyl(x, y, z, 11, 7, gd, 0.6, 16);
   for (const [dx, dy] of [[-26, 0], [26, 0], [0, -26], [0, 26]]) { P.line([P.I(x, y, H - 16), P.I(x + dx, y + dy, H + 2)], 3.2, { ink: 0, lvl: 8, taper: 0 }); P.line([P.I(x, y, H - 16), P.I(x + dx, y + dy, H + 2)], 0.7); }
   for (const [bx, by, bz] of tmMenorahPts(x, y, H).sort((a, b) => a[0] + a[1] - b[0] - b[1])) { P.cyl(bx, by, bz - 10, 11, 8, g, 0.8, 16); P.shape(P.ell(bx, by, bz - 1.6, 8, 8, 14), 'y8r4', 0.5); }
 };
@@ -1785,7 +1785,7 @@ const SCENES = [
   back(P) {
     tmDusk(P, ['b4r2k1', 'b3r3', 'r3y4', 'r2y6'], [0, 200, 290, 350]);
     Lib.sun(P, 905, 420, 18);
-    P.shape([[640, 560], [700, 470], [760, 440], [820, 462], [880, 430], [950, 470], [990, 560]], 'b3r3k2', 1);
+    P.shape([[660, 600], [720, 480], [780, 450], [840, 470], [890, 440], [940, 480], [960, 600]], 'b3r3k1', 1);
     Lib.platform(P, 'y4r3k3', 'y3r3k4', { h: 56 });
     const L = P.L, I = (a, b, c) => P.I(a, b, c), r = rng(21);
     /* dehors : l'herbe au soleil couchant ; dedans : le sol sombre de la grotte */
@@ -1793,19 +1793,20 @@ const SCENES = [
     P.fill([I(310, 0, 0.35), I(360, 0, 0.35), I(330, 300, 0.35), I(290, 540, 0.35), I(250, 540, 0.35), I(270, 300, 0.35)], 'y4r3k2', { noKnock: true });
     /* les parois de la grotte, à gauche et au fond */
     const topL = [], topR = [];
-    for (let i = 0; i <= 18; i++) { const v = i / 18 * L; topL.push([0, v, 200 + Math.sin(i * 1.7) * 18 + r() * 22]); }
-    for (let i = 0; i <= 10; i++) { const v = i / 10 * 310; topR.push([v, 0, 200 + Math.sin(i * 1.3) * 16 + r() * 22 - (i > 7 ? (i - 7) * 60 : 0)]); }
+    for (let i = 0; i <= 18; i++) { const v = i / 18 * L; topL.push([0, v, 210 + Math.sin(i * 1.7) * 8 + r() * 10]); }
+    for (let i = 0; i <= 10; i++) { const v = i / 10 * 310; topR.push([v, 0, 210 + Math.sin(i * 1.3) * 8 + r() * 10 - (i > 7 ? (i - 7) * 62 : 0)]); }
     const S = a => a.map(q => I(q[0], q[1], q[2]));
-    P.shape([I(0, 0, 0), I(0, L, 0)].concat(S(topL).reverse()), 'y2r3k5', 1.2);
-    P.shape([I(0, 0, 0), I(310, 0, 0)].concat(S(topR).reverse()), 'y2r3k4', 1.2);
+    P.shape([I(0, 0, 0), I(0, L, 0)].concat(S(topL).reverse()), 'y3r3k3', 1.2);
+    P.shape([I(0, 0, 0), I(310, 0, 0)].concat(S(topR).reverse()), 'y3r3k2', 1.2);
     for (let k = 0; k < 18; k++) { const v = 20 + r() * 500, z = 20 + r() * 150; P.line([I(0.5, v, z), I(0.5, v + 10 + r() * 20, z - 10 - r() * 20), I(0.5, v + 20 + r() * 20, z - 26)], 0.6); }
     for (let k = 0; k < 10; k++) { const v = 20 + r() * 250, z = 20 + r() * 140; P.line([I(v, 0.5, z), I(v + 10 + r() * 16, 0.5, z - 12 - r() * 16)], 0.6); }
     for (let z = 36; z < 170; z += 40) { P.line([I(0.5, 0, z + r() * 6), I(0.5, L * 0.5, z + 8), I(0.5, L, z - 4)], 0.45); P.line([I(0, 0.5, z), I(260, 0.5, z + 6)], 0.45); }
     /* la voûte : un rebord de rocher qui avance, et ses concrétions */
     const lipL = topL.map((q, i) => [q[0] + 70 + Math.sin(i * 2.3) * 16, q[1], q[2] + 6]), lipR = topR.map((q, i) => [q[0], q[1] + 60 + Math.sin(i * 1.9) * 14, q[2] + 6]);
-    P.shape(S(topL).concat(S(lipL).reverse()), 'y2r3k6', 1.1);
-    P.shape(S(topR).concat(S(lipR).reverse()), 'y2r3k6', 1.1);
-    for (const lip of [lipL, lipR]) for (let i = 1; i < lip.length - 1; i++) { const q = lip[i], a = I(q[0], q[1], q[2]), len = 14 + (i * 37 % 23); P.shape([[a[0] - 5, a[1] - 2], [a[0] + 5, a[1] - 2], [a[0] + 1, a[1] + len]], 'y2r3k5', 0.7); }
+    P.shape(S(topL).concat(S(lipL).reverse()), 'y2r4k6', 1.1);
+    P.shape(S(topR).concat(S(lipR).reverse()), 'y2r4k6', 1.1);
+    P.line(S(lipL), 1.6, { ink: 0, lvl: 5 }); P.line(S(lipR), 1.6, { ink: 0, lvl: 5 });
+    for (const lip of [lipL, lipR]) for (let i = 1; i < lip.length - 1; i++) { const q = lip[i], a = I(q[0], q[1], q[2]), len = 16 + (i * 37 % 26); P.shape([[a[0] - 6, a[1] - 3], [a[0] + 6, a[1] - 3], [a[0] + 1, a[1] + len]], 'y3r3k4', 0.7); }
     /* la source jaillit de la paroi et forme un bassin */
     { const a = I(0.5, 120, 70); P.shape([[a[0] - 8, a[1] + 6], [a[0] + 6, a[1] - 4], [a[0] + 10, a[1] + 8], [a[0] - 4, a[1] + 14]], 'k7r2', 0.7); }
     P.shape(P.ell(62, 150, 0.4, 52, 34, 26), 'b6y2', 1); P.shape(P.ell(62, 150, 0.6, 38, 24, 20), 'b5y2', 0);
@@ -1894,21 +1895,23 @@ const SCENES = [
   back(P) {
     Lib.sun(P, 170, 150, 26); Lib.cloud(P, 880, 150, 140, 24, 'b1');
     /* le sanctuaire, qui dépasse du mur : façade blanche et or */
-    P.box(200, -330, 0, 150, 150, 330, { t: 'y2r1', l: 'y1b1', r: 'y2b1k1' });
-    P.box(214, -214, 0, 122, 44, 360, { t: 'y2r1', l: 'y1b1', r: 'y2b1k1' });
-    { const F = (a, z) => P.I(a, -169.5, z); P.shape([F(250, 230), F(300, 230), F(300, 330), F(250, 330)], 'y7r3k1', 0.9); P.shape([F(258, 230), F(292, 230), F(292, 318), F(258, 318)], 'r6b4k1', 0.8); for (let i = 1; i < 4; i++) P.line([F(258 + i * 8.5, 232), F(258 + i * 8.5, 316)], 0.5); }
-    for (let a = 218; a < 336; a += 9) { const q = P.I(a, -169.5, 360); P.line([q, [q[0], q[1] - 12]], 1.6, { ink: 0, lvl: 9, taper: 0 }); }
-    P.line([P.I(214, -169.5, 356), P.I(336, -169.5, 356)], 2, { ink: 0, lvl: 9, taper: 0 });
+    { const X = -90, Y = -170, H = 220;
+      P.box(X, Y, 0, 130, 110, H, { t: 'y2r1', l: 'y1b1', r: 'y2b1k1' });
+      P.box(X + 40, Y + 110, 0, 50, 24, H + 22, { t: 'y2r1', l: 'y1b1', r: 'y2b1k1' });
+      const F = (a, z) => P.I(X + a, Y + 134.5, z); P.shape([F(47, 140), F(83, 140), F(83, 214), F(47, 214)], 'y7r3k1', 0.9); P.shape([F(53, 140), F(77, 140), F(77, 206), F(53, 206)], 'r6b4k1', 0.8); for (let i = 1; i < 3; i++) P.line([F(53 + i * 8, 142), F(53 + i * 8, 204)], 0.5);
+      for (let a = 2; a < 130; a += 8) { const q = P.I(X + a, Y + 110.5, H); P.line([q, [q[0], q[1] - 10]], 1.5, { ink: 0, lvl: 9, taper: 0 }); }
+      for (let b = 2; b < 110; b += 8) { const q = P.I(X + 130.5, Y + b, H); P.line([q, [q[0], q[1] - 10]], 1.5, { ink: 0, lvl: 9, taper: 0 }); }
+      P.line([P.I(X, Y + 110.5, H - 4), P.I(X + 130, Y + 110.5, H - 4), P.I(X + 130, Y, H - 4)], 2, { ink: 0, lvl: 9, taper: 0 }); }
     Lib.platform(P, 'y4r3', 'y4r3k2', { h: 50 });
-    tmStoneWalls(P, 'y3r2', 210, { seed: 44 });
+    tmStoneWalls(P, 'y3r2', 150, { seed: 44 });
     /* la porte du mont du Temple, dans le mur du fond */
     { const I = (a, z) => P.I(a, 0.6, z), pts = [I(230, 0), I(300, 0), I(300, 90)]; for (let i = 0; i <= 10; i++) { const a = Math.PI * i / 10; pts.push(I(265 + Math.cos(a) * 35, 90 + Math.sin(a) * 35)); } pts.push(I(230, 90)); P.shape(pts.map(p => [p[0], p[1]]), 'k6r2', 1.2); for (let i = 0; i <= 10; i++) { const a = Math.PI * i / 10, q = I(265 + Math.cos(a) * 42, 90 + Math.sin(a) * 42), q2 = I(265 + Math.cos(a) * 35, 90 + Math.sin(a) * 35); P.line([q, q2], 0.6); } P.line(Array.from({ length: 11 }, (_, i) => I(265 + Math.cos(Math.PI * i / 10) * 42, 90 + Math.sin(Math.PI * i / 10) * 42)), 1); }
     for (let i = 0; i < 4; i++) P.box(214, 2 + i * 12, 0, 102, 12, 16 - i * 4, 'y3r2k1', 0.7);
     /* portique au sommet du mur */
-    P.box(0, 0, 210, 540, 14, 8, 'y3r2k2', 0.7); P.box(0, 0, 210, 14, 540, 8, 'y3r2k2', 0.7);
-    for (let y = 30; y < 540; y += 46) tmCol(P, 8, y, 218, 70, 5, 'y2r1');
-    for (let x = 30; x < 540; x += 46) tmCol(P, x, 8, 218, 70, 5, 'y2r1');
-    P.box(0, 0, 288, 16, 540, 10, 'y3r2k1', 0.8); P.box(0, 0, 288, 540, 16, 10, 'y3r2k1', 0.8);
+    P.box(0, 0, 150, 540, 14, 8, 'y3r2k2', 0.7); P.box(0, 0, 150, 14, 540, 8, 'y3r2k2', 0.7);
+    for (let y = 30; y < 540; y += 46) tmCol(P, 8, y, 158, 56, 5, 'y2r1');
+    P.box(0, 0, 214, 16, 540, 9, 'y3r2k1', 0.8);
+    for (let x = 12; x < 540; x += 16) P.box(x, 0, 158, 8, 8, 8, 'y3r2k1', 0.5);
     /* rangées d'oliviers et le chemin des pèlerins */
     P.line([P.I(60, 540, 0.4), P.I(140, 380, 0.4), P.I(230, 200, 0.4), P.I(265, 50, 0.4)], 46, { ink: 0, lvl: 3, taper: 0 });
     for (const [x, y, s] of [[60, 200, 0.9], [40, 330, 1], [450, 360, 1.1], [500, 230, 0.8]]) tmOlive(P, x, y, s);
@@ -1918,7 +1921,7 @@ const SCENES = [
     Lib.stones(P, 16, 'y3r2k3', [300, 300, 220, 220]);
     Lib.grass(P, 30, 'y5b4', [300, 260, 230, 270]);
   },
-  live(P, t) { const q = P.I(150, -120, 330); Lib.smoke(P, q[0], q[1], t, { n: 5, h: 150, r: 20, sp: 0.12, tn: 'k2b1' }); },
+  live(P, t) { const q = P.I(-40, -30, 170); Lib.smoke(P, q[0], q[1], t, { n: 5, h: 150, r: 20, sp: 0.12, tn: 'k2b1' }); },
   chars: [
     ch(LK.tmHillel, { x: 330, y: 150, face: -1, clip: 'point', h: 138 }),
     ch(LK.tmBeteira, { x: 484, y: 150, z: 22, face: -1, clip: 'tmSitTalk', h: 132 }),
@@ -2029,10 +2032,10 @@ const SCENES = [
   back(P) {
     nightSky(P, 'b7k3', 60);
     Lib.platform(P, 'y3r3b2k2', 'y3r3k3', { h: 50 });
+    for (const [a, b] of [[120, 250], [440, 330], [300, 300]]) { const q = P.I(a, b, 0); P.fill(P.disc(q[0], q[1], 170, 40).map(p => [p[0], q[1] + (p[1] - q[1]) * 0.55]), 'y4r3k1', {}); P.fill(P.disc(q[0], q[1], 100, 40).map(p => [p[0], q[1] + (p[1] - q[1]) * 0.55]), 'y3r2', {}); }
     tmPave(P, 45, 0.4);
-    tmStoneWalls(P, 'y3r2b2k2', 220, { seed: 71 });
-    for (const [a, b] of [[120, 250], [440, 330]]) { const q = P.I(a, b, 0); P.fill(P.disc(q[0], q[1], 150, 40).map(p => [p[0], q[1] + (p[1] - q[1]) * 0.55]), 'y3r1', { noKnock: true }); P.fill(P.disc(q[0], q[1], 90, 40).map(p => [p[0], q[1] + (p[1] - q[1]) * 0.55]), 'y2', { noKnock: true }); }
-    for (const [x, y, side] of [[0.6, 150, 1], [0.6, 330, 1], [140, 0.6, 0], [460, 0.6, 0]]) { const q = side ? P.I(x, y, 150) : P.I(x, y, 150); P.fill(P.disc(q[0], q[1] - 10, 60, 30).map(p => [p[0], q[1] - 10 + (p[1] - q[1] + 10) * 1.1]), 'y3r1', { noKnock: true }); }
+    tmStoneWalls(P, 'y3r2b1k2', 220, { seed: 71 });
+    for (const [x, y] of [[120, 250], [440, 330]]) { const q = P.I(x, y, 290); P.halo(q[0], q[1] - 16, 96, ['y1', 'y2', 'y3r1', 'y4r2'], { knock: true, sq: 0.8 }); }
     /* la galerie des femmes le long du mur gauche */
     P.box(0, 40, 118, 40, 470, 6, 'r4y5k2', 0.8);
     for (let y = 60; y < 510; y += 64) P.box(34, y, 0, 6, 6, 118, 'r4y5k3', 0.6);
@@ -2044,18 +2047,17 @@ const SCENES = [
     for (let i = 0; i < 6; i++) P.box(170, 0, 0, 250, 84 - i * 14, 10 * (i + 1), i % 2 ? 'y3r2' : 'y3r2k1', 0.8);
     { const I = (a, z) => P.I(a, 0.6, z), pts = [I(260, 60), I(330, 60), I(330, 150)]; for (let i = 0; i <= 10; i++) { const a = Math.PI * i / 10; pts.push(I(295 + Math.cos(a) * 35, 150 + Math.sin(a) * 35)); } pts.push(I(260, 150)); P.shape(pts, 'y6r3k2', 1.1); P.fill([I(266, 60), I(324, 60), I(324, 140), I(266, 140)], 'y7r3', { noKnock: true }); }
     /* deux grands chandeliers d'or, avec leurs échelles */
-    tmMenorah(P, 120, 250, 250);
-    tmLadder(P, 170, 360, 124, 290, 232);
-    tmMenorah(P, 440, 330, 250);
-    tmLadder(P, 490, 440, 444, 370, 232);
+    tmMenorah(P, 120, 250, 280);
+    tmLadder(P, 176, 372, 124, 290, 262);
+    tmMenorah(P, 440, 330, 280);
+    tmLadder(P, 496, 452, 444, 370, 262);
   },
   live(P, t) {
-    for (const [x, y] of [[120, 250], [440, 330]]) { const q = P.I(x, y, 262); P.halo(q[0], q[1] - 20, 130, ['y1', 'y2', 'y3', 'y4r1'], { sq: 0.85 }); }
-    for (const [x, y] of [[120, 250], [440, 330]]) for (const [bx, by, bz] of tmMenorahPts(x, y, 250).sort((a, b) => a[0] + a[1] - b[0] - b[1])) { const q = P.I(bx, by, bz); Lib.flame(P, q[0], q[1], 13, 30, t * 1.6 + bx * 0.1 + by * 0.07, { noKnock: true }); }
+    for (const [x, y] of [[120, 250], [440, 330]]) for (const [bx, by, bz] of tmMenorahPts(x, y, 280).sort((a, b) => a[0] + a[1] - b[0] - b[1])) { const q = P.I(bx, by, bz); Lib.flame(P, q[0], q[1], 13, 32, t * 1.6 + bx * 0.1 + by * 0.07); }
   },
   chars: [
-    ch(LK.tmYoungPriest, { x: 139, y: 316, z: 160, face: 1, clip: 'tmPourUp', h: 96, noShadow: 1, dz: 60, hold: { nTop: 'tmOilJar' } }),
-    ch(LK.tmYoungPriest, { x: 459, y: 396, z: 160, face: 1, clip: 'tmPourUp', h: 96, t0: 1.4, noShadow: 1, dz: 60, hold: { nTop: 'tmOilJar' } }),
+    ch(LK.tmYoungPriest, { x: 141, y: 320, z: 186, face: 1, clip: 'tmPourUp', h: 96, noShadow: 1, dz: 60, hold: { nTop: 'tmOilJar' } }),
+    ch(LK.tmYoungPriest, { x: 461, y: 400, z: 186, face: 1, clip: 'tmPourUp', h: 96, t0: 1.4, noShadow: 1, dz: 60, hold: { nTop: 'tmOilJar' } }),
     ch(LK.tmLevite, { x: 210, y: 36, z: 50, face: 1, clip: 'tmHarpPlay', h: 128, hold: { nTop: 'tmLyre' } }),
     ch(LK.tmLevite2, { x: 360, y: 36, z: 50, face: -1, clip: 'blow', h: 130, hold: { nTop: 'tmTrumpet' } }),
     ch(LK.tmLevite2, { x: 240, y: 64, z: 30, face: 1, clip: 'tmCymbal', h: 128, t0: 0.4, hold: { n: 'tmCymbals', f: 'tmCymbals' } }),
@@ -2093,6 +2095,7 @@ const SCENES = [
     { const b = P.I(460, 250, 0); P.shape([[b[0] - 6, b[1]], [b[0] - 3, b[1] - 80], [b[0] + 3, b[1] - 80], [b[0] + 6, b[1]]], 'r4y4k5', 0.9); for (const [dx, dy, ex, ey] of [[0, -60, -34, -110], [0, -70, 30, -118], [0, -80, 4, -130], [-18, -92, -40, -104], [16, -100, 34, -112]]) P.line([[b[0] + dx, b[1] + dy], [b[0] + ex, b[1] + ey]], 2, { ink: 3, taper: 0.8 }); }
     Lib.well(P, 500, 300, 22);
     Lib.stones(P, 14, 'y4r3k3', [20, 300, 200, 220]);
+    for (let i = 0; i < 30; i++) { const q = P.I(20 + r() * 500, 200 + r() * 330, 0); P.line([[q[0], q[1]], [q[0] - 2, q[1] - 7]], 0.8, { ink: 0, lvl: 7 }); P.line([[q[0] + 2, q[1]], [q[0] + 4, q[1] - 6]], 0.8, { ink: 1, lvl: 5 }); }
     for (const [x, y] of [[120, 470], [180, 500], [420, 500]]) { const q = P.I(x, y, 0); for (let k = -2; k <= 2; k++) P.line([[q[0] + k * 3, q[1]], [q[0] + k * 5, q[1] - 10 + Math.abs(k) * 2]], 0.8, { ink: 0 }); }
     /* le cercle tracé dans la poussière */
     P.line(P.ell(270, 290, 0.5, 80, 80, 48), 2.6, { ink: 3, taper: 0 });
@@ -2102,7 +2105,7 @@ const SCENES = [
   },
   live(P, t) {
     const k = Math.min(1, (t % 14) / 4);
-    if (k > 0.05) Lib.rain(P, t, { n: Math.round(60 * k), sp: 0.9, clip: (x, y) => y > 170 && y < 860 && Math.abs(x - 500) < 460 });
+    if (k > 0.05) Lib.rain(P, t, { n: Math.round(110 * k), sp: 0.9, clip: (x, y) => y > 170 && y < 860 && Math.abs(x - 500) < 460 });
     for (const [x, y, s] of [[200, 340, 1], [330, 230, 0.8], [380, 380, 1.2], [140, 250, 0.7]]) { const u = ((t * 0.9 + x * 0.01) % 1), c = P.I(x, y, 0.5); if (k > 0.3) P.line(P.ell(x, y, 0.5, 4 + u * 12 * s, 4 + u * 12 * s, 14).map(p => p), 0.6 * (1 - u) + 0.2, { ink: 2, lvl: 7, closed: true }); }
   },
   chars: [
@@ -2124,7 +2127,7 @@ const SCENES = [
     Lib.sun(P, 180, 140, 26); Lib.cloud(P, 520, 130, 170, 26, 'b1'); Lib.cloud(P, 820, 210, 120, 22, 'b1');
     Lib.platform(P, 'y4r3', 'y4r3k2', { h: 50 });
     /* la route */
-    P.line([P.I(300, 30, 0.4), P.I(300, 200, 0.4), P.I(330, 380, 0.4), P.I(300, 540, 0.4)], 44, { ink: 0, lvl: 3, taper: 0 });
+    P.line([P.I(300, 30, 0.4), P.I(300, 200, 0.4), P.I(330, 380, 0.4), P.I(300, 540, 0.4)], 44, { ink: 0, lvl: 5, taper: 0 }); P.line([P.I(300, 30, 0.5), P.I(300, 200, 0.5), P.I(330, 380, 0.5), P.I(300, 540, 0.5)], 30, { ink: 1, lvl: 2, taper: 0 });
     Lib.stones(P, 12, 'y3r2k3', [260, 60, 90, 440]);
     /* l'auberge, au fond : cour, enseigne, tas de terre */
     tmHouse(P, 330, 10, 190, 100, 116, 'y3r3k1', { dx: 40, win: [[0, 110, 66], [0, 150, 66], [1, 30, 70]] });
@@ -2139,8 +2142,9 @@ const SCENES = [
     for (let y = 210; y < 540; y += 52) tmCol(P, 150, y, 16, 150, 8, 'y1b1');
     P.box(138, 196, 166, 24, 344, 14, 'y1b1k1', 0.9);
     for (let y = 204; y < 540; y += 16) P.line([P.I(162.4, y, 168), P.I(162.4, y, 178)], 0.5);
-    P.shape([P.I(162.5, 200, 180), P.I(162.5, 536, 180), P.I(162.5, 368, 236)], 'y1b1k1', 1); P.shape([P.I(162.8, 230, 184), P.I(162.8, 506, 184), P.I(162.8, 368, 226)], 'y2b1', 0.6);
-    { const q = P.I(162.8, 368, 200); P.shape(P.disc(q[0], q[1], 9, 14), 'y7r2', 0.6); }
+    P.shape([P.I(162.5, 200, 180), P.I(162.5, 536, 180), P.I(162.5, 368, 262)], 'y1b1k1', 1); P.shape([P.I(162.8, 232, 185), P.I(162.8, 504, 185), P.I(162.8, 368, 250)], 'y2b1', 0.6);
+    { const q = P.I(162.8, 368, 208); P.shape(P.disc(q[0], q[1], 11, 14), 'y7r2', 0.6); P.fill(P.disc(q[0], q[1], 5, 10), 'r6y4', {}); }
+    for (const y of [214, 526]) { P.box(186, y, 0, 4, 4, 150, 'r4y5k3', 0.6); const a = P.I(188, y, 146); P.shape([[a[0] - 2, a[1]], [a[0] + 18, a[1] + 4], [a[0] + 18, a[1] + 34], [a[0] + 8, a[1] + 28], [a[0] - 2, a[1] + 32]], 'r7y2', 0.7); P.shape(P.disc(a[0], a[1] - 6, 5, 10), 'y7r2', 0.5); }
     P.box(30, 360, 16, 50, 60, 16, 'r6b4k1', 0.8);
     P.box(40, 370, 32, 30, 40, 22, 'y7r2k1', 0.8); P.box(36, 370, 54, 8, 40, 46, 'y7r2', 0.8);
     { const q = P.I(40, 390, 100); P.shape(P.disc(q[0], q[1] - 6, 9, 12), 'y8r3', 0.7); }
@@ -2174,6 +2178,7 @@ const SCENES = [
     const X0 = 170, X1 = 520, Y0 = 20, Y1 = 330, H = 64;
     /* le jardin clos : sol, allées de marbre, bassin, arbres de lumière */
     P.fill([P.I(X0, Y0, 0.3), P.I(X1, Y0, 0.3), P.I(X1, Y1, 0.3), P.I(X0, Y1, 0.3)], 'y4b5', {});
+    for (const [rx, ry, tn] of [[160, 140, 'y4b3'], [120, 104, 'y3b2'], [80, 70, 'y2b1'], [44, 40, 'y1']]) P.fill(P.ell(345, 175, 0.4, rx, ry, 40), tn, {});
     P.box(X0, Y0, 0, X1 - X0, 12, H + 20, 'y2r2'); P.box(X0, Y0, 0, 12, Y1 - Y0, H + 20, 'y2r2k1');
     for (let x = X0 + 30; x < X1; x += 40) P.box(x, Y0 - 2, H + 20, 14, 14, 10, 'y2r2k1', 0.6);
     for (let i = 0; i < 5; i++) for (let j = 0; j < 4; j++) { const x = 290 + i * 26, y = 120 + j * 26; P.shape([P.I(x, y, 0.5), P.I(x + 24, y, 0.5), P.I(x + 24, y + 24, 0.5), P.I(x, y + 24, 0.5)], (i + j) % 2 ? 'y1' : 'y1b1', 0.6); }
@@ -2194,7 +2199,7 @@ const SCENES = [
   },
   live(P, t) {
     const c = P.I(350, 180, 90), k = 1 + Math.sin(t * 0.8) * 0.06;
-    P.halo(c[0], c[1], 200 * k, ['y1', 'y2', 'y2', 'y3', 'y3r1'], { sq: 0.7 });
+    
     for (let i = 0; i < 6; i++) { const u = (t * 0.12 + i / 6) % 1, a = -Math.PI / 2 + (i - 2.5) * 0.35; P.line([[c[0], c[1] - 20], [c[0] + Math.cos(a) * (140 + u * 60), c[1] - 20 + Math.sin(a) * (140 + u * 60)]], 3 * (1 - u) + 0.5, { ink: 0, lvl: 5 }); }
   },
   chars: [

@@ -46,7 +46,7 @@ Object.assign(CLIPS, {
   tqRaise: { d: 2.6, k: [{ nU: 150, nL: 6, fU: 20, fL: 30, lean: -3, head: -10, nT: 8, fT: -8 }, { nU: 162, nL: 2, fU: 24, fL: 26, lean: -5, head: -14, nT: 8, fT: -8 }] },
   tqKneelReach: { d: 2.2, k: [{ nT: 4, nK: -95, fT: 0, fK: -95, lean: 46, head: 8, nU: 74, nL: 6, fU: 66, fL: 12 }, { nT: 4, nK: -95, fT: 0, fK: -95, lean: 36, head: 2, nU: 88, nL: 4, fU: 80, fL: 10 }] },
   tqReachUp: { d: 1.6, k: [{ nU: 146, nL: 10, fU: 118, fL: 30, head: -24, lean: -8, nT: 20, nK: -30, fT: -10, fK: -20 }, { nU: 156, nL: 4, fU: 128, fL: 22, head: -28, lean: -4, nT: 10, nK: -20, fT: 0, fK: -30 }] },
-  tqLampWalk: { d: 3, k: [{ nU: 70, nL: 40, fU: 10, fL: 20 }, { nU: 74, nL: 36, fU: 12, fL: 22 }] },
+  tqLampWalk: { d: 3, k: [{ nU: 40, nL: 50, fU: 10, fL: 20 }, { nU: 44, nL: 46, fU: 12, fL: 22 }] },
   tqRise: { d: 7, k: [{ nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 4, head: 6, nU: 24, nL: 58, fU: 16, fL: 62 }, { nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 4, head: 4, nU: 24, nL: 58, fU: 16, fL: 62 }, { lean: 6, head: -4, nU: 10, nL: 20, fU: 6, fL: 22, nT: 3, fT: -3 }, { lean: 5, head: -6, nU: 10, nL: 22, fU: 6, fL: 20, nT: 3, fT: -3 }] },
   tqPourJar: { d: 2.2, k: [{ lean: 14, head: 12, nU: 70, nL: 30, fU: 60, fL: 44, nT: 16, nK: -6, fT: -12, fK: -6 }, { lean: 20, head: 16, nU: 88, nL: 16, fU: 76, fL: 30, nT: 16, nK: -6, fT: -12, fK: -6 }] },
   tqBeckon: { d: 2.4, k: [{ nU: 58, nL: 40, fU: 12, fL: 18, lean: 3, head: 0, nT: 6, fT: -6 }, { nU: 76, nL: 64, fU: 12, fL: 20, lean: 4, head: 2, nT: 6, fT: -6 }] }
@@ -70,8 +70,8 @@ Object.assign(PROPS2, {
   },
   /* lampe à huile en terre, tenue devant soi */
   tqLamp(P, A, J, M, h, t, lw, F, u, n, add) {
-    const q = M(add(A.t, [0, -1], 0.01)), s = h / 140, fc = F.face || 1;
-    P.halo(q[0] + fc * 6 * s, q[1] - 12 * s, 70 * s, ['y1', 'y2', 'y3r1']);
+    const q = M(add(A.t, [0, -1], 0.01)), s = Math.max(h, 120) / 140, fc = F.face || 1;
+    P.halo(q[0] + fc * 6 * s, q[1] - 12 * s, 60 * s, ['y2', 'y3r1', 'y4r1']);
     P.shape([[q[0] - fc * 9 * s, q[1]], [q[0] + fc * 11 * s, q[1] - 2 * s], [q[0] + fc * 8 * s, q[1] - 6 * s], [q[0] - fc * 7 * s, q[1] - 6 * s]], 'r5y6k2', lw * 0.7);
     Lib.flame(P, q[0] + fc * 10 * s, q[1] - 5 * s, 7 * s, 15 * s, t * 1.4, { noKnock: true });
   },
@@ -555,11 +555,11 @@ const SCENES = [
     { const q = P.I(430, 520.5, 50); P.halo(q[0], q[1] - 6, 26, ['y1', 'y2']); }
     Lib.palm(P, 270, 330, 0, 150, { lean: 14, dates: 1 });
     /* le souterrain, vu en coupe dans la terre */
-    const Y = 540.6, X0 = 44, X1 = 500, Z0 = -88, Z1 = -12, F = (x, z) => P.I(x, Y, z);
-    P.shape([F(X0, Z0), F(X1, Z0), F(X1, Z1), F(X0, Z1)], 'y4r3k1', 1.2);
+    const Y = 540.6, X0 = 44, X1 = 500, Z0 = -90, Z1 = -6, F = (x, z) => P.I(x, Y, z);
+    P.shape([F(X0, Z0), F(X1, Z0), F(X1, Z1), F(X0, Z1)], 'y2r2', 1.2);
     for (let z = Z0 + 12; z < Z1; z += 12) P.line([F(X0, z), F(X1, z)], 0.35);
     for (let x = X0 + 20, r = 0; x < X1; x += 22, r++) for (let z = Z0; z < Z1 - 12; z += 24) P.line([F(x + (r % 2) * 11, z), F(x + (r % 2) * 11, z + 12)], 0.3);
-    P.fill([F(X0, Z1 - 12), F(X1, Z1 - 12), F(X1, Z1), F(X0, Z1)], 'k5r2', {});
+    P.fill([F(X0, Z1 - 5), F(X1, Z1 - 5), F(X1, Z1), F(X0, Z1)], 'k5r2', {});
     P.fill([F(X0, Z0), F(X1, Z0), F(X1, Z0 + 5), F(X0, Z0 + 5)], 'y3r2k3', {});
     for (const [a, sg] of [[X0, 1], [X1, -1]]) { const pts = [F(a, Z0), F(a, Z1)]; for (let i = 0; i <= 7; i++) { pts.push(F(a + sg * (6 + i * 8), Z1 - i * (Z1 - Z0) / 8)); pts.push(F(a + sg * (6 + i * 8), Z1 - (i + 1) * (Z1 - Z0) / 8)); } P.shape(pts, 'y3r2k2', 0.8); }
     P.outline([F(X0, Z0), F(X1, Z0), F(X1, Z1), F(X0, Z1)], 1.6);
@@ -568,8 +568,8 @@ const SCENES = [
     for (const [x, y] of [[226, 190], [244, 206], [230, 222], [252, 176]]) { const q = P.I(x, y, 0); P.shape(Lib.bumpy(P, q[0], q[1] - 10, 11, 12, 6), 'y4r2k1', 0.7); P.fill(P.disc(q[0], q[1] - 22, 3.5, 6), 'y8r2', {}); }
   },
   chars: [
-    ch(LK.tqAntonin, { h: 70, hold: { nTop: 'tqLamp' }, over: 'tqLampWalk', speed: 14, noShadow: 1, clipFn: P => [P.I(44, 540.6, -88), P.I(500, 540.6, -88), P.I(500, 540.6, -12), P.I(44, 540.6, -12)], path: [W(110, 522, 1.5, 'tqLampWalk', { z: -86 }), W(405, 522, 3.5, 'tqLampWalk', { z: -86, f: 1 }), W(110, 522, 0, null, { z: -86 })] }),
-    ch(LK.tqRabbi, { x: 440, y: 522, z: -86, face: -1, clip: 'offer', h: 72, noShadow: 1, clipFn: P => [P.I(44, 540.6, -88), P.I(500, 540.6, -88), P.I(500, 540.6, -12), P.I(44, 540.6, -12)] }),
+    ch(LK.tqAntonin, { h: 62, hold: { nTop: 'tqLamp' }, over: 'tqLampWalk', speed: 14, noShadow: 1, clipFn: P => [P.I(44, 540.6, -90), P.I(500, 540.6, -90), P.I(500, 540.6, -6), P.I(44, 540.6, -6)], path: [W(110, 534, 1.5, 'tqLampWalk', { z: -88 }), W(400, 534, 3.5, 'tqLampWalk', { z: -88, f: 1 }), W(110, 534, 0, null, { z: -88 })] }),
+    ch(LK.tqRabbi, { x: 440, y: 534, z: -88, face: -1, clip: 'offer', h: 64, noShadow: 1, clipFn: P => [P.I(44, 540.6, -90), P.I(500, 540.6, -90), P.I(500, 540.6, -6), P.I(44, 540.6, -6)] }),
     ch(LK.tqServant, { h: 124, over: 'carry', hold: { nTop: 'tqSack' }, speed: 18, path: [W(250, 230, 1.5), W(330, 300, 0), W(340, 420, 1.5, 'idle', { f: 1 }), W(250, 230, 0)] }),
     ch(LK.tqRoman, { x: 220, y: 330, face: 1, clip: 'guard', h: 132, hold: { n: 'spear' } }),
     { beast: 'donkey', h: 84, x: 300, y: 150, face: 1 },

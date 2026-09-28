@@ -11,7 +11,7 @@ Object.assign(LK, {
   tnShimon: { skin: 'y6r4k1', hs: 'curly', hair: 'k8', beard: 'full', bt: 'k8', robe: 'y1b1', cloak: 'y5r3k2', sash: 'r6', head: 'turban', ht: 'y1', sleeves: 'long', feet: 'sandal' },
   tnNeighbor: { fem: 1, skin: 'y5r4', hs: 'long', hair: 'k7', robe: 'r5y3', len: 'floor', head: 'veil', ht: 'y3r1', sash: 'b5', sleeves: 'long' },
   tnNeighbor2: { fem: 1, skin: 'y6r4k1', hs: 'long', hair: 'k8', robe: 'b4y4', len: 'floor', head: 'veil', ht: 'r4y4', sash: 'y7', sleeves: 'long' },
-  tnRabbi: { old: 1, skin: 'y5r4', hs: 'fringe', hair: 'k1', beard: 'full', bt: 'k1b1', robe: 'y1b1', trim: 1, sash: 'y7r3', sleeves: 'long', wide: 1, feet: 'bare' },
+  tnRabbi: { old: 1, skin: 'y5r4', hs: 'fringe', hair: 'k1', beard: 'full', bt: 'k1b1', robe: 'b4y3k1', trim: 1, sash: 'y7r3', sleeves: 'long', wide: 1, feet: 'bare' },
   tnAmah: { fem: 1, skin: 'y6r4k1', hs: 'long', hair: 'k8', robe: 'y4r2k1', len: 'floor', head: 'veil', ht: 'b4y1', sash: 'r6', sleeves: 'short', feet: 'bare' },
   tnSage1: { old: 1, skin: 'y5r4', hs: 'fringe', hair: 'k2', beard: 'long', bt: 'k2', robe: 'k5b2', cloak: 'y2k1', sash: 'y3', head: 'cloth', ht: 'y1b1', band: 'k6', sleeves: 'long', feet: 'sandal' },
   tnSage2: { skin: 'y5r4k1', hs: 'short', hair: 'k7', beard: 'full', bt: 'k7', robe: 'b5k2', sash: 'y5', head: 'turban', ht: 'y2b1', sleeves: 'long', wide: 1, feet: 'sandal' },
@@ -24,7 +24,7 @@ Object.assign(LK, {
   tnSeller: { fem: 1, skin: 'y6r4k1', hs: 'long', hair: 'k8', robe: 'y6r3', len: 'floor', head: 'veil', ht: 'b5y2', sash: 'r6', sleeves: 'short' },
   tnSeller2: { skin: 'y6r5k1', hs: 'curly', hair: 'k8', beard: 'full', bt: 'k8', robe: 'b4y2k1', len: 'knee', sleeves: 'short', sash: 'r5y4', head: 'cap', ht: 'r5y3k1', feet: 'sandal' },
   tnBoy: { child: 1, skin: 'y5r4', hs: 'curly', hair: 'k7', robe: 'y3r3', len: 'knee', sleeves: 'short', sash: 'b5', feet: 'bare' },
-  tnSick: { old: 1, skin: 'y4r3k1', hs: 'fringe', hair: 'k2', beard: 'long', bt: 'k2', robe: 'y1b1', sleeves: 'long', feet: 'bare' },
+  tnSick: { old: 1, skin: 'y4r3k1', hs: 'fringe', hair: 'k2', beard: 'long', bt: 'k2', robe: 'b3y2k1', sleeves: 'long', feet: 'bare' },
   tnMourner: { skin: 'y5r4k1', hs: 'short', hair: 'k7', beard: 'full', bt: 'k7', robe: 'k5b2', len: 'ankle', sleeves: 'long', sash: 'k6', feet: 'bare' },
   tnMournerW: { fem: 1, skin: 'y5r4', hs: 'long', hair: 'k7', robe: 'k5b3', len: 'floor', head: 'veil', ht: 'k6b2', sash: 'k6', sleeves: 'long', feet: 'bare' },
   tnBearer: { skin: 'y6r4k1', hs: 'short', hair: 'k8', beard: 'short', bt: 'k8', robe: 'k4b3', len: 'ankle', sleeves: 'long', sash: 'k6', head: 'cap', ht: 'k6', feet: 'sandal' },
@@ -51,7 +51,8 @@ Object.assign(CLIPS, {
   tnMourn: { d: 4, k: [{ nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.24, lean: 16, head: 26, nU: 34, nL: 118, fU: 20, fL: 40 }, { nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.24, lean: 20, head: 30, nU: 36, nL: 116, fU: 22, fL: 42 }] },
   tnConsole: { d: 3, k: [{ lean: 12, head: 14, nU: 58, nL: 20, fU: 10, fL: 30, nT: 4, fT: -4 }, { lean: 15, head: 18, nU: 62, nL: 16, fU: 12, fL: 28, nT: 4, fT: -4 }] },
   tnShiver: { d: 1.4, k: [{ nU: 22, nL: 104, fU: 26, fL: 98, lean: 8, head: 12, nT: 3, fT: -3 }, { nU: 24, nL: 100, fU: 28, fL: 96, lean: 9, head: 14, nT: 3, fT: -3 }] },
-  tnLieUp: { d: 4, k: [{ rot: -90, nT: 6, nK: -10, fT: 2, fK: -6, nU: 86, nL: 10, fU: 94, fL: 6, head: -6 }, { rot: -90, nT: 6, nK: -10, fT: 2, fK: -6, nU: 92, nL: 6, fU: 100, fL: 2, head: -8 }] },
+  tnSleep: { d: 4, k: [{ rot: -62, nT: 8, nK: -14, fT: 3, fK: -8, nU: 14, nL: 50, fU: 8, fL: 60, head: -12 }, { rot: -62, nT: 8, nK: -14, fT: 3, fK: -8, nU: 16, nL: 48, fU: 9, fL: 58, head: -9 }] },
+  tnLieUp: { d: 4, k: [{ rot: -62, nT: 6, nK: -10, fT: 2, fK: -6, nU: 86, nL: 10, fU: 94, fL: 6, head: -6 }, { rot: -62, nT: 6, nK: -10, fT: 2, fK: -6, nU: 92, nL: 6, fU: 100, fL: 2, head: -8 }] },
   tnShoulder: { d: 1, k: [{ nU: 150, nL: 36, fU: 144, fL: 40 }, { nU: 152, nL: 34, fU: 146, fL: 38 }] },
   tnVisit: { d: 3.2, k: [{ nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 16, head: 10, nU: 70, nL: 20, fU: 30, fL: 60 }, { nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 18, head: 14, nU: 76, nL: 16, fU: 32, fL: 58 }] },
   tnAccuse: { d: 1.2, k: [{ lean: -4, head: -4, nU: 98, nL: -6, fU: 40, fL: 70, nT: 8, fT: -8 }, { lean: -6, head: -8, nU: 104, nL: -10, fU: 44, fL: 66, nT: 8, fT: -8 }] },
@@ -236,9 +237,9 @@ const SCENES = [
     tnHouse(P, 16, 200, 110, 96, 92, 'y3r2k1', { door: 44, win: 1 });
     tnHouse(P, 22, 350, 84, 118, 70, 'y4r2k2', { door: 26, win: 1 });
     P.box(106, 470, 0, 70, 6, 30, 'y3r2k2', 0.7); P.box(106, 470, 30, 70, 8, 3, 'y3r2k3', 0.5);
-    tnOlive(P, 120, 80, 0.9, 5); tnOlive(P, 470, 330, 1.1, 6); tnOlive(P, 480, 470, 0.85);
+    tnOlive(P, 120, 80, 0.9, 5); tnOlive(P, 470, 320, 1.1, 6);
     Lib.well(P, 440, 230, 20); for (let i = 0; i < 3; i++) Lib.jar(P, 112 + i * 16, 480, 0, 0.9, ['r5y6k1', 'y6r3k1', 'b5y3'][i]);
-    for (let i = 0; i < 7; i++) P.box(270 + i * 12, 440 - i * 24, 0, 16, 18, 12 + (i % 2) * 4, 'y3r2k3', 0.6);
+    Lib.vines(P, 330, 390, 150, 120, 3);
     const crowd = [[420, 18, LK.tnTalm3], [372, 30, LK.tnTalm1], [455, 60, LK.tnTalm2], [395, 72, LK.tnTalm4], [345, 90, LK.tnTalm5], [430, 110, LK.tnTalm2], [370, 135, LK.tnTalm1], [320, 150, LK.tnTalm3]];
     crowd.forEach(([x, y, lk], i) => tnStatic(P, lk, { x, y, face: -1, clip: 'walk', h: 132, tt: i * 0.37, hold: i % 3 === 0 ? { nTop: 'scroll' } : null }));
   },
@@ -311,26 +312,26 @@ const SCENES = [
     { const dx = 214, dw = 26, pts = [I(dx, Y1 + 0.5, 0)]; for (let i = 0; i <= 8; i++) { const a = Math.PI - Math.PI * i / 8; pts.push(I(dx + dw / 2 + Math.cos(a) * dw / 2, Y1 + 0.5, 56 + Math.sin(a) * dw / 2)); } pts.push(I(dx + dw, Y1 + 0.5, 0)); P.shape(pts, 'k7r2', 0.9); }
     for (const a of [60, 120]) P.shape([I(a, Y1 + 0.5, 40), I(a + 16, Y1 + 0.5, 40), I(a + 16, Y1 + 0.5, 64), I(a, Y1 + 0.5, 64)], 'k6b2', 0.7);
     for (const b of [60, 130]) P.shape([I(X1 + 0.5, b, 40), I(X1 + 0.5, b + 16, 40), I(X1 + 0.5, b + 16, 64), I(X1 + 0.5, b, 64)], 'k6b2', 0.7);
-    P.box(X0, Y0, 90, X1 - X0, 96, 70, 'y3r2k1');
-    P.shape([I(X0, Y0 + 96.4, 90), I(X1, Y0 + 96.4, 90), I(X1, Y0 + 96.4, 160), I(X0, Y0 + 96.4, 160)], 'y5r3k1', 0.9);
-    for (let i = 0; i < 5; i++) P.shape([I(X0 + 12 + i * 58, Y0 + 96.6, 96), I(X0 + 46 + i * 58, Y0 + 96.6, 96), I(X0 + 46 + i * 58, Y0 + 96.6, 150), I(X0 + 12 + i * 58, Y0 + 96.6, 150)], i % 2 ? 'r6b3k1' : 'b5r3k1', 0.5);
-    P.shape([I(X0, Y0 + 96, 90.4), I(X1, Y0 + 96, 90.4), I(X1, Y1, 90.4), I(X0, Y1, 90.4)], 'y5r4k2', 0.8);
-    P.box(70, 132, 90, 130, 44, 16, 'r5b3k1', 0.8); P.box(70, 132, 106, 16, 44, 16, 'r5b3k2', 0.7);
-    { const q = P.I(90, 154, 106); P.shape(Lib.bumpy(P, q[0], q[1] - 6, 16, 7, 6), 'y1', 0.7); }
-    tnStatic(P, LK.tnRabbi, { x: 190, y: 156, z: 106, face: 1, clip: 'tnLieUp', h: 124, noShadow: 1, tt: 0.5 });
-    P.shape([I(96, 176, 106.5), I(196, 176, 106.5), I(196, 176, 96), I(96, 176, 96)], 'y1b1', 0.6);
-    for (const x of [230, 270]) { Lib.jar(P, x, 150, 90.5, 0.9, 'r5y6k1'); }
-    { const q = P.I(250, 140, 150); P.line([P.I(250, 140, 160), q], 0.5); P.halo(q[0], q[1] + 4, 22, ['y1', 'y2']); P.shape([[q[0] - 6, q[1]], [q[0] + 6, q[1]], [q[0] + 4, q[1] + 5], [q[0] - 4, q[1] + 5]], 'r5y6k2', 0.6); Lib.flame(P, q[0] + 3, q[1], 4, 8, 1, { noKnock: true }); }
-    for (const x of [X0 + 6, 96, 162, 228, X1 - 6]) { P.cyl(x, Y1 - 6, 90, 5.5, 64, 'y2r1', 0.7, 12); P.box(x - 8, Y1 - 14, 152, 16, 16, 8, 'y3r2k1', 0.6); }
-    P.box(X0 - 4, Y0 - 4, 160, X1 - X0 + 8, Y1 - Y0 + 8, 7, 'y3r2k2', 0.8);
-    P.box(X0 - 4, Y0 - 4, 167, X1 - X0 + 8, 6, 10, 'y3r2k2', 0.6); P.box(X0 - 4, Y0 + 2, 167, 6, Y1 - Y0 - 4, 10, 'y3r2k2', 0.6); P.box(X1 - 2, Y0 + 2, 167, 6, Y1 - Y0 - 4, 10, 'y3r2k2', 0.6);
-    P.box(X0 - 4, Y1 - 2, 167, 180, 6, 10, 'y3r2k2', 0.6);
+    P.box(X0, Y0, 90, X1 - X0, 84, 100, 'y3r2k1');
+    P.shape([I(X0, Y0 + 84.4, 90), I(X1, Y0 + 84.4, 90), I(X1, Y0 + 84.4, 190), I(X0, Y0 + 84.4, 190)], 'y5r3k1', 0.9);
+    for (let i = 0; i < 5; i++) P.shape([I(X0 + 12 + i * 58, Y0 + 84.6, 100), I(X0 + 46 + i * 58, Y0 + 84.6, 100), I(X0 + 46 + i * 58, Y0 + 84.6, 176), I(X0 + 12 + i * 58, Y0 + 84.6, 176)], i % 2 ? 'r6b3k1' : 'b5r3k1', 0.5);
+    P.shape([I(X0, Y0 + 84, 90.4), I(X1, Y0 + 84, 90.4), I(X1, Y1, 90.4), I(X0, Y1, 90.4)], 'y5r4k2', 0.8);
+    P.box(70, 150, 90, 130, 40, 16, 'r5b3k1', 0.8); P.box(70, 150, 106, 14, 40, 20, 'r5b3k2', 0.7);
+    { const q = P.I(92, 170, 106); P.shape(Lib.bumpy(P, q[0], q[1] - 6, 16, 7, 6), 'y1', 0.7); }
+    tnStatic(P, LK.tnRabbi, { x: 142, y: 170, z: 106, face: 1, clip: 'tnLieUp', h: 124, noShadow: 1, tt: 0.5 });
+    P.shape([I(96, 190.5, 106.5), I(200, 190.5, 106.5), I(200, 190.5, 96), I(96, 190.5, 96)], 'r5y3', 0.6);
+    for (const x of [236, 270]) { Lib.jar(P, x, 128, 90.5, 0.9, 'r5y6k1'); }
+    { const q = P.I(250, 150, 170); P.line([P.I(250, 150, 190), q], 0.5); P.halo(q[0], q[1] + 4, 22, ['y1', 'y2']); P.shape([[q[0] - 6, q[1]], [q[0] + 6, q[1]], [q[0] + 4, q[1] + 5], [q[0] - 4, q[1] + 5]], 'r5y6k2', 0.6); Lib.flame(P, q[0] + 3, q[1], 4, 8, 1, { noKnock: true }); }
+    for (const x of [X0 + 6, 240, X1 - 6]) { P.cyl(x, Y1 - 6, 90, 5.5, 94, 'y2r1', 0.7, 12); P.box(x - 8, Y1 - 14, 182, 16, 16, 8, 'y3r2k1', 0.6); }
+    P.box(X0 - 4, Y0 - 4, 190, X1 - X0 + 8, Y1 - Y0 + 8, 7, 'y3r2k2', 0.8);
+    P.box(X0 - 4, Y0 - 4, 197, X1 - X0 + 8, 6, 10, 'y3r2k2', 0.6); P.box(X0 - 4, Y0 + 2, 197, 6, Y1 - Y0 - 4, 10, 'y3r2k2', 0.6); P.box(X1 - 2, Y0 + 2, 197, 6, Y1 - Y0 - 4, 10, 'y3r2k2', 0.6);
+    P.box(X0 - 4, Y1 - 2, 197, 180, 6, 10, 'y3r2k2', 0.6);
     tnStair(P, X1 + 2, 90, 196, 90, 'y3r2k2');
     Lib.well(P, 440, 230, 20);
     P.box(470, 300, 0, 50, 90, 20, 'y3r2k2', 0.8); P.box(26, 250, 0, 20, 160, 18, 'y3r2k2', 0.8);
     for (const [x, y] of [[36, 230], [496, 280], [496, 410]]) { P.cyl(x, y, 0, 11, 16, 'r5y5k2', 0.7, 12); const q = P.I(x, y, 16); P.shape(Lib.bumpy(P, q[0], q[1] - 9, 13, 10, 7), 'y4b6k1', 0.7); }
   },
-  front(P) { P.box(206, 194, 167, 118, 6, 10, 'y3r2k2', 0.6); },
+  front(P) { P.box(206, 194, 197, 118, 6, 10, 'y3r2k2', 0.6); },
   top(P, t) {
     const o = this.chars[0].out; if (!o || !o.hN) return;
     const cy = 3.2, u = (t % cy) / cy, s = 1.15, g = P.I(232, 214, 0)[1];
@@ -339,7 +340,7 @@ const SCENES = [
     else { const x = o.hN[0] - 6; for (let i = 0; i < 6; i++) { const a = i * 1.1, r = 10 + (i % 3) * 6; P.shape([[x + Math.cos(a) * r, g - 2 + Math.sin(a) * r * 0.35], [x + Math.cos(a) * r + 6, g - 4 + Math.sin(a) * r * 0.35], [x + Math.cos(a) * r + 3, g + Math.sin(a) * r * 0.35]], 'r5y6k1', 0.5); } if (u < 0.7) for (let i = 0; i < 5; i++) { const a = -Math.PI * (0.15 + i * 0.17); P.line([[x + Math.cos(a) * 12, g + Math.sin(a) * 8], [x + Math.cos(a) * 22, g + Math.sin(a) * 16]], 1, { ink: 3, lvl: 7 }); } }
   },
   chars: [
-    ch(LK.tnAmah, { x: 250, y: 186, z: 167, face: -1, clip: 'tnThrow', h: 120, noShadow: 1 }),
+    ch(LK.tnAmah, { x: 250, y: 186, z: 197, face: -1, clip: 'tnThrow', h: 120, noShadow: 1 }),
     ch(LK.tnSage1, { x: 130, y: 300, face: 1, clip: 'tnDaven', h: 136 }),
     ch(LK.tnSage2, { x: 330, y: 290, face: -1, clip: 'tnDaven', h: 138, t0: 0.6 }),
     ch(LK.tnSage3, { x: 200, y: 380, face: 1, clip: 'tnDaven', h: 134, t0: 1.1 }),
@@ -362,7 +363,6 @@ const SCENES = [
     Lib.platform(P, 'y5r3k1', 'y4r3k2');
     const I = (a, b, c) => P.I(a, b, c), RX = 300, RY = 250, H = 150;
     for (let i = 0; i < 10; i++) for (let j = 0; j < 8; j++) P.fill([I(14 + i * 28.6, 14 + j * 29.5, 0.4), I(14 + (i + 1) * 28.6, 14 + j * 29.5, 0.4), I(14 + (i + 1) * 28.6, 14 + (j + 1) * 29.5, 0.4), I(14 + i * 28.6, 14 + (j + 1) * 29.5, 0.4)], (i + j) % 2 ? 'y4r3' : 'y2r1', {});
-    P.shape([I(40, 40, 0.6), I(RX - 26, 40, 0.6), I(RX - 26, RY - 26, 0.6), I(40, RY - 26, 0.6)], null, 1.8);
     P.line([I(40, 40, 0.6), I(RX - 26, 40, 0.6), I(RX - 26, RY - 26, 0.6), I(40, RY - 26, 0.6), I(40, 40, 0.6)], 2.6, { ink: 1, lvl: 6, taper: 0 });
     P.box(0, 0, 0, 14, RY, H, 'y2r2'); P.box(14, 0, 0, RX - 14, 14, H, 'y2r1k1');
     for (const [a, w] of [[40, 70], [130, 70]]) { P.shape([I(a, 14.5, 30), I(a + w, 14.5, 30), I(a + w, 14.5, 110), I(a, 14.5, 110)], 'r6y3k1', 0.8); P.shape([I(a + 8, 14.6, 40), I(a + w - 8, 14.6, 40), I(a + w - 8, 14.6, 100), I(a + 8, 14.6, 100)], 'y4r2', 0.5); }
@@ -381,7 +381,7 @@ const SCENES = [
   },
   front(P) { fenceRing(P, 420, 420, 88, 0, Math.PI, 10); },
   chars: [
-    ch(LK.tnDamaAba, { x: 150, y: 70, z: 34, face: 1, clip: 'sleep', h: 122, noShadow: 1 }),
+    ch(LK.tnDamaAba, { x: 110, y: 70, z: 34, face: 1, clip: 'tnSleep', h: 122, noShadow: 1 }),
     ch(LK.tnDama, { x: 205, y: 160, face: 1, clip: 'tnHush', h: 138 }),
     ch(LK.tnSage1, { x: 390, y: 140, face: -1, clip: 'idle', h: 136, hold: { nTop: 'tnPurse' } }),
     ch(LK.tnSage2, { x: 420, y: 205, face: -1, clip: 'offer', h: 138, t0: 0.7, hold: { nTop: 'tnCasket' } }),
@@ -443,7 +443,7 @@ const SCENES = [
     for (const [x, y] of [[250, 16], [420, 16]]) P.box(x - 3, y - 3, 0, 6, 6, 104, 'r4y5k3', 0.6);
     P.box(292, 60, 0, 104, 44, 20, 'r4y5k2'); P.box(290, 58, 20, 108, 48, 6, 'y1b1', 0.7);
     { const q = P.I(300, 82, 26); P.shape(Lib.bumpy(P, q[0], q[1] - 5, 14, 7, 6), 'y1', 0.6); }
-    tnStatic(P, LK.tnSick, { x: 390, y: 82, z: 26, face: 1, clip: 'sleep', h: 118, noShadow: 1, tt: 2 });
+    tnStatic(P, LK.tnSick, { x: 350, y: 82, z: 26, face: 1, clip: 'tnSleep', h: 110, noShadow: 1, tt: 2 });
     P.shape([I(310, 106, 26.5), I(398, 106, 26.5), I(398, 106, 14), I(310, 106, 14)], 'b5r3', 0.7);
     P.box(310, 133, 0, 24, 24, 38, 'r4y5k3', 0.6); Lib.jar(P, 420, 90, 0, 0.9, 'b5y3'); P.box(412, 110, 0, 16, 16, 12, 'r5y5k2', 0.5);
     tnCypress(P, 110, 200, 130); Lib.bush(P, 220, 100, 0, 18);

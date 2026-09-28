@@ -40,11 +40,12 @@ Object.assign(CLIPS, {
   taFloor: { d: 4, k: [{ nT: 70, nK: -120, fT: 80, fK: -140, lean: 6, head: -8, nU: 30, nL: 70, fU: 20, fL: 60 }, { nT: 70, nK: -120, fT: 80, fK: -140, lean: 8, head: -12, nU: 32, nL: 68, fU: 22, fL: 58 }] },
   taReadS: { d: 3.4, k: [{ nU: 40, nL: 70, fU: 36, fL: 74, head: 16, lean: 6, nT: 4, fT: -4 }, { nU: 44, nL: 66, fU: 40, fL: 70, head: 20, lean: 8, nT: 4, fT: -4 }] },
   taHelp: { d: 3, k: [{ nT: 4, nK: -95, fT: 0, fK: -95, lean: 26, head: 10, nU: 74, nL: 12, fU: 46, fL: 40 }, { nT: 4, nK: -95, fT: 0, fK: -95, lean: 20, head: 4, nU: 84, nL: 8, fU: 52, fL: 36 }] },
-  taFallen: { d: 3.4, k: [{ nT: 70, nK: -120, fT: 80, fK: -140, lean: -12, head: -14, nU: 106, nL: 12, fU: -30, fL: 20 }, { nT: 70, nK: -120, fT: 80, fK: -140, lean: -10, head: -10, nU: 100, nL: 16, fU: -28, fL: 22 }] },
+  taFallen: { d: 3.4, k: [{ nT: 88, nK: -6, fT: 84, fK: -12, lean: -24, head: -16, nU: 104, nL: 12, fU: -44, fL: 6 }, { nT: 88, nK: -6, fT: 84, fK: -12, lean: -20, head: -10, nU: 94, nL: 20, fU: -42, fL: 8 }] },
   taLookDown: { d: 4, k: [{ lean: 8, head: 26, nU: 34, nL: 104, fU: 6, fL: 20, nT: 4, fT: -4 }, { lean: 10, head: 32, nU: 36, nL: 100, fU: 8, fL: 22, nT: 4, fT: -4 }] },
   taBent: { d: 4, k: [{ lean: 32, head: -24, nU: 46, nL: 14, fU: 12, fL: 26, nT: 12, nK: -12, fT: -4, fK: -8 }, { lean: 34, head: -22, nU: 48, nL: 12, fU: 14, fL: 24, nT: 12, nK: -12, fT: -4, fK: -8 }] },
   taWelcome: { d: 2.8, k: [{ nU: 104, nL: 18, fU: 78, fL: 30, head: -6, lean: -3, nT: 6, fT: -6 }, { nU: 94, nL: 26, fU: 70, fL: 36, head: -2, lean: -1, nT: 6, fT: -6 }] },
   taRefuse: { d: 3, k: [{ lean: -8, head: -4, nU: 70, nL: 64, fU: -10, fL: 30, nT: 10, nK: -4, fT: -12, fK: -6 }, { lean: -10, head: -8, nU: 76, nL: 58, fU: -12, fL: 32, nT: 10, nK: -4, fT: -12, fK: -6 }] },
+  taRestrain: { d: 3.6, k: [{ lean: 4, head: 6, nU: -26, nL: 52, fU: -30, fL: 58, nT: 4, fT: -4 }, { lean: 6, head: 12, nU: -24, nL: 50, fU: -28, fL: 56, nT: 4, fT: -4 }] },
   taStretch: { d: 2.4, k: [{ nU: 166, nL: 8, fU: 160, fL: 14, lean: -6, head: -16, nT: 6, fT: -6 }, { nU: 150, nL: 30, fU: 146, fL: 34, lean: -3, head: -8, nT: 6, fT: -6 }] },
   taStir: { d: 1.6, k: [{ lean: 30, head: 12, nU: 64, nL: 14, fU: 44, fL: 26, nT: 20, nK: -18, fT: -10, fK: -10 }, { lean: 38, head: 16, nU: 30, nL: 8, fU: 18, fL: 18, nT: 20, nK: -18, fT: -10, fK: -10 }] },
   taCount: { d: 2.4, k: [{ nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 12, head: 16, nU: 56, nL: 30, fU: 40, fL: 50 }, { nT: 86, nK: -86, fT: 82, fK: -80, hy: 0.3, lean: 14, head: 20, nU: 50, nL: 40, fU: 42, fL: 48 }] },
@@ -229,13 +230,15 @@ const taRooster = (P, q, s = 1) => {
 };
 /* roseaux au bord de l'eau */
 const taReeds = (P, x, y, n, sd = 1) => { const r = rng(sd); for (let i = 0; i < n; i++) { const q = P.I(x + (r() - 0.5) * 30, y + (r() - 0.5) * 30, 0), h = 18 + r() * 22, lean = (r() - 0.5) * 10; P.line([q, [q[0] + lean, q[1] - h]], 0.8, { ink: i % 3 ? 2 : 3, lvl: 7 }); if (i % 3 === 0) P.shape([[q[0] + lean - 1.6, q[1] - h - 8], [q[0] + lean + 1.6, q[1] - h - 8], [q[0] + lean + 1.6, q[1] - h + 1], [q[0] + lean - 1.6, q[1] - h + 1]], 'r5y4k4', 0.3); } };
+/* fumée légère : volutes qui montent */
+const taWisp = (P, x, y, t, h = 90, n = 3) => { for (let i = 0; i < n; i++) { const u = (t * 0.22 + i / n) % 1, pts = []; for (let k = 0; k <= 8; k++) { const v = k / 8; pts.push([x + Math.sin(v * 5 + t * 1.2 + i * 2) * (4 + v * 10) + (i - 1) * 4, y - (u * 0.5 + v * 0.5) * h]); } P.line(pts, 2.2 * (1 - u) + 0.5, { ink: 3, lvl: 3 }); } };
 /* synchronisation des trajets : durée de marche d'un chemin */
 const taWalkT = (pts, speed) => { let d = 0; for (let i = 1; i < pts.length; i++) d += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return d / speed; };
 /* scène 3 : Aaron va de l'un à l'autre, puis les réunit */
 const TA_A = { A1: [209, 371], A2: [349, 251], A3: [226, 262], sp: 26 };
 TA_A.walk = taWalkT([TA_A.A1, TA_A.A2, TA_A.A3, TA_A.A1], TA_A.sp); TA_A.join = 3 + taWalkT([TA_A.A1, TA_A.A2], TA_A.sp) + 3 + taWalkT([TA_A.A2, TA_A.A3], TA_A.sp); TA_A.cycle = TA_A.walk + 3 + 3 + 5;
 /* scène 5 : le voyageur et son âne arrivent ensemble */
-const TA_V = { from: [530, 360], to: [340, 200], dFrom: [540, 400], dTo: [420, 250], sp: 18 };
+const TA_V = { from: [530, 360], to: [390, 200], dFrom: [540, 400], dTo: [480, 262], sp: 18 };
 TA_V.tw = taWalkT([TA_V.from, TA_V.to], TA_V.sp); TA_V.dsp = Math.hypot(TA_V.dTo[0] - TA_V.dFrom[0], TA_V.dTo[1] - TA_V.dFrom[1]) / TA_V.tw;
 
 const SHEET = { title: 'Pirké Avot · Les maximes des Pères', sub: 'Le Talmud · feuille ו · le traité des Pères, de Chimon le Juste à Rabbi Yehouda HaNassi' };
@@ -255,8 +258,8 @@ const SCENES = [
     Lib.stones(P, 12, 'y3r2k3', [20, 380, 500, 150]);
     Lib.bush(P, 40, 60, 0, 22, 'y5b5k1'); Lib.bush(P, 470, 30, 0, 18, 'y4b5k1');
     taColumn(P, 310, 110, 290, 'avoda');
-    taColumn(P, 210, 210, 290, 'torah');
-    taColumn(P, 110, 310, 290, 'hesed');
+    taColumn(P, 210, 210, 290, 'hesed');
+    taColumn(P, 110, 310, 290, 'torah');
     taWorld(P, 210, 210, 290, 150);
     /* l'autel du service, à droite */
     stoneStack(P, 360, 190, 70, 56, 44, 'y3r2k3');
@@ -267,13 +270,13 @@ const SCENES = [
     /* le pupitre de la Torah, à gauche */
     P.box(40, 240, 0, 30, 60, 50, 'r4y5k2'); for (let i = 0; i < 3; i++) P.cyl(55, 255 + i * 16, 50, 6, 8, ['y2r1', 'y1', 'y3r2'][i], 0.5, 10);
     /* la bonté : un seuil de maison, un pain posé */
-    P.box(250, 440, 0, 90, 60, 8, 'y3r2k2', 0.7); P.box(470, 360, 0, 50, 40, 30, 'y4r3k2'); Lib.jar(P, 495, 380, 30, 0.8, 'b5y3');
+    P.box(250, 440, 0, 90, 60, 8, 'y3r2k2', 0.7); Lib.jar(P, 510, 420, 0, 1, 'b5y3'); Lib.jar(P, 490, 440, 0, 0.8, 'r5y6k1');
   },
   live(P, t) {
     const q = P.I(395, 218, 49);
     P.halo(q[0], q[1] - 16, 46, ['y1', 'y2', 'y3r1']);
     Lib.flame(P, q[0] - 8, q[1], 18, 34, t * 1.3, { noKnock: true }); Lib.flame(P, q[0] + 10, q[1] + 2, 14, 26, t * 1.3 + 2, { noKnock: true });
-    Lib.smoke(P, q[0], q[1] - 30, t, { n: 5, r: 14, h: 120, sp: 0.2, tn: 'y1b1' });
+    taWisp(P, q[0], q[1] - 30, t, 130, 4);
   },
   chars: [
     taLectern(110, 400, { h: 46 }),
@@ -303,6 +306,7 @@ const SCENES = [
     P.box(335, 40, 14, 28, 22, 30, 'r4y5k3', 0.7); for (let i = 0; i < 3; i++) P.cyl(342 + i * 8, 51, 44, 3.5, 5, ['y2r1', 'y1', 'y3r2'][i], 0.4, 8);
     Lib.lamp(P, 240, 50, 14, 0.7);
     taRug(P, 120, 110, 110, 150, 'b5r3k1', 'y6r3');
+    P.box(168, 100, 0, 28, 50, 36, 'r4y5k2', 0.8);
     /* bancs et pupitres de la havrouta */
     P.box(60, 300, 0, 22, 90, 36, 'r4y5k2', 0.8); P.box(196, 300, 0, 22, 90, 36, 'r4y5k2', 0.8);
     P.box(300, 330, 0, 60, 30, 20, 'r4y5k3', 0.7); P.box(470, 250, 0, 50, 70, 30, 'r4y5k2'); Lib.jar(P, 490, 270, 30, 0.9, 'r5y6k1'); Lib.jar(P, 505, 300, 30, 0.8, 'b5y3');
@@ -313,7 +317,7 @@ const SCENES = [
   chars: [
     taTable(96, 310, 94, 70, 44, [(P, t, z) => { const I = (a, b) => P.I(143 + a, 345 + b, z + 0.8); P.shape([I(-26, -14), I(26, -14), I(26, 14), I(-26, 14)], 'y1', 0.6); for (const s of [-1, 1]) P.line([I(s * 28, -16), I(s * 28, 16)], 3, { ink: 1, lvl: 6, taper: 0 }); for (let i = 0; i < 5; i++) { P.line([I(-20, -9 + i * 4.5), I(-3, -9 + i * 4.5)], 0.35); P.line([I(3, -9 + i * 4.5), I(20, -9 + i * 4.5)], 0.35); } }, taCupT(110, 370)], { wood: 'r4y5k3' }),
     ch(LK.taMaster, { x: 315, y: 77, z: 14, face: -1, clip: 'taTeach', h: 136 }),
-    ch(LK.taStu3, { x: 180, y: 130, face: 1, clip: 'taFloor', h: 120 }),
+    ch(LK.taStu3, { x: 182, y: 124, face: 1, clip: 'taListen', h: 124 }),
     ch(LK.taBoy2, { x: 170, y: 205, face: 1, clip: 'taFloor', h: 88, t0: 1.2 }),
     ch(LK.taStu2, { x: 70, y: 345, face: 1, clip: 'taArgue', h: 134 }),
     ch(LK.taStu4, { x: 208, y: 345, face: -1, clip: 'taSitRead', h: 136, t0: 0.7 }),
@@ -354,7 +358,7 @@ const SCENES = [
   },
   chars: [
     { beast: 'camel', h: 104, x: 470, y: 330, face: -1 },
-    { draw(P, t) { const q = P.I(330, 440, 2); P.halo(q[0], q[1] - 8, 40, ['y1', 'y2', 'y3r1']); Lib.flame(P, q[0], q[1] - 2, 18, 26, t * 1.4, { noKnock: true }); Lib.smoke(P, q[0], q[1] - 44, t, { n: 4, r: 10, h: 90, sp: 0.25, tn: 'y1b1' }); }, depth: 770 },
+    { draw(P, t) { const q = P.I(330, 440, 2); P.halo(q[0], q[1] - 8, 40, ['y1', 'y2', 'y3r1']); Lib.flame(P, q[0], q[1] - 2, 18, 26, t * 1.4, { noKnock: true }); taWisp(P, q[0], q[1] - 30, t, 90, 3); }, depth: 770 },
     { beast: 'sheep', h: 56, x: 490, y: 490, face: -1 }, { beast: 'sheep', h: 52, x: 450, y: 510, face: 1 },
     ch(LK.taMan1, { h: 134, path: [W(234, 326, TA_A.join, 'sulk', { f: -1 }), W(234, 326, TA_A.cycle - TA_A.join, 'offer', { f: 1 })] }),
     ch(LK.taMan2, { h: 138, path: [W(301, 278, TA_A.join, 'sulk', { f: 1 }), W(301, 278, TA_A.cycle - TA_A.join, 'offer', { f: -1 })] }),
@@ -427,22 +431,26 @@ const SCENES = [
     Lib.jar(P, 60, 330, 0, 1.2, 'r5y6k1'); Lib.jar(P, 80, 350, 0, 1, 'y4r3k2'); Lib.jar(P, 440, 60, 0, 1, 'b5y3');
     Lib.tree(P, 470, 200, 0, { h: 140, r: 38, can: 'y5b5k1', fruit: 8, fruitTone: 'r6b5' });
     Lib.bush(P, 120, 500, 0, 18, 'y5b5k1');
+    /* meule, jarres, pots de fleurs */
+    P.cyl(340, 420, 0, 26, 10, 'y2r1k2', 1, 20); P.cyl(340, 420, 10, 17, 9, 'y2r1k1', 0.8, 18); P.line([P.I(340, 420, 19), P.I(372, 420, 30)], 1.8, { ink: 1, lvl: 7 });
+    for (const [x, y, tn] of [[270, 500, 'y5b5k1'], [430, 500, 'y4b5k1'], [460, 110, 'y5b5k1']]) { P.cyl(x, y, 0, 9, 14, 'r6y5k1', 0.7, 12); const q = P.I(x, y, 14); P.shape(Lib.bumpy(P, q[0], q[1] - 8, 13, 10, 6), tn, 0.6); P.fill(P.disc(q[0] + 3, q[1] - 12, 2.4, 6), 'r7', {}); }
+    P.box(300, 110, 0, 90, 20, 30, 'y3r2k2', 0.8);
   },
   front(P) {
     const X0 = 90, X1 = 230, Y0 = 330, Y1 = 490, H = 150;
     for (const [px, py] of [[X0, Y1], [X1, Y1]]) P.box(px - 4, py - 4, 0, 8, 8, H, 'r5y5k3', 0.8);
     for (let i = 0; i <= 5; i++) P.line([P.I(X0 + i * (X1 - X0) / 5, Y0, H), P.I(X0 + i * (X1 - X0) / 5, Y1, H)], 1.6, { ink: 3 });
     P.line([P.I(X0, Y1, H), P.I(X1, Y1, H)], 2); P.line([P.I(X1, Y0, H), P.I(X1, Y1, H)], 2); P.line([P.I(X0, Y0, H), P.I(X0, Y1, H)], 2);
-    for (let i = 0; i < 22; i++) { const x = X0 + P.r() * (X1 - X0), y = Y0 + P.r() * (Y1 - Y0), c = P.I(x, y, H + 2); P.shape(Lib.bumpy(P, c[0], c[1] - 4, 14 + P.r() * 8, 8, 6), i % 3 ? 'y5b5k1' : 'y4b6k2', 0.6); }
+    for (let i = 0; i < 46; i++) { const x = X0 + P.r() * (X1 - X0), y = Y0 + P.r() * (Y1 - Y0), c = P.I(x, y, H + 2); P.shape(Lib.bumpy(P, c[0], c[1] - 4, 12 + P.r() * 8, 7, 6), i % 3 ? 'y5b5k1' : 'y4b6k2', 0.5); }
     for (let i = 0; i < 9; i++) { const x = X0 + 10 + P.r() * (X1 - X0 - 20), c = P.I(x, Y1, H - 6); for (let k = 0; k < 5; k++) P.shape(P.disc(c[0] - 4 + (k % 3) * 4, c[1] + 4 + ((k / 3) | 0) * 4, 2.6, 8), 'r6b5', 0.3); }
   },
   chars: [
     taTable(110, 370, 100, 70, 44, [taLoaf(140, 390), taLoaf(156, 414), taPitcher(190, 385), taBowl(182, 420, 1), taCupT(130, 426), taCupT(202, 406)], { cloth: 'y1b1' }),
     taLectern(455, 150, { h: 42 }),
-    ch(LK.taHost, { x: 222, y: 124, face: 1, clip: 'taWelcome', h: 142 }),
+    ch(LK.taHost, { x: 216, y: 116, face: 1, clip: 'taWelcome', h: 142 }),
     ch(LK.taTravel, { h: 136, speed: TA_V.sp, hold: { n: 'staff', f: 'bundle' }, path: [W(TA_V.from[0], TA_V.from[1], 1.5), W(TA_V.to[0], TA_V.to[1], 9, 'bow', { f: -1 }), W(TA_V.from[0], TA_V.from[1], 0, null, { jump: 1 })] }),
     { beast: 'donkey', h: 94, speed: TA_V.dsp, path: [W(TA_V.dFrom[0], TA_V.dFrom[1], 1.5), W(TA_V.dTo[0], TA_V.dTo[1], 9), W(TA_V.dFrom[0], TA_V.dFrom[1], 0, null, { jump: 1 })] },
-    ch(LK.taWoman2, { h: 126, speed: 14, hold: { nTop: 'taBasin' }, path: [W(150, 300, 4, 'idle', { f: 1 }), W(290, 222, 6, 'offer', { f: 1 }), W(150, 300, 0)] }),
+    ch(LK.taWoman2, { h: 126, speed: 14, hold: { nTop: 'taBasin' }, path: [W(120, 200, 4, 'idle', { f: 1 }), W(320, 262, 7, 'offer', { f: 1 }), W(120, 200, 0)] }),
     ch(LK.taBoy, { x: 110, y: 200, face: 1, clip: 'wave', h: 84, t0: 0.5 })
   ]
 },
@@ -454,34 +462,40 @@ const SCENES = [
     'Le mot « ich », un homme, désigne ici celui qui prend ses responsabilités. L’Exode emploie les mêmes mots pour Moïse, qui « regarda de-ci de-là et vit qu’il n’y avait personne » (Exode 2, 12) avant de prendre la défense de l’Hébreu frappé. La Torah demande déjà de relever l’âne de son frère tombé sur la route, « tu le relèveras avec lui » (Deutéronome 22, 4). Pas de fête juive attachée à ce passage.'],
   back(P) {
     Lib.cloud(P, 200, 170, 150, 26, 'b1'); Lib.cloud(P, 820, 130, 130, 24, 'b1');
-    Lib.platform(P, 'y3r2k1', 'y4r3k2');
-    for (let i = 0; i < 90; i++) { const q = P.I(100 + P.r() * 430, 110 + P.r() * 420, 0); P.shape([[q[0] - 6, q[1]], [q[0], q[1] - 3], [q[0] + 6, q[1]], [q[0], q[1] + 3]], P.r() > 0.5 ? 'y3r2k2' : 'y4r3k1', 0.4); }
-    taHouse(P, 20, 20, 110, 80, 130, 'y3r2k1', { doorY: 40, winX: [30] });
-    taHouse(P, 150, 10, 110, 90, 150, 'y4r3k1', { doorY: 60, winY: [16] });
-    taHouse(P, 10, 120, 80, 120, 120, 'y4r2k1', { doorX: 60, winX: [16] });
-    taHouse(P, 280, 20, 110, 80, 115, 'y3r3k2', { doorY: 20, winY: [70] });
-    taHouse(P, 10, 260, 80, 110, 136, 'y3r2k2', { doorX: 40, winX: [80] });
-    taHouse(P, 410, 10, 110, 90, 135, 'y4r2k2', { doorY: 60, winY: [16], winX: [30] });
-    taHouse(P, 10, 390, 80, 140, 118, 'y4r3k2', { doorX: 70, winX: [20] });
+    Lib.platform(P, 'y3r2', 'y4r3k2');
+    for (let v = 110; v < 540; v += 22) { P.line([P.I(v, 100, 0.3), P.I(v, 540, 0.3)], 0.3); P.line([P.I(100, v, 0.3), P.I(540, v, 0.3)], 0.3); }
+    for (let i = 0; i < 40; i++) { const a = 110 + ((P.r() * 19) | 0) * 22, b = 110 + ((P.r() * 19) | 0) * 22; P.fill([P.I(a + 2, b + 2, 0.4), P.I(a + 20, b + 2, 0.4), P.I(a + 20, b + 20, 0.4), P.I(a + 2, b + 20, 0.4)], P.r() > 0.5 ? 'y3r2k1' : 'y2r2', { noKnock: true }); }
+    taHouse(P, 20, 20, 110, 80, 130, 'y2r1k1', { doorY: 40, door: 'b5k3', winX: [30] });
+    taHouse(P, 150, 10, 110, 90, 150, 'y3r2k1', { doorY: 60, door: 'r5y4k3', winY: [16] });
+    taHouse(P, 10, 120, 80, 120, 120, 'y1b1k1', { doorX: 60, door: 'y4b5k3', winX: [16] });
+    taHouse(P, 280, 20, 110, 80, 115, 'y3r3k2', { doorY: 20, door: 'b6k2', winY: [70] });
+    taHouse(P, 10, 260, 80, 110, 136, 'y2r2k1', { doorX: 40, door: 'r6b3k2', winX: [80] });
+    taHouse(P, 410, 10, 110, 90, 135, 'y1b1k2', { doorY: 60, door: 'y4b5k3', winY: [16], winX: [30] });
+    taHouse(P, 10, 390, 80, 140, 118, 'y3r2k2', { doorX: 70, door: 'b5k3', winX: [20] });
+    /* corde à linge entre deux maisons */
+    { const a = P.I(90, 200, 100), b = P.I(90, 290, 104), pts = []; for (let i = 0; i <= 10; i++) pts.push([lerp(a[0], b[0], i / 10), lerp(a[1], b[1], i / 10) + Math.sin(i / 10 * Math.PI) * 10]); P.line(pts, 0.6); for (let i = 1; i < 9; i += 2) P.shape([[pts[i][0] - 4, pts[i][1]], [pts[i][0] + 4, pts[i][1] - 1], [pts[i][0] + 4, pts[i][1] + 14], [pts[i][0] - 4, pts[i][1] + 15]], ['y1', 'b5y1', 'r5y3', 'y2b1'][(i / 2) | 0], 0.5); }
     /* l'étal du marchand, sous son auvent rayé */
     P.box(400, 170, 0, 110, 40, 40, 'r4y5k2');
     for (let i = 0; i < 5; i++) { const q = P.I(415 + i * 20, 190, 40); P.shape(Lib.bumpy(P, q[0], q[1] - 5, 10, 6, 5), ['r7y4', 'y8', 'r6b5', 'y6b4', 'r7y3'][i], 0.5); }
     for (const [x, y] of [[400, 160], [510, 160]]) P.box(x - 3, y - 3, 0, 6, 6, 110, 'r4y5k3', 0.6);
     for (let i = 0; i < 6; i++) P.shape([P.I(398 + i * 19, 150, 112), P.I(398 + (i + 1) * 19, 150, 112), P.I(398 + (i + 1) * 19, 220, 94), P.I(398 + i * 19, 220, 94)], i % 2 ? 'y1' : 'r6b2', 0.7);
-    Lib.jar(P, 380, 150, 0, 1.2, 'r5y6k1'); Lib.jar(P, 520, 240, 0, 1.1, 'y4r3k2');
+    Lib.jar(P, 380, 150, 0, 1.2, 'r5y6k1'); Lib.jar(P, 520, 240, 0, 1.1, 'y4r3k2'); Lib.jar(P, 505, 262, 0, 0.9, 'b5y3');
+    /* la fontaine de la place */
+    P.cyl(200, 200, 0, 26, 18, 'y2r1k2', 1, 20); P.shape(P.ell(200, 200, 18.4, 20, 20, 20), 'b5y1', 0.6); P.cyl(200, 200, 18, 5, 30, 'y2r1k1', 0.7, 10);
+    Lib.palm(P, 120, 110, 0, 150, { lean: 12, dates: 1 });
     /* le panier renversé et les fruits roulés */
-    { const q = P.I(292, 336, 0); P.shape([[q[0] - 14, q[1] - 16], [q[0] + 4, q[1] - 22], [q[0] + 12, q[1] - 6], [q[0] - 6, q[1] + 2]], 'y5r4k2', 0.8); P.shape(P.disc(q[0] - 5, q[1] - 10, 8, 14).map(p => [p[0], (p[1] - (q[1] - 10)) * 0.6 + q[1] - 10]), 'k5r3', 0.5); for (let i = 1; i < 4; i++) P.line([[q[0] - 12 + i * 2, q[1] - 17 + i * 4], [q[0] + 5 + i * 2, q[1] - 22 + i * 4]], 0.4); }
-    for (let i = 0; i < 9; i++) { const q = P.I(300 + P.r() * 70, 320 + P.r() * 60, 0); P.shape(P.disc(q[0], q[1] - 3, 3.4, 8), ['r7y3', 'y8', 'r6b5', 'y7b4'][i % 4], 0.5); }
-    Lib.tree(P, 470, 470, 0, { h: 140, r: 38, can: 'y5b5k1' });
+    { const q = P.I(340, 420, 0); P.shape([[q[0] - 14, q[1] - 16], [q[0] + 4, q[1] - 22], [q[0] + 12, q[1] - 6], [q[0] - 6, q[1] + 2]], 'y5r4k2', 0.8); P.shape(P.disc(q[0] - 5, q[1] - 10, 8, 14).map(p => [p[0], (p[1] - (q[1] - 10)) * 0.6 + q[1] - 10]), 'k5r3', 0.5); for (let i = 1; i < 4; i++) P.line([[q[0] - 12 + i * 2, q[1] - 17 + i * 4], [q[0] + 5 + i * 2, q[1] - 22 + i * 4]], 0.4); }
+    for (let i = 0; i < 9; i++) { const q = P.I(330 + P.r() * 70, 400 + P.r() * 60, 0); P.shape(P.disc(q[0], q[1] - 3, 3.4, 8), ['r7y3', 'y8', 'r6b5', 'y7b4'][i % 4], 0.5); }
+    Lib.bush(P, 520, 330, 0, 16, 'y5b5k1');
   },
   chars: [
-    ch(LK.taOld, { x: 236, y: 300, face: 1, clip: 'taFallen', h: 128 }),
-    ch(LK.taStu4, { x: 290, y: 282, face: -1, clip: 'taHelp', h: 138 }),
+    ch(LK.taOld, { x: 290, y: 380, face: 1, clip: 'taFallen', h: 128 }),
+    ch(LK.taStu4, { x: 346, y: 356, face: -1, clip: 'taHelp', h: 138 }),
     ch(LK.taTravel, { x: 455, y: 222, face: -1, clip: 'talk', h: 134 }),
-    ch(LK.taWoman, { h: 126, speed: 22, over: 'carry', hold: { nTop: 'jarhead' }, path: [W(110, 440, 0.5), W(520, 420, 0.5), W(110, 440, 0, null, { jump: 1 })] }),
-    ch(LK.taMan2, { h: 136, speed: 18, t0: 6, hold: { f: 'bundle' }, path: [W(500, 320, 0.5), W(130, 150, 0.5), W(500, 320, 0, null, { jump: 1 })] }),
-    ch(LK.taMan1, { h: 132, speed: 20, t0: 3, path: [W(520, 500, 0.5), W(120, 500, 0.5), W(520, 500, 0, null, { jump: 1 })] }),
-    { beast: 'donkey', h: 90, speed: 20, t0: 0.8, path: [W(560, 500, 0.5), W(160, 500, 0.5), W(560, 500, 0, null, { jump: 1 })] }
+    ch(LK.taWoman, { h: 126, speed: 16, over: 'carry', hold: { nTop: 'jarhead' }, path: [W(120, 262, 0.5), W(440, 292, 0.5), W(120, 262, 0, null, { jump: 1 })] }),
+    ch(LK.taMan2, { h: 136, speed: 18, t0: 6, hold: { f: 'bundle' }, path: [W(500, 330, 0.5), W(260, 140, 0.5), W(500, 330, 0, null, { jump: 1 })] }),
+    ch(LK.taMan1, { h: 132, speed: 18, t0: 3, path: [W(520, 520, 0.5), W(130, 520, 0.5), W(520, 520, 0, null, { jump: 1 })] }),
+    { beast: 'donkey', h: 90, speed: 18, t0: 0.8, path: [W(560, 516, 0.5), W(170, 516, 0.5), W(560, 516, 0, null, { jump: 1 })] }
   ]
 },
 {
@@ -504,8 +518,8 @@ const SCENES = [
     for (let i = 0; i < 28; i++) { const y = 10 + P.r() * 520, x = lerp(bl(y), br(y), 0.15 + P.r() * 0.7), c = P.I(x, y, 0.5); P.line([[c[0] - 7, c[1] + 1], [c[0] - 3, c[1] - 2], [c[0], c[1]], [c[0] + 4, c[1] - 2], [c[0] + 7, c[1] + 1]], 0.7, { ink: 2 }); }
     /* rive lointaine : collines, village, arbres */
     Lib.mound(P, 470, 60, 70, 110, 'y4b3k2'); Lib.city(P, 400, 20, 130, 90, 5, 'y3r2', 7);
-    Lib.tree(P, 470, 250, 0, { h: 150, r: 40, can: 'y4b5k1' }); Lib.tree(P, 440, 420, 0, { h: 120, r: 34, can: 'y5b5k1' });
-    Lib.palm(P, 420, 150, 0, 140, { lean: -12 });
+    Lib.tree(P, 510, 330, 0, { h: 120, r: 34, can: 'y4b5k1' }); Lib.tree(P, 500, 490, 0, { h: 110, r: 30, can: 'y5b5k1' });
+    Lib.bush(P, 460, 200, 0, 18, 'y4b5k1'); Lib.bush(P, 450, 400, 0, 16, 'y5b5k1');
     for (const [x, y, n] of [[398, 110, 12], [392, 300, 14], [400, 480, 10]]) taReeds(P, x, y, n, x + y);
     /* rive de Hillel : chemin, pierres, roseaux */
     Lib.mound(P, 60, 40, 60, 80, 'y4b2k2');
@@ -514,6 +528,10 @@ const SCENES = [
     Lib.stones(P, 12, 'y3r2k3', [200, 250, 50, 150]);
     Lib.tree(P, 60, 300, 0, { h: 160, r: 44, can: 'y4b6k1' });
     P.box(236, 360, 0, 30, 60, 5, 'r4y5k3', 0.7); for (let i = 0; i < 5; i++) P.box(238 + i * 5, 360, 0, 4, 60, 5.5, 'r4y5k2', 0.3);
+    { const I = (a, b) => P.I(a, b, 1); P.shape([I(282, 404), I(300, 396), I(306, 440), I(300, 470), I(284, 474), I(276, 440)], 'r4y5k3', 1); P.shape([I(285, 410), I(297, 404), I(300, 440), I(296, 464), I(286, 466), I(281, 440)], 'r4y5k4', 0.5); P.line([P.I(266, 390, 4), P.I(286, 410, 2)], 0.6); }
+    for (const [x, y, w, h] of [[110, 470, 26, 18], [60, 420, 20, 14], [200, 510, 22, 16]]) Lib.rock(P, x, y, 0, w, h, 'y3r2k3');
+    Lib.tree(P, 30, 470, 0, { h: 130, r: 34, can: 'y5b5k1' }); Lib.bush(P, 120, 520, 0, 18, 'y4b5k1'); Lib.bush(P, 500, 520, 0, 18, 'y5b5k1');
+    for (let i = 0; i < 10; i++) { const c = P.I(30 + P.r() * 200, 380 + P.r() * 150, 0); P.fill(P.disc(c[0], c[1] - 2, 2, 6), i % 2 ? 'y8' : 'r6b3', {}); }
   },
   chars: [
     { draw(P, t) {
@@ -523,9 +541,9 @@ const SCENES = [
       P.shape([[q[0] - 7, q[1] + 1], [q[0] - 7, q[1] - 5], [q[0] - 4, q[1] - 9], [q[0] + 2, q[1] - 10], [q[0] + 7, q[1] - 6], [q[0] + 7, q[1] - 1], [q[0] + 4, q[1] + 2], [q[0] + 4, q[1] + 4], [q[0] - 1, q[1] + 4], [q[0] - 2, q[1] + 2]], 'y2r1', 0.7);
       P.fill(P.disc(q[0] + 1, q[1] - 4, 1.6, 6), 'k7', { noKnock: true }); P.fill(P.disc(q[0] + 5, q[1] - 4, 1.4, 6), 'k7', { noKnock: true });
     }, depth: t => 316 + ((t * 9) % 620 - 40) },
-    ch(LK.taHillel, { x: 218, y: 300, face: 1, clip: 'taLookDown', h: 142 }),
-    ch(LK.taStu1, { x: 150, y: 240, face: 1, clip: 'talk', h: 134, t0: 0.6 }),
-    ch(LK.taStu3, { x: 140, y: 350, face: 1, clip: 'idle', h: 128, t0: 1.3 }),
+    ch(LK.taHillel, { x: 238, y: 326, face: 1, clip: 'taLookDown', h: 142 }),
+    ch(LK.taStu1, { x: 176, y: 270, face: 1, clip: 'talk', h: 134, t0: 0.6 }),
+    ch(LK.taStu3, { x: 160, y: 372, face: 1, clip: 'idle', h: 128, t0: 1.3 }),
     { draw(P, t) { for (let i = 0; i < 2; i++) { const u = (t * 0.05 + i * 0.5) % 1; Lib.bird(P, 900 - u * 700, 90 + Math.sin(u * 9 + i) * 16 + i * 30, 1, t * 1.6 + i); } }, depth: -1 }
   ]
 },
@@ -536,9 +554,9 @@ const SCENES = [
   more: ['Rabbi Tarfon, prêtre et maître de la génération de Yavné, compare la vie à une journée de chantier. Juste avant (Avot 2, 15), il dit : « le jour est court, l’ouvrage abondant, les ouvriers paresseux, le salaire grand, et le maître de maison presse ». Ici, il rassure et il oblige à la fois. Le mur ne sera pas fini ce soir ; ce n’est pas une raison pour poser la pierre de la journée moins soigneusement.',
     'La suite de la michna parle de l’étude : si tu as beaucoup étudié, on te donnera beaucoup de salaire, « et fidèle est le maître de ton ouvrage, qui te paiera le salaire de ta peine » ; mais sache que la récompense des justes est pour le monde à venir. Au soir, sur le chantier, le maître compte les pièces : on paie l’ouvrier avant le coucher du soleil (Deutéronome 24, 15). Pas de fête juive attachée à ce passage.'],
   back(P) {
-    P.halo(190, 310, 300, ['r1y1', 'r1y2', 'r2y2', 'r2y3', 'r3y4', 'r3y5']);
-    P.shape(P.disc(190, 310, 30, 28), 'y7r6', 1);
-    Lib.cloud(P, 330, 230, 130, 18, 'r3y2', { noShade: 1 }); Lib.cloud(P, 120, 190, 90, 14, 'r2y2', { noShade: 1 });
+    P.halo(240, 300, 200, ['r1y1', 'r1y1', 'r1y2', 'r2y2', 'r2y3']);
+    P.shape(P.disc(240, 300, 28, 28), 'y7r6', 1);
+    Lib.cloud(P, 360, 230, 120, 18, 'r3y2', { noShade: 1 }); Lib.cloud(P, 150, 200, 90, 14, 'r2y2', { noShade: 1 });
     Lib.star(P, 820, 90, 7, 'y6'); Lib.star(P, 880, 150, 3.5, 'y4');
     Lib.platform(P, 'y4r3k2', 'y4r3k3');
     Lib.grass(P, 20, 'y5b4', [20, 400, 200, 120]);
@@ -555,11 +573,15 @@ const SCENES = [
     P.box(380, 150, 0, 70, 44, 14, 'r4y5k3', 0.8); P.shape([P.I(384, 154, 14.2), P.I(446, 154, 14.2), P.I(446, 190, 14.2), P.I(384, 190, 14.2)], 'y2b1k2', 0.6);
     for (let i = 0; i < 14; i++) { const x = 40 + (i % 4) * 30 + (P.r() - 0.5) * 8, y = 370 + ((i / 4) | 0) * 30, z = (i % 3 === 0) ? 18 : 0; P.box(x, y, z, 26, 22, 17, P.r() > 0.5 ? 'y4r3k1' : 'y3r2k2', 0.6); }
     /* la table du maître d'ouvrage, sous un auvent */
-    for (const [x, y] of [[400, 300], [500, 300], [400, 400], [500, 400]]) P.box(x - 3, y - 3, 0, 6, 6, 130, 'r4y5k3', 0.6);
-    P.shape([P.I(396, 296, 132), P.I(504, 296, 132), P.I(504, 404, 122), P.I(396, 404, 122)], 'r5y3k1', 0.9);
-    for (let i = 1; i < 5; i++) P.line([P.I(396 + i * 22, 296, 132), P.I(396 + i * 22, 404, 122)], 0.5);
+    for (const [x, y] of [[400, 300], [500, 300]]) P.box(x - 3, y - 3, 0, 6, 6, 130, 'r4y5k3', 0.6);
     P.box(470, 318, 0, 28, 28, 36, 'r4y5k2', 0.8);
     Lib.lamp(P, 520, 460, 0, 0.8);
+  },
+  front(P) {
+    for (const [x, y] of [[400, 400], [500, 400]]) P.box(x - 3, y - 3, 0, 6, 6, 122, 'r4y5k3', 0.6);
+    P.shape([P.I(396, 296, 132), P.I(504, 296, 132), P.I(504, 404, 122), P.I(396, 404, 122)], 'r5y3k1', 0.9);
+    for (let i = 1; i < 5; i++) P.line([P.I(396 + i * 22, 296, 132), P.I(396 + i * 22, 404, 122)], 0.5);
+    for (let i = 0; i <= 10; i++) { const a = P.I(396 + i * 10.8, 404, 122); P.line([a, [a[0] + 1, a[1] + 8 + (i % 2) * 3]], 0.7, { ink: 1, lvl: 6 }); }
   },
   chars: [
     taTable(420, 320, 44, 64, 42, [taCoins(430, 336), taCoins(440, 360), (P, t, z) => { const q = P.I(450, 330, z); P.shape([[q[0] - 6, q[1]], [q[0] + 6, q[1]], [q[0] + 5, q[1] - 9], [q[0] - 5, q[1] - 9]], 'r5y4k3', 0.5); }, taPitcher(454, 372, 'y4r3k2')], { wood: 'r4y5k2' }),
@@ -597,6 +619,11 @@ const SCENES = [
     Lib.tent(P, 20, 300, 110, 100, 90, 'y4r3k2');
     taRug(P, 150, 380, 100, 90, 'y6r3k1', 'r5y4');
     Lib.jar(P, 60, 460, 0, 1, 'r5y6k1'); Lib.bush(P, 230, 300, 0, 16, 'y5b5k1');
+    P.box(122, 426, 0, 28, 28, 34, 'r4y5k3', 0.7);
+    for (let i = 0; i < 6; i++) { const a = i / 6 * TAU, q = P.I(60 + Math.cos(a) * 12, 510 + Math.sin(a) * 12, 0); P.shape(Lib.bumpy(P, q[0], q[1] - 3, 5, 3.5, 4), 'y3r2k4', 0.5); }
+    { const q = P.I(60, 510, 12); Lib.flame(P, q[0], q[1] + 12, 14, 16, 0.7, { noKnock: true }); P.shape([[q[0] - 10, q[1] - 8], [q[0] + 10, q[1] - 8], [q[0] + 8, q[1] + 4], [q[0] - 8, q[1] + 4]], 'k6b2', 0.7); }
+    for (let i = 0; i < 6; i++) { const q = P.I(330 + (i % 3) * 60 + P.r() * 20, 330 + ((i / 3) | 0) * 60, 0); P.shape(Lib.bumpy(P, q[0], q[1] - 5, 7, 5, 5), ['r6y3', 'y7', 'r5b4'][i % 3], 0.5); P.line([[q[0], q[1] - 1], [q[0], q[1] - 3]], 0.6, { ink: 2 }); }
+    for (let i = 0; i < 3; i++) Lib.jar(P, 300 + i * 18, 520, 0, 1, ['y4b4k1', 'r5y6k1', 'b5y3'][i]);
     /* 4 · l'honoré : un banc et un arbre */
     P.box(450, 300, 0, 70, 24, 30, 'y3r2k2', 0.8);
     Lib.tree(P, 500, 380, 0, { h: 140, r: 36, can: 'y4b5k1' });
@@ -604,9 +631,9 @@ const SCENES = [
   chars: [
     ch(LK.taSage, { x: 185, y: 110, face: -1, clip: 'taListen', h: 136 }),
     ch(LK.taBoy, { x: 120, y: 190, face: 1, clip: 'offer', h: 86, hold: { nTop: 'taTablet' } }),
-    ch(LK.taStu4, { x: 380, y: 150, face: 1, clip: 'taRefuse', h: 138 }),
+    ch(LK.taStu4, { h: 138, speed: 12, path: [W(372, 104, 3.5, 'taRestrain', { f: 1 }), W(330, 215, 4, 'taRestrain', { f: -1 }), W(372, 104, 0)] }),
     taTable(170, 395, 50, 40, 22, [taLoaf(185, 410), taPitcher(205, 420, 'b5y3'), taBowl(186, 426, 1)], { wood: 'r4y5k3' }),
-    ch(LK.taOld, { x: 120, y: 420, face: 1, clip: 'taEat', h: 124, hold: { n: 'bread' } }),
+    ch(LK.taOld, { x: 136, y: 440, face: 1, clip: 'taEat', h: 124, hold: { n: 'bread' } }),
     ch(LK.taWork3, { h: 128, speed: 16, hold: { f: 'bundle' }, path: [W(520, 470, 1), W(410, 440, 4.5, 'idle', { f: -1 }), W(320, 330, 0.5), W(520, 470, 0, null, { jump: 1 })] }),
     ch(LK.taHost, { x: 340, y: 450, face: 1, clip: 'bow', h: 140, t0: 0.5 })
   ]
@@ -619,43 +646,48 @@ const SCENES = [
     'Les derniers âges reprennent le Psaume 90, 10 : « les jours de nos années sont de soixante-dix ans, et pour les plus vigoureux, de quatre-vingts ans ». À quatre-vingt-dix ans, le dos se courbe vers la terre. Le texte s’achève sur « à cent ans, comme s’il était mort, passé et sorti du monde », et le chapitre, sur la parole de Ben Bag Bag : « tourne-la et retourne-la, car tout est en elle ». Pas de fête juive attachée à ce passage.'],
   back(P) {
     Lib.sun(P, 170, 150, 22); Lib.cloud(P, 480, 130, 150, 24, 'b1');
-    P.halo(860, 250, 150, ['r1y1', 'r1y2', 'r2y2']); Lib.star(P, 860, 120, 6, 'y6'); Lib.star(P, 800, 80, 3.5, 'y4');
+    P.halo(840, 250, 130, ['r1y1', 'r1y2', 'r2y2']); Lib.star(P, 850, 130, 6, 'y6'); Lib.star(P, 790, 90, 3.5, 'y4');
     Lib.platform(P, 'y5b3k1', 'y4r3k2');
-    Lib.grass(P, 50, 'y5b4', [20, 20, 500, 500]);
-    taRoad(P, [[20, 540], [120, 440], [260, 300], [400, 160], [540, 20]], 26, 'y3r2');
-    /* à gauche, l'école ; puis la maison d'étude */
-    taHouse(P, 30, 300, 80, 100, 96, 'y3r2k1', { doorX: 40, dw: 26, dh: 50, winY: [30] });
-    taHouse(P, 100, 160, 100, 100, 128, 'y4r3k1', { doorX: 36, dw: 32, dh: 60, winY: [20, 64], winX: [10] });
+    Lib.grass(P, 60, 'y5b4', [20, 20, 500, 500]);
+    taRoad(P, [[80, 540], [310, 310], [540, 80]], 26, 'y3r2');
+    /* l'école, puis la maison d'étude */
+    taHouse(P, 30, 330, 70, 90, 90, 'y3r2k1', { doorX: 30, dw: 24, dh: 48, winY: [26] });
+    taHouse(P, 90, 170, 100, 110, 128, 'y4r3k1', { doorX: 40, dw: 32, dh: 60, winY: [20, 64], winX: [12, 84] });
     /* le champ du fort */
-    Lib.field(P, 220, 30, 80, 120, 6, 'y7r2');
+    Lib.field(P, 210, 40, 90, 140, 7, 'y7r2');
+    for (let i = 0; i < 5; i++) { const q = P.I(318, 60 + i * 26, 0); for (let k = -3; k <= 3; k++) P.line([[q[0], q[1]], [q[0] + k * 3, q[1] - 22]], 0.7, { ink: 0, lvl: 8 }); P.line([[q[0] - 5, q[1] - 10], [q[0] + 5, q[1] - 10]], 1, { ink: 1 }); }
     /* la porte de la ville et le banc des anciens */
-    Lib.tree(P, 470, 40, 0, { h: 150, r: 40, can: 'y4b5k1' });
-    P.box(310, 80, 0, 30, 34, 140, 'y4r3k2'); P.box(390, 80, 0, 30, 34, 140, 'y4r3k2'); P.box(310, 80, 120, 110, 34, 28, 'y4r3k1');
-    taArchY(P, 340, 114.5, 0, 50, 116, 'k6r3', 0.8);
-    for (let i = 0; i < 4; i++) P.box(312 + i * 28, 78, 148, 18, 8, 10, 'y4r3k1', 0.5);
-    P.box(318, 214, 0, 28, 30, 36, 'y3r2k2', 0.8);
-    for (let i = 0; i < 16; i++) { const c = P.I(30 + P.r() * 480, 30 + P.r() * 480, 0); if (c[1] > 660) P.fill(P.disc(c[0], c[1] - 2, 2.2, 6), i % 2 ? 'y8' : 'r6b3', {}); }
+    Lib.tree(P, 480, 30, 0, { h: 150, r: 40, can: 'y4b5k1' });
+    P.box(340, 80, 0, 30, 34, 140, 'y4r3k2'); P.box(420, 80, 0, 30, 34, 140, 'y4r3k2'); P.box(340, 80, 120, 110, 34, 28, 'y4r3k1');
+    taArchY(P, 370, 114.5, 0, 50, 116, 'k6r3', 0.8);
+    for (let i = 0; i < 4; i++) P.box(342 + i * 28, 78, 148, 18, 8, 10, 'y4r3k1', 0.5);
+    P.box(348, 243, 0, 28, 30, 36, 'y3r2k2', 0.8);
     /* le dais nuptial : montants arrière */
-    for (const [x, y] of [[168, 316], [244, 316], [168, 392]]) P.box(x - 2.5, y - 2.5, 0, 5, 5, 146, 'y6r3k2', 0.6);
-    Lib.stones(P, 12, 'y3r2k3', [300, 380, 220, 140]);
+    for (const [x, y] of [[212, 332], [288, 332], [212, 408]]) P.box(x - 2.5, y - 2.5, 0, 5, 5, 146, 'y6r3k2', 0.6);
+    /* premier plan : prairie, fleurs, puits, moutons */
+    Lib.well(P, 250, 470, 22);
+    for (const [x, y, f] of [[380, 430, 1], [430, 400, -1], [340, 480, -1]]) drawBeast(P, 'sheep', P.I(x, y, 0), 52, f, 0.3, false);
+    Lib.tree(P, 500, 500, 0, { h: 120, r: 32, can: 'y4b5k1' }); Lib.bush(P, 180, 520, 0, 18, 'y5b5k1'); Lib.bush(P, 300, 500, 0, 14, 'y4b5k1');
+    for (let i = 0; i < 40; i++) { const x = 60 + P.r() * 470, y = 60 + P.r() * 470; if (x + y < 700) continue; const c = P.I(x, y, 0); P.line([[c[0], c[1]], [c[0], c[1] - 6]], 0.6, { ink: 2 }); P.fill(P.disc(c[0], c[1] - 7, 2.2, 6), ['y8', 'r6b3', 'y1', 'r7'][i % 4], {}); }
+    Lib.stones(P, 10, 'y3r2k3', [320, 440, 200, 90]);
   },
   front(P) {
-    P.box(241.5, 389.5, 0, 5, 5, 146, 'y6r3k2', 0.6);
+    P.box(285.5, 405.5, 0, 5, 5, 146, 'y6r3k2', 0.6);
     const q = (a, b) => P.I(a, b, 148);
-    P.shape([q(162, 310), q(250, 310), q(250, 398), q(162, 398)], 'b6r2', 1);
-    for (let i = 1; i < 4; i++) P.line([q(162 + i * 22, 310), q(162 + i * 22, 398)], 0.8, { ink: 0 });
-    for (const [a, b] of [[q(162, 398), q(250, 398)], [q(250, 310), q(250, 398)]]) { const pts = []; for (let i = 0; i <= 12; i++) { const k = i / 12; pts.push([lerp(a[0], b[0], k), lerp(a[1], b[1], k) + 4 + Math.abs(Math.sin(k * Math.PI * 4)) * 5]); } P.line(pts, 1.2, { ink: 0, lvl: 7 }); }
+    P.shape([q(206, 326), q(294, 326), q(294, 414), q(206, 414)], 'b6r2', 1);
+    for (let i = 1; i < 4; i++) P.line([q(206 + i * 22, 326), q(206 + i * 22, 414)], 0.8, { ink: 0 });
+    for (const [a, b] of [[q(206, 414), q(294, 414)], [q(294, 326), q(294, 414)]]) { const pts = []; for (let i = 0; i <= 12; i++) { const k = i / 12; pts.push([lerp(a[0], b[0], k), lerp(a[1], b[1], k) + 4 + Math.abs(Math.sin(k * Math.PI * 4)) * 5]); } P.line(pts, 1.2, { ink: 0, lvl: 7 }); }
   },
   chars: [
-    ch(LK.taBoy2, { x: 55, y: 505, face: 1, clip: 'offer', h: 66, hold: { nTop: 'taTablet' } }),
-    ch(LK.taBoy, { x: 101, y: 459, face: 1, clip: 'taReadS', h: 82, hold: { nTop: 'scroll' } }),
-    ch(LK.taTeen, { x: 147, y: 413, face: 1, clip: 'idle', h: 106, hold: { nTop: 'taTefillin' } }),
-    ch(LK.taBride, { x: 190, y: 370, face: 1, clip: 'idle', h: 124 }),
-    ch(LK.taGroom, { x: 222, y: 338, face: -1, clip: 'talk', h: 138, t0: 0.4 }),
-    ch(LK.taStrong, { x: 268, y: 291, face: 1, clip: 'carry', h: 146, hold: { nTop: 'taStone' } }),
-    ch(LK.taFifty, { x: 332, y: 228, face: 1, clip: 'taAdvise', h: 138 }),
-    ch(LK.taSeventy, { x: 390, y: 171, face: 1, clip: 'idle', h: 136, hold: { n: 'staffV' }, t0: 0.8 }),
-    ch(LK.taNinety, { x: 453, y: 107, face: 1, clip: 'taBent', h: 126, hold: { n: 'staffV' } })
+    ch(LK.taBoy2, { x: 110, y: 510, face: 1, clip: 'offer', h: 66, hold: { nTop: 'taTablet' } }),
+    ch(LK.taBoy, { x: 152, y: 467, face: 1, clip: 'taReadS', h: 82, hold: { nTop: 'scroll' } }),
+    ch(LK.taTeen, { x: 195, y: 425, face: 1, clip: 'idle', h: 106, hold: { nTop: 'taTefillin' } }),
+    ch(LK.taBride, { x: 235, y: 385, face: 1, clip: 'idle', h: 124 }),
+    ch(LK.taGroom, { x: 264, y: 356, face: -1, clip: 'talk', h: 138, t0: 0.4 }),
+    ch(LK.taStrong, { x: 305, y: 315, face: 1, clip: 'carry', h: 146, hold: { nTop: 'taStone' } }),
+    ch(LK.taFifty, { x: 362, y: 257, face: 1, clip: 'taAdvise', h: 138 }),
+    ch(LK.taSeventy, { x: 417, y: 202, face: 1, clip: 'idle', h: 136, hold: { n: 'staffV' }, t0: 0.8 }),
+    ch(LK.taNinety, { x: 475, y: 145, face: 1, clip: 'taBent', h: 126, hold: { n: 'staffV' } })
   ]
 }
 ];
