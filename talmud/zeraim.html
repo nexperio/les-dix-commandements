@@ -1573,7 +1573,7 @@ Object.assign(PROPS2, {
     const raw = [T(0.1, -0.12), T(0.17, -0.12), T(0.24, -0.1), T(0.29, -0.06), T(0.31, -0.01), T(0.3, 0.04), T(0.26, 0.08), T(0.2, 0.1 + sw), T(0.13, 0.11 + sw), T(0.07, 0.1 + sw * 2)];
     const pts = []; for (let i = 0; i < raw.length - 1; i++) for (let k = 0; k < 3; k++) pts.push(M([lerp(raw[i][0], raw[i + 1][0], k / 3), lerp(raw[i][1], raw[i + 1][1], k / 3)]));
     pts.push(M(raw[raw.length - 1]));
-    tzArodDraw(P, pts, h * 0.024, true);
+    tzArodDraw(P, pts, h * 0.03, true);
   },
   /* la flûte (halil), tenue aux lèvres */
   tzFlute(P, A, J, M, h, t, lw, F) {
@@ -1810,6 +1810,7 @@ const SCENES = [
     P.halo(820, 470, 90, ['y1', 'y2r1', 'y3r2', 'y4r3']); P.shape(P.disc(820, 470, 30, 30), 'y8r5', 0.9);
     tzHills(P, 20, 470, 440, 60, 'b5r3k2', 3, { terr: 1 }); tzHills(P, 560, 990, 460, 70, 'b5r3k3', 5);
     tzSkyline(P, 170, 432, 110, 'b4r3k3', 21, { n: 9 });
+    P.halo(850, 452, 120, ['r1y1', 'y2r1', 'y3r2', 'y4r3'], { sq: 0.6 }); P.shape(P.disc(850, 452, 24, 24).map(p => [p[0], Math.min(p[1], 446)]), 'y8r5', 0.8);
     Lib.platform(P, 'y4r3k2', 'y4r3k2');
     P.shape([P.I(200, 540, 0.4), P.I(270, 540, 0.4), P.I(310, 300, 0.4), P.I(540, 250, 0.4), P.I(540, 190, 0.4), P.I(250, 240, 0.4)], 'y3r2k1', 0.7);
     Lib.stones(P, 16, 'y3r2k2', [210, 280, 80, 240]);
@@ -1987,7 +1988,7 @@ const SCENES = [
       const tt = tzHaninaPhase(t); if (tt >= tzHaninaWait) return;
       const c = P.I(146, 392, 0.5), u = tt / tzHaninaWait;
       if (u < 0.5) { const out = Math.min(1, u / 0.42), pts = []; for (let k = 0; k <= 14; k++) { const s = k / 14 * out; pts.push([c[0] + 4 - s * 16 + Math.sin(s * 7 + t * 5) * 3, c[1] - s * 16 - Math.sin(s * 3) * 5]); } if (out > 0.05) tzArodDraw(P, pts, 4.4, false); }
-      else { const pts = []; for (let k = 0; k <= 14; k++) { const s = k / 14; pts.push([c[0] - 30 + s * 44, c[1] + 10 + Math.sin(s * 5) * 3]); } tzArodDraw(P, pts, 4.4, true); }
+      else { const pts = []; for (let k = 0; k <= 14; k++) { const s = k / 14; pts.push([c[0] + 8 + s * 48, c[1] + 8 + s * 10 + Math.sin(s * 5) * 3]); } tzArodDraw(P, pts, 4.4, true); }
     } },
     tzHaninaCh,
     ch(LK.tzVillager, { x: 300, y: 450, face: -1, clip: 'point', h: 140 }),
@@ -2113,10 +2114,10 @@ const SCENES = [
   },
   chars: [
     ch(LK.tzAkiva, { x: 267, y: 257, z: 8, face: 1, clip: 'tzShema', h: 144 }),
-    ch(LK.tzStud1, { x: 360, y: 410, face: 1, clip: 'tzGrieve', h: 136 }),
-    ch(LK.tzStud4, { x: 420, y: 440, face: 1, clip: 'bow', h: 138, t0: 1 }),
-    ch(LK.tzStud2, { x: 490, y: 410, face: -1, clip: 'tzGrieve', h: 134, t0: 0.5 }),
-    ch(LK.tzStud3, { x: 500, y: 480, face: -1, clip: 'lookup', h: 128, t0: 2 }),
+    ch(LK.tzStud1, { x: 250, y: 440, face: 1, clip: 'tzGrieve', h: 136 }),
+    ch(LK.tzStud4, { x: 360, y: 470, face: 1, clip: 'bow', h: 138, t0: 1 }),
+    ch(LK.tzStud2, { x: 470, y: 400, face: -1, clip: 'tzGrieve', h: 134, t0: 0.5 }),
+    ch(LK.tzStud3, { x: 530, y: 430, face: -1, clip: 'lookup', h: 128, t0: 2 }),
     { draw(P, t) { for (let i = 0; i < 3; i++) { const u = (t * 0.06 + i / 3) % 1; Lib.bird(P, 300 + u * 500, 250 - u * 120 + Math.sin(t + i) * 10, 1.3, t * 1.6 + i, 'y1b1'); } }, depth: 2000 }
   ]
 },
@@ -2337,12 +2338,13 @@ const ROMAN = n => { const r = [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, '
 const brakhaHTML = b => b.map(x => `<div class="bk">${x.label ? `<div class="bl">${x.label}</div>` : ''}<p class="he" lang="he" dir="rtl">${x.he}</p><p class="ph">${x.ph}</p><p class="tr">${x.fr}</p>${x.note ? `<p class="bn">${x.note}</p>` : ''}</div>`).join('');
 /* d'où vient la citation : la Douay-Rheims, ou le Talmud (référence au format de Sefaria, voir tools/talmud.py).
    Pour le Talmud, `texte.html` (dans talmud/) montre l'original hébreu ou araméen de chaque scène. */
-const TSRC = { bavli: ['Talmud de Babylone', 'traduit de l’araméen', 'éd. de Vilna'], mishna: ['Michna', 'traduit de l’hébreu', 'éd. Romm, Vilna 1913'], yeru: ['Talmud de Jérusalem', 'traduit de l’araméen', 'éd. Guggenheimer'] };
+/* le Talmud mêle hébreu et araméen ; une scène peut préciser la langue de sa citation : `lang: 'araméen'` */
+const TSRC = { bavli: ['Talmud de Babylone', 'traduit de l’hébreu et de l’araméen', 'éd. de Vilna'], mishna: ['Michna', 'traduit de l’hébreu', 'éd. Romm, Vilna 1913'], yeru: ['Talmud de Jérusalem', 'traduit de l’hébreu et de l’araméen', 'éd. Guggenheimer'] };
 const srcKind = r => /^Jerusalem Talmud /.test(r) ? 'yeru' : /^(Mishnah |Pirkei Avot )/.test(r) ? 'mishna' : /^\D.* \d+[ab]$/.test(r) ? 'bavli' : null;
 const srcOf = d => {
   const k = srcKind(d.ref);
   if (!k) return { kick: `${d.book} · chapitre ${ROMAN(d.ch)}`, tr: 'traduit de la Douay-Rheims' };
-  const [name, tr, ed] = TSRC[k];
+  const [name, tr0, ed] = TSRC[k], tr = d.lang ? 'traduit de l’' + d.lang : tr0;
   return { k, kick: `${name} · traité ${d.book}` + (k === 'mishna' ? ` · chapitre ${ROMAN(d.ch)}` : ''), tr, ed, href: 'texte.html#' + d.ref.replace(/ /g, '_').replace(/:/g, '.') };
 };
 const cardLink = d => d.brakha ? 'La bénédiction et le commentaire ›' : d.feast ? 'Fête : ' + d.feast + ' ›' : 'Lire le commentaire ›';
@@ -2353,7 +2355,7 @@ function fillCard(i) {
   const so = srcOf(d);
   cardIn.innerHTML = `<div class="kick">${so.kick}</div><h1>${d.title}</h1><div class="orn"><i></i><b></b><i></i></div>` +
     `<p class="q"><span class="dc"><small>«\u202F</small>${first}</span>${rest}\u202F»</p><div class="src">${d.refFr || d.ref} · ${so.tr}</div>` +
-    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href}">Le texte original ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
+    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href.replace('#', `?from=${encodeURIComponent(location.pathname.split('/').pop())}&scene=${i + 1}#`)}">Le texte original ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
   const lk = cardIn.querySelector('.lk'), more = cardIn.querySelector('.more');
   lk.onclick = e => { e.stopPropagation(); const o = more.classList.toggle('open'); setTimeout(paintCardBg, 750); cardPinned = o; lk.textContent = o ? 'Refermer ‹' : cardLink(d); userT = performance.now() / 1000; };
   requestAnimationFrame(paintCardBg);

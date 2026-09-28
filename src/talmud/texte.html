@@ -41,6 +41,8 @@ article .ref .he{font-size:22px;color:var(--b)}
 .item blockquote{margin:0;font-style:italic;font-size:17.5px;line-height:1.55}
 .links{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px 18px}
 .links a{color:var(--b);text-decoration:none;border-bottom:1px solid currentColor;font-style:italic;font-size:15px}
+#back{position:sticky;top:12px;z-index:5;display:flex;justify-content:center;margin:0 0 18px}#back[hidden]{display:none}
+#back a{font-style:italic;font-size:17px;color:var(--paper);background:var(--b);text-decoration:none;padding:10px 18px;box-shadow:0 4px 14px rgba(0,0,0,.18)}#back a:hover,#back a:focus-visible{background:var(--ink)}
 #all{display:none;text-align:center;margin:0 0 20px}#all a{color:var(--b);font-style:italic;text-decoration:none;border-bottom:1px solid currentColor}
 body.one #all{display:block}body.one article:not(.on){display:none}
 .empty{text-align:center;font-style:italic;opacity:.7}
@@ -58,6 +60,7 @@ footer a{color:var(--b);text-decoration:none;border-bottom:1px solid currentColo
   <div class="sub">Chaque passage cité par les feuilles, en hébreu ou en araméen, la citation surlignée, avec sa traduction</div>
 </header>
 <div class="orn"><i></i><b></b><i></i></div>
+<p id="back" hidden><a href="#"></a></p>
 <p id="all"><a href="#">Tous les textes originaux ›</a> · <a href="index.html">L’index du Talmud ›</a></p>
 <main id="texts"></main>
 <footer>Talmud de Babylone, éd. de Vilna (texte Wikisource, CC-BY-SA) ; Michna, éd. Romm, Vilna 1913 (domaine public) ; Talmud de Jérusalem, éd. H. W. Guggenheimer (CC-BY). Textes obtenus auprès de <a href="https://www.sefaria.org">Sefaria</a>. Traductions françaises propres à ces feuilles.</footer>
@@ -97,6 +100,14 @@ function focusHash() {
   if (el) { el.classList.add('on'); scrollTo(0, 0); }
 }
 for (const b of document.querySelectorAll('button.more')) b.onclick = () => { const o = b.previousElementSibling.classList.toggle('all'); b.textContent = o ? 'Ne garder que la citation ‹' : 'Afficher le passage entier ›'; };
+/* venu d'une scène (feuille.html → texte.html?from=feuille.html&scene=3#ref) : bouton de retour vers cette scène */
+(() => {
+  const p = new URLSearchParams(location.search), from = p.get('from'), n = +p.get('scene');
+  if (!from || !/^[\w-]+\.html$/.test(from) || !n) return;
+  const it = TEXTS.flatMap(x => x.items).find(it => it.u === from && it.i === n - 1), b = document.getElementById('back'), a = b.querySelector('a');
+  a.href = from + '#scene=' + n; a.textContent = '‹ Revenir à la scène' + (it ? ' « ' + it.t + ' »' : '');
+  b.hidden = false;
+})();
 addEventListener('hashchange', focusHash); focusHash();
 /* ---------- papier ---------- */
 function paintBg() {
