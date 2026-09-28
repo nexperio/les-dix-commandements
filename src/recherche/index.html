@@ -63,7 +63,7 @@ footer{margin-top:44px;text-align:center;font-size:13px;opacity:.7;line-height:1
   <div class="sub">Un personnage, un verset, une fête, une bénédiction : chaque scène du site est cherchée, du titre au commentaire</div>
 </header>
 <div class="orn"><i></i><b></b><i></i></div>
-<form class="field" id="sf" role="search"><input id="q" type="search" name="q" placeholder="Myriam, Proverbes 31, hallah, Pessah…" aria-label="Chercher dans les feuilles" autocomplete="off"><button type="submit">Chercher</button></form>
+<form class="field" id="sf" role="search"><input id="q" type="search" name="q" placeholder="Myriam, Proverbes 31, hallah, Chabbat 31a…" aria-label="Chercher dans les feuilles" autocomplete="off"><button type="submit">Chercher</button></form>
 <p id="count" aria-live="polite"></p>
 <ol id="hits"></ol>
 <button id="more" type="button" hidden>Voir plus de résultats</button>
@@ -72,13 +72,13 @@ footer{margin-top:44px;text-align:center;font-size:13px;opacity:.7;line-height:1
 <p class="h2s">La réponse s’appuie sur les passages des feuilles et les cite. Pour une question de halakha pratique, demandez à votre rabbin.</p>
 <form class="ask" id="af"><textarea id="aq" maxlength="600" placeholder="Pourquoi allume-t-on deux bougies le vendredi soir ?" aria-label="Votre question"></textarea><button type="submit">Demander</button></form>
 <div id="answer" aria-live="polite"></div>
-<footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610).</footer>
+<footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610) ; passages du Talmud traduits de l’hébreu et de l’araméen (textes de Sefaria).</footer>
 </div>
 <script>
 /*CORE*/
 const IDX = /*INDEX*/;
 /* ---------- index ---------- */
-const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[’‘`]/g, "'").replace(/œ/g, 'oe').replace(/æ/g, 'ae');
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ\u0591-\u05C7\u05F3\u05F4]/g, '').replace(/([\u05d0-\u05ea])["'`’]([\u05d0-\u05ea])/g, '$1$2').toLowerCase().replace(/[’‘`]/g, "'").replace(/œ/g, 'oe').replace(/æ/g, 'ae');
 const STOP = new Set(('le la les l de des du d un une et en a au aux ce ces cet cette qui que qu quoi est sont etait dans sur sous pour par avec sans ne n pas plus se s sa son ses leur leurs lui il elle ils elles on nous vous je j tu te me m y ou comme quel quelle quels quelles pourquoi comment quand combien donc mais si tout tous toute toutes fait faire dit').split(' '));
 const stem = w => w.length > 4 ? w.replace(/(es|s|x)$/, '') : w;
 /* translittérations : Eshet/Échet, Sukkot/Souccot, Barukh/Baroukh, Tzitzit/Tsitsit */
@@ -86,7 +86,7 @@ const phon = w => w.replace(/sh/g, 'ch').replace(/tz/g, 'ts').replace(/kh/g, 'h'
 const words = s => norm(s).split(/[^a-z0-9֐-׿]+/).filter(w => w && !STOP.has(w) && (w.length > 1 || /\d/.test(w))).map(w => phon(stem(w)));
 const W = [['t', 6], ['r', 5], ['f', 4], ['s', 2], ['v', 3], ['k', 2], ['m', 1]];
 /* les nombres ne comptent que comme numéro de chapitre : « Exode 20 », « Proverbes 31 » */
-for (const d of IDX) { d.r2 = d.r + ' ' + d.b; d.w = W.map(([k, p]) => [new Set(words(k === 'r' ? d.r2 : d[k]).filter(w => !/^\d+$/.test(w))), p]); }
+for (const d of IDX) { d.r2 = d.r + ' ' + d.b + ' ' + (d.a || ''); d.w = W.map(([k, p]) => [new Set(words(k === 'r' ? d.r2 : d[k]).filter(w => !/^\d+$/.test(w))), p]); }
 function search(q) {
   const terms = [...new Set(words(q))]; if (!terms.length) return [];
   const out = [];
@@ -135,7 +135,7 @@ function render(n) {
 }
 function run(q, push) {
   res = search(q); shown = 0; hitsEl.innerHTML = '';
-  countEl.textContent = !q.trim() ? `${IDX.length} scènes dans ${new Set(IDX.map(d => d.u)).size} feuilles.` : res.length ? `${res.length} scène${res.length > 1 ? 's' : ''} trouvée${res.length > 1 ? 's' : ''}.` : 'Aucune scène ne correspond. Essayez un autre mot, un nom ou une référence (« Exode 20 »).';
+  countEl.textContent = !q.trim() ? `${IDX.length} scènes dans ${new Set(IDX.map(d => d.u)).size} feuilles.` : res.length ? `${res.length} scène${res.length > 1 ? 's' : ''} trouvée${res.length > 1 ? 's' : ''}.` : 'Aucune scène ne correspond. Essayez un autre mot, un nom ou une référence (« Exode 20 », « Chabbat 31a »).';
   render(12);
   if (push) try { history.replaceState(null, '', q.trim() ? '?q=' + encodeURIComponent(q.trim()) : location.pathname); } catch (e) {}
 }

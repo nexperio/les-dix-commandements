@@ -51,6 +51,7 @@ ORDERS = [
 ]
 TRACT = {t[0]: t for _, _, _, ts in ORDERS for t in ts}
 MISHNA_ONLY = {'Kinnim', 'Middot'}  # au Daf Yomi, pas de Guemara
+TSRC_FR = {'bavli': 'Talmud de Babylone Guemara', 'mishna': 'Michna', 'yeru': 'Talmud de Jérusalem Yerouchalmi'}
 
 VERSIONS = {
     'bavli': ('Wikisource Talmud Bavli', 'Talmud de Babylone, éd. de Vilna (texte Wikisource, CC-BY-SA)'),

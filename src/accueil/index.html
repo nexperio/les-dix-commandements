@@ -72,11 +72,15 @@ footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-
 <p class="h2s">Les mitsvot des hommes avec leurs berakhot : talit, tefillin, Torah, kiddouch, havdala, fêtes</p>
 <div class="grid" id="hommes"></div>
 <div class="orn"><i></i><b></b><i></i></div>
+<h2>Le Talmud</h2>
+<p class="h2s">La Michna et la Guemara en dix feuilles : les six ordres, Pirké Avot, les maîtres, le Talmud de Jérusalem ; le Daf Yomi et l’accès direct à un passage</p>
+<div class="grid" id="talmud"><a class="card" data-ink="2" href="talmud/index.html"><canvas></canvas><div class="n" style="color:#2D5BA6">Index · Daf Yomi</div><h3>Le Talmud</h3><div class="fr">Les six ordres traité par traité, la page du jour, aller à « Chabbat 31a ».</div><span class="go" style="color:#2D5BA6">Ouvrir l’index ›</span></a></div>
+<div class="orn"><i></i><b></b><i></i></div>
 <div id="now"></div>
 <h2>Les parachiot de l’année</h2>
 <p class="h2s">Une feuille par paracha, de Haazinou à Nitsavim-Vayélekh</p>
 <div class="grid" id="grid"></div>
-<footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610).<br>Glisser, molette, pincer, double-clic : chaque feuille se parcourt comme une carte.<br><span class="credit">Une réalisation <a href="https://nexperio.tech">nexperio.tech</a></span></footer>
+<footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610) ; passages du Talmud traduits de l’hébreu et de l’araméen (textes de Sefaria).<br>Glisser, molette, pincer, double-clic : chaque feuille se parcourt comme une carte.<br><span class="credit">Une réalisation <a href="https://nexperio.tech">nexperio.tech</a></span></footer>
 </div>
 <script>
 /*CORE*/
@@ -91,7 +95,7 @@ if (cur) {
   a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Cette semaine · ${cur.date}</div><h3>${cur.he}</h3><div class="fr">${cur.sens}</div><span class="go" style="color:${hex}">${cur.href ? 'Ouvrir la feuille ›' : 'Feuille à paraître'}</span>`;
   document.getElementById('now').appendChild(a);
 }
-for (const it of ITEMS.filter(i => i.sec === 'femmes' || i.sec === 'hommes')) {
+for (const it of ITEMS.filter(i => i.sec === 'femmes' || i.sec === 'hommes' || i.sec === 'talmud')) {
   const a = document.createElement('a'), hex = INKS[it.ink].hex; a.className = 'card'; a.href = it.href; a.dataset.ink = it.ink;
   a.innerHTML = `<canvas></canvas><div class="n" style="color:${hex}">Feuille ${it.mark}</div><h3>${it.he}</h3><div class="fr">${it.fr}</div><span class="go" style="color:${hex}">Ouvrir ›</span>`;
   document.getElementById(it.sec).appendChild(a);
