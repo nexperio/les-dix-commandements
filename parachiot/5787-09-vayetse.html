@@ -1605,9 +1605,9 @@ reuse(AT[3], {
     Lib.platform(P, 'y4b2k1', 'y4r3k2', { strata: [[0, .4, 'y4r3k2'], [.4, 1, 'y3r3k3']] });
     Lib.mound(P, 80, 80, 90, 150, 'y4b3k2'); Lib.mound(P, 250, 30, 80, 110, 'y4b3k1'); Lib.mound(P, 470, 60, 70, 90, 'y4r3k2');
     Lib.grass(P, 40, 'y5b4');
-    Lib.tent(P, 20, 320, 120, 100, 100, 'r5y4k1'); Lib.tent(P, 420, 150, 110, 100, 100, 'b4r3k1');
-    for (let r = 0; r < 4; r++) for (let i = 0; i < 7 - r * 1.5; i++) { const c = P.I(230 + r * 8 + i * 16, 260 + r * 8 + ((i * 7) % 5) * 4, r * 14); P.shape(Lib.bumpy(P, c[0], c[1] - 6, 12, 8, 5), (i + r) % 2 ? 'y3r2k3' : 'y4r2k2', 0.8); }
-    P.box(300, 200, 0, 18, 14, 110, { t: 'y3r2k1', l: 'y3r2k2', r: 'y3r3k3' });
+    Lib.tent(P, 20, 320, 120, 100, 100, 'r5y4k1'); Lib.tent(P, 410, 110, 100, 90, 90, 'b4r3k1');
+    for (let r = 0; r < 6; r++) for (let j = 0; j < 3; j++) for (let i = 0; i < 7 - r; i++) { const c = P.I(215 + r * 11 + i * 20, 235 + r * 9 + j * 18 - r * 3 * (j - 1), r * 15); P.shape(Lib.bumpy(P, c[0], c[1] - 7, 15, 10, 5), (i + r + j) % 3 ? 'y3r2k3' : 'y4r2k2', 0.8); }
+    P.box(330, 205, 0, 20, 16, 130, { t: 'y3r2k1', l: 'y3r2k2', r: 'y3r3k3' });
     Lib.stones(P, 30, 'y3r2k3', [20, 200, 500, 320]);
   },
   chars: [
@@ -1633,7 +1633,7 @@ reuse(AT[3], {
     Lib.cloud(P, 260, 200, 260, 44, 'y2', { noShade: 1 }); Lib.cloud(P, 150, 160, 160, 30, 'y1', { noShade: 1 });
     Lib.platform(P, 'y4r2', 'y4r3k2');
     Lib.mound(P, 470, 40, 70, 80, 'y4r3k2');
-    Lib.tent(P, 330, 300, 110, 90, 90, 'r5y4k1'); Lib.tent(P, 440, 380, 90, 80, 80, 'b4y3k1');
+    Lib.tent(P, 400, 300, 100, 80, 90, 'r5y4k1'); Lib.tent(P, 430, 420, 90, 80, 80, 'b4y3k1');
     const c = P.I(120, 150, 0); P.halo(c[0], c[1] - 40, 130, ['y1', 'y2', 'y3']);
     Lib.tent(P, 40, 90, 140, 110, 120, 'y1b1'); Lib.tent(P, 60, 250, 100, 80, 90, 'y1');
     Lib.stones(P, 20, 'y3r2k3', [200, 200, 300, 300]);
@@ -1642,10 +1642,10 @@ reuse(AT[3], {
     ch(LK.jacob, { x: 280, y: 280, face: -1, clip: 'lookup', h: 146, hold: { f: 'staffV' } }),
     ...[0, 1, 2].map(i => ch(LK.angel, { x: 160 + i * 50, y: 170 + i * 40, z: 40 + i * 30, face: 1, clip: 'hover', h: 118, t0: i, noShadow: 1 })),
     ch(LK.angel, { h: 120, speed: 10, path: [W(200, 380, 2), W(160, 300, 2), W(200, 380, 0)] }),
-    ch(LK.vt_rachel, { x: 380, y: 440, face: -1, clip: 'point', h: 128 }),
-    ch(LK.child, { x: 420, y: 480, face: -1, clip: 'lookup', h: 96 }),
+    ch(LK.vt_rachel, { x: 330, y: 440, face: -1, clip: 'point', h: 128 }),
+    ch(LK.child, { x: 370, y: 490, face: -1, clip: 'lookup', h: 96 }),
     { beast: 'camel', h: 112, speed: 14, path: [W(520, 260, 2), W(420, 250, 2), W(520, 260, 0)] },
-    { beast: 'sheep', h: 58, x: 300, y: 480, face: -1 }
+    { beast: 'sheep', h: 58, x: 260, y: 490, face: -1 }
   ]
 }
 ];
