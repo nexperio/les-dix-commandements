@@ -1612,7 +1612,7 @@ const SCENES = [
   more: ['Le serviteur d’Abraham revient de Mésopotamie avec Rébecca, sa nourrice et ses servantes. Vers le soir, Isaac est sorti méditer dans les champs ; il lève les yeux et voit venir les chameaux. Rébecca descend de sa monture et se couvre de son voile. Isaac l’introduit dans la tente de Sarah, la prend pour femme et l’aime ; il se console de la mort de sa mère.',
     'Pas de fête juive attachée à ce passage. Rachi rapporte que du vivant de Sarah, une lampe restait allumée d’une veille de Chabbat à l’autre, la bénédiction était dans la pâte et une nuée se tenait au-dessus de la tente. À sa mort tout cessa ; quand Rébecca entra, tout revint. On y reconnaît la lumière du Chabbat et la hallah, que la feuille ג présente avec leurs bénédictions.'],
   back(P) {
-    const s = P.I(120, -40, 60); P.halo(s[0] - 40, s[1] - 20, 260, ['r1y2', 'r2y3', 'r3y4', 'r5y6']); P.shape(P.disc(s[0] - 40, s[1] - 20, 30, 30), 'r6y8', 1.1);
+    P.halo(190, 300, 200, ['r1y2', 'r2y3', 'r3y4', 'r5y6']); P.shape(P.disc(190, 300, 28, 30), 'r6y8', 1.1);
     Lib.platform(P, 'y4r3k1', 'y4r3k2');
     Lib.field(P, 20, 330, 200, 180, 6, 'y7r3');
     Lib.tent(P, 250, 40, 180, 140, 140, 'r5y4k1');
@@ -1621,7 +1621,7 @@ const SCENES = [
     Lib.stones(P, 16, 'y3r2k3', [240, 260, 280, 260]);
   },
   live(P, t) {
-    const c = P.I(340, 110, 140); P.halo(c[0], c[1] - 110, 150 + Math.sin(t) * 8, ['y1', 'y1b1', 'y2']); Lib.cloud(P, c[0], c[1] - 95, 190, 36, 'y1b1');
+    const c = P.I(340, 110, 140); P.halo(c[0], c[1] - 120, 120 + Math.sin(t) * 8, ['y1', 'y2', 'y3']); Lib.cloud(P, c[0], c[1] - 100, 220, 44, 'y1');
     const l = P.I(405, 180, 0); P.halo(l[0], l[1] - 18, 56, ['y2', 'y3', 'y4r1', 'y6r2']); P.shape([[l[0] - 8, l[1]], [l[0] + 8, l[1]], [l[0] + 5, l[1] - 5], [l[0] - 6, l[1] - 5]], 'r5y6k2', 0.8); Lib.flame(P, l[0] + 2, l[1] - 5, 8, 16, t);
   },
   chars: [
