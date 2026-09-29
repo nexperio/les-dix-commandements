@@ -26,7 +26,7 @@ src/
     core.js        aléatoire seedé, bruit, 4 encres, tuiles de trame, Painter, bibliothèque Lib (décors)
     figures.js     squelette humain, CLIPS de poses, costumes, visages, animaux, trajets en boucle
     lib2.js        décors et accessoires additionnels (arche, tour, puits, autel, pluie, fumée…)
-    app.js         feuille, cache par niveau de détail, impression encre par encre, caméra, visite, carte
+    app.js         feuille, cache par niveau de détail, caméra, visite, carte
     print.js       impression sur fond blanc (feuille entière ou une scène) : bouton, touche P, lien dans la carte
     menu.js        menu vertical des feuilles, inliné dans chaque page (entrées tirées de PARA)
   scenes/

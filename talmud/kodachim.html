@@ -2148,20 +2148,21 @@ const SCENES = [
 Object.assign(BEAST, { tdGoat: { bl: .52, bh: .27, lh: .28, nk: [.12, -50], hd: [.15, 40, .062, .042], tone: 'k5r2y1', legT: 'k6', horns: 'bull', ears: 'side', tail: 1 } });
 
 /* ============================================================
-   APPLICATION : feuille, caches par niveau de détail, impression,
+   APPLICATION : feuille, caches par niveau de détail,
    visite guidée, caméra, carte de chapitre
    ============================================================ */
 const CELL = 1000, GUT = 90, MARG = 300, COLS = SCENES.length <= 4 ? 2 : SCENES.length <= 6 ? 3 : 4, ROWS = Math.ceil(SCENES.length / COLS);
 const SW = MARG * 2 + COLS * CELL + (COLS - 1) * GUT, SH = MARG * 2 + ROWS * CELL + (ROWS - 1) * GUT;
 const cellPos = i => [MARG + (i % COLS) * (CELL + GUT), MARG + Math.floor(i / COLS) * (CELL + GUT)];
 const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const COARSE = matchMedia('(pointer: coarse)').matches;
 let VW = 0, VH = 0, DPR = 1, S0 = 0.25, SMAX = 2.6;
 const cam = { x: SW / 2, y: SH / 2, z: 0.2, vx: 0, vy: 0 };
 let fly = null, lastMove = 0, userT = -1e9, cardPinned = false, cardHidden = false, cardScene = -1, needDraw = true;
-const SC = SCENES.map((d, i) => { d.id = i; (d.chars || []).forEach(c => c.draw || prepChar(c)); return { d, id: i, lays: new Map(), cur: 0, frame: document.createElement('canvas'), fs: 0, lastTick: -1, stage: [], rev: { t0: 0, done: false }, used: 0 }; });
+const SC = SCENES.map((d, i) => { d.id = i; (d.chars || []).forEach(c => c.draw || prepChar(c)); return { d, id: i, lays: new Map(), cur: 0, frame: document.createElement('canvas'), fs: 0, lastTick: -1, used: 0 }; });
 
 function resize() {
-  DPR = Math.min(window.devicePixelRatio || 1, 2.5); VW = innerWidth; VH = innerHeight;
+  DPR = Math.min(window.devicePixelRatio || 1, COARSE ? 2 : 2.5); VW = innerWidth; VH = innerHeight;
   let w = Math.round(VW * DPR), h = Math.round(VH * DPR); const mx = 3840 * 2400; if (w * h > mx) { const k = Math.sqrt(mx / (w * h)); w = Math.round(w * k); h = Math.round(h * k); DPR *= k; }
   cv.width = w; cv.height = h;
   SMAX = Math.min(VW, VH) < 700 ? 1.8 : 2.8;
@@ -2209,13 +2210,12 @@ const jobs = []; let jobKey = new Set();
 function enqueue(sc, s, pri) {
   const key = sc.id + ':' + s; if (jobKey.has(key) || sc.lays.has(s)) return; jobKey.add(key);
   const L = { s, back: [], front: sc.d.front ? [] : null, n: 0 };
-  for (let v = 0; v < 3; v++) jobs.push({ sc, s, v, L, pri: pri + v * 0.1, key });
+  for (let v = 0; v < 3; v++) jobs.push({ sc, s, v, L, pri: pri + v * 20, key });
 }
 function runJobs(budget) {
   const t0 = performance.now();
   while (jobs.length && performance.now() - t0 < budget) {
     jobs.sort((a, b) => a.pri - b.pri); const j = jobs.shift();
-    if (j.stage !== undefined) { const c = makeCanvas(j.s), g = c.getContext('2d'); drawSceneLayer(g, j.sc, j.s, 'back', 0, j.mask, true); j.sc.stage[j.stage] = c; continue; }
     const c = makeCanvas(j.s); drawSceneLayer(c.getContext('2d'), j.sc, j.s, 'back', j.v, 15, false); j.L.back[j.v] = c;
     if (j.L.front) { const f = makeCanvas(j.s); drawSceneLayer(f.getContext('2d'), j.sc, j.s, 'front', j.v, 15, false); j.L.front[j.v] = f; }
     if (++j.L.n === 3) { j.sc.lays.set(j.s, j.L); jobKey.delete(j.key); }
@@ -2243,10 +2243,7 @@ function compose(sc, t, v) {
   sc.fs = s; return true;
 }
 
-/* ---------- impression : chaque encre passe l'une après l'autre ---------- */
-const MASKS = [1, 3, 7, 15], PASS = 0.42, START = 0.5, STAG = 0.26;
-let revealDone = false, T0 = null;
-function queueStages() { SC.forEach((sc, i) => MASKS.forEach((m, k) => jobs.push({ sc, s: S0, stage: k, mask: m, pri: -100 + i * 4 + k }))); }
+let T0 = null;
 
 /* ---------- marques d'imprimeur, témoins d'encre ---------- */
 function drawSheet(g, z) {
@@ -2325,11 +2322,12 @@ function flyTo(v, dur) {
   fly = { a: { x: cam.x, y: cam.y, z: z0 }, b: v, t0: performance.now() / 1000, dur: dur || clamp(1.6 + Math.log2(1 + d * zm / VW) * 0.7, 1.6, 3.4), bump };
   cam.vx = cam.vy = 0;
 }
-const tour = { mode: 'reveal', idx: -1, until: 0 };
+/* la visite démarre seule après un court instant, sauf si l'on touche la feuille avant */
+const tour = { mode: 'start', idx: -1, until: 0 };
 /* lien direct vers une scène (page de recherche) : feuille.html#scene=4 ouvre la 4e scène et y reste */
 const DEEP = (() => { const m = /scene=(\d+)/.exec(location.hash), i = m ? +m[1] - 1 : -1; return i >= 0 && i < SCENES.length ? i : -1; })();
 function tourStep(now) {
-  if (tour.mode === 'reveal') { if (revealDone && now > tour.until) { tour.mode = 'tour'; goScene(Math.max(0, DEEP), now); if (DEEP >= 0) tour.until = Infinity; } return; }
+  if (tour.mode === 'start') { if (now > tour.until) { tour.mode = 'tour'; goScene(Math.max(0, DEEP), now); if (DEEP >= 0) tour.until = Infinity; } return; }
   if (tour.mode === 'user') { if (!cardPinned && now - userT > 9) { tour.mode = 'tour'; const n = nearestScene(); goScene(n.d < CELL * 0.3 ? (n.i + 1) % SCENES.length : n.i, now); } return; }
   if (fly) return;
   if (now > tour.until) {
@@ -2340,24 +2338,29 @@ function tourStep(now) {
 function goScene(i, now) { tour.idx = i; const v = sceneView(i); flyTo(v); tour.until = now + fly.dur + 9; prefetch(i, v.z); }
 function prefetch(i, z) { const sc = SC[i]; const s = clamp(bucket(z * DPR), S0, SMAX); enqueue(sc, s, -10); }
 function nearestScene() { let b = { i: 0, d: 1e9 }; for (let i = 0; i < SCENES.length; i++) { const [x, y] = cellPos(i), d = Math.hypot(x + CELL / 2 - cam.x, y + CELL / 2 - cam.y); if (d < b.d) b = { i, d }; } return b; }
-function interact() { document.getElementById('help').classList.add('dim'); userT = performance.now() / 1000; if (tour.mode !== 'reveal' || revealDone) tour.mode = 'user'; fly = null; }
+function interact() { document.getElementById('help').classList.add('dim'); userT = performance.now() / 1000; tour.mode = 'user'; fly = null; }
 const zLim = () => [fitZ() * 0.55, Math.min(VW, VH) / CELL * 5];
 function zoomAt(f, sx, sy) { const [a, b] = zLim(), nz = clamp(cam.z * f, a, b); const wx = cam.x + (sx - VW / 2) / cam.z, wy = cam.y + (sy - VH / 2) / cam.z; cam.z = nz; cam.x = wx - (sx - VW / 2) / nz; cam.y = wy - (sy - VH / 2) / nz; needDraw = true; }
 
 /* ---------- entrées ---------- */
 const helpEl = document.getElementById('help');
-if (matchMedia('(pointer: coarse)').matches) helpEl.innerHTML = '<b>Double-tap</b> sur une scène pour y entrer · <b>glisser</b> pour se déplacer · <b>pincer</b> pour zoomer';
-const ptrs = new Map(); let pinch = null, lastTap = 0;
-cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, t: performance.now() }); interact(); cam.vx = cam.vy = 0; if (ptrs.size === 2) { const [p, q] = [...ptrs.values()]; pinch = { d: Math.hypot(p.x - q.x, p.y - q.y), mx: (p.x + q.x) / 2, my: (p.y + q.y) / 2 }; } cv.style.cursor = 'grabbing'; });
+if (COARSE) helpEl.innerHTML = '<b>Toucher</b> une scène pour y entrer · <b>glisser</b> pour se déplacer · <b>pincer</b> pour zoomer';
+const ptrs = new Map(); let pinch = null, tap = null;
+cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, t: performance.now() }); tap = ptrs.size === 1 && e.pointerType !== 'mouse' ? { x: e.clientX, y: e.clientY, t: performance.now() } : null; interact(); cam.vx = cam.vy = 0; if (ptrs.size === 2) { const [p, q] = [...ptrs.values()]; pinch = { d: Math.hypot(p.x - q.x, p.y - q.y), mx: (p.x + q.x) / 2, my: (p.y + q.y) / 2 }; } cv.style.cursor = 'grabbing'; });
 cv.addEventListener('pointermove', e => {
   const p = ptrs.get(e.pointerId); if (!p) return;
   const dx = e.clientX - p.x, dy = e.clientY - p.y, now = performance.now(), dt = Math.max(1, now - p.t);
   p.x = e.clientX; p.y = e.clientY; p.t = now; interact();
+  if (tap && (ptrs.size > 1 || Math.hypot(e.clientX - tap.x, e.clientY - tap.y) >= 12)) tap = null;
   if (ptrs.size === 1) { cam.x -= dx / cam.z; cam.y -= dy / cam.z; cam.vx = lerp(cam.vx, -dx / cam.z / dt * 1000, 0.5); cam.vy = lerp(cam.vy, -dy / cam.z / dt * 1000, 0.5); }
   else if (ptrs.size === 2 && pinch) { const [a, b] = [...ptrs.values()], d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2; cam.x -= (mx - pinch.mx) / cam.z; cam.y -= (my - pinch.my) / cam.z; zoomAt(d / pinch.d, mx, my); pinch = { d, mx, my }; }
   needDraw = true;
 });
-const up = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; if (!ptrs.size) cv.style.cursor = 'grab'; if (performance.now() - (lastTap || 0) < 300 && e.pointerType === 'touch') dbl(e.clientX, e.clientY); if (e.pointerType === 'touch') lastTap = performance.now(); };
+const up = e => {
+  ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; if (!ptrs.size) cv.style.cursor = 'grab';
+  if (tap && !ptrs.size && e.type === 'pointerup' && performance.now() - tap.t < 350 && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < 12) { cam.vx = cam.vy = 0; dbl(e.clientX, e.clientY); }
+  tap = null;
+};
 cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
 cv.addEventListener('wheel', e => { e.preventDefault(); interact(); const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1; zoomAt(Math.exp(-e.deltaY * k * 0.0016), e.clientX, e.clientY); }, { passive: false });
 function dbl(sx, sy) { const wx = cam.x + (sx - VW / 2) / cam.z, wy = cam.y + (sy - VH / 2) / cam.z; for (let i = 0; i < SCENES.length; i++) { const [x, y] = cellPos(i); if (wx >= x && wx <= x + CELL && wy >= y && wy <= y + CELL) { interact(); const v = sceneView(i); flyTo(v); prefetch(i, v.z); return; } } }
@@ -2389,8 +2392,6 @@ function loop(ms) {
   cam.x = clamp(cam.x, -SW * 0.1, SW * 1.1); cam.y = clamp(cam.y, -SH * 0.1, SH * 1.1);
   const ck = cam.x.toFixed(2) + cam.y.toFixed(2) + cam.z.toFixed(5); if (ck !== lastCam) { lastCam = ck; needDraw = true; settleT = now; }
   tourStep(now);
-  // révélation d'impression
-  if (!revealDone) { let all = true; for (const sc of SC) { if (!sc.rev.done) { const st = START + sc.id * STAG; if (t > st + PASS * 4 && sc.stage[3]) sc.rev.done = true; else all = false; } } if (all) { revealDone = true; tour.until = now + 1.2; } needDraw = true; }
   // visibilité et niveau de détail
   const z = cam.z, hw = VW / 2 / z, hh = VH / 2 / z, sReq = clamp(bucket(z * DPR), S0, SMAX), v = Math.floor(t * 3) % 3, tick = Math.floor(t * 12);
   const vis = [];
@@ -2405,12 +2406,12 @@ function loop(ms) {
     const want = pend && !sc.lays.has(sReq) ? pend : best;
     if (want && want !== sc.cur) { sc.cur = want; sc.lastTick = -1; }
   }
-  runJobs(revealDone ? 9 : 14);
+  runJobs(9);
   if (Math.random() < 0.02) evict();
   const rate = vis.length > 6 ? 8 : 12;
-  for (const sc of vis) { const tk = Math.floor(t * rate + sc.id / SCENES.length) + ':' + v; if (sc.rev.done && sc.lastTick !== tk) { if (compose(sc, Math.floor(t * rate + sc.id / SCENES.length) / rate, v)) { sc.lastTick = tk; needDraw = true; } } }
+  for (const sc of vis) { const tk = Math.floor(t * rate + sc.id / SCENES.length) + ':' + v; if (sc.lastTick !== tk) { if (compose(sc, Math.floor(t * rate + sc.id / SCENES.length) / rate, v)) { sc.lastTick = tk; needDraw = true; } } }
   // carte de chapitre
-  const settled = !fly && !ptrs.size && now - settleT > 0.35 && revealDone;
+  const settled = !fly && !ptrs.size && now - settleT > 0.35;
   let ci = settled ? focusScene() : -1;
   if (cardPinned && cardScene >= 0) ci = cardScene;
   if (ci !== (showCard.last ?? -2)) { showCard.last = ci; if (ci < 0) card.classList.remove('on'); else showCard(ci); }
@@ -2426,17 +2427,10 @@ function draw(vis, t) {
   drawSheet(ctx, z);
   for (const sc of vis) {
     const [x, y] = cellPos(sc.id);
-    if (sc.rev.done) { if (sc.fs) ctx.drawImage(sc.frame, 0, 0, CELL * sc.fs, CELL * sc.fs, x, y, CELL, CELL); continue; }
-    const st = START + sc.id * STAG, u = (t - st) / PASS; if (u <= 0) continue;
-    const k = Math.min(3, Math.floor(u)), f = u - k;
-    if (k > 0 && sc.stage[k - 1]) ctx.drawImage(sc.stage[k - 1], 0, 0, CELL * S0, CELL * S0, x, y, CELL, CELL);
-    const im = sc.stage[k]; if (!im) continue;
-    const ph = k === 3 && u >= 4 ? 1 : Math.min(1, f * 1.1), hgt = CELL * ph, W2 = CELL * S0;
-    if (hgt > 1) ctx.drawImage(im, 0, 0, W2, W2 * ph, x, y, CELL, hgt);
-    if (ph < 1) { ctx.fillStyle = 'rgba(40,30,25,0.10)'; ctx.fillRect(x - 10, y + hgt, CELL + 20, 6); }
+    if (sc.fs) ctx.drawImage(sc.frame, 0, 0, CELL * sc.fs, CELL * sc.fs, x, y, CELL, CELL);
   }
 }
-resize(); makeGrain(); Object.assign(cam, overView()); queueStages();
+resize(); makeGrain(); Object.assign(cam, overView()); tour.until = performance.now() / 1000 + 2.5;
 requestAnimationFrame(loop);
 
 
