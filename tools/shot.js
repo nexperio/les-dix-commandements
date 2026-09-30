@@ -15,6 +15,7 @@ const { chromium } = require('playwright');
     else if (a.startsWith('shot:')) await p.screenshot({ path: a.slice(5) });
   }
   console.log('errors:', errs.slice(0,10).join('\n'));
-  console.log('requests:', reqs.length, reqs.slice(0,3).join(' '));
+  const net = reqs.filter(u => !u.startsWith('blob:')); // les workers naissent d'un blob de la page : pas une requête réseau
+  console.log('requests:', net.length, net.slice(0,3).join(' '));
   await b.close();
 })();

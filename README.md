@@ -15,6 +15,8 @@ python3 tools/build.py talmud-index     # seulement talmud/index.html et talmud/
 npm i && npm run shot           # capture Playwright (optionnel)
 ```
 
+Les calques d'une scène (décor et premier plan, trois variantes par niveau de zoom) sont dessinés dans des workers (`OffscreenCanvas`), pour que le glisser et le pincer restent fluides pendant ce temps, surtout sur téléphone. Le worker naît d'un blob contenant le script de la page jusqu'à la marque `/*@MAIN*/` (première ligne de `app.js`) : toujours un seul fichier et une seule requête. Sans `OffscreenCanvas`, ou si un worker échoue, le fil principal dessine comme avant.
+
 Python 3 suffit pour construire. Aucune étape npm n'est nécessaire en production : on sert la racine du dépôt telle quelle.
 
 ## Arborescence
@@ -26,7 +28,8 @@ src/
     core.js        aléatoire seedé, bruit, 4 encres, tuiles de trame, Painter, bibliothèque Lib (décors)
     figures.js     squelette humain, CLIPS de poses, costumes, visages, animaux, trajets en boucle
     lib2.js        décors et accessoires additionnels (arche, tour, puits, autel, pluie, fumée…)
-    app.js         feuille, cache par niveau de détail, caméra, visite, carte
+    render.js      rendu d'une scène (décor, personnages, premier plan), partagé par la page et par les workers
+    app.js         feuille, cache par niveau de détail, workers de rendu, impression encre par encre (hors tactile), caméra, visite, carte
     print.js       impression sur fond blanc (feuille entière ou une scène) : bouton, touche P, lien dans la carte
     menu.js        menu vertical des feuilles, inliné dans chaque page (entrées tirées de PARA)
   scenes/

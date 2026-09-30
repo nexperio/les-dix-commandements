@@ -67,6 +67,7 @@ TALMUD = [
 ]
 SECTIONS = [('femmes', FEMMES), ('hommes', HOMMES), ('talmud', TALMUD)]
 ENGINE = ['core.js', 'figures.js', 'lib2.js']
+RENDER = S('engine', 'render.js')  # après les scènes, avant app.js : fin du code partagé avec les workers
 read = lambda p: open(p, encoding='utf-8').read()
 
 LOUPE = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><circle cx="10" cy="10" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14.6 14.6 20.5 20.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>'
@@ -119,7 +120,7 @@ def write(path, html):
     print(f'{os.path.relpath(path, ROOT):45s} {os.path.getsize(path):>8,d} octets')
 
 def build_at():
-    parts = [S('engine', p) for p in ENGINE] + [S('scenes', 'ancien-testament.js'), S('scenes', 'main-ancien-testament.js'), S('engine', 'app.js'), S('engine', 'print.js')]
+    parts = [S('engine', p) for p in ENGINE] + [S('scenes', 'ancien-testament.js'), S('scenes', 'main-ancien-testament.js'), RENDER, S('engine', 'app.js'), S('engine', 'print.js')]
     write(os.path.join(DIST, 'ancien-testament.html'), page("L'Ancien Testament, scène par scène", read(S('scenes', 'ancien-testament.liste.txt')), parts, 'ancien-testament.html'))
 
 def build_home():
@@ -134,7 +135,7 @@ def build_paracha(pid, out, sec='parachiot'):
     n = len(re.findall(r"refFr: '", body)) + len(re.findall(r"reuse\(AT\[\d+\](?![^)]*refFr)", body))
     if not 4 <= n <= 12: sys.exit(f'{pid} : {n} scènes, il en faut entre 4 et 12.')
     title = re.search(r"title: '([^']*)'", src).group(1)
-    parts = [S('engine', p) for p in ENGINE] + [S('scenes', 'ancien-testament.js'), S('scenes', 'personnages.js'), S(sec, pid + '.js'), S('engine', 'app.js'), S('engine', 'print.js')]
+    parts = [S('engine', p) for p in ENGINE] + [S('scenes', 'ancien-testament.js'), S('scenes', 'personnages.js'), S(sec, pid + '.js'), RENDER, S('engine', 'app.js'), S('engine', 'print.js')]
     write(os.path.join(DIST, sec, out), page(title, comment_for(src, sec), parts, sec + '/' + out))
 
 def build_search():
