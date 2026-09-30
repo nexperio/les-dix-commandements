@@ -63,7 +63,7 @@ footer{margin-top:44px;text-align:center;font-size:13px;opacity:.7;line-height:1
   <div class="sub">Un personnage, un verset, une fête, une bénédiction : chaque scène du site est cherchée, du titre au commentaire</div>
 </header>
 <div class="orn"><i></i><b></b><i></i></div>
-<form class="field" id="sf" role="search"><input id="q" type="search" name="q" placeholder="Myriam, Proverbes 31, hallah, Chabbat 31a…" aria-label="Chercher dans les feuilles" autocomplete="off"><button type="submit">Chercher</button></form>
+<form class="field" id="sf" role="search"><input id="q" type="search" name="q" placeholder="Myriam, Proverbes 31, hallah, Chabbat 31a, 1948…" aria-label="Chercher dans les feuilles" autocomplete="off"><button type="submit">Chercher</button></form>
 <p id="count" aria-live="polite"></p>
 <ol id="hits"></ol>
 <button id="more" type="button" hidden>Voir plus de résultats</button>
@@ -72,7 +72,7 @@ footer{margin-top:44px;text-align:center;font-size:13px;opacity:.7;line-height:1
 <p class="h2s">La réponse s’appuie sur les passages des feuilles et les cite. Pour une question de halakha pratique, demandez à votre rabbin.</p>
 <form class="ask" id="af"><textarea id="aq" maxlength="600" placeholder="Pourquoi allume-t-on deux bougies le vendredi soir ?" aria-label="Votre question"></textarea><button type="submit">Demander</button></form>
 <div id="answer" aria-live="polite"></div>
-<footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610) ; passages du Talmud traduits de l’hébreu et de l’araméen (textes de Sefaria).</footer>
+<footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610) ; passages du Talmud traduits de l’hébreu et de l’araméen (textes de Sefaria) ; documents historiques cités d’après leur texte publié.</footer>
 </div>
 <script>
 /*CORE*/
@@ -95,7 +95,7 @@ function search(q) {
     for (const t of terms) {
       let best = 0;
       for (const [ws, p] of d.w) { if (ws.has(t)) best = Math.max(best, p); else if (t.length > 2 && !/^\d+$/.test(t)) for (const w of ws) if (w.startsWith(t)) { best = Math.max(best, p * 0.7); break; } }
-      if (/^\d+$/.test(t) && +t === d.c) best = 5;
+      if (/^\d+$/.test(t) && (+t === d.c || +t === d.y)) best = 5;
       if (best) { hit++; sc += best; }
     }
     if (hit) out.push({ d, hit, sc });

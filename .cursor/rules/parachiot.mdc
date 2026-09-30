@@ -15,6 +15,7 @@ Projet de pages HTML autonomes : dioramas isométriques animés, imprimés en ri
 - Tout l'aléatoire est seedé (`rng`, `h2`, `vn`) : jamais `Math.random()` dans le dessin.
 - Les couleurs s'écrivent en teintes d'encre (`'y5r2b1k3'`), jamais en RVB.
 - `quote` = texte anglais copié mot pour mot du Project Gutenberg n° 1609 ; `fr` = traduction française affichée. `python3 tools/check_quotes.py` doit passer.
+- Section Histoire (`src/histoire/`) : ton neutre et factuel, règles dans `docs/BRIEF-histoire.md` ; un document cité (`ref: 'Doc <clé>'`) vient de `src/histoire/docs/<clé>.txt`, rangé par `tools/doc.py`, jamais écrit de mémoire.
 - `feast` seulement pour une correspondance réelle et vérifiable avec une fête juive, sinon `null`. Aucun fait inventé dans `more`.
 - Textes en français, sans tiret cadratin.
 

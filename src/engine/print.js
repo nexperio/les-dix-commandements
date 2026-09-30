@@ -15,7 +15,8 @@ function printScene(i) {
   const nb = x => x.replace(/ ([:;?!»])/g, ' $1').replace(/« /g, '« '), so = srcOf(d);
   sec.innerHTML = `<header><div class="pk">${SHEET.title} · scène ${i + 1} sur ${SCENES.length}</div><h2>${d.title}</h2><div class="pr">${so.kick}${d.feast ? ' · fête : ' + d.feast : ''}</div></header>` +
     `<div class="pi"></div><blockquote>« ${nb(d.fr || d.quote)} »<cite>${d.refFr || d.ref} · ${so.tr}</cite></blockquote>` +
-    (so.k ? `<p class="po pho" lang="he" dir="rtl">${d.quote.replace(/\s+/g, ' ')}<cite dir="ltr">${d.ref} · ${TSRC[so.k][0]}, ${so.ed}</cite></p>`
+    (so.k === 'doc' ? (d.lang === 'français' ? '' : `<p class="po">${d.quote.replace(/\s+/g, ' ')}<cite>${d.refFr}${d.url ? ' · ' + d.url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] : ''}</cite></p>`)
+      : so.k ? `<p class="po pho" lang="he" dir="rtl">${d.quote.replace(/\s+/g, ' ')}<cite dir="ltr">${d.ref} · ${TSRC[so.k][0]}, ${so.ed}</cite></p>`
       : `<p class="po">${d.quote.replace(/\s+/g, ' ')}<cite>${d.ref} · Douay-Rheims, Project Gutenberg n° ${GUT2.test(d.ref) ? 1610 : 1609}</cite></p>`) +
     (d.brakha ? `<div class="pm pb"><h3>${d.brakha.length > 1 ? 'Bénédictions' : 'Bénédiction'}</h3>${brakhaHTML(d.brakha)}</div>` : '') +
     `<div class="pm"><h3>Commentaire</h3>${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;

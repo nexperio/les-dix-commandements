@@ -51,10 +51,10 @@ function finish(j, back, front) {
   if (++j.L.n === 3) { j.sc.lays.set(j.s, j.L); jobKey.delete(j.key); }
   if (j.v === 0) j.sc.pending = j.L;
 }
-/* les workers dessinent les calques (OffscreenCanvas) ; sans eux, ou s'ils échouent, le fil principal s'en charge */
+/* sur écran tactile, des workers dessinent les calques (OffscreenCanvas) ; ailleurs, sans eux, ou s'ils échouent, le fil principal s'en charge */
 let WK = [];
 try {
-  if (new OffscreenCanvas(1, 1).getContext('2d') && OffscreenCanvas.prototype.transferToImageBitmap) {
+  if (COARSE && new OffscreenCanvas(1, 1).getContext('2d') && OffscreenCanvas.prototype.transferToImageBitmap) {
     const url = URL.createObjectURL(new Blob([document.currentScript.textContent.split('/*@MAIN*/')[0]], { type: 'text/javascript' }));
     WK = Array.from({ length: (navigator.hardwareConcurrency || 2) >= 4 ? 2 : 1 }, () => {
       const w = new Worker(url); w.q = [];
@@ -92,7 +92,7 @@ function evict() {
   const hi = []; for (const sc of SC) for (const [s, L] of sc.lays) if (s > S0 && s !== sc.cur) hi.push({ sc, s, u: sc.used });
   let bytes = 0; for (const sc of SC) for (const [s] of sc.lays) bytes += s * s * CELL * CELL * 4 * 7;
   hi.sort((a, b) => a.u - b.u);
-  while (bytes > (COARSE ? 260e6 : 700e6) && hi.length) { const e = hi.shift(), L = e.sc.lays.get(e.s); e.sc.lays.delete(e.s); if (e.sc.pending === L) e.sc.pending = null; freeL(L); bytes -= e.s * e.s * CELL * CELL * 4 * 7; }
+  while (bytes > (COARSE ? 260e6 : 700e6) && hi.length) { const e = hi.shift(), L = e.sc.lays.get(e.s); e.sc.lays.delete(e.s); if (WK.length) { if (e.sc.pending === L) e.sc.pending = null; freeL(L); } bytes -= e.s * e.s * CELL * CELL * 4 * 7; }
 }
 function compose(sc, t, v) {
   let L = sc.lays.get(sc.cur);
@@ -140,10 +140,14 @@ const brakhaHTML = b => b.map(x => `<div class="bk">${x.label ? `<div class="bl"
    Pour le Talmud, `texte.html` (dans talmud/) montre l'original hébreu ou araméen de chaque scène. */
 /* le Talmud mêle hébreu et araméen ; une scène peut préciser la langue de sa citation : `lang: 'araméen'` */
 const TSRC = { bavli: ['Talmud de Babylone', 'traduit de l’hébreu et de l’araméen', 'éd. de Vilna'], mishna: ['Michna', 'traduit de l’hébreu', 'éd. Romm, Vilna 1913'], yeru: ['Talmud de Jérusalem', 'traduit de l’hébreu et de l’araméen', 'éd. Guggenheimer'] };
-const srcKind = r => /^Jerusalem Talmud /.test(r) ? 'yeru' : /^(Mishnah |Pirkei Avot )/.test(r) ? 'mishna' : /^\D.* \d+[ab]$/.test(r) ? 'bavli' : null;
+/* section Histoire : `when` (la date, en tête de carte) et, pour un document historique, `ref: 'Doc <clé>'`,
+   `lang` (langue du texte cité) et `url` (où le lire) ; tools/check_quotes.py compare `quote` à src/histoire/docs/<clé>.txt */
+const trOf = lang => lang === 'français' ? 'texte original' : (/^[aeiouhéè]/i.test(lang) ? 'traduit de l’' : 'traduit du ') + lang;
+const srcKind = r => /^Doc /.test(r) ? 'doc' : /^Jerusalem Talmud /.test(r) ? 'yeru' : /^(Mishnah |Pirkei Avot )/.test(r) ? 'mishna' : /^\D.* \d+[ab]$/.test(r) ? 'bavli' : null;
 const srcOf = d => {
   const k = srcKind(d.ref);
-  if (!k) return { kick: `${d.book} · chapitre ${ROMAN(d.ch)}`, tr: 'traduit de la Douay-Rheims' };
+  if (!k) return { kick: d.when || `${d.book} · chapitre ${ROMAN(d.ch)}`, tr: 'traduit de la Douay-Rheims' };
+  if (k === 'doc') return { k, kick: d.when || d.book, tr: trOf(d.lang || 'anglais'), ext: d.url };
   const [name, tr0, ed] = TSRC[k], tr = d.lang ? 'traduit de l’' + d.lang : tr0;
   return { k, kick: `${name} · traité ${d.book}` + (k === 'mishna' ? ` · chapitre ${ROMAN(d.ch)}` : ''), tr, ed, href: 'texte.html#' + d.ref.replace(/ /g, '_').replace(/:/g, '.') };
 };
@@ -155,13 +159,13 @@ function fillCard(i) {
   const so = srcOf(d);
   cardIn.innerHTML = `<div class="kick">${so.kick}</div><h1>${d.title}</h1><div class="orn"><i></i><b></b><i></i></div>` +
     `<p class="q"><span class="dc"><small>«\u202F</small>${first}</span>${rest}\u202F»</p><div class="src">${d.refFr || d.ref} · ${so.tr}</div>` +
-    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href.replace('#', `?from=${encodeURIComponent(location.pathname.split('/').pop())}&scene=${i + 1}#`)}">Le texte original ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
+    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href.replace('#', `?from=${encodeURIComponent(location.pathname.split('/').pop())}&scene=${i + 1}#`)}">Le texte original ›</a>` : ''}${so.ext ? `<a class="lk lko" href="${so.ext}" target="_blank" rel="noopener">Le document ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
   const lk = cardIn.querySelector('.lk'), more = cardIn.querySelector('.more');
   lk.onclick = e => { e.stopPropagation(); const o = more.classList.toggle('open'); setTimeout(paintCardBg, 750); cardPinned = o; lk.textContent = o ? 'Refermer ‹' : cardLink(d); userT = performance.now() / 1000; };
   requestAnimationFrame(paintCardBg);
 }
 /* l'étoile de David ferme la carte et ramène à la vue d'ensemble */
-function closeCard() { cardPinned = false; card.classList.remove('on'); interact(); flyTo(overView(), 1.6); }
+function closeCard() { cardPinned = false; card.classList.remove('on'); interact(); flyTo(overView(), COARSE ? 0.9 : 1.6); }
 card.querySelector('.x').addEventListener('click', e => { e.stopPropagation(); closeCard(); });
 addEventListener('keydown', e => { if (e.key === 'Escape' && card.classList.contains('on')) closeCard(); });
 function paintCardBg() {
@@ -180,10 +184,11 @@ function showCard(i) {
 }
 
 /* ---------- caméra, visite ---------- */
-function flyTo(v, dur) {
+/* `fast` : sur écran tactile, un zoom demandé par un geste est plus vif que ceux de la visite guidée */
+function flyTo(v, dur, fast) {
   const z0 = cam.z, d = Math.hypot(v.x - cam.x, v.y - cam.y), zm = Math.min(z0, v.z);
   const bump = Math.max(0, Math.log(d * zm / Math.min(VW, VH) * 0.9 + 1e-9)) * 0.9;
-  fly = { a: { x: cam.x, y: cam.y, z: z0 }, b: v, t0: performance.now() / 1000, dur: dur || clamp(1.6 + Math.log2(1 + d * zm / VW) * 0.7, 1.6, 3.4), bump };
+  fly = { a: { x: cam.x, y: cam.y, z: z0 }, b: v, t0: performance.now() / 1000, dur: dur || (fast && COARSE ? clamp(0.6 + Math.log2(1 + d * zm / VW) * 0.3, 0.6, 1.1) : clamp(1.6 + Math.log2(1 + d * zm / VW) * 0.7, 1.6, 3.4)), bump };
   cam.vx = cam.vy = 0;
 }
 /* la visite démarre seule après l'impression (ou un court instant sur écran tactile), sauf si l'on touche la feuille avant */
@@ -209,8 +214,8 @@ function zoomAt(f, sx, sy) { const [a, b] = zLim(), nz = clamp(cam.z * f, a, b);
 /* ---------- entrées ---------- */
 const helpEl = document.getElementById('help');
 if (COARSE) helpEl.innerHTML = '<b>Toucher</b> une scène pour y entrer · <b>glisser</b> pour se déplacer · <b>pincer</b> pour zoomer';
-const ptrs = new Map(); let pinch = null, tap = null;
-cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, t: performance.now() }); tap = ptrs.size === 1 && e.pointerType !== 'mouse' ? { x: e.clientX, y: e.clientY, t: performance.now() } : null; interact(); cam.vx = cam.vy = 0; if (ptrs.size === 2) { const [p, q] = [...ptrs.values()]; pinch = { d: Math.hypot(p.x - q.x, p.y - q.y), mx: (p.x + q.x) / 2, my: (p.y + q.y) / 2 }; } cv.style.cursor = 'grabbing'; });
+const ptrs = new Map(); let pinch = null, tap = null, lastTap = 0;
+cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, t: performance.now() }); tap = COARSE && ptrs.size === 1 && e.pointerType !== 'mouse' ? { x: e.clientX, y: e.clientY, t: performance.now() } : null; interact(); cam.vx = cam.vy = 0; if (ptrs.size === 2) { const [p, q] = [...ptrs.values()]; pinch = { d: Math.hypot(p.x - q.x, p.y - q.y), mx: (p.x + q.x) / 2, my: (p.y + q.y) / 2 }; } cv.style.cursor = 'grabbing'; });
 cv.addEventListener('pointermove', e => {
   const p = ptrs.get(e.pointerId); if (!p) return;
   const dx = e.clientX - p.x, dy = e.clientY - p.y, now = performance.now(), dt = Math.max(1, now - p.t);
@@ -224,10 +229,11 @@ const up = e => {
   ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; if (!ptrs.size) cv.style.cursor = 'grab';
   if (tap && !ptrs.size && e.type === 'pointerup' && performance.now() - tap.t < 350 && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < 12) { cam.vx = cam.vy = 0; dbl(e.clientX, e.clientY); }
   tap = null;
+  if (!COARSE) { if (performance.now() - (lastTap || 0) < 300 && e.pointerType === 'touch') dbl(e.clientX, e.clientY); if (e.pointerType === 'touch') lastTap = performance.now(); }
 };
 cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
 cv.addEventListener('wheel', e => { e.preventDefault(); interact(); const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1; zoomAt(Math.exp(-e.deltaY * k * 0.0016), e.clientX, e.clientY); }, { passive: false });
-function dbl(sx, sy) { const wx = cam.x + (sx - VW / 2) / cam.z, wy = cam.y + (sy - VH / 2) / cam.z; for (let i = 0; i < SCENES.length; i++) { const [x, y] = cellPos(i); if (wx >= x && wx <= x + CELL && wy >= y && wy <= y + CELL) { interact(); const v = sceneView(i); flyTo(v); prefetch(i, v.z); return; } } }
+function dbl(sx, sy) { const wx = cam.x + (sx - VW / 2) / cam.z, wy = cam.y + (sy - VH / 2) / cam.z; for (let i = 0; i < SCENES.length; i++) { const [x, y] = cellPos(i); if (wx >= x && wx <= x + CELL && wy >= y && wy <= y + CELL) { interact(); const v = sceneView(i); flyTo(v, 0, true); prefetch(i, v.z); return; } } }
 cv.addEventListener('dblclick', e => dbl(e.clientX, e.clientY));
 addEventListener('keydown', e => {
   const k = e.key, step = 0.3 * Math.min(VW, VH) / cam.z;
@@ -235,7 +241,7 @@ addEventListener('keydown', e => {
   if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') { interact(); e.preventDefault(); const dx = k === 'ArrowLeft' ? -1 : k === 'ArrowRight' ? 1 : 0, dy = k === 'ArrowUp' ? -1 : k === 'ArrowDown' ? 1 : 0; flyTo({ x: cam.x + dx * step, y: cam.y + dy * step, z: cam.z }, 0.45); }
   if (k === '+' || k === '=') { interact(); flyTo({ x: cam.x, y: cam.y, z: clamp(cam.z * 1.45, ...zLim()) }, 0.45); }
   if (k === '-' || k === '_') { interact(); flyTo({ x: cam.x, y: cam.y, z: clamp(cam.z / 1.45, ...zLim()) }, 0.45); }
-  if (k === '0') { interact(); flyTo(overView(), 1.6); }
+  if (k === '0') { interact(); flyTo(overView(), COARSE ? 0.9 : 1.6); }
 });
 addEventListener('resize', resize);
 
@@ -261,7 +267,7 @@ function loop(ms) {
   // visibilité et niveau de détail
   const z = cam.z, hw = VW / 2 / z, hh = VH / 2 / z, sReq = clamp(bucket(z * DPR), S0, SMAX), v = Math.floor(t * 3) % 3, tick = Math.floor(t * 12);
   const vis = [];
-  if (sReq !== loop.s) { loop.s = sReq; prune(sReq); }
+  if (COARSE && sReq !== loop.s) { loop.s = sReq; prune(sReq); }
   for (const sc of SC) {
     const [x, y] = cellPos(sc.id);
     if (x + CELL < cam.x - hw || x > cam.x + hw || y + CELL < cam.y - hh || y > cam.y + hh) continue;
@@ -278,7 +284,7 @@ function loop(ms) {
   const rate = vis.length > 6 ? 8 : 12;
   for (const sc of vis) { const tk = Math.floor(t * rate + sc.id / SCENES.length) + ':' + v; if (sc.rev.done && sc.lastTick !== tk) { if (compose(sc, Math.floor(t * rate + sc.id / SCENES.length) / rate, v)) { sc.lastTick = tk; needDraw = true; } } }
   // carte de chapitre
-  const settled = !fly && !ptrs.size && now - settleT > 0.35 && revealDone;
+  const settled = !fly && !ptrs.size && now - settleT > (COARSE ? 0.15 : 0.35) && revealDone;
   let ci = settled ? focusScene() : -1;
   if (cardPinned && cardScene >= 0) ci = cardScene;
   if (ci !== (showCard.last ?? -2)) { showCard.last = ci; if (ci < 0) card.classList.remove('on'); else showCard(ci); }

@@ -1,0 +1,6 @@
+titre: Résolution 194 (III) de l’Assemblée générale des Nations unies, paragraphe 11
+date: 11 décembre 1948
+langue: anglais
+source: https://en.wikisource.org/w/index.php?title=United_Nations_General_Assembly_Resolution_194&action=raw
+---
+11. Resolves that the refugees wishing to return to their homes and live at peace with their neighbours should be permitted to do so at the earliest practicable date, and that compensation should be paid for the property of those choosing not to return and for loss of or damage to property which, under principles of international law or in equity, should be made good by the Governments or authorities responsible; Instructs the Conciliation Commission to facilitate the repatriation, resettlement and economic and social rehabilitation of the refugees and the payment of compensation, and to maintain close relations with the Director of the United Nations Relief for Palestine Refugees and, through him, with the appropriate organs and agencies of the United Nations;
