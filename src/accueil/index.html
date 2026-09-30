@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <!--
   ACCUEIL
-  Porte d'entrée du site : la grande feuille « L'Ancien Testament » et les parachiot de l'année 5787.
+  Porte d'entrée du site : la grande feuille « L'Ancien Testament », les parachiot de l'année 5787, le Talmud, les mitsvot, l'histoire d'Israël.
   Un seul fichier, tout est dessiné en code : pas d'image, pas de police, pas de bibliothèque.
   tools/build.py remplace CORE par core.js et ITEMS par les entrées du menu (tirées de PARA).
 -->
@@ -34,6 +34,7 @@ h1{font-weight:normal;font-size:clamp(40px,7vw,78px);line-height:1;margin:10px 0
 .card h3 a{color:inherit;text-decoration:none}.card h3 a::after{content:"";position:absolute;inset:0;z-index:1}
 .card .fr{font-style:italic;font-size:16px;line-height:1.45}
 .card .go{display:inline-block;margin-top:14px;font-style:italic;border-bottom:1px solid currentColor}
+.card.wide{margin-top:26px}
 .card.wait{pointer-events:none}.card.wait .go{border:0;opacity:.7}
 .card .list{position:relative;z-index:2}
 .list.scroll{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:column;column-gap:22px;max-height:226px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(47,39,41,.3) transparent}
@@ -60,7 +61,7 @@ footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-
 <header>
   <div class="kick">Feuilles riso animées</div>
   <h1>La Torah</h1>
-  <div class="sub">Des dioramas imprimés encre par encre : la Torah scène par scène, les parachiot de l’année 5787, le Talmud, les mitsvot</div>
+  <div class="sub">Des dioramas imprimés encre par encre : la Torah scène par scène, les parachiot de l’année 5787, le Talmud, les mitsvot, l’histoire d’Israël</div>
 </header>
 <figure class="card frise" data-ink="1"><canvas></canvas><canvas id="frise" aria-hidden="true"></canvas><figcaption>Abraham, Sarah, Moïse et les tables, Miryam, Aaron, Ruth, David, Esther : la procession des feuilles</figcaption></figure>
 <form class="find" action="recherche.html" role="search"><input type="search" name="q" placeholder="Chercher une scène, un verset, une bénédiction…" aria-label="Chercher dans les feuilles"><button type="submit">Chercher</button></form>
@@ -73,7 +74,8 @@ footer .credit{display:inline-block;margin-top:8px}footer a{color:var(--r);text-
   <div class="card" data-glyph="ת" data-ink="3"><canvas></canvas><div class="n">Index · Daf Yomi</div><h3><a href="talmud/index.html">Le Talmud</a></h3><div class="fr">La Michna et la Guemara : les six ordres, Pirké Avot, les maîtres, la page du jour.</div><span class="go">Ouvrir l’index ›</span><ul class="list" id="l-talmud"></ul></div>
   <div class="card" data-glyph="מ" data-ink="0"><canvas></canvas><div class="n" style="color:#B8830F">Mitsvot et berakhot</div><h3><a href="femmes/femmes-de-la-torah.html">Femmes et hommes</a></h3><div class="fr">Les femmes de la Torah, le foyer, les gestes de chacun et leurs bénédictions.</div><div class="lab">Les femmes et le foyer</div><ul class="list one" id="l-femmes"></ul><div class="lab">Les hommes</div><ul class="list one" id="l-hommes"></ul></div>
 </div>
-<footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610) ; passages du Talmud traduits de l’hébreu et de l’araméen (textes de Sefaria).<br>Glisser, molette, pincer, double-clic : chaque feuille se parcourt comme une carte.<br><span class="credit">Une réalisation <a href="https://nexperio.tech">nexperio.tech</a></span></footer>
+<div class="card wide" data-glyph="י" data-ink="1"><canvas></canvas><div class="n" style="color:#E0453A">Frise · de Canaan à nos jours</div><h3><a href="histoire/index.html">L’histoire d’Israël</a></h3><div class="fr">La terre et ceux qui l’ont tenue : les royaumes, les empires, le mandat, 1948, les guerres et les accords. Des faits datés, des documents cités.</div><span class="go" style="color:#E0453A">Ouvrir la frise ›</span><ul class="list" id="l-histoire"></ul></div>
+<footer>Versets traduits en français depuis la Douay-Rheims, Old Testament, parties 1 et 2 (Project Gutenberg n° 1609 et 1610) ; passages du Talmud traduits de l’hébreu et de l’araméen (textes de Sefaria) ; documents historiques cités d’après leur texte publié.<br>Glisser, molette, pincer, double-clic : chaque feuille se parcourt comme une carte.<br><span class="credit">Une réalisation <a href="https://nexperio.tech">nexperio.tech</a></span></footer>
 </div>
 <script>
 /*CORE*/
@@ -91,7 +93,7 @@ if (cur) {
 }
 /* les feuilles de chaque porte, en liste compacte */
 const li = it => `<li><b style="color:${INKS[it.ink].hex}">${it.mark}</b><a href="${it.href}">${it.he.split(' · ')[0].replace(' ?', '\u00a0?')}</a></li>`;
-for (const sec of ['femmes', 'hommes', 'talmud']) document.getElementById('l-' + sec).innerHTML = ITEMS.filter(i => i.sec === sec).map(li).join('');
+for (const sec of ['femmes', 'hommes', 'talmud', 'histoire']) document.getElementById('l-' + sec).innerHTML = ITEMS.filter(i => i.sec === sec).map(li).join('');
 const paru = SHEETS.filter(i => i.href);
 const lp = document.getElementById('l-para'); lp.innerHTML = paru.map(li).join(''); lp.style.gridTemplateRows = `repeat(${Math.ceil(paru.length / 2)}, auto)`;
 const AT = ['Le jardin d’Éden', 'Noé et la colombe', 'Le bélier d’Isaac', 'L’échelle de Jacob', 'Joseph et la citerne', 'Le buisson ardent', 'Le passage de la mer', 'Le Sinaï', 'Le veau d’or', 'Les cabanes', 'Moïse au mont Nebo', 'Jéricho', 'Ruth et Booz', 'David et Goliath', 'Le feu du Carmel', 'Esther devant le roi'];

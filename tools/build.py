@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Construit toutes les pages autonomes (un fichier HTML chacune) à la racine du dépôt :
-index.html (accueil), recherche.html, ancien-testament.html, parachiot/*.html, femmes/*.html, hommes/*.html
-et talmud/*.html (dix feuilles, l'index du Talmud avec le Daf Yomi, et texte.html : les originaux hébreux et araméens).
+index.html (accueil), recherche.html, ancien-testament.html, parachiot/*.html, femmes/*.html, hommes/*.html,
+talmud/*.html (dix feuilles, l'index du Talmud avec le Daf Yomi, et texte.html : les originaux hébreux et araméens)
+et histoire/*.html (sept feuilles et la frise chronologique).
 
   python3 tools/build.py            # tout
-  python3 tools/build.py noach      # une seule paracha (ou une feuille de section : femmes, chalombayit, mitsvot, hommes)
+  python3 tools/build.py noach      # une seule paracha (ou une feuille de section : femmes, chalombayit, mitsvot, hommes, origines…)
+  python3 tools/build.py histoire-index   # seulement histoire/index.html (la frise)
 """
 import json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -65,7 +67,23 @@ TALMUD = [
     ('ט', 'maitres',     'les-maitres.html',            'Les maîtres',               'Hillel, Rabbi Akiva, Rabbi Méïr, Beroura…', 3),
     ('י', 'yerouchalmi', 'talmud-de-jerusalem.html',    'Le Talmud de Jérusalem',    'L’autre Talmud, celui de la terre d’Israël', 2),
 ]
-SECTIONS = [('femmes', FEMMES), ('hommes', HOMMES), ('talmud', TALMUD)]
+# section « L'histoire d'Israël » : même format, src/histoire/<id>.js ; une scène cite un verset (Douay-Rheims)
+# ou un document historique (ref: 'Doc <clé>', texte dans src/histoire/docs/<clé>.txt)
+HISTOIRE = [
+    ('א', 'origines',     'des-origines-a-l-exil.html',     'Des origines à l’exil',        'Canaan, Israël et Juda, l’Assyrie, Babylone', 0),
+    ('ב', 'empires',      'des-perses-aux-romains.html',    'Des Perses aux Romains',       'Le Second Temple, les Maccabées, Rome', 1),
+    ('ג', 'califats',     'de-byzance-aux-ottomans.html',   'De Byzance aux Ottomans',      'Byzantins, califats, croisés, Mamelouks, Ottomans', 2),
+    ('ד', 'mandat',       'du-sionisme-au-mandat.html',     'Du sionisme au mandat',        'Herzl, la déclaration Balfour, le mandat britannique', 3),
+    ('ה', 'independance', 'de-la-shoah-a-l-independance.html', 'De la Shoah à l’indépendance', 'Le vote de l’ONU, 1948, les réfugiés', 1),
+    ('ו', 'guerres',      'guerres-et-accords.html',        'Guerres et accords',           '1956, 1967, 1973, Camp David, Oslo', 2),
+    ('ז', 'aujourdhui',   'de-2000-a-nos-jours.html',       'De 2000 à nos jours',          'Intifada, Gaza, accords d’Abraham, le 7 octobre', 3),
+]
+SECTIONS = [('femmes', FEMMES), ('hommes', HOMMES), ('talmud', TALMUD), ('histoire', HISTOIRE)]
+# sections qui ont leur propre page d'index, en tête de leurs feuilles dans le menu
+SEC_INDEX = {
+    'talmud':   {'mark': 'ת', 'he': 'Le Talmud', 'fr': 'Les six ordres, le Daf Yomi', 'href': 'talmud/index.html', 'ink': 2, 'sep': 1},
+    'histoire': {'mark': 'H', 'he': 'L’histoire d’Israël', 'fr': 'La frise, de Canaan à nos jours', 'href': 'histoire/index.html', 'ink': 1, 'sep': 1},
+}
 ENGINE = ['core.js', 'figures.js', 'lib2.js']
 RENDER = S('engine', 'render.js')  # après les scènes, avant app.js : fin du code partagé avec les workers
 read = lambda p: open(p, encoding='utf-8').read()
@@ -79,10 +97,10 @@ def nav_items():
              {'mark': LOUPE, 'he': 'Rechercher', 'fr': 'Chercher ou poser une question', 'href': 'recherche.html', 'ink': 1},
              {'mark': 'AT', 'he': 'L’Ancien Testament', 'fr': 'Seize scènes, une seule feuille', 'href': 'ancien-testament.html', 'ink': 3, 'sep': 1}]
     for sec, sheets in SECTIONS:
-        if sec == 'talmud':
-            items.append({'mark': 'ת', 'he': 'Le Talmud', 'fr': 'Les six ordres, le Daf Yomi', 'href': 'talmud/index.html', 'ink': 2, 'sep': 1})
+        if sec in SEC_INDEX: items.append(dict(SEC_INDEX[sec]))
         for i, (mark, fid, out, he, fr, ink) in enumerate(sheets):
-            items.append({'mark': mark, 'he': he, 'fr': fr, 'href': sec + '/' + out, 'ink': ink, 'sec': sec, 'sep': int(i == 0 and sec != 'talmud')})
+            if sec == 'histoire' and not os.path.exists(S(sec, fid + '.js')): continue  # feuille pas encore écrite
+            items.append({'mark': mark, 'he': he, 'fr': fr, 'href': sec + '/' + out, 'ink': ink, 'sec': sec, 'sep': int(i == 0 and sec not in SEC_INDEX)})
     items.append({'mark': '✦', 'he': 'Parachiot 5787', 'fr': 'Les Dix Paroles et l’index', 'href': 'parachiot/index.html', 'ink': 1, 'sep': 1})
     for m in re.finditer(r"\{ n: (\d+), he: '([^']*)', fr: '([^']*)', date: '([^']*)'(.*?)ink: (\d) \}", read(S('index', 'index.html'))):
         n, he, fr, date, rest, ink = m.groups()
@@ -108,7 +126,8 @@ def page(title, comment, parts, cur):
 def comment_for(src, sec=None):
     sh = re.search(r"title: '([^']*)', sub: '([^']*)'", src)
     rows = re.findall(r"title: '((?:[^'\\]|\\.)*)', book: '[^']*', ch: \d+, ref: '[^']*', refFr: '([^']*)'.*?feast: (null|'[^']*')", src)
-    out = [f"  {sh.group(1)}\n  {sh.group(2)}\n  Un seul fichier. Canvas 2D. Aucune image, aucune police, aucune bibliothèque.\n" + ("  Passages traduits de l'hébreu et de l'araméen : Talmud de Babylone (éd. de Vilna), Michna (éd. Romm), Talmud de Jérusalem (éd. Guggenheimer), via Sefaria.\n" if sec == 'talmud' else "  Versets traduits en français depuis la Douay-Rheims (Project Gutenberg n° 1609).\n")]
+    out = [f"  {sh.group(1)}\n  {sh.group(2)}\n  Un seul fichier. Canvas 2D. Aucune image, aucune police, aucune bibliothèque.\n" + ("  Passages traduits de l'hébreu et de l'araméen : Talmud de Babylone (éd. de Vilna), Michna (éd. Romm), Talmud de Jérusalem (éd. Guggenheimer), via Sefaria.\n" if sec == 'talmud' else
+           "  Versets traduits depuis la Douay-Rheims (Project Gutenberg n° 1609 et 1610) ; documents historiques cités d'après leur texte (src/histoire/docs).\n" if sec == 'histoire' else "  Versets traduits en français depuis la Douay-Rheims (Project Gutenberg n° 1609).\n")]
     for i, (t, r, f) in enumerate(rows, 1):
         out.append(f"  {i}. {t.replace(chr(92), '')}  ({r})" + ('' if f == 'null' else '  fête : ' + f.strip("'")))
     if 'reuse(AT' in src: out.append("  (+ scènes reprises de L'Ancien Testament)")
@@ -147,13 +166,16 @@ def build_search():
         if not os.path.exists(S(sec, fid + '.js')): continue
         src = read(S(sec, fid + '.js'))
         title = re.search(r"title: '([^']*)'", src).group(1)
-        recs += [talmud_alias(search_index.record(title, sec + '/' + out, i, d), d) for i, d in enumerate(search_index.scenes(src, at))]
+        recs += [alias(search_index.record(title, sec + '/' + out, i, d), d) for i, d in enumerate(search_index.scenes(src, at))]
     data = json.dumps(recs, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
     html = read(S('recherche', 'index.html')).replace('/*CORE*/', read(S('engine', 'core.js'))).replace('/*INDEX*/', data)
     write(os.path.join(DIST, 'recherche.html'), html.replace('</body>', nav_script('recherche.html') + '</body>'))
 
-def talmud_alias(rec, d):
-    """Une scène du Talmud se trouve aussi par sa référence Sefaria (« Shabbat 31a ») ou hébraïque (« שבת לא »)."""
+def alias(rec, d):
+    """Une scène du Talmud se trouve aussi par sa référence Sefaria (« Shabbat 31a ») ou hébraïque (« שבת לא ») ;
+    une scène d'histoire, par sa date et son lieu (champ `when`)."""
+    if d.get('when'): rec['a'] = d['when']
+    if d.get('year') is not None: rec['y'] = abs(d['year'])  # « 1948 », « 586 » : l'année se cherche comme un numéro de chapitre
     t = talmud.parse(d.get('ref', '')) and talmud.text_for(d['ref'])
     if t:
         _, fr, he, _ = talmud.TRACT[t['tract']] if t['tract'] in talmud.TRACT else (None, t['tract'], '', None)
@@ -196,14 +218,26 @@ def build_talmud():
     html = read(S('talmud', 'texte.html')).replace('/*CORE*/', read(S('engine', 'core.js'))).replace('/*TEXTS*/', data)
     write(os.path.join(DIST, 'talmud', 'texte.html'), html.replace('</body>', nav_script('talmud/texte.html') + '</body>'))
 
+def build_histoire():
+    """histoire/index.html : la frise des puissances qui ont tenu la terre, et les feuilles avec leurs scènes datées."""
+    sheets, scenes = [], []
+    for mark, fid, out, he, fr, ink in HISTOIRE:
+        on = os.path.exists(S('histoire', fid + '.js'))
+        sheets.append({'mark': mark, 'u': out, 'he': he, 'fr': fr, 'ink': ink, 'on': on})
+        if on: scenes += [{'u': out, 'i': i, 't': d.get('title', ''), 'w': d.get('when', ''), 'y': d.get('year')} for i, d in enumerate(search_index.scenes(read(S('histoire', fid + '.js'))))]
+    data = json.dumps({'sheets': sheets, 'scenes': scenes}, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+    html = read(S('histoire', 'index.html')).replace('/*CORE*/', read(S('engine', 'core.js'))).replace('/*DATA*/', data)
+    write(os.path.join(DIST, 'histoire', 'index.html'), html.replace('</body>', nav_script('histoire/index.html') + '</body>'))
+
 def build_index():
     html = read(S('index', 'index.html')).replace('/*CORE*/', read(S('engine', 'core.js'))).replace('</body>', nav_script('parachiot/index.html') + '</body>')
     write(os.path.join(DIST, 'parachiot', 'index.html'), html)
 
 if __name__ == '__main__':
     only = sys.argv[1:]
-    if not only: build_home(); build_at(); build_index(); build_search(); build_talmud()
+    if not only: build_home(); build_at(); build_index(); build_search(); build_talmud(); build_histoire()
     if 'talmud-index' in only: build_talmud()
+    if 'histoire-index' in only: build_histoire()
     for n, pid, out in PARACHIOT:
         if (not only or pid in only) and os.path.exists(S('parachiot', pid + '.js')): build_paracha(pid, out)
     for sec, sheets in SECTIONS:

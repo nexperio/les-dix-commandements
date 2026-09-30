@@ -1,8 +1,8 @@
 # Parachiot 5787 · feuilles riso animées
 
-Pages HTML autonomes qui impriment en riso simulée des dioramas isométriques animés de l'Ancien Testament : une grande feuille « L'Ancien Testament » (16 scènes, Genèse à Esther), une feuille par paracha de l'année 5787, un index avec les Dix Paroles et une section « Les femmes et le foyer » (trois feuilles : les femmes de la Torah, le chalom bayit, les mitsvot des femmes avec leurs berakhot) une section « Les hommes » (une feuille : les mitsvot des hommes et leurs berakhot) et une section « Le Talmud » (dix feuilles, un index des six ordres avec le Daf Yomi, et une page des textes originaux).
+Pages HTML autonomes qui impriment en riso simulée des dioramas isométriques animés de l'Ancien Testament : une grande feuille « L'Ancien Testament » (16 scènes, Genèse à Esther), une feuille par paracha de l'année 5787, un index avec les Dix Paroles et une section « Les femmes et le foyer » (trois feuilles : les femmes de la Torah, le chalom bayit, les mitsvot des femmes avec leurs berakhot) une section « Les hommes » (une feuille : les mitsvot des hommes et leurs berakhot), une section « Le Talmud » (dix feuilles, un index des six ordres avec le Daf Yomi, et une page des textes originaux) et une section « L'histoire d'Israël » (sept feuilles, de Canaan à nos jours, et une frise des puissances qui ont tenu la terre).
 
-Chaque page construite (`index.html`, `ancien-testament.html`, `parachiot/*.html`, `femmes/*.html` et `hommes/*.html`, à la racine du dépôt) est **un seul fichier** : Canvas 2D, zéro image, zéro police téléchargée, zéro bibliothèque, une seule requête réseau (elle-même). Tout est dessiné en code.
+Chaque page construite (`index.html`, `ancien-testament.html`, `parachiot/*.html`, `femmes/*.html`, `hommes/*.html`, `talmud/*.html` et `histoire/*.html`, à la racine du dépôt) est **un seul fichier** : Canvas 2D, zéro image, zéro police téléchargée, zéro bibliothèque, une seule requête réseau (elle-même). Tout est dessiné en code.
 
 ## Démarrage
 
@@ -12,6 +12,8 @@ python3 tools/build.py noach    # une seule paracha
 python3 tools/check_quotes.py   # vérifie les citations contre les Gutenberg 1609 et 1610 (et le Talmud contre Sefaria)
 python3 tools/talmud.py 'Shabbat 31a'   # affiche le texte original d'un passage, pour y choisir une citation
 python3 tools/build.py talmud-index     # seulement talmud/index.html et talmud/texte.html
+python3 tools/build.py histoire-index   # seulement histoire/index.html (la frise)
+python3 tools/doc.py balfour-1917       # affiche un document historique rangé, pour y choisir une citation
 npm i && npm run shot           # capture Playwright (optionnel)
 ```
 
@@ -43,12 +45,16 @@ src/
   talmud/<id>.js              section « Le Talmud », même format, références de Sefaria
   talmud/index.html           index du Talmud : six ordres, Daf Yomi, accès direct (/*DATA*/)
   talmud/texte.html           textes originaux hébreux et araméens (/*TEXTS*/)
+  histoire/<id>.js            section « L'histoire d'Israël », même format (+ champs when, year, lang, url)
+  histoire/docs/<clé>.txt     documents historiques cités (téléchargés à leur source par tools/doc.py)
+  histoire/index.html         frise des périodes et index des sept feuilles (/*DATA*/)
   index/index.html            index : Dix Paroles + tableau PARA des feuilles
   accueil/index.html          accueil du site (/*CORE*/ et /*ITEMS*/ remplacés au build)
 tools/
   build.py          assemble les pages (ordre des fichiers = ordre d'exécution)
   check_quotes.py   contrôle des citations
   talmud.py         table des traités, textes du Talmud (Sefaria, cache data/talmud/), vérification
+  doc.py            range un document historique (src/histoire/docs/) ou l'affiche
   vv.py             affiche des versets Douay-Rheims à recopier dans quote
   shot.js           captures Playwright (F=chemin W= H= DPR=)
 index.html          page construite : accueil (menu + accès aux feuilles)
@@ -57,6 +63,7 @@ parachiot/          pages construites : index des parachiot et une feuille par p
 femmes/             pages construites : les trois feuilles de la section Femmes
 hommes/             pages construites : la feuille de la section Hommes
 talmud/             pages construites : les dix feuilles, index.html (Daf Yomi) et texte.html
+histoire/           pages construites : les sept feuilles et index.html (la frise)
 data/               Douay-Rheims, Gutenberg n° 1609 (Genèse à Job) et n° 1610 (Psaumes à Machabées)
 favicon.svg
 ```
@@ -92,6 +99,16 @@ Dix feuilles déclarées dans `TALMUD` de `tools/build.py` : une introduction, l
 - **`talmud/texte.html#Shabbat_31a`** : le passage original, la citation surlignée, la traduction, le retour à la scène.
 - **Recherche** : les scènes se trouvent aussi par leur référence Sefaria ou hébraïque (champ `a` de l'index).
 
+## Section « L'histoire d'Israël »
+
+Sept feuilles déclarées dans `HISTOIRE` de `tools/build.py`, de l'âge du bronze à nos jours : des origines à l'exil, des Perses aux Romains, de Byzance aux Ottomans, du sionisme au mandat, de la Shoah à l'indépendance, guerres et accords, de 2000 à nos jours. Brief complet, avec les règles de neutralité : `docs/BRIEF-histoire.md`.
+
+- **Deux sortes de citations** : un verset de la Douay-Rheims (comme partout), ou un document historique. Pour un document, `ref: 'Doc <clé>'`, `book` = son nom, `ch` = son année, `lang` = la langue du texte cité, `url` = où le lire ; la carte affiche « traduit de l'anglais » et le lien « Le document › ».
+- **Documents** : `python3 tools/doc.py <clé> <url> --titre … --date … --de '…' --a '…'` télécharge le passage à sa source et le range dans `src/histoire/docs/<clé>.txt` (en-tête, ligne `---`, texte). `quote` en est un extrait contigu, vérifié par `check_quotes.py` aux espaces près. On ne retouche pas ces fichiers à la main.
+- **`when` et `year`** : chaque scène porte sa date affichée (`when: '2 novembre 1917 · Londres'`, en tête de carte) et son année en nombre (`year: 1917`, négative avant notre ère), qui la range sur la frise et la rend cherchable (« 1948 »).
+- **`histoire/index.html`** : la bande des dix-sept périodes à l'échelle (tableau `PERIODS` de `src/histoire/index.html`), chacune avec ses scènes, puis les sept feuilles.
+- **Neutralité** : ton de manuel d'histoire. Faits datés, chiffres avec leur source, les deux noms d'un événement quand il en a deux, aucune qualification dans la voix du narrateur, tradition biblique distinguée de l'archéologie, aucune violence montrée.
+
 ## Le moteur en bref
 
 - **Teintes** : chaîne `'y5r2b1k3'` = 50 % Safran, 20 % Écarlate, 10 % Tekhelet, 30 % Encre de galle.
@@ -107,5 +124,6 @@ Dix feuilles déclarées dans `TALMUD` de `tools/build.py` : une introduction, l
 
 - Une page = un fichier (seule exception : le lien vers `favicon.svg`). Pas d'image, pas de data-URI, pas de police, pas de bibliothèque, pas de requête réseau.
 - Citations : texte anglais exact du Gutenberg 1609 ou 1610 dans `quote` (Psaumes en numérotation Vulgate : `Psalms 127:3` = Psaume 128, 3), traduction française dans `fr` ; le lancer de `check_quotes.py` doit rester vert.
+- Documents historiques : texte téléchargé par `tools/doc.py`, jamais écrit de mémoire ; commentaires de la section Histoire neutres et factuels (`docs/BRIEF-histoire.md`).
 - Correspondances avec les fêtes : seulement si elles sont réelles et vérifiables ; sinon `feast: null`.
 - Pas de tiret cadratin dans les textes.

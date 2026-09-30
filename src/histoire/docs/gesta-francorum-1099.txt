@@ -1,0 +1,6 @@
+titre: Gesta Francorum, chronique anonyme de la première croisade (traduction anglaise d’A. C. Krey, 1921)
+date: vers 1100
+langue: anglais
+source: https://sourcebooks.fordham.edu/source/gesta-cde.asp
+---
+At length, our leaders decided to beleaguer the city with siege machines, so that we might enter and worship the Saviour at the Holy Sepulchre. They constructed wooden towers and many other siege machines. Duke Godfrey made a wooden tower and other siege devices, and Count Raymond did the same, although it was necessary to bring wood from a considerable distance. However, when the Saracens saw our men engaged in this work, they greatly strengthened the fortifications of the city and increased the height of the turrets at night. On a certain Sabbath night, the leaders, after having decided which parts of the wall were weakest, dragged the tower and the machines to the eastern side of the city. Moreover, we set up the tower at earliest dawn and equipped and covered it on the first, second, and third days of the week. The Count of St. Gilles erected his tower on the plain to the south of the city. While all this was going on, our water supply was so limited that no one could buy enough water for one denarius to satisfy or quench his thirst.

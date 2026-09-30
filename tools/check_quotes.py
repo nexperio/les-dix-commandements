@@ -3,6 +3,8 @@
 Les textes sont téléchargés une fois dans data/gutenberg-1609.txt et data/gutenberg-1610.txt.
 Les références talmudiques ('Shabbat 31a', 'Mishnah Peah 1:1', 'Pirkei Avot 1:1', 'Jerusalem Talmud Nedarim 9:4')
 sont vérifiées contre le texte original de Sefaria (tools/talmud.py), sans voyelles ni ponctuation.
+Les documents historiques ('Doc balfour-1917') sont vérifiés contre src/histoire/docs/<clé>.txt (texte après la ligne « --- »),
+aux espaces près.
 
   python3 tools/check_quotes.py                          # tout src/
   python3 tools/check_quotes.py src/parachiot/toledot.js # un seul fichier (la citation doit venir du verset de `ref`)
@@ -24,6 +26,14 @@ for ln in ''.join(open(t, encoding='utf-8').read() for t in TXTS).replace('\r', 
     if m and book: cur = f'{book} {m.group(1)}:{m.group(2)}'; verses[cur] = m.group(3); continue
     if not ln.strip(): cur = None; continue
     if cur: verses[cur] += ' ' + ln
+DOCS = os.path.join(ROOT, 'src', 'histoire', 'docs')
+flat = lambda s: re.sub(r'\s+', ' ', s).strip()
+def doc_check(ref, q):
+    """Le texte d'un document : en-tête (titre, date, langue, source), une ligne « --- », puis le texte copié de la source."""
+    path = os.path.join(DOCS, ref[4:] + '.txt')
+    if not os.path.exists(path): return False
+    head, _, body = open(path, encoding='utf-8').read().partition('\n---\n')
+    return bool(body.strip()) and 'source:' in head and flat(q) in flat(body)
 bad = 0
 files = sys.argv[1:] or sorted(glob.glob(os.path.join(ROOT, 'src', '**', '*.js'), recursive=True))
 strict = bool(sys.argv[1:])
@@ -31,7 +41,7 @@ for f in files:
     src = open(f, encoding='utf-8').read()
     for ref, q in re.findall(r"ref: '([^']+)'.*?quote: '((?:[^'\\]|\\.)*)'", src, re.S):
         q = q.replace("\\'", "'")
-        ok = talmud.check(ref, q) if talmud.parse(ref) else q in verses.get(ref, '') or (not strict and any(q in v for v in verses.values()))
+        ok = doc_check(ref, q) if ref.startswith('Doc ') else talmud.check(ref, q) if talmud.parse(ref) else q in verses.get(ref, '') or (not strict and any(q in v for v in verses.values()))
         bad += not ok
         print(('OK  ' if ok else 'FAUX'), os.path.relpath(f, ROOT), ref)
 print('\n' + ('Toutes les citations sont exactes.' if not bad else f'{bad} citation(s) à corriger.'))

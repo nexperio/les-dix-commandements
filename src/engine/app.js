@@ -140,10 +140,14 @@ const brakhaHTML = b => b.map(x => `<div class="bk">${x.label ? `<div class="bl"
    Pour le Talmud, `texte.html` (dans talmud/) montre l'original hébreu ou araméen de chaque scène. */
 /* le Talmud mêle hébreu et araméen ; une scène peut préciser la langue de sa citation : `lang: 'araméen'` */
 const TSRC = { bavli: ['Talmud de Babylone', 'traduit de l’hébreu et de l’araméen', 'éd. de Vilna'], mishna: ['Michna', 'traduit de l’hébreu', 'éd. Romm, Vilna 1913'], yeru: ['Talmud de Jérusalem', 'traduit de l’hébreu et de l’araméen', 'éd. Guggenheimer'] };
-const srcKind = r => /^Jerusalem Talmud /.test(r) ? 'yeru' : /^(Mishnah |Pirkei Avot )/.test(r) ? 'mishna' : /^\D.* \d+[ab]$/.test(r) ? 'bavli' : null;
+/* section Histoire : `when` (la date, en tête de carte) et, pour un document historique, `ref: 'Doc <clé>'`,
+   `lang` (langue du texte cité) et `url` (où le lire) ; tools/check_quotes.py compare `quote` à src/histoire/docs/<clé>.txt */
+const trOf = lang => lang === 'français' ? 'texte original' : (/^[aeiouhéè]/i.test(lang) ? 'traduit de l’' : 'traduit du ') + lang;
+const srcKind = r => /^Doc /.test(r) ? 'doc' : /^Jerusalem Talmud /.test(r) ? 'yeru' : /^(Mishnah |Pirkei Avot )/.test(r) ? 'mishna' : /^\D.* \d+[ab]$/.test(r) ? 'bavli' : null;
 const srcOf = d => {
   const k = srcKind(d.ref);
-  if (!k) return { kick: `${d.book} · chapitre ${ROMAN(d.ch)}`, tr: 'traduit de la Douay-Rheims' };
+  if (!k) return { kick: d.when || `${d.book} · chapitre ${ROMAN(d.ch)}`, tr: 'traduit de la Douay-Rheims' };
+  if (k === 'doc') return { k, kick: d.when || d.book, tr: trOf(d.lang || 'anglais'), ext: d.url };
   const [name, tr0, ed] = TSRC[k], tr = d.lang ? 'traduit de l’' + d.lang : tr0;
   return { k, kick: `${name} · traité ${d.book}` + (k === 'mishna' ? ` · chapitre ${ROMAN(d.ch)}` : ''), tr, ed, href: 'texte.html#' + d.ref.replace(/ /g, '_').replace(/:/g, '.') };
 };
@@ -155,7 +159,7 @@ function fillCard(i) {
   const so = srcOf(d);
   cardIn.innerHTML = `<div class="kick">${so.kick}</div><h1>${d.title}</h1><div class="orn"><i></i><b></b><i></i></div>` +
     `<p class="q"><span class="dc"><small>«\u202F</small>${first}</span>${rest}\u202F»</p><div class="src">${d.refFr || d.ref} · ${so.tr}</div>` +
-    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href.replace('#', `?from=${encodeURIComponent(location.pathname.split('/').pop())}&scene=${i + 1}#`)}">Le texte original ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
+    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href.replace('#', `?from=${encodeURIComponent(location.pathname.split('/').pop())}&scene=${i + 1}#`)}">Le texte original ›</a>` : ''}${so.ext ? `<a class="lk lko" href="${so.ext}" target="_blank" rel="noopener">Le document ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
   const lk = cardIn.querySelector('.lk'), more = cardIn.querySelector('.more');
   lk.onclick = e => { e.stopPropagation(); const o = more.classList.toggle('open'); setTimeout(paintCardBg, 750); cardPinned = o; lk.textContent = o ? 'Refermer ‹' : cardLink(d); userT = performance.now() / 1000; };
   requestAnimationFrame(paintCardBg);
