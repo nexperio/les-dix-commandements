@@ -15,7 +15,7 @@ python3 tools/build.py talmud-index     # seulement talmud/index.html et talmud/
 npm i && npm run shot           # capture Playwright (optionnel)
 ```
 
-Les calques d'une scène (décor et premier plan, trois variantes par niveau de zoom) sont dessinés dans des workers (`OffscreenCanvas`), pour que le glisser et le pincer restent fluides pendant ce temps, surtout sur téléphone. Le worker naît d'un blob contenant le script de la page jusqu'à la marque `/*@MAIN*/` (première ligne de `app.js`) : toujours un seul fichier et une seule requête. Sans `OffscreenCanvas`, ou si un worker échoue, le fil principal dessine comme avant.
+Les calques d'une scène (décor et premier plan, trois variantes par niveau de zoom) sont dessinés, sur écran tactile seulement (téléphone, tablette), dans des workers (`OffscreenCanvas`), pour que le glisser et le pincer restent fluides pendant ce temps. Sur ordinateur, rien ne change : le fil principal dessine, avec l'impression encre par encre. Le worker naît d'un blob contenant le script de la page jusqu'à la marque `/*@MAIN*/` (première ligne de `app.js`) : toujours un seul fichier et une seule requête. Sans `OffscreenCanvas`, ou si un worker échoue, le fil principal dessine comme sur ordinateur.
 
 Python 3 suffit pour construire. Aucune étape npm n'est nécessaire en production : on sert la racine du dépôt telle quelle.
 
