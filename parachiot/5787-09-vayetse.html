@@ -115,6 +115,8 @@ const INKS = [
   { key: 'k', name: 'Encre de galle', hex: '#2F2729', ang: 45, reg: [0, 0] }
 ];
 const PAPER = '#F4E9D3';
+/* un canevas, dans la page comme dans un worker (où il n'y a pas de document) */
+const newCanvas = (w, h) => { if (typeof document === 'undefined') return new OffscreenCanvas(w, h); const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
 const PITCH = 2.5; // pas de trame, unités de feuille
 
 /* Teintes : 'y4r2b1k3' = pourcentages de chaque encre par dixièmes */
@@ -125,7 +127,7 @@ function tadd(t, u) { t = T(t); u = T(u); return [0, 1, 2, 3].map(i => clamp(t[i
 /* ---------- Tuiles de demi-teinte : points tramés, jitter, manques d'encre ---------- */
 function makeTile(ink, lvl, p) {
   const N = 24, S = Math.max(8, Math.round(N * p)), q = S / N;
-  const c = document.createElement('canvas'); c.width = c.height = S; c.N = N;
+  const c = newCanvas(S, S); c.N = N;
   const g = c.getContext('2d'); g.fillStyle = INKS[ink].hex;
   const sd = ink * 131 + 7, cov = lvl / 10;
   const dot = (cx, cy, r) => {
@@ -160,7 +162,7 @@ const patBank = new Map(); let _pctx = null;
 function bucket(s) { return Math.pow(2, Math.ceil(Math.log2(s) * 4 - 0.05) / 4); }
 function pats(s) {
   const key = Math.round(s * 4096); let b = patBank.get(key); if (b) return b;
-  _pctx = _pctx || document.createElement('canvas').getContext('2d');
+  _pctx = _pctx || newCanvas(1, 1).getContext('2d');
   b = [];
   for (let i = 0; i < 4; i++) {
     b[i] = [null];
@@ -1697,18 +1699,70 @@ reuse(AT[3], {
 ];
 
 /* ============================================================
-   APPLICATION : feuille, caches par niveau de détail,
+   RENDU D'UNE SCÈNE : décor, personnages, premier plan.
+   Partagé par la page et par les workers : tout ce qui précède la
+   marque de début de app.js est aussi le code source des workers,
+   qui dessinent les calques hors du fil principal (le glisser et
+   le pincer restent fluides pendant qu'une scène se dessine).
+   ============================================================ */
+const CELL = 1000;
+SCENES.forEach((d, i) => { d.id = i; (d.chars || []).forEach(c => c.draw || prepChar(c)); });
+let grainPat = null;
+function makeGrainPat() {
+  const c = newCanvas(512, 512), g = c.getContext('2d'); const r = rng(42);
+  g.fillStyle = '#fff'; g.fillRect(0, 0, 512, 512);
+  for (let i = 0; i < 9000; i++) { const a = r() * 0.07; g.fillStyle = `rgba(${90 + r() * 40 | 0},${70 + r() * 30 | 0},${50 + r() * 20 | 0},${a})`; g.fillRect(r() * 512, r() * 512, 1 + r() * 1.5, 1 + r() * 1.5); }
+  for (let i = 0; i < 160; i++) { g.strokeStyle = `rgba(110,90,60,${0.05 + r() * 0.06})`; g.lineWidth = 0.7; g.beginPath(); const x = r() * 512, y = r() * 512, a = r() * TAU; g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a) * 8 + r() * 6, y + Math.sin(a) * 8, x + Math.cos(a) * 16, y + Math.sin(a) * 16); g.stroke(); }
+  grainPat = g.createPattern(c, 'repeat'); grainPat.setTransform(new DOMMatrix().scaleSelf(0.45));
+}
+/* ---------- rendu des calques ---------- */
+function drawSceneLayer(g, sc, s, layer, v, mask, withChars) {
+  const P = new Painter(g, s, v, sc.id, mask);
+  g.setTransform(s, 0, 0, s, 0, 0);
+  if (layer === 'back') { g.fillStyle = PAPER; g.fillRect(0, 0, CELL + 4, CELL + 4); P.r = rng(sc.id * 1009 + 1); sc.d.back(P); if (grainPat) { g.globalCompositeOperation = 'multiply'; g.fillStyle = grainPat; g.fillRect(0, 0, CELL + 4, CELL + 4); g.globalCompositeOperation = 'source-over'; } }
+  if (withChars) { P.r = rng(sc.id * 77 + 3); drawLive(P, sc, 0); }
+  if ((layer === 'front' || withChars) && sc.d.front) { P.r = rng(sc.id * 3001 + 7); sc.d.front(P); }
+}
+function drawLive(P, sc, t) {
+  const d = sc.d, items = [];
+  for (const c of d.chars || []) {
+    if (c.draw) { items.push({ dp: typeof c.depth === 'function' ? c.depth(t) : c.depth || 0, c }); continue; }
+    const st = charState(c, t); items.push({ dp: st.x + st.y + (c.dz || 0), c });
+  }
+  items.sort((a, b) => a.dp - b.dp);
+  if (d.live) d.live(P, t);
+  for (const it of items) { if (it.c.draw) it.c.draw(P, t); else renderChar(P, it.c, t); }
+  if (d.top) d.top(P, t);
+}
+function makeCanvas(s) { const n = Math.ceil(CELL * s); return newCanvas(n, n); }
+/* ---------- côté worker : un calque demandé, une image rendue ---------- */
+if (typeof document === 'undefined') {
+  makeGrainPat();
+  onmessage = e => {
+    const m = e.data, sc = { id: m.i, d: SCENES[m.i] }, c = makeCanvas(m.s);
+    drawSceneLayer(c.getContext('2d'), sc, m.s, 'back', m.v, m.mask, m.stage);
+    /* le premier plan se dessine avant de rendre le décor : certaines scènes y reprennent le peintre du décor */
+    const f = m.front ? makeCanvas(m.s) : null; if (f) drawSceneLayer(f.getContext('2d'), sc, m.s, 'front', m.v, 15, false);
+    const out = { back: c.transferToImageBitmap() }; if (f) out.front = f.transferToImageBitmap();
+    postMessage(out, out.front ? [out.back, out.front] : [out.back]);
+  };
+}
+
+/*@MAIN*/
+/* ============================================================
+   APPLICATION : feuille, caches par niveau de détail, impression,
    visite guidée, caméra, carte de chapitre
    ============================================================ */
-const CELL = 1000, GUT = 90, MARG = 300, COLS = SCENES.length <= 4 ? 2 : SCENES.length <= 6 ? 3 : 4, ROWS = Math.ceil(SCENES.length / COLS);
+const GUT = 90, MARG = 300, COLS = SCENES.length <= 4 ? 2 : SCENES.length <= 6 ? 3 : 4, ROWS = Math.ceil(SCENES.length / COLS);
 const SW = MARG * 2 + COLS * CELL + (COLS - 1) * GUT, SH = MARG * 2 + ROWS * CELL + (ROWS - 1) * GUT;
 const cellPos = i => [MARG + (i % COLS) * (CELL + GUT), MARG + Math.floor(i / COLS) * (CELL + GUT)];
 const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+/* écran tactile (téléphone, tablette) : pas d'impression encre par encre, les scènes s'affichent dès leur premier rendu */
 const COARSE = matchMedia('(pointer: coarse)').matches;
 let VW = 0, VH = 0, DPR = 1, S0 = 0.25, SMAX = 2.6;
 const cam = { x: SW / 2, y: SH / 2, z: 0.2, vx: 0, vy: 0 };
 let fly = null, lastMove = 0, userT = -1e9, cardPinned = false, cardHidden = false, cardScene = -1, needDraw = true;
-const SC = SCENES.map((d, i) => { d.id = i; (d.chars || []).forEach(c => c.draw || prepChar(c)); return { d, id: i, lays: new Map(), cur: 0, frame: document.createElement('canvas'), fs: 0, lastTick: -1, used: 0 }; });
+const SC = SCENES.map((d, i) => { return { d, id: i, lays: new Map(), cur: 0, frame: document.createElement('canvas'), fs: 0, lastTick: -1, stage: [], rev: { done: COARSE }, used: 0 }; });
 
 function resize() {
   DPR = Math.min(window.devicePixelRatio || 1, COARSE ? 2 : 2.5); VW = innerWidth; VH = innerHeight;
@@ -1735,47 +1789,60 @@ function focusScene() {
   for (let i = 0; i < SCENES.length; i++) { const [x, y] = cellPos(i), w = Math.max(0, Math.min(x1, x + CELL) - Math.max(x0, x)), h = Math.max(0, Math.min(y1, y + CELL) - Math.max(y0, y)), a = w * h / (CELL * CELL); if (a > ba) { ba = a; best = i; } }
   return ba > 0.6 && CELL * z > 0.5 * Math.min(VW, VH) ? best : -1;
 }
-/* ---------- rendu des calques ---------- */
-function drawSceneLayer(g, sc, s, layer, v, mask, withChars) {
-  const P = new Painter(g, s, v, sc.id, mask);
-  g.setTransform(s, 0, 0, s, 0, 0);
-  if (layer === 'back') { g.fillStyle = PAPER; g.fillRect(0, 0, CELL + 4, CELL + 4); P.r = rng(sc.id * 1009 + 1); sc.d.back(P); if (grainPat) { g.globalCompositeOperation = 'multiply'; g.fillStyle = grainPat; g.fillRect(0, 0, CELL + 4, CELL + 4); g.globalCompositeOperation = 'source-over'; } }
-  if (withChars) { P.r = rng(sc.id * 77 + 3); drawLive(P, sc, 0); }
-  if ((layer === 'front' || withChars) && sc.d.front) { P.r = rng(sc.id * 3001 + 7); sc.d.front(P); }
-}
-function drawLive(P, sc, t) {
-  const d = sc.d, items = [];
-  for (const c of d.chars || []) {
-    if (c.draw) { items.push({ dp: typeof c.depth === 'function' ? c.depth(t) : c.depth || 0, c }); continue; }
-    const st = charState(c, t); items.push({ dp: st.x + st.y + (c.dz || 0), c });
-  }
-  items.sort((a, b) => a.dp - b.dp);
-  if (d.live) d.live(P, t);
-  for (const it of items) { if (it.c.draw) it.c.draw(P, t); else renderChar(P, it.c, t); }
-  if (d.top) d.top(P, t);
-}
-function makeCanvas(s) { const c = document.createElement('canvas'); c.width = c.height = Math.ceil(CELL * s); return c; }
 const jobs = []; let jobKey = new Set();
-function enqueue(sc, s, pri) {
+function enqueue(sc, s, pri, keep) {
   const key = sc.id + ':' + s; if (jobKey.has(key) || sc.lays.has(s)) return; jobKey.add(key);
   const L = { s, back: [], front: sc.d.front ? [] : null, n: 0 };
-  for (let v = 0; v < 3; v++) jobs.push({ sc, s, v, L, pri: pri + v * 20, key });
+  for (let v = 0; v < 3; v++) jobs.push({ sc, s, v, L, pri: pri + v * (COARSE ? 20 : 0.1), key, keep });
 }
+function finish(j, back, front) {
+  if (j.stage !== undefined) { j.sc.stage[j.stage] = back; return; }
+  j.L.back[j.v] = back; if (j.L.front) j.L.front[j.v] = front;
+  if (++j.L.n === 3) { j.sc.lays.set(j.s, j.L); jobKey.delete(j.key); }
+  if (j.v === 0) j.sc.pending = j.L;
+}
+/* les workers dessinent les calques (OffscreenCanvas) ; sans eux, ou s'ils échouent, le fil principal s'en charge */
+let WK = [];
+try {
+  if (new OffscreenCanvas(1, 1).getContext('2d') && OffscreenCanvas.prototype.transferToImageBitmap) {
+    const url = URL.createObjectURL(new Blob([document.currentScript.textContent.split('/*@MAIN*/')[0]], { type: 'text/javascript' }));
+    WK = Array.from({ length: (navigator.hardwareConcurrency || 2) >= 4 ? 2 : 1 }, () => {
+      const w = new Worker(url); w.q = [];
+      w.onmessage = e => { finish(w.q.shift(), e.data.back, e.data.front); needDraw = true; runJobs(0); };
+      w.onerror = () => { for (const x of WK) { jobs.push(...x.q); x.terminate(); } WK = []; };
+      return w;
+    });
+  }
+} catch (e) { WK = []; }
 function runJobs(budget) {
+  if (WK.length) {
+    /* deux calques d'avance par worker : il ne reste pas à attendre que le fil principal lui réponde */
+    for (let k = 0; k < 2 && jobs.length; k++) for (const w of WK) {
+      if (w.q.length > k || !jobs.length) continue;
+      jobs.sort((a, b) => a.pri - b.pri); const j = jobs.shift(), st = j.stage !== undefined; w.q.push(j);
+      w.postMessage({ i: j.sc.id, s: j.s, v: st ? 0 : j.v, mask: st ? j.mask : 15, stage: st, front: !st && !!j.L.front });
+    }
+    return;
+  }
   const t0 = performance.now();
   while (jobs.length && performance.now() - t0 < budget) {
     jobs.sort((a, b) => a.pri - b.pri); const j = jobs.shift();
-    const c = makeCanvas(j.s); drawSceneLayer(c.getContext('2d'), j.sc, j.s, 'back', j.v, 15, false); j.L.back[j.v] = c;
-    if (j.L.front) { const f = makeCanvas(j.s); drawSceneLayer(f.getContext('2d'), j.sc, j.s, 'front', j.v, 15, false); j.L.front[j.v] = f; }
-    if (++j.L.n === 3) { j.sc.lays.set(j.s, j.L); jobKey.delete(j.key); }
-    if (j.v === 0) j.sc.pending = j.L;
+    if (j.stage !== undefined) { const c = makeCanvas(j.s); drawSceneLayer(c.getContext('2d'), j.sc, j.s, 'back', 0, j.mask, true); finish(j, c); continue; }
+    const c = makeCanvas(j.s), f = j.L.front ? makeCanvas(j.s) : null; drawSceneLayer(c.getContext('2d'), j.sc, j.s, 'back', j.v, 15, false);
+    if (f) drawSceneLayer(f.getContext('2d'), j.sc, j.s, 'front', j.v, 15, false);
+    finish(j, c, f);
   }
 }
+/* le zoom a changé de palier : les calques demandés pour les paliers traversés ne servent plus */
+function prune(sReq) {
+  for (let i = jobs.length - 1; i >= 0; i--) { const j = jobs[i]; if (j.stage === undefined && !j.keep && j.s !== S0 && j.s !== sReq) { jobKey.delete(j.key); jobs.splice(i, 1); } }
+}
+const freeL = L => { for (const b of [...L.back, ...(L.front || [])]) if (b && b.close) b.close(); };
 function evict() {
   const hi = []; for (const sc of SC) for (const [s, L] of sc.lays) if (s > S0 && s !== sc.cur) hi.push({ sc, s, u: sc.used });
   let bytes = 0; for (const sc of SC) for (const [s] of sc.lays) bytes += s * s * CELL * CELL * 4 * 7;
   hi.sort((a, b) => a.u - b.u);
-  while (bytes > 700e6 && hi.length) { const e = hi.shift(); e.sc.lays.delete(e.s); bytes -= e.s * e.s * CELL * CELL * 4 * 7; }
+  while (bytes > (COARSE ? 260e6 : 700e6) && hi.length) { const e = hi.shift(), L = e.sc.lays.get(e.s); e.sc.lays.delete(e.s); if (e.sc.pending === L) e.sc.pending = null; freeL(L); bytes -= e.s * e.s * CELL * CELL * 4 * 7; }
 }
 function compose(sc, t, v) {
   let L = sc.lays.get(sc.cur);
@@ -1792,7 +1859,10 @@ function compose(sc, t, v) {
   sc.fs = s; return true;
 }
 
-let T0 = null;
+/* ---------- impression : chaque encre passe l'une après l'autre (hors écrans tactiles) ---------- */
+const MASKS = [1, 3, 7, 15], PASS = 0.42, START = 0.5, STAG = 0.26;
+let revealDone = COARSE, T0 = null;
+function queueStages() { SC.forEach((sc, i) => MASKS.forEach((m, k) => jobs.push({ sc, s: S0, stage: k, mask: m, pri: -100 + i * 4 + k }))); }
 
 /* ---------- marques d'imprimeur, témoins d'encre ---------- */
 function drawSheet(g, z) {
@@ -1804,13 +1874,8 @@ function drawSheet(g, z) {
   if (SHEET.sub) { let ss = 54; g.font = 'italic 54px ' + serif; const sw2 = g.measureText(SHEET.sub).width; if (sw2 > SW * 0.92) { ss *= SW * 0.92 / sw2; g.font = 'italic ' + ss + 'px ' + serif; } g.fillStyle = pt[1][10]; g.fillText(SHEET.sub, SW / 2, MARG * 0.9); }
   g.restore();
 }
-let grainPat = null;
 function makeGrain() {
-  const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d'); const r = rng(42);
-  g.fillStyle = '#fff'; g.fillRect(0, 0, 512, 512);
-  for (let i = 0; i < 9000; i++) { const a = r() * 0.07; g.fillStyle = `rgba(${90 + r() * 40 | 0},${70 + r() * 30 | 0},${50 + r() * 20 | 0},${a})`; g.fillRect(r() * 512, r() * 512, 1 + r() * 1.5, 1 + r() * 1.5); }
-  for (let i = 0; i < 160; i++) { g.strokeStyle = `rgba(110,90,60,${0.05 + r() * 0.06})`; g.lineWidth = 0.7; g.beginPath(); const x = r() * 512, y = r() * 512, a = r() * TAU; g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a) * 8 + r() * 6, y + Math.sin(a) * 8, x + Math.cos(a) * 16, y + Math.sin(a) * 16); g.stroke(); }
-  grainPat = ctx.createPattern(c, 'repeat'); grainPat.setTransform(new DOMMatrix().scaleSelf(0.45));
+  makeGrainPat();
   const k = 2048 / SW; paperC = document.createElement('canvas'); paperC.width = 2048; paperC.height = Math.round(SH * k);
   const g2 = paperC.getContext('2d'); g2.fillStyle = PAPER; g2.fillRect(0, 0, paperC.width, paperC.height); g2.setTransform(k, 0, 0, k, 0, 0); g2.globalCompositeOperation = 'multiply'; g2.fillStyle = grainPat; g2.fillRect(0, 0, SW, SH);
 }
@@ -1871,12 +1936,12 @@ function flyTo(v, dur) {
   fly = { a: { x: cam.x, y: cam.y, z: z0 }, b: v, t0: performance.now() / 1000, dur: dur || clamp(1.6 + Math.log2(1 + d * zm / VW) * 0.7, 1.6, 3.4), bump };
   cam.vx = cam.vy = 0;
 }
-/* la visite démarre seule après un court instant, sauf si l'on touche la feuille avant */
-const tour = { mode: 'start', idx: -1, until: 0 };
+/* la visite démarre seule après l'impression (ou un court instant sur écran tactile), sauf si l'on touche la feuille avant */
+const tour = { mode: 'reveal', idx: -1, until: 0 };
 /* lien direct vers une scène (page de recherche) : feuille.html#scene=4 ouvre la 4e scène et y reste */
 const DEEP = (() => { const m = /scene=(\d+)/.exec(location.hash), i = m ? +m[1] - 1 : -1; return i >= 0 && i < SCENES.length ? i : -1; })();
 function tourStep(now) {
-  if (tour.mode === 'start') { if (now > tour.until) { tour.mode = 'tour'; goScene(Math.max(0, DEEP), now); if (DEEP >= 0) tour.until = Infinity; } return; }
+  if (tour.mode === 'reveal') { if (revealDone && now > tour.until) { tour.mode = 'tour'; goScene(Math.max(0, DEEP), now); if (DEEP >= 0) tour.until = Infinity; } return; }
   if (tour.mode === 'user') { if (!cardPinned && now - userT > 9) { tour.mode = 'tour'; const n = nearestScene(); goScene(n.d < CELL * 0.3 ? (n.i + 1) % SCENES.length : n.i, now); } return; }
   if (fly) return;
   if (now > tour.until) {
@@ -1885,9 +1950,9 @@ function tourStep(now) {
   }
 }
 function goScene(i, now) { tour.idx = i; const v = sceneView(i); flyTo(v); tour.until = now + fly.dur + 9; prefetch(i, v.z); }
-function prefetch(i, z) { const sc = SC[i]; const s = clamp(bucket(z * DPR), S0, SMAX); enqueue(sc, s, -10); }
+function prefetch(i, z) { const sc = SC[i]; const s = clamp(bucket(z * DPR), S0, SMAX); enqueue(sc, s, -10, true); }
 function nearestScene() { let b = { i: 0, d: 1e9 }; for (let i = 0; i < SCENES.length; i++) { const [x, y] = cellPos(i), d = Math.hypot(x + CELL / 2 - cam.x, y + CELL / 2 - cam.y); if (d < b.d) b = { i, d }; } return b; }
-function interact() { document.getElementById('help').classList.add('dim'); userT = performance.now() / 1000; tour.mode = 'user'; fly = null; }
+function interact() { document.getElementById('help').classList.add('dim'); userT = performance.now() / 1000; if (tour.mode !== 'reveal' || revealDone) tour.mode = 'user'; fly = null; }
 const zLim = () => [fitZ() * 0.55, Math.min(VW, VH) / CELL * 5];
 function zoomAt(f, sx, sy) { const [a, b] = zLim(), nz = clamp(cam.z * f, a, b); const wx = cam.x + (sx - VW / 2) / cam.z, wy = cam.y + (sy - VH / 2) / cam.z; cam.z = nz; cam.x = wx - (sx - VW / 2) / nz; cam.y = wy - (sy - VH / 2) / nz; needDraw = true; }
 
@@ -1941,9 +2006,12 @@ function loop(ms) {
   cam.x = clamp(cam.x, -SW * 0.1, SW * 1.1); cam.y = clamp(cam.y, -SH * 0.1, SH * 1.1);
   const ck = cam.x.toFixed(2) + cam.y.toFixed(2) + cam.z.toFixed(5); if (ck !== lastCam) { lastCam = ck; needDraw = true; settleT = now; }
   tourStep(now);
+  // révélation d'impression
+  if (!revealDone) { let all = true; for (const sc of SC) { if (!sc.rev.done) { const st = START + sc.id * STAG; if (t > st + PASS * 4 && sc.stage[3]) sc.rev.done = true; else all = false; } } if (all) { revealDone = true; tour.until = now + 1.2; } needDraw = true; }
   // visibilité et niveau de détail
   const z = cam.z, hw = VW / 2 / z, hh = VH / 2 / z, sReq = clamp(bucket(z * DPR), S0, SMAX), v = Math.floor(t * 3) % 3, tick = Math.floor(t * 12);
   const vis = [];
+  if (sReq !== loop.s) { loop.s = sReq; prune(sReq); }
   for (const sc of SC) {
     const [x, y] = cellPos(sc.id);
     if (x + CELL < cam.x - hw || x > cam.x + hw || y + CELL < cam.y - hh || y > cam.y + hh) continue;
@@ -1955,12 +2023,12 @@ function loop(ms) {
     const want = pend && !sc.lays.has(sReq) ? pend : best;
     if (want && want !== sc.cur) { sc.cur = want; sc.lastTick = -1; }
   }
-  runJobs(9);
+  runJobs(revealDone ? 9 : 14);
   if (Math.random() < 0.02) evict();
   const rate = vis.length > 6 ? 8 : 12;
-  for (const sc of vis) { const tk = Math.floor(t * rate + sc.id / SCENES.length) + ':' + v; if (sc.lastTick !== tk) { if (compose(sc, Math.floor(t * rate + sc.id / SCENES.length) / rate, v)) { sc.lastTick = tk; needDraw = true; } } }
+  for (const sc of vis) { const tk = Math.floor(t * rate + sc.id / SCENES.length) + ':' + v; if (sc.rev.done && sc.lastTick !== tk) { if (compose(sc, Math.floor(t * rate + sc.id / SCENES.length) / rate, v)) { sc.lastTick = tk; needDraw = true; } } }
   // carte de chapitre
-  const settled = !fly && !ptrs.size && now - settleT > 0.35;
+  const settled = !fly && !ptrs.size && now - settleT > 0.35 && revealDone;
   let ci = settled ? focusScene() : -1;
   if (cardPinned && cardScene >= 0) ci = cardScene;
   if (ci !== (showCard.last ?? -2)) { showCard.last = ci; if (ci < 0) card.classList.remove('on'); else showCard(ci); }
@@ -1976,10 +2044,17 @@ function draw(vis, t) {
   drawSheet(ctx, z);
   for (const sc of vis) {
     const [x, y] = cellPos(sc.id);
-    if (sc.fs) ctx.drawImage(sc.frame, 0, 0, CELL * sc.fs, CELL * sc.fs, x, y, CELL, CELL);
+    if (sc.rev.done) { if (sc.fs) ctx.drawImage(sc.frame, 0, 0, CELL * sc.fs, CELL * sc.fs, x, y, CELL, CELL); continue; }
+    const st = START + sc.id * STAG, u = (t - st) / PASS; if (u <= 0) continue;
+    const k = Math.min(3, Math.floor(u)), f = u - k;
+    if (k > 0 && sc.stage[k - 1]) ctx.drawImage(sc.stage[k - 1], 0, 0, CELL * S0, CELL * S0, x, y, CELL, CELL);
+    const im = sc.stage[k]; if (!im) continue;
+    const ph = k === 3 && u >= 4 ? 1 : Math.min(1, f * 1.1), hgt = CELL * ph, W2 = CELL * S0;
+    if (hgt > 1) ctx.drawImage(im, 0, 0, W2, W2 * ph, x, y, CELL, hgt);
+    if (ph < 1) { ctx.fillStyle = 'rgba(40,30,25,0.10)'; ctx.fillRect(x - 10, y + hgt, CELL + 20, 6); }
   }
 }
-resize(); makeGrain(); Object.assign(cam, overView()); tour.until = performance.now() / 1000 + 2.5;
+resize(); makeGrain(); Object.assign(cam, overView()); if (COARSE) tour.until = performance.now() / 1000 + 2.5; else queueStages();
 requestAnimationFrame(loop);
 
 

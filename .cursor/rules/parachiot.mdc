@@ -23,4 +23,5 @@ Projet de pages HTML autonomes : dioramas isométriques animés, imprimés en ri
 - Nouvelle paracha : `src/parachiot/<id>.js` (modèle : `vayera.js`), puis l'ajouter à `PARACHIOT` dans `tools/build.py` et à `PARA` dans `src/index/index.html`.
 - Nouveaux costumes : `src/scenes/personnages.js` (objet `LK`). Nouvelles poses : `CLIPS`. Nouveaux décors ou accessoires : `lib2.js` (`Lib`, `PROPS2`).
 - Préserver les performances : décor statique dans `back(P)` (mis en cache, 3 variantes), seul ce qui bouge dans `chars`, `live` ou `top`.
+- `back(P)` et `front(P)` s'exécutent dans un worker, `chars`, `live` et `top` dans la page : ne rien y partager par une variable ou par `this` (un état posé dans `back` n'existe pas pour `live`). Tout ce qui précède `app.js` (moteur, scènes, `render.js`) est aussi le code du worker : pas de `document` ni de `window` à ce niveau, et `newCanvas(w, h)` pour créer un canevas.
 - Après modification : `python3 tools/build.py` puis vérifier une page avec `node tools/shot.js` (0 erreur console, 1 seule requête).
