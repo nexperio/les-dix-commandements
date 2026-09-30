@@ -151,6 +151,10 @@ const srcOf = d => {
   const [name, tr0, ed] = TSRC[k], tr = d.lang ? 'traduit de l’' + d.lang : tr0;
   return { k, kick: `${name} · traité ${d.book}` + (k === 'mishna' ? ` · chapitre ${ROMAN(d.ch)}` : ''), tr, ed, href: 'texte.html#' + d.ref.replace(/ /g, '_').replace(/:/g, '.') };
 };
+/* flèches « scène précédente » et « scène suivante », sur la scène et au pied de la carte : l'une, l'autre ou les deux selon le rang de la scène */
+const CHEV = ['M15 4.5 7.5 12 15 19.5', 'M9 4.5 16.5 12 9 19.5'].map(p => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${p}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+const stepLabel = (j, k) => (k ? 'Scène suivante : ' : 'Scène précédente : ') + SCENES[j].title.replace(/<[^>]+>/g, '');
+const stepBtn = (i, k) => { const j = i + (k ? 1 : -1); return j < 0 || j >= SCENES.length ? '<i></i>' : `<button class="${k ? 'nx' : 'pv'}" type="button">${CHEV[k]}</button>`; };
 const cardLink = d => d.brakha ? 'La bénédiction et le commentaire ›' : d.feast ? 'Fête : ' + d.feast + ' ›' : 'Lire le commentaire ›';
 function fillCard(i) {
   const d = SCENES[i], acc = INKS[d.accent].hex;
@@ -159,7 +163,9 @@ function fillCard(i) {
   const so = srcOf(d);
   cardIn.innerHTML = `<div class="kick">${so.kick}</div><h1>${d.title}</h1><div class="orn"><i></i><b></b><i></i></div>` +
     `<p class="q"><span class="dc"><small>«\u202F</small>${first}</span>${rest}\u202F»</p><div class="src">${d.refFr || d.ref} · ${so.tr}</div>` +
-    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href.replace('#', `?from=${encodeURIComponent(location.pathname.split('/').pop())}&scene=${i + 1}#`)}">Le texte original ›</a>` : ''}${so.ext ? `<a class="lk lko" href="${so.ext}" target="_blank" rel="noopener">Le document ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>`;
+    `<a class="lk" tabindex="0">${cardLink(d)}</a>${so.href ? `<a class="lk lko" href="${so.href.replace('#', `?from=${encodeURIComponent(location.pathname.split('/').pop())}&scene=${i + 1}#`)}">Le texte original ›</a>` : ''}${so.ext ? `<a class="lk lko" href="${so.ext}" target="_blank" rel="noopener">Le document ›</a>` : ''}<div class="more">${d.brakha ? brakhaHTML(d.brakha) : ''}${d.more.map(p => `<p>${p}</p>`).join('')}</div>` +
+    `<div class="nv">${stepBtn(i, 0)}<span>scène ${i + 1} sur ${SCENES.length}</span>${stepBtn(i, 1)}</div>`;
+  for (const b of cardIn.querySelectorAll('.nv button')) { const k = +(b.className === 'nx'), j = i + (k ? 1 : -1); b.title = stepLabel(j, k); b.setAttribute('aria-label', b.title); b.onclick = e => { e.stopPropagation(); stepScene(j); }; }
   const lk = cardIn.querySelector('.lk'), more = cardIn.querySelector('.more');
   lk.onclick = e => { e.stopPropagation(); const o = more.classList.toggle('open'); setTimeout(paintCardBg, 750); cardPinned = o; lk.textContent = o ? 'Refermer ‹' : cardLink(d); userT = performance.now() / 1000; };
   requestAnimationFrame(paintCardBg);
@@ -182,6 +188,26 @@ function showCard(i) {
   if (i !== cardScene) { cardScene = i; if (i >= 0) { card.classList.remove('on'); fillCard(i); } }
   card.classList.toggle('on', i >= 0);
 }
+
+/* les deux flèches de la scène : sur ses bords gauche et droit, ramenées dans la fenêtre, écartées de la carte si elle les touche */
+const arrows = [document.getElementById('prevsc'), document.getElementById('nextsc')];
+arrows.forEach((b, k) => { b.innerHTML = CHEV[k]; b.onclick = () => stepScene(placeArrows.i + (k ? 1 : -1)); });
+function placeArrows(i) {
+  arrows.forEach((b, k) => b.classList.toggle('on', i >= 0 && (k ? i < SCENES.length - 1 : i > 0)));
+  if (i < 0) return;
+  if (i !== placeArrows.i) { placeArrows.i = i; arrows.forEach((b, k) => { const j = i + (k ? 1 : -1); b.style.setProperty('--acc', INKS[SCENES[i].accent].hex); if (SCENES[j]) { b.title = stepLabel(j, k); b.setAttribute('aria-label', b.title); } }); }
+  /* pendant le vol vers la scène visée, elles se tiennent déjà à leur place d'arrivée : on peut enchaîner les clics */
+  const c = navI >= 0 && fly ? fly.b : cam, [x, y] = cellPos(i), B = 44, m = 8, l = VW / 2 + (x - c.x) * c.z, w = CELL * c.z;
+  const top = clamp(VH / 2 + (y + CELL / 2 - c.y) * c.z - B / 2, m, VH - B - m), r = card.classList.contains('on') ? card.getBoundingClientRect() : null;
+  arrows.forEach((b, k) => {
+    let left = clamp(k ? l + w - B - 10 : l + 10, !k && VW > 640 ? 78 : m, VW - B - m);
+    if (r && left < r.right + 8 && left + B > r.left - 8 && top < r.bottom && top + B > r.top - 8 && r.right + 10 + B < VW * 0.6) left = r.right + 10;
+    const tr = `translate(${Math.round(left)}px,${Math.round(top)}px)`; if (b.tr !== tr) b.style.transform = b.tr = tr;
+  });
+}
+/* aller à une scène par une flèche : la carte passe tout de suite à la scène visée et y reste pendant le vol */
+let navI = -1;
+function stepScene(i) { if (i < 0 || i >= SCENES.length) return; interact(); cardPinned = false; navI = i; const v = sceneView(i); flyTo(v, COARSE ? 0.8 : 1.2); prefetch(i, v.z); }
 
 /* ---------- caméra, visite ---------- */
 /* `fast` : sur écran tactile, un zoom demandé par un geste est plus vif que ceux de la visite guidée */
@@ -207,7 +233,7 @@ function tourStep(now) {
 function goScene(i, now) { tour.idx = i; const v = sceneView(i); flyTo(v); tour.until = now + fly.dur + 9; prefetch(i, v.z); }
 function prefetch(i, z) { const sc = SC[i]; const s = clamp(bucket(z * DPR), S0, SMAX); enqueue(sc, s, -10, true); }
 function nearestScene() { let b = { i: 0, d: 1e9 }; for (let i = 0; i < SCENES.length; i++) { const [x, y] = cellPos(i), d = Math.hypot(x + CELL / 2 - cam.x, y + CELL / 2 - cam.y); if (d < b.d) b = { i, d }; } return b; }
-function interact() { document.getElementById('help').classList.add('dim'); userT = performance.now() / 1000; if (tour.mode !== 'reveal' || revealDone) tour.mode = 'user'; fly = null; }
+function interact() { document.getElementById('help').classList.add('dim'); userT = performance.now() / 1000; if (tour.mode !== 'reveal' || revealDone) tour.mode = 'user'; fly = null; navI = -1; }
 const zLim = () => [fitZ() * 0.55, Math.min(VW, VH) / CELL * 5];
 function zoomAt(f, sx, sy) { const [a, b] = zLim(), nz = clamp(cam.z * f, a, b); const wx = cam.x + (sx - VW / 2) / cam.z, wy = cam.y + (sy - VH / 2) / cam.z; cam.z = nz; cam.x = wx - (sx - VW / 2) / nz; cam.y = wy - (sy - VH / 2) / nz; needDraw = true; }
 
@@ -287,6 +313,8 @@ function loop(ms) {
   const settled = !fly && !ptrs.size && now - settleT > (COARSE ? 0.15 : 0.35) && revealDone;
   let ci = settled ? focusScene() : -1;
   if (cardPinned && cardScene >= 0) ci = cardScene;
+  if (navI >= 0) { if (fly || !settled) ci = navI; else navI = -1; }
+  placeArrows(ci);
   if (ci !== (showCard.last ?? -2)) { showCard.last = ci; if (ci < 0) card.classList.remove('on'); else showCard(ci); }
   if (needDraw) { draw(vis, t); needDraw = false; }
   requestAnimationFrame(loop);

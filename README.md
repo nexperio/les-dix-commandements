@@ -117,7 +117,7 @@ Sept feuilles déclarées dans `HISTOIRE` de `tools/build.py`, de l'âge du bron
 - **Trait qui bout** : 3 variantes seedées par scène, affichées à 3 Hz ; personnages recalculés à 12 i/s (8 en vue d'ensemble).
 - **Coordonnées** : cellule de 1000 × 1000 unités ; `P.I(x, y, z)` projette le monde isométrique (plateau de 540 × 540) ; personnages `h` ≈ 140.
 - **Personnages** : `ch(LK.<costume>, { x, y, z, face, clip, hold: { n, f, nTop }, h, path: [W(x, y, attente, clip)], speed, t0 })`. Les clips sont dans `CLIPS` (figures.js et lib2.js).
-- **Contrôles** : glisser, molette, pincer, double-clic, flèches, + / −, 0, C, P (imprimer).
+- **Contrôles** : glisser, molette, pincer, double-clic, flèches, + / −, 0, C, P (imprimer). Dans une scène, deux flèches (sur ses bords et au pied de la carte) mènent à la scène précédente et à la suivante ; la première n'a que « suivante », la dernière que « précédente ».
 - **Impression / PDF** : bouton « Imprimer · PDF » ou touche P pour la feuille entière (une page de garde, puis une page A4 par scène : illustration redessinée sur blanc, citation française, verset anglais, commentaire) ; « Imprimer la scène » dans la carte pour une seule page. Le PDF s'obtient avec « Enregistrer au format PDF » du navigateur.
 
 ## Règles à respecter

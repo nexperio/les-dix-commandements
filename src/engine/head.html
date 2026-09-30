@@ -35,6 +35,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:#26211d;touch-action:n
 #printbtn{position:fixed;right:20px;bottom:20px;z-index:40;padding:9px 14px;border:0;background:rgba(244,233,211,.92);color:#2F2729;font:italic 14px/1.2 "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
 #printbtn b{font-style:normal;font-weight:normal;font-variant:small-caps;letter-spacing:.08em;color:#E0453A}
 #card .lkp{margin-left:16px}#card .lko{display:table;margin-top:6px}
+.nv{display:flex;align-items:center;justify-content:space-between;margin:12px -8px -6px}
+.nv span{font-size:12.5px;letter-spacing:.08em;font-variant:small-caps;opacity:.72}
+.nv button,.nv i{width:40px;height:32px}
+.nv button{padding:5px 9px;border:0;background:none;color:var(--acc);cursor:pointer;transition:transform .25s ease}
+.nv svg,.sa svg{display:block;width:22px;height:22px;margin:auto}
+.nv .pv:hover,.nv .pv:focus-visible,.sa#prevsc:hover svg{transform:translateX(-3px)}.nv .nx:hover,.nv .nx:focus-visible,.sa#nextsc:hover svg{transform:translateX(3px)}
+.nv button:focus-visible,.sa:focus-visible{outline:1px dashed currentColor}
+.sa{position:fixed;left:0;top:0;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:rgba(244,233,211,.92);color:var(--acc,#E0453A);box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer;opacity:0;visibility:hidden;transition:opacity .4s ease,visibility 0s .4s}
+.sa.on{opacity:1;visibility:visible;transition-delay:0s}.sa svg{transition:transform .25s ease}
 #card .x{position:absolute;top:8px;right:8px;width:34px;height:34px;padding:4px;border:0;background:none;color:var(--acc);cursor:pointer;transition:transform .35s ease}
 #card .x svg{display:block;width:100%;height:100%}
 #card .x:hover,#card .x:focus-visible{transform:rotate(30deg) scale(1.12)}
@@ -77,6 +86,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#26211d;touch-action:n
 <body>
 <canvas id="c"></canvas>
 <div id="help"><b>Double-clic</b> sur une scène pour y entrer · <b>glisser</b> pour se déplacer · <b>molette</b> pour zoomer · <b>0</b> vue d’ensemble · <b>C</b> carte · <b>P</b> imprimer</div>
+<button id="prevsc" class="sa" type="button"></button><button id="nextsc" class="sa" type="button"></button>
 <div id="card"><canvas></canvas><div class="in"></div><button class="x" type="button" title="Fermer et revenir à la vue d’ensemble (Échap)" aria-label="Fermer et revenir à la vue d’ensemble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 20.2 16.7H3.8Z M12 21.5 3.8 7.3H20.2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></button></div>
 <button id="printbtn" type="button" title="Imprimer ou enregistrer en PDF (touche P)"><b>Imprimer</b> · PDF</button>
 <div id="print"></div>
