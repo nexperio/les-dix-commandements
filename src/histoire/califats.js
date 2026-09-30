@@ -652,12 +652,12 @@ const SCENES = [
 },
 /* 8 · LES MAMELOUKS */
 {
-  title: 'Les Mamelouks', book: 'Voyages d’Ibn Battuta', ch: 1326, ref: 'Doc ibn-battuta-1326', refFr: 'Ibn Battuta, Voyages, récit de l’année 1326, traduction anglaise de H. A. R. Gibb (1929)', accent: 1, feast: null,
-  when: '1260 à 1516 · un khan sur la route de Gaza', year: 1260, lang: 'anglais', url: 'https://sourcebooks.fordham.edu/source/1354-ibnbattuta.asp',
-  quote: 'At each of these there was a hostelry which they call a khan, where travellers alight with their beasts. Each khan has a water wheel supplying a fountain and a shop at which the traveller buys what he requires for himself and his beast.',
-  fr: 'À chacune d’elles il y avait une hôtellerie qu’ils appellent khan, où les voyageurs descendent avec leurs bêtes. Chaque khan a une roue à eau qui alimente une fontaine, et une boutique où le voyageur achète ce qu’il lui faut pour lui-même et pour sa bête.',
+  title: 'Les Mamelouks', book: 'Lamentations', ch: 1, ref: 'Lamentations 1:4', refFr: 'Lamentations 1, 4', accent: 1, feast: null,
+  when: '1260 à 1516 · un khan sur la route de Gaza', year: 1260,
+  quote: 'The ways of Sion mourn, because there are none that come to the solemn feast:  all her gates are broken down',
+  fr: 'Les chemins de Sion sont en deuil, car nul ne vient plus à la fête solennelle ; toutes ses portes sont abattues',
   more: ['Les Mamelouks, anciens soldats esclaves devenus sultans d’Égypte en 1250, arrêtent les Mongols à Aïn Jalout, dans la vallée de Jezréel, le 3 septembre 1260. Le sultan Baybars prend ensuite Césarée, Arsouf, Safed et Jaffa ; Acre tombe le 18 mai 1291 : c’est la fin des États croisés. Le pays est gouverné depuis Le Caire et Damas pendant deux siècles et demi, jusqu’en 1516. Les ports de la côte sont rasés pour empêcher un retour des croisés ; une poste à chevaux, des ponts et des khans jalonnent la route.',
-    'Le voyageur marocain Ibn Battuta décrit ces khans en 1326, entre Le Caire et Gaza. Jérusalem, sans remparts depuis 1219, devient une ville d’étude et de pèlerinage : sultans et émirs y fondent des madrasas et des hospices aux assises de pierre alternées, claires et rouges. Nahmanide, rabbin de Gérone, arrive en 1267 ; il écrit n’y trouver que deux Juifs, des teinturiers, et y établit une synagogue. En 1488, le rabbin italien Obadia de Bertinoro y compte environ soixante-dix familles juives. La peste de 1348 et ses retours réduisent la population du pays.'],
+    'Jérusalem, sans remparts depuis 1219, devient une ville d’étude et de pèlerinage : sultans et émirs y fondent des madrasas et des hospices aux assises de pierre alternées, claires et rouges. Nahmanide, rabbin de Gérone, arrive en 1267 ; il écrit n’y trouver que deux Juifs, des teinturiers, et y établit une synagogue. En 1488, le rabbin italien Obadia de Bertinoro y compte environ soixante-dix familles juives. La peste de 1348 et ses retours réduisent la population du pays. Le verset vient des Lamentations, que la tradition juive lit au jeûne du 9 Av.'],
   back(P) {
     const I = (a, b, c) => P.I(a, b, c), tn = 'y2r1k1';
     Lib.sun(P, 830, 110, 24); Lib.cloud(P, 600, 60, 150, 24, 'b1'); Lib.cloud(P, 190, 190, 130, 22, 'b1');

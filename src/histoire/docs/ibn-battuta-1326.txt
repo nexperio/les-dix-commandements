@@ -1,6 +1,0 @@
-titre: Ibn Battuta, Voyages (traduction anglaise de H. A. R. Gibb, 1929)
-date: 1326
-langue: anglais
-source: https://sourcebooks.fordham.edu/source/1354-ibnbattuta.asp
----
-My route lay through Bilbays and as-Salihiya, after which we entered the sands and halted at a number of stations. At each of these there was a hostelry which they call a khan, where travellers alight with their beasts. Each khan has a water wheel supplying a fountain and a shop at which the traveller buys what he requires for himself and his beast.
